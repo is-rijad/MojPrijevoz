@@ -1,4 +1,7 @@
-﻿namespace MojPrijevoz.Services.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace MojPrijevoz.Services.Database;
 
 public class UserVehicle
 {
@@ -23,4 +26,28 @@ public class UserVehicle
     public virtual UserProfile Profile { get; set; } = null!;
 
     public virtual Vehicle Vehicle { get; set; } = null!;
+}
+
+public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehicle>
+{
+    public void Configure(EntityTypeBuilder<UserVehicle> entity)
+    {
+        entity.HasKey(e => e.Id).HasName("PK__UserVehi__3214EC07F49804F0");
+
+        entity.ToTable("UserVehicle");
+
+        entity.Property(e => e.Picture)
+            .HasMaxLength(64)
+            .IsUnicode(false);
+
+        entity.HasOne(d => d.Profile).WithMany(p => p.UserVehicles)
+            .HasForeignKey(d => d.ProfileId)
+            .OnDelete(DeleteBehavior.ClientSetNull)
+            .HasConstraintName("FK_UserVehicle_Profile");
+
+        entity.HasOne(d => d.Vehicle).WithMany(p => p.UserVehicles)
+            .HasForeignKey(d => d.VehicleId)
+            .OnDelete(DeleteBehavior.ClientSetNull)
+            .HasConstraintName("FK_UserVehicle_Vehicle");
+    }
 }

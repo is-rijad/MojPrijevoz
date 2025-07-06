@@ -1,4 +1,7 @@
-﻿namespace MojPrijevoz.Services.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace MojPrijevoz.Services.Database;
 
 public class City
 {
@@ -23,4 +26,30 @@ public class City
     public virtual ICollection<Fare> FareOriginCities { get; set; } = new List<Fare>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
+}
+
+public class CityEntityConfiguration : IEntityTypeConfiguration<City>
+{
+    public void Configure(EntityTypeBuilder<City> entity)
+    {
+        entity.HasKey(e => e.Id).HasName("PK__City__3214EC0764F84146");
+
+        entity.ToTable("City");
+
+        entity.Property(e => e.Lat)
+            .HasMaxLength(16)
+            .IsUnicode(false);
+        entity.Property(e => e.Long)
+            .HasMaxLength(16)
+            .IsUnicode(false);
+        entity.Property(e => e.Name)
+            .HasMaxLength(32)
+            .IsUnicode(false);
+
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+    }
 }

@@ -1,9 +1,10 @@
-﻿namespace MojPrijevoz.Services.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace MojPrijevoz.Services.Database;
 
 public class User : Account
 {
-    public new int Id { get; set; }
-
     public string? Picture { get; set; }
 
     public int CityId { get; set; }
@@ -23,4 +24,22 @@ public class User : Account
     public virtual ICollection<Rating> RatingTos { get; set; } = new List<Rating>();
 
     public virtual ICollection<UserProfile> UserProfiles { get; set; } = new List<UserProfile>();
+}
+
+public class UserEntityConfiguration : IEntityTypeConfiguration<User>
+{
+    public void Configure(EntityTypeBuilder<User> entity)
+    {
+        entity.ToTable("User");
+        entity.HasBaseType<Account>();
+
+        entity.Property(e => e.Picture)
+            .HasMaxLength(64)
+            .IsUnicode(false);
+
+        entity.HasOne(d => d.City).WithMany(p => p.Users)
+            .HasForeignKey(d => d.CityId)
+            .OnDelete(DeleteBehavior.ClientSetNull)
+            .HasConstraintName("FK_User_City");
+    }
 }

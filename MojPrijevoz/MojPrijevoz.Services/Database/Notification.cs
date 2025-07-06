@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Services.Database;
 
-public partial class Notification
+public class Notification
 {
     public int Id { get; set; }
 
@@ -14,4 +14,20 @@ public partial class Notification
     public bool IsRead { get; set; }
 
     public DateTime CreatedAt { get; set; }
+}
+
+public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notification>
+{
+    public void Configure(EntityTypeBuilder<Notification> entity)
+    {
+        entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC0702ADD287");
+
+        entity.ToTable("Notification");
+
+        entity.Property(e => e.Message)
+            .HasMaxLength(32)
+            .IsUnicode(false);
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+    }
 }

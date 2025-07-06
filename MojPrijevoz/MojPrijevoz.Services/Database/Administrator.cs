@@ -1,13 +1,24 @@
-﻿namespace MojPrijevoz.Services.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public enum AdministratorRole
+namespace MojPrijevoz.Services.Database;
+
+public enum AdministratorRole : short
 {
     Moderator = 0,
     Admin = 1
 }
 
-public class Administrator : Account {
-    public new int Id { get; set; }
-
+public class Administrator : Account
+{
     public AdministratorRole Role { get; set; }
+}
+
+public class AdministratorEntityConfiguration : IEntityTypeConfiguration<Administrator>
+{
+    public void Configure(EntityTypeBuilder<Administrator> entity)
+    {
+        entity.ToTable("Administrator");
+        entity.HasBaseType<Account>();
+    }
 }
