@@ -1,5 +1,4 @@
-﻿using MojPrijevoz.Model.Authorization;
-using MojPrijevoz.Model.Requests.User;
+﻿using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
 
 namespace MojPrijevoz.Services.User;

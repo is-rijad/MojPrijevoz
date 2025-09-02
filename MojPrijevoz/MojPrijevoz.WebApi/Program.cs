@@ -1,14 +1,18 @@
-using Microsoft.OpenApi.Models;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.Database;
 using MojPrijevoz.Services.User;
+using MojPrijevoz.WebApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json").AddUserSecrets<Program>();
 
 // Add services to the container.
 builder.Services.ConfigureAuthorization(builder.Configuration);
-builder.Services.AddControllers(config => { config.ConfigureControllerAuthorization(); });
+builder.Services.AddControllers(config =>
+{
+    config.ConfigureControllerAuthorization();
+    config.Filters.Add<ExceptionFilter>();
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => c.ConfigureSwaggerAuthorization());

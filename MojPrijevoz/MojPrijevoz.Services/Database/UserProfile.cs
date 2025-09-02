@@ -3,10 +3,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Services.Database;
 
-public enum ProfileType
-{
-    Passenger = 1,
-    Driver = 2
+public enum ProfileType : short {
+    Passenger = 0,
+    Driver = 1
 }
 
 public class UserProfile
@@ -17,7 +16,7 @@ public class UserProfile
 
     public ProfileType ProfileType { get; set; }
 
-    public int NumberOfFares { get; set; }
+    public int NumberOfFares { get; set; } = 0;
 
     public virtual User User { get; set; } = null!;
 

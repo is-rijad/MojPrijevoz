@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MojPrijevoz.Model.Exceptions;
 
 namespace MojPrijevoz.WebApi.Controllers;
 
@@ -6,9 +8,10 @@ namespace MojPrijevoz.WebApi.Controllers;
 public class OkController : ControllerBase
 {
     [Route("api/ok")]
+    [AllowAnonymous]
     [HttpGet]
     public IActionResult OkEndpoint()
     {
-        return Ok("OK");
+        throw new Exception("This is a bad request example.");
     }
 }

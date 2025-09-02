@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Services.Database;
 
-public enum TransactionSide
+public enum TransactionSide : short
 {
     Credit = 0,
     Debit = 1

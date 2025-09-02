@@ -17,6 +17,5 @@ public class UserInsertRequest
 
     [Required] public string Password { get; set; } = null!;
 
-    // public string? Picture { get; set; }
     [Required] public int CityId { get; set; }
 }

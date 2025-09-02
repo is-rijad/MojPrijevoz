@@ -3,6 +3,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Services.Database;
 
+public enum Gender : short
+{
+    Female = 0,
+    Male = 1,
+}
+
 public class User : Account
 {
     public string? Picture { get; set; }
@@ -10,6 +16,7 @@ public class User : Account
     public int CityId { get; set; }
 
     public virtual City City { get; set; } = null!;
+    public Gender? Gender { get; set; }
 
     public virtual ICollection<Fare> FareDrivers { get; set; } = new List<Fare>();
 

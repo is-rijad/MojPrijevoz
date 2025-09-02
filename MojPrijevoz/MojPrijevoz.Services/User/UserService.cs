@@ -13,9 +13,9 @@ public class UserService : IUserService
     private const int HashByteSize = 32;
     private const int SaltByteSize = 16;
     private const int Iterations = 100000;
-    private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA256;
 
     private readonly MojPrijevozDbContext _context;
+    private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA256;
     private readonly TokenManager _tokenManager;
 
     public UserService(MojPrijevozDbContext context,
@@ -25,21 +25,10 @@ public class UserService : IUserService
         _tokenManager = tokenManager;
     }
 
-    private void CreatePassword(string password, out string hash, out string salt)
-    {
-        using var rng = RandomNumberGenerator.Create();
-        var saltBytes = new byte[SaltByteSize];
-        rng.GetBytes(saltBytes);
-        salt = Convert.ToBase64String(saltBytes);
-
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, Iterations, _hashAlgorithm);
-        var hashBytes = pbkdf2.GetBytes(HashByteSize);
-        hash = Convert.ToBase64String(hashBytes);
-    }
-
     public async Task<UserLoginResponse> Login(UserLoginRequest request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username || u.Email == request.Username);
+        var user = await _context.Users.FirstOrDefaultAsync(u =>
+            u.Username == request.Username || u.Email == request.Username);
         if (user == null || !VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
             throw new Exception("Uneseni podaci nisu ispravni");
 
@@ -55,7 +44,7 @@ public class UserService : IUserService
             tokenDto.Role = Convert.ToInt32(role.Role);
 
         var token = _tokenManager.GenerateToken(tokenDto);
-        
+
         return new UserLoginResponse
         {
             UserId = user.Id,
@@ -93,5 +82,17 @@ public class UserService : IUserService
             User = user
         });
         await _context.SaveChangesAsync();
+    }
+
+    private void CreatePassword(string password, out string hash, out string salt)
+    {
+        using var rng = RandomNumberGenerator.Create();
+        var saltBytes = new byte[SaltByteSize];
+        rng.GetBytes(saltBytes);
+        salt = Convert.ToBase64String(saltBytes);
+
+        using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, Iterations, _hashAlgorithm);
+        var hashBytes = pbkdf2.GetBytes(HashByteSize);
+        hash = Convert.ToBase64String(hashBytes);
     }
 }

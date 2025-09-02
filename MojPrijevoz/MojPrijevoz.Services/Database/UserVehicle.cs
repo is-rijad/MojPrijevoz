@@ -3,6 +3,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Services.Database;
 
+public enum UserVehicleStatus : short
+{
+    Deleted = 0,
+    Active = 1,
+    WaitingForChanges = 2,
+}
+
 public class UserVehicle
 {
     public int Id { get; set; }

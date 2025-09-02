@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <UserSecretsId>85c46316-5bda-4239-8124-3ff7fe99a44d</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UserSecretsId>85c46316-5bda-4239-8124-3ff7fe99a44d</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="Authorization\UserInfoTokenDto.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="Authorization\UserInfoTokenDto.cs" />
+	</ItemGroup>
 
 </Project>

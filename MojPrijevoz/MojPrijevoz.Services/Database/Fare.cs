@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Services.Database;
 
-public enum FareStatus
-{
+public enum FareStatus : short {
     Pending = 0,
     Accepted = 1,
     Rejected = 2,

@@ -3,6 +3,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Services.Database;
 
+public enum FareOfferSide : short
+{
+    Driver = 0,
+    Passenger = 1
+}
+
 public class FareOffer
 {
     public int Id { get; set; }
@@ -11,7 +17,7 @@ public class FareOffer
 
     public int PassengerId { get; set; }
 
-    public short Side { get; set; }
+    public FareOfferSide Side { get; set; }
 
     public float Budget { get; set; }
 

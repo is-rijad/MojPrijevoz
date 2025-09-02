@@ -7,7 +7,8 @@ namespace MojPrijevoz.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController : ControllerBase {
+public class UserController : ControllerBase
+{
     private readonly IUserService _userService;
 
     public UserController(IUserService userService)
@@ -26,7 +27,8 @@ public class UserController : ControllerBase {
 
     [HttpPost("[action]")]
     [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] UserLoginRequest request) {
+    public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
+    {
         return Ok(await _userService.Login(request));
     }
 }
