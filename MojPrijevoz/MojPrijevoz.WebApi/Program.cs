@@ -26,6 +26,7 @@ builder.Services.AddMapster();
 builder.Services.AddTransient<TokenManager>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddTransient<CityService>();
+builder.Services.AddTransient<AdminCityService>();
 
 var app = builder.Build();
 

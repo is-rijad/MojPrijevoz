@@ -8,8 +8,8 @@ using MojPrijevoz.Services.Database;
 namespace MojPrijevoz.Services.BaseServices;
 
 public abstract class BaseService<TResponse, TEntity, TSearchObject> : IBaseService<TResponse, TSearchObject> where TResponse : class where TEntity : class where TSearchObject : BaseSearchObject {
-    private readonly MojPrijevozDbContext _dbContext;
-    private readonly IMapper _mapper;
+    protected readonly MojPrijevozDbContext _dbContext;
+    protected readonly IMapper _mapper;
 
     public BaseService(MojPrijevozDbContext dbContext, IMapper mapper)
     {
@@ -44,7 +44,7 @@ public abstract class BaseService<TResponse, TEntity, TSearchObject> : IBaseServ
         return MapToResponseModel(entity);
     }
 
-    private TResponse MapToResponseModel(TEntity entity)
+    protected TResponse MapToResponseModel(TEntity entity)
     {
         return _mapper.Map<TResponse>(entity);
     }
