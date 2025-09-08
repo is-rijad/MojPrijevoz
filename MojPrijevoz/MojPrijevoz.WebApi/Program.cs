@@ -1,4 +1,6 @@
+using Mapster;
 using MojPrijevoz.Services.Authorization;
+using MojPrijevoz.Services.City;
 using MojPrijevoz.Services.Database;
 using MojPrijevoz.Services.User;
 using MojPrijevoz.WebApi.Filters;
@@ -20,8 +22,10 @@ builder.Services.AddSwaggerGen(c => c.ConfigureSwaggerAuthorization());
 var connectionString = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDatabaseServices(connectionString);
 
+builder.Services.AddMapster();
 builder.Services.AddTransient<TokenManager>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddTransient<CityService>();
 
 var app = builder.Build();
 
