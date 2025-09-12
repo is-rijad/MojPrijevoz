@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
 public enum NotificationType : short
 {
-    Default = 0,
+    Default = 0
 }
+
 public class Notification
 {
     public int Id { get; set; }
@@ -15,7 +16,7 @@ public class Notification
 
     public NotificationType Type { get; set; }
 
-    public bool IsRead { get; set; } = false;
+    public bool IsRead { get; set; }
 
     public DateTime CreatedAt { get; set; }
 }

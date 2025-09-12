@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
 public enum Gender : short
 {
     Female = 0,
-    Male = 1,
+    Male = 1
 }
 
 public class User : Account
@@ -15,22 +15,22 @@ public class User : Account
 
     public int CityId { get; set; }
 
-    public virtual City City { get; set; } = null!;
+    public virtual City? City { get; set; }
     public Gender? Gender { get; set; }
 
-    public virtual ICollection<Fare> FareDrivers { get; set; } = new List<Fare>();
+    public virtual ICollection<Fare>? FareDrivers { get; set; }
 
-    public virtual ICollection<FareOffer> FareOfferDrivers { get; set; } = new List<FareOffer>();
+    public virtual ICollection<FareOffer>? FareOfferDrivers { get; set; }
 
-    public virtual ICollection<FareOffer> FareOfferPassengers { get; set; } = new List<FareOffer>();
+    public virtual ICollection<FareOffer>? FareOfferPassengers { get; set; }
 
-    public virtual ICollection<Fare> FarePassengers { get; set; } = new List<Fare>();
+    public virtual ICollection<Fare>? FarePassengers { get; set; }
 
-    public virtual ICollection<Rating> RatingFroms { get; set; } = new List<Rating>();
+    public virtual ICollection<Rating>? RatingFroms { get; set; }
 
-    public virtual ICollection<Rating> RatingTos { get; set; } = new List<Rating>();
+    public virtual ICollection<Rating>? RatingTos { get; set; }
 
-    public virtual ICollection<UserProfile> UserProfiles { get; set; } = new List<UserProfile>();
+    public virtual ICollection<UserProfile>? UserProfiles { get; set; }
 }
 
 public class UserEntityConfiguration : IEntityTypeConfiguration<User>

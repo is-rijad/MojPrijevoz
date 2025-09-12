@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
 public enum TransactionSide : short
 {
@@ -23,7 +23,7 @@ public class Transaction
 
     public DateTime? PostedAt { get; set; }
 
-    public virtual Fare Fare { get; set; } = null!;
+    public virtual Fare? Fare { get; set; }
 }
 
 public class TransactionEntityConfiguration : IEntityTypeConfiguration<Transaction>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
 public class Rating
 {
@@ -19,11 +19,11 @@ public class Rating
 
     public int FareId { get; set; }
 
-    public virtual Fare Fare { get; set; } = null!;
+    public virtual Fare? Fare { get; set; }
 
-    public virtual User From { get; set; } = null!;
+    public virtual User? From { get; set; }
 
-    public virtual User To { get; set; } = null!;
+    public virtual User? To { get; set; }
 }
 
 public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating>

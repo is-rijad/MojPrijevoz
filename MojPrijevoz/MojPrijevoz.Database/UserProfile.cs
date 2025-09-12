@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
-public enum ProfileType : short {
+public enum ProfileType : short
+{
     Passenger = 0,
     Driver = 1
 }
@@ -18,9 +19,9 @@ public class UserProfile
 
     public int NumberOfFares { get; set; } = 0;
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 
-    public virtual ICollection<UserVehicle> UserVehicles { get; set; } = new List<UserVehicle>();
+    public virtual ICollection<UserVehicle>? UserVehicles { get; set; }
 }
 
 public class UserProfileEntityConfiguration : IEntityTypeConfiguration<UserProfile>

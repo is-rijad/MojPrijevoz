@@ -1,9 +1,9 @@
 ﻿using System.Linq.Expressions;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Exceptions;
-using MojPrijevoz.Services.Database;
 
 namespace MojPrijevoz.Services.BaseServices;
 

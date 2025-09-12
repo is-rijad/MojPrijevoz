@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
 public static class DatabaseConfiguration
 {

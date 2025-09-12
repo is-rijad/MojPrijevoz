@@ -1,7 +1,7 @@
 ﻿using MapsterMapper;
+using MojPrijevoz.Database;
 using MojPrijevoz.Model.Responses.City;
 using MojPrijevoz.Services.BaseServices;
-using MojPrijevoz.Services.Database;
 
 namespace MojPrijevoz.Services.City;
 

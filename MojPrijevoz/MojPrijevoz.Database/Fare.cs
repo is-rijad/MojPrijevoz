@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
-public enum FareStatus : short {
+public enum FareStatus : short
+{
     Pending = 0,
     Accepted = 1,
     Rejected = 2,
@@ -35,21 +36,21 @@ public class Fare
 
     public int? OfferId { get; set; }
 
-    public virtual City DestinationCity { get; set; } = null!;
+    public virtual City? DestinationCity { get; set; }
 
-    public virtual User Driver { get; set; } = null!;
+    public virtual User? Driver { get; set; }
 
     public virtual FareOffer? Offer { get; set; }
 
-    public virtual City OriginCity { get; set; } = null!;
+    public virtual City? OriginCity { get; set; }
 
-    public virtual User Passenger { get; set; } = null!;
+    public virtual User? Passenger { get; set; }
 
-    public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();
+    public virtual ICollection<Rating>? Ratings { get; set; }
 
-    public virtual ICollection<StopPoint> StopPoints { get; set; } = new List<StopPoint>();
+    public virtual ICollection<StopPoint>? StopPoints { get; set; }
 
-    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+    public virtual ICollection<Transaction>? Transactions { get; set; }
 }
 
 public class FareEntityConfiguration : IEntityTypeConfiguration<Fare>

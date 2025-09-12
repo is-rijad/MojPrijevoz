@@ -1,7 +1,7 @@
 using Mapster;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.City;
-using MojPrijevoz.Services.Database;
+using MojPrijevoz.Database;
 using MojPrijevoz.Services.User;
 using MojPrijevoz.WebApi.Filters;
 
@@ -23,8 +23,10 @@ var connectionString = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDatabaseServices(connectionString);
 
 builder.Services.AddMapster();
+TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
 builder.Services.AddTransient<TokenManager>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddTransient<IAuthorizationService, AuthorizationService>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddTransient<CityService>();
 builder.Services.AddTransient<AdminCityService>();
 

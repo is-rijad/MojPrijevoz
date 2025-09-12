@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
 public class City
 {
@@ -17,15 +17,15 @@ public class City
 
     public DateTime CreatedAt { get; set; }
 
-    public virtual ICollection<Fare> FareDestinationCities { get; set; } = new List<Fare>();
+    public virtual ICollection<Fare>? FareDestinationCities { get; set; }
 
-    public virtual ICollection<FareOffer> FareOfferDestinationCities { get; set; } = new List<FareOffer>();
+    public virtual ICollection<FareOffer>? FareOfferDestinationCities { get; set; }
 
-    public virtual ICollection<FareOffer> FareOfferOriginCities { get; set; } = new List<FareOffer>();
+    public virtual ICollection<FareOffer>? FareOfferOriginCities { get; set; }
 
-    public virtual ICollection<Fare> FareOriginCities { get; set; } = new List<Fare>();
+    public virtual ICollection<Fare>? FareOriginCities { get; set; }
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<User>? Users { get; set; }
 }
 
 public class CityEntityConfiguration : IEntityTypeConfiguration<City>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
 public enum FareOfferSide : short
 {
@@ -29,17 +29,17 @@ public class FareOffer
 
     public int DestinationCityId { get; set; }
 
-    public virtual City DestinationCity { get; set; } = null!;
+    public virtual City? DestinationCity { get; set; }
 
-    public virtual User Driver { get; set; } = null!;
+    public virtual User? Driver { get; set; }
 
-    public virtual ICollection<Fare> Fares { get; set; } = new List<Fare>();
+    public virtual ICollection<Fare>? Fares { get; set; }
 
-    public virtual City OriginCity { get; set; } = null!;
+    public virtual City? OriginCity { get; set; }
 
-    public virtual User Passenger { get; set; } = null!;
+    public virtual User? Passenger { get; set; }
 
-    public virtual UserVehicle Vehicle { get; set; } = null!;
+    public virtual UserVehicle? Vehicle { get; set; }
 }
 
 public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer>

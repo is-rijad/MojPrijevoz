@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MojPrijevoz.Services.Database;
+namespace MojPrijevoz.Database;
 
 public enum UserVehicleStatus : short
 {
     Deleted = 0,
     Active = 1,
-    WaitingForChanges = 2,
+    WaitingForChanges = 2
 }
 
 public class UserVehicle
@@ -26,13 +26,13 @@ public class UserVehicle
 
     public string? Picture { get; set; }
 
-    public short Status { get; set; }
+    public UserVehicleStatus Status { get; set; }
 
-    public virtual ICollection<FareOffer> FareOffers { get; set; } = new List<FareOffer>();
+    public virtual ICollection<FareOffer>? FareOffers { get; set; }
 
-    public virtual UserProfile Profile { get; set; } = null!;
+    public virtual UserProfile? Profile { get; set; }
 
-    public virtual Vehicle Vehicle { get; set; } = null!;
+    public virtual Vehicle? Vehicle { get; set; }
 }
 
 public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehicle>

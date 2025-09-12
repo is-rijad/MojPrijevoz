@@ -11,4 +11,12 @@
 		<None Include="Authorization\UserInfoTokenDto.cs" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\MojPrijevoz.Database\MojPrijevoz.Database.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Requests\UserVehicle\" />
+	</ItemGroup>
+
 </Project>
