@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
@@ -55,5 +56,27 @@ public class MojPrijevozDbContext : DbContext
         modelBuilder.ApplyConfiguration(new UserProfileEntityConfiguration());
         modelBuilder.ApplyConfiguration(new UserVehicleEntityConfiguration());
         modelBuilder.ApplyConfiguration(new VehicleEntityConfiguration());
+    }
+
+    private void UpdateTimestamps()
+    {
+        var entries = ChangeTracker.Entries().Where(e =>
+            e.Entity is IHasTimestamps && (e.State == EntityState.Added || e.State == EntityState.Modified));
+        foreach (var entityEntry in entries)
+        {
+            if (entityEntry.State == EntityState.Added)
+                ((IHasCreatedAtTimestamp)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
+            else if (entityEntry.State == EntityState.Modified)
+                ((IHasTimestamps)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
+        }
+    }
+
+    public override int SaveChanges() {
+        UpdateTimestamps();
+        return base.SaveChanges();
+    }
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) {
+        UpdateTimestamps();
+        return await base.SaveChangesAsync(cancellationToken);
     }
 }

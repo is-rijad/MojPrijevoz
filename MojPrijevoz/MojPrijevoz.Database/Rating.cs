@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class Rating
-{
+public class Rating : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
     public int FromId { get; set; }
@@ -39,9 +39,6 @@ public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating>
         entity.Property(e => e.Comment)
             .HasMaxLength(256)
             .IsUnicode(false);
-
-        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         entity.HasOne(d => d.Fare).WithMany(p => p.Ratings)
             .HasForeignKey(d => d.FareId)

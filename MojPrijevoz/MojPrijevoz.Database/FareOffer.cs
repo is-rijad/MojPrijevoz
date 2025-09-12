@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
@@ -9,8 +10,7 @@ public enum FareOfferSide : short
     Passenger = 1
 }
 
-public class FareOffer
-{
+public class FareOffer : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
     public int DriverId { get; set; }
@@ -49,9 +49,6 @@ public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer>
         entity.HasKey(e => e.Id).HasName("PK__FareOffe__3214EC076657435C");
 
         entity.ToTable("FareOffer");
-
-        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         entity.HasOne(d => d.DestinationCity).WithMany(p => p.FareOfferDestinationCities)
             .HasForeignKey(d => d.DestinationCityId)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
@@ -12,8 +13,7 @@ public enum FareStatus : short
     Completed = 4
 }
 
-public class Fare
-{
+public class Fare : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
     public int OriginCityId { get; set; }
@@ -24,7 +24,7 @@ public class Fare
 
     public int Duration { get; set; }
 
-    public FareStatus Status { get; set; }
+    public FareStatus Status { get; set; } = FareStatus.Pending;
 
     public DateTime CreatedAt { get; set; }
 
@@ -60,9 +60,6 @@ public class FareEntityConfiguration : IEntityTypeConfiguration<Fare>
         entity.HasKey(e => e.Id).HasName("PK__Fare__3214EC07BCB6FFC7");
 
         entity.ToTable("Fare");
-
-        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         entity.HasOne(d => d.DestinationCity).WithMany(p => p.FareDestinationCities)
             .HasForeignKey(d => d.DestinationCityId)

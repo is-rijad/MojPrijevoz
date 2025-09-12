@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
@@ -8,8 +9,7 @@ public enum NotificationType : short
     Default = 0
 }
 
-public class Notification
-{
+public class Notification : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
     public string Message { get; set; } = null!;
@@ -32,7 +32,5 @@ public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notifica
         entity.Property(e => e.Message)
             .HasMaxLength(32)
             .IsUnicode(false);
-        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

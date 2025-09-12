@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class City
-{
+public class City : IHasTimestamps {
     public int Id { get; set; }
 
     public string Name { get; set; } = null!;
@@ -13,7 +13,7 @@ public class City
 
     public string Lat { get; set; } = null!;
 
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
@@ -45,11 +45,5 @@ public class CityEntityConfiguration : IEntityTypeConfiguration<City>
         entity.Property(e => e.Name)
             .HasMaxLength(32)
             .IsUnicode(false);
-
-        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-        entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }
