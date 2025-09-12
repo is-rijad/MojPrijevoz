@@ -7,7 +7,8 @@ public enum AccountStatus : short
 {
     Banned = 0,
     Active = 1,
-    WaitingForChanges = 2
+    WaitingForChanges = 2,
+    WaitingForReview = 3
 }
 
 public abstract class Account

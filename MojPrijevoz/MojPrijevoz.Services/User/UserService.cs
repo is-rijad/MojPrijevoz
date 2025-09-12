@@ -1,4 +1,5 @@
 ﻿using MapsterMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
@@ -14,7 +15,8 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
     private readonly IAuthorizationService _authorizationService;
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,
-        IAuthorizationService authorizationService) : base(context, mapper)
+        IHttpContextAccessor httpContextAccessor,
+        IAuthorizationService authorizationService) : base(context, mapper, authorizationService)
     {
         _authorizationService = authorizationService;
     }
@@ -46,9 +48,9 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         });
     }
 
-    protected override void BeforeUpdate(UserUpdateRequest request, Database.User entity)
+    protected override Task BeforeUpdate(int id, UserUpdateRequest request, Database.User entity)
     {
-        base.BeforeUpdate(request, entity);
+        base.BeforeUpdate(id, request, entity);
         if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null)
         {
             if (!_authorizationService.VerifyPassword(request.OldPassword ?? string.Empty, entity.PasswordHash, entity.PasswordSalt))
@@ -59,5 +61,7 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
             (entity.PasswordHash, entity.PasswordSalt) = (passwordHash, passwordSalt);
             (request.Password, request.PasswordAgain, request.OldPassword) = (null, null, null);
         }
+
+        return Task.CompletedTask;
     }
 }

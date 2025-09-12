@@ -1,14 +1,16 @@
 ﻿using MapsterMapper;
+using Microsoft.AspNetCore.Http;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Responses.City;
 using MojPrijevoz.Model.SearchObjects;
+using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.City;
 
 public class AdminCityService : BaseCrudService<Database.City, CityInsertRequest, CityUpdateRequest, AdminCityResponse, CitySearchObject>
 {
-    public AdminCityService(MojPrijevozDbContext context, IMapper mapper) : base(context, mapper)
+    public AdminCityService(MojPrijevozDbContext context, IMapper mapper, IAuthorizationService authorizationService) : base(context, mapper, authorizationService)
     {
     }
 

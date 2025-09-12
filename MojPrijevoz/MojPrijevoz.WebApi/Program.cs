@@ -3,6 +3,7 @@ using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.City;
 using MojPrijevoz.Database;
 using MojPrijevoz.Services.User;
+using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.WebApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,11 +25,13 @@ builder.Services.AddDatabaseServices(connectionString);
 
 builder.Services.AddMapster();
 TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<TokenManager>();
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddTransient<CityService>();
 builder.Services.AddTransient<AdminCityService>();
+builder.Services.AddTransient<UserVehicleService>();
 
 var app = builder.Build();
 

@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using MojPrijevoz.Database;
 
 namespace MojPrijevoz.Model.Requests.UserVehicle;
 
@@ -16,6 +18,9 @@ public class UserVehicleUpsertRequest : IValidatableObject {
     public float? PricePerKm { get; set; }
 
     public string? Picture { get; set; }
+
+    [JsonIgnore]
+    public int? ProfileId { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

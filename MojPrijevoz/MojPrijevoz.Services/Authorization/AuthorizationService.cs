@@ -4,6 +4,7 @@ using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Http;
 using MojPrijevoz.Database;
 
 namespace MojPrijevoz.Services.Authorization;
@@ -71,4 +72,18 @@ public class AuthorizationService : IAuthorizationService {
         return hash == storedHash;
     }
 
+    public int GetUserId()
+    {
+        return _tokenManager.GetUserId();
+    }
+
+    public async Task<int?> GetProfileId(ProfileType profileType)
+    {
+        return (await GetUserProfile(profileType))?.Id;
+    }
+    public async Task<UserProfile?> GetUserProfile(ProfileType profileType) {
+        return (await _context.UserProfiles
+            .Where(up => up.UserId == GetUserId() && up.ProfileType == profileType)
+            .FirstOrDefaultAsync());
+    }
 }

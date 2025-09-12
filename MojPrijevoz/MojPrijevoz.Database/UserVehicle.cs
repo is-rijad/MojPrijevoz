@@ -7,7 +7,8 @@ public enum UserVehicleStatus : short
 {
     Deleted = 0,
     Active = 1,
-    WaitingForChanges = 2
+    WaitingForChanges = 2,
+    WaitingForReview = 3
 }
 
 public class UserVehicle
@@ -26,7 +27,7 @@ public class UserVehicle
 
     public string? Picture { get; set; }
 
-    public UserVehicleStatus Status { get; set; }
+    public UserVehicleStatus Status { get; set; } = UserVehicleStatus.WaitingForReview;
 
     public virtual ICollection<FareOffer>? FareOffers { get; set; }
 
@@ -46,6 +47,8 @@ public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehic
         entity.Property(e => e.Picture)
             .HasMaxLength(64)
             .IsUnicode(false);
+
+        entity.HasIndex(e => new { e.ProfileId, e.VehicleId, e.ModelYear }).IsUnique(true);
 
         entity.HasOne(d => d.Profile).WithMany(p => p.UserVehicles)
             .HasForeignKey(d => d.ProfileId)
