@@ -38,7 +38,7 @@ public class TokenManager
             new(JwtRegisteredClaimNames.Sub, tokenDto.UserId.ToString()),
             new(JwtRegisteredClaimNames.Email, tokenDto.Email),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("Username", tokenDto.Username)
+            new("username", tokenDto.Username)
         };
         if (tokenDto.Role.HasValue) claims.Add(new Claim(ClaimTypes.Role, tokenDto.Role.Value.ToString()));
 

@@ -1,6 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
-abstract class Hivedb {
+abstract class HiveProvider {
   static Box<dynamic>? _instance;
   static const _key = String.fromEnvironment("HIVE_KEY");
 

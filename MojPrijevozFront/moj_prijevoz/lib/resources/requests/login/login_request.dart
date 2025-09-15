@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moj_prijevoz/resources/json_parser.dart';
+import 'package:moj_prijevoz/utils/json_parser.dart';
 
 part 'login_request.g.dart';
 

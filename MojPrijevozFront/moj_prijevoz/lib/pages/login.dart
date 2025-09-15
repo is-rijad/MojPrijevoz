@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/common/hiveDb.dart';
+import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/main.dart';
-import 'package:moj_prijevoz/resources/requests/login_request.dart';
-import 'package:moj_prijevoz/resources/responses/login_response.dart';
-import 'package:moj_prijevoz/services/http_service.dart';
+import 'package:moj_prijevoz/resources/requests/login/login_request.dart';
+import 'package:moj_prijevoz/resources/responses/login/login_response.dart';
+import 'package:moj_prijevoz/providers/http_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,18 +21,19 @@ class LoginPageState extends State<LoginPage> {
   String password = "";
 
   Future<void> submitForm() async {
-    final httpService = GetIt.instance<HttpService>();
+    final httpService = GetIt.instance<HttpProvider>();
     var response = await httpService.post<LoginRequest, LoginResponse>(
       "user/login",
       LoginRequest(username: email, password: password),
+      includeAuthHeader: false,
     );
     if (response != null) {
-      var hiveDb = await Hivedb.getInstance();
-      hiveDb.put(Constants.accessTokenKey, response.token);
-      var token = hiveDb.get(Constants.accessTokenKey);
+      var authProvider = GetIt.I<AuthProvider>();
+      await authProvider.setAccessToken(response.token);
+      var username = (await authProvider.getAuthInfo()).username;
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MyHomePage(title: token!)),
+        MaterialPageRoute(builder: (context) => MyHomePage(title: username)),
       );
     }
   }

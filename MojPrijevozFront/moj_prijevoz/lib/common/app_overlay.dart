@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/services/http_service.dart';
+import 'package:moj_prijevoz/providers/http_provider.dart';
 
 class AppOverlay extends StatelessWidget {
   final Widget child;
-  late final HttpService _httpService;
+  late final HttpProvider _httpService;
 
   AppOverlay({super.key, required this.child}) {
-    _httpService = GetIt.I<HttpService>();
+    _httpService = GetIt.I<HttpProvider>();
   }
 
   @override

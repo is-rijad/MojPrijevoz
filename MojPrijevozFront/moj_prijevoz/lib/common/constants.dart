@@ -7,5 +7,4 @@ abstract class Constants {
   static final usernameRegex = RegExp(r'^\\w+$');
   static final GlobalKey<ScaffoldMessengerState> messengerKey =
       GlobalKey<ScaffoldMessengerState>();
-  static final accessTokenKey = "access_token";
 }

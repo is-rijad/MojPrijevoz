@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/app_overlay.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/services/http_service.dart';
+import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/providers/http_provider.dart';
 import 'package:moj_prijevoz/pages/login.dart';
 import 'package:get_it/get_it.dart';
 
 void registerServices() {
   final getIt = GetIt.instance;
 
-  getIt.registerLazySingleton(() => HttpService());
+  getIt.registerLazySingleton(() => HttpProvider());
+  getIt.registerLazySingleton(() => AuthProvider());
 }
 
 void main() {
