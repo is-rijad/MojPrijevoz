@@ -28,7 +28,7 @@ public class AuthorizationService : IAuthorizationService {
         var user = await _context.Users.FirstOrDefaultAsync(u =>
             u.Username == request.Username || u.Email == request.Username);
         if (user == null || !VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
-            throw new Exception("Uneseni podaci nisu ispravni");
+            throw new BadRequestException("Uneseni podaci nisu ispravni");
 
         var tokenDto = new UserInfoTokenDto
         {
