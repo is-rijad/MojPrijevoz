@@ -1,4 +1,4 @@
-import 'package:moj_prijevoz/resources/responses/login/login_response.dart';
+import 'package:moj_prijevoz/resources/responses/user/login_response.dart';
 
 typedef FromJson<T> = T Function(Map<String, dynamic> json);
 

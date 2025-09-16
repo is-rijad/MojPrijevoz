@@ -1,35 +1,36 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/env.dart';
-import 'package:moj_prijevoz/common/snackbars.dart';
+import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/providers/loading_provider.dart';
 import 'package:moj_prijevoz/resources/common/search_objects/base_search_object.dart';
+import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 class HttpProvider {
   final _dio = Dio();
-  final ValueNotifier<bool> isLoading = ValueNotifier(false);
-  final String apiUrl = Environment.apiUrl;
+  final String _apiUrl = Environment.apiUrl;
   late final AuthProvider _authProvider;
+  late final LoadingProvider _loadingProvider;
 
   HttpProvider() {
     _authProvider = GetIt.I<AuthProvider>();
+    _loadingProvider = GetIt.I<LoadingProvider>();
   }
 
-  Future<TResponse?> get<TResponse, TSearchObject extends BaseSearchObject>(
+  Future<TResponse?> getById<TResponse>(
+    int id,
     String url, {
     Map<String, dynamic>? queryParameters,
     bool includeAuthHeader = true,
   }) async {
     try {
-      _startLoading();
-      var options = await setRequestOptions(includeAuthHeader);
+      _loadingProvider.startLoading();
+      var options = await _setRequestOptions(includeAuthHeader);
       var response = await _dio.get(
-        "$apiUrl$url",
+        "$_apiUrl$url/$id",
         options: options,
         queryParameters: queryParameters,
       );
@@ -38,7 +39,35 @@ class HttpProvider {
       _onError(e);
       return null;
     } finally {
-      _stopLoading();
+      _loadingProvider.stopLoading();
+    }
+  }
+
+  Future<SearchResult<TResponse>?>
+  get<TResponse, TSearchObject extends BaseSearchObject>(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    bool includeAuthHeader = true,
+  }) async {
+    try {
+      _loadingProvider.startLoading();
+      var options = await _setRequestOptions(includeAuthHeader);
+      var response = await _dio.get(
+        "$_apiUrl$url",
+        options: options,
+        queryParameters: queryParameters,
+      );
+      return SearchResult(
+        items: response.data.items
+            .map((it) => parseJson<TResponse>(it))
+            .toList(),
+        count: response.data.count,
+      );
+    } on DioException catch (e) {
+      _onError(e);
+      return null;
+    } finally {
+      _loadingProvider.stopLoading();
     }
   }
 
@@ -49,10 +78,10 @@ class HttpProvider {
     bool includeAuthHeader = true,
   }) async {
     try {
-      _startLoading();
-      var options = await setRequestOptions(includeAuthHeader);
+      _loadingProvider.startLoading();
+      var options = await _setRequestOptions(includeAuthHeader);
       var response = await _dio.post(
-        "$apiUrl$url",
+        "$_apiUrl$url",
         data: request.toJson(),
         options: options,
         queryParameters: queryParameters,
@@ -62,7 +91,7 @@ class HttpProvider {
       _onError(e);
       return null;
     } finally {
-      _stopLoading();
+      _loadingProvider.stopLoading();
     }
   }
 
@@ -78,15 +107,7 @@ class HttpProvider {
     );
   }
 
-  void _startLoading() {
-    isLoading.value = true;
-  }
-
-  void _stopLoading() {
-    isLoading.value = false;
-  }
-
-  Future<Options> setRequestOptions(bool includeAuthHeader) async {
+  Future<Options> _setRequestOptions(bool includeAuthHeader) async {
     var options = Options(contentType: "application/json");
     var headersMap = <String, dynamic>{};
     if (includeAuthHeader) {

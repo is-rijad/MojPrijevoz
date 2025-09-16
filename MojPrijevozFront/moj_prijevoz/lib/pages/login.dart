@@ -3,8 +3,9 @@ import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/main.dart';
-import 'package:moj_prijevoz/resources/requests/login/login_request.dart';
-import 'package:moj_prijevoz/resources/responses/login/login_response.dart';
+import 'package:moj_prijevoz/providers/user_provider.dart';
+import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
+import 'package:moj_prijevoz/resources/responses/user/login_response.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,24 +17,29 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+  late final AuthProvider _authProvider;
+  late final UserProvider _userProvider;
+
+  @override
+  void initState() {
+    _authProvider = GetIt.I<AuthProvider>();
+    _userProvider = GetIt.I<UserProvider>();
+    super.initState();
+  }
 
   String email = "";
   String password = "";
 
   Future<void> submitForm() async {
-    final httpService = GetIt.instance<HttpProvider>();
-    var response = await httpService.post<LoginRequest, LoginResponse>(
-      "user/login",
+    var response = await _userProvider.login(
       LoginRequest(username: email, password: password),
-      includeAuthHeader: false,
     );
     if (response != null) {
-      var authProvider = GetIt.I<AuthProvider>();
-      await authProvider.setAccessToken(response.token);
-      var username = (await authProvider.getAuthInfo()).username;
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MyHomePage(title: username)),
+        MaterialPageRoute(
+          builder: (context) => MyHomePage(title: response.token),
+        ),
       );
     }
   }
