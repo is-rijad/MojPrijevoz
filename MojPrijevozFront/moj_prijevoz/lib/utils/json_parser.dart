@@ -1,9 +1,13 @@
+import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/login_response.dart';
+import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
 
 typedef FromJson<T> = T Function(Map<String, dynamic> json);
 
 final Map<Type, FromJson> _jsonFactories = {
   LoginResponse: (json) => LoginResponse.fromJson(json),
+  CityResponse: (json) => CityResponse.fromJson(json),
+  UserResponse: (json) => UserResponse.fromJson(json),
 };
 
 T parseJson<T>(Map<String, dynamic> json) {

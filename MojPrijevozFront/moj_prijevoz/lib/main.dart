@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/widgets/app_overlay.dart';
 import 'package:moj_prijevoz/common/constants.dart';
@@ -15,6 +16,7 @@ void registerServices() {
   getIt.registerLazySingleton(() => AuthProvider());
   getIt.registerLazySingleton(() => LoadingProvider());
   getIt.registerLazySingleton(() => UserProvider());
+  getIt.registerLazySingleton(() => CityProvider());
 }
 
 void main() {

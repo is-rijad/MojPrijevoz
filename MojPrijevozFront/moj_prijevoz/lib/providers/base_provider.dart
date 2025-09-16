@@ -5,8 +5,8 @@ import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 abstract class BaseGetProvider<
-  TGetResponse,
-  TGetAllResponse,
+  TGetResponse extends JsonParsable,
+  TGetAllResponse extends JsonParsable,
   TSearchObject extends BaseSearchObject
 > {
   late final HttpProvider httpProvider;
@@ -20,14 +20,17 @@ abstract class BaseGetProvider<
     return await httpProvider.getById<TGetResponse>(id, providerName);
   }
 
-  Future<SearchResult<TGetResponse>?> getAll() async {
-    return await httpProvider.get<TGetResponse, TSearchObject>(providerName);
+  Future<SearchResult<TGetResponse>?> getAll(TSearchObject search) async {
+    return await httpProvider.get<TGetResponse, TSearchObject>(
+      providerName,
+      search,
+    );
   }
 }
 
 abstract class BaseProvider<
-  TGetResponse,
-  TGetAllResponse,
+  TGetResponse extends JsonParsable,
+  TGetAllResponse extends JsonParsable,
   TSearchObject extends BaseSearchObject,
   TInsertRequest extends JsonParsable,
   TInsertResponse,

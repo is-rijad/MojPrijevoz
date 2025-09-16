@@ -4,10 +4,14 @@ class LoadingProvider {
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
 
   void startLoading() {
-    isLoading.value = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      isLoading.value = true;
+    });
   }
 
   void stopLoading() {
-    isLoading.value = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      isLoading.value = false;
+    });
   }
 }

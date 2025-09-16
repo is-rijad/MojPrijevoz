@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/env.dart';
@@ -45,12 +48,17 @@ class HttpProvider {
 
   Future<SearchResult<TResponse>?>
   get<TResponse, TSearchObject extends BaseSearchObject>(
-    String url, {
-    Map<String, dynamic>? queryParameters,
+    String url,
+    TSearchObject search, {
+    Map<String, dynamic>? query,
     bool includeAuthHeader = true,
   }) async {
     try {
       _loadingProvider.startLoading();
+      var queryParameters = search.toJson();
+      if (query != null) {
+        queryParameters.addEntries(query.entries);
+      }
       var options = await _setRequestOptions(includeAuthHeader);
       var response = await _dio.get(
         "$_apiUrl$url",
@@ -58,10 +66,10 @@ class HttpProvider {
         queryParameters: queryParameters,
       );
       return SearchResult(
-        items: response.data.items
-            .map((it) => parseJson<TResponse>(it))
-            .toList(),
-        count: response.data.count,
+        items: List<TResponse>.from(
+          response.data["items"].map((it) => parseJson<TResponse>(it)),
+        ),
+        count: response.data["count"],
       );
     } on DioException catch (e) {
       _onError(e);
@@ -96,8 +104,11 @@ class HttpProvider {
   }
 
   void _onError(DioException e) {
+    debugPrint("ERROR => ${e.message}");
     String message;
-    if (e.response != null && e.response!.data != null) {
+    if (e.response != null &&
+        e.response!.data != null &&
+        e.response!.data["message"] != null) {
       message = e.response!.data["message"];
     } else {
       message = "Something went wrong!";

@@ -1,46 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/main.dart';
+import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
-import 'package:moj_prijevoz/resources/responses/user/login_response.dart';
-import 'package:moj_prijevoz/providers/http_provider.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => LoginPageState();
-}
-
-class LoginPageState extends State<LoginPage> {
+class LoginPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
-  late final AuthProvider _authProvider;
-  late final UserProvider _userProvider;
+  final UserProvider _userProvider = GetIt.I<UserProvider>();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  @override
-  void initState() {
-    _authProvider = GetIt.I<AuthProvider>();
-    _userProvider = GetIt.I<UserProvider>();
-    super.initState();
-  }
+  LoginPage({super.key});
 
-  String email = "";
-  String password = "";
-
-  Future<void> submitForm() async {
-    var response = await _userProvider.login(
-      LoginRequest(username: email, password: password),
-    );
-    if (response != null) {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => MyHomePage(title: response.token),
+  Future<void> submitForm(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      var response = await _userProvider.login(
+        LoginRequest(
+          username: _usernameController.text,
+          password: _passwordController.text,
         ),
       );
+      if (response != null) {
+        if (!context.mounted) return;
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => MyHomePage(title: response.token),
+          ),
+        );
+      }
     }
   }
 
@@ -50,82 +39,96 @@ class LoginPageState extends State<LoginPage> {
       child: Center(
         child: FractionallySizedBox(
           widthFactor: 0.5,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const Text(
-                  "Moj Prijevoz",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextFormField(
-                  onChanged: (value) {
-                    setState(() {
-                      email = value;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    labelText: "Korisničko ime",
-                  ),
-                  keyboardType: TextInputType.text,
-                  validator: (value) {
-                    if (value != null &&
-                        value.isNotEmpty &&
-                        !Constants.usernameRegex.hasMatch(value)) {
-                      return "Korisničko ime nije validno!";
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  obscureText: true,
-                  onChanged: (value) {
-                    setState(() {
-                      password = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value != null &&
-                        value.isNotEmpty &&
-                        !Constants.passwordRegex.hasMatch(value)) {
-                      return "Lozinka mora imati minimalno 8 karaktera, mala i velika slova, znakove i brojeve!";
-                    }
-                    return null;
-                  },
-                  decoration: const InputDecoration(labelText: "Lozinka"),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                "images/mojPrijevoz.png",
+                fit: BoxFit.fitWidth,
+                width: 200,
+                height: 200,
+              ),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: const InputDecoration(
+                        labelText: "Korisničko ime",
+                      ),
+                      keyboardType: TextInputType.text,
+                      validator: (value) {
+                        if (value == null ||
+                            !value.isNotEmpty ||
+                            !Constants.usernameRegex.hasMatch(value)) {
+                          return "Korisničko ime nije validno!";
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      obscureText: true,
+                      controller: _passwordController,
+                      validator: (value) {
+                        if (value == null ||
+                            !value.isNotEmpty ||
+                            !Constants.passwordRegex.hasMatch(value)) {
+                          return "Lozinka mora imati minimalno 8 karaktera, mala i velika slova, znakove i brojeve!";
+                        }
+                        return null;
+                      },
+                      decoration: const InputDecoration(labelText: "Lozinka"),
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            "Nemate račun? Registrujte se.",
-                            style: TextStyle(fontSize: 12),
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextButton(
+                              style: ButtonStyle(
+                                padding: WidgetStatePropertyAll(
+                                  EdgeInsets.zero,
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => RegisterPage(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Nemate račun? Registrujte se.",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                            TextButton(
+                              style: ButtonStyle(
+                                padding: WidgetStatePropertyAll(
+                                  EdgeInsets.zero,
+                                ),
+                              ),
+                              onPressed: () {},
+                              child: const Text(
+                                "Zaboravili ste lozinku?",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ],
                         ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            "Zaboravili ste lozinku?",
-                            style: TextStyle(fontSize: 12),
-                          ),
+                        ElevatedButton(
+                          onPressed: () => submitForm(context),
+                          child: const Text("Uloguj se"),
                         ),
                       ],
                     ),
-                    ElevatedButton(
-                      onPressed: submitForm,
-                      child: const Text("Uloguj se"),
-                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
