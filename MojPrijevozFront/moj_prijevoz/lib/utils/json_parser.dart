@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/login_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
@@ -13,6 +15,7 @@ final Map<Type, _FromJson> _jsonFactories = {
 T parseJson<T>(Map<String, dynamic> json) {
   final fromJson = _jsonFactories[T];
   if (fromJson == null) throw Exception("No factory for type $T");
+  log("PARSING TO JSON => $json");
   return fromJson(json) as T;
 }
 

@@ -3,14 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
-import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/widgets/app_overlay.dart';
-import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
-import 'package:moj_prijevoz/pages/login.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/loading_provider.dart';
 
@@ -45,19 +42,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF3F8ED4),
-          primary: const Color(0xFF3F8ED4),
-          secondary: const Color(0xFFF1F5FE),
-        ),
-        useMaterial3: true,
-      ),
-      home: AppOverlay(child: RegisterPage()),
-      scaffoldMessengerKey: Constants.messengerKey,
-    );
+    return AppOverlay();
   }
 }
 

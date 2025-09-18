@@ -24,8 +24,7 @@ public class UserController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Post([FromBody] UserInsertRequest request)
     {
-        await _userService.InsertAsync(request);
-        return Ok("Registracija uspješna.");
+        return Ok(await _userService.InsertAsync(request));
     }
 
 

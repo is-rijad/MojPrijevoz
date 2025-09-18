@@ -5,10 +5,10 @@ part 'login_request.g.dart';
 
 @JsonSerializable()
 class LoginRequest implements JsonParsable {
-  final String username;
-  final String password;
+  String username;
+  String password;
 
-  LoginRequest({required this.username, required this.password});
+  LoginRequest({this.username = "", this.password = ""});
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) =>
       _$LoginRequestFromJson(json);

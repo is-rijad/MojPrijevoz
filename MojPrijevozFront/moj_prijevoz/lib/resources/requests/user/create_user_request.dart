@@ -14,13 +14,13 @@ class CreateUserRequest implements JsonParsable {
   int cityId;
 
   CreateUserRequest({
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.username,
-    required this.password,
-    required this.passwordAgain,
-    required this.cityId,
+    this.firstName = "",
+    this.lastName = "",
+    this.email = "",
+    this.username = "",
+    this.password = "",
+    this.passwordAgain = "",
+    this.cityId = 0,
   });
 
   @override

@@ -48,7 +48,6 @@ class _PagedDropdownState<
   final double _listElementHeight = 50;
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  TValue? _selectedValue;
   Timer? _debounce;
   T? selectedItem;
 
@@ -187,7 +186,6 @@ class _PagedDropdownState<
 
   void _changeSelectedItem(T? item) {
     selectedItem = item;
-    _selectedValue = item != null ? widget.getValue(item) : null;
   }
 
   void _changeDropdownText(T? item) {
@@ -204,7 +202,7 @@ class _PagedDropdownState<
         behavior: HitTestBehavior.translucent,
         onTap: _toggleDropdown,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey),
             borderRadius: BorderRadius.circular(4),

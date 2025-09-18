@@ -10,8 +10,6 @@ class UserResponse extends JsonParsable {
   String lastName;
   String email;
   String username;
-  String password;
-  String passwordAgain;
   int cityId;
   Gender? gender;
 
@@ -20,8 +18,6 @@ class UserResponse extends JsonParsable {
     required this.lastName,
     required this.email,
     required this.username,
-    required this.password,
-    required this.passwordAgain,
     required this.cityId,
     this.gender,
   });

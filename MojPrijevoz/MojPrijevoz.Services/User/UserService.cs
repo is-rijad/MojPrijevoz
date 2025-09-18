@@ -25,7 +25,7 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
     {
         await base.BeforeInsert(request);
         if (await _dbContext.Users.AnyAsync(u => u.Username == request.Username || u.Email == request.Email))
-            throw new Exception("Korisničko ime ili email već postoji.");
+            throw new BadRequestException("Korisničko ime ili email već postoji.");
     }
 
     protected override Database.User MapToInsertEntity(UserInsertRequest request)

@@ -15,7 +15,7 @@ class HttpProvider {
   late final LoadingProvider _loadingProvider;
   final LoadingType loadingType;
 
-  HttpProvider({this.loadingType = LoadingType.global}) {
+  HttpProvider({required this.loadingType}) {
     _authProvider = GetIt.I<AuthProvider>();
     _loadingProvider = GetIt.I<LoadingProvider>();
   }
@@ -26,9 +26,8 @@ class HttpProvider {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      if (loadingType == LoadingType.global) {
-        _loadingProvider.startLoading();
-      }
+      _loadingProvider.startLoading(loadingType);
+
       var options = await _setRequestOptions();
       var response = await _dio.get(
         "$_apiUrl$url/$id",
@@ -46,9 +45,8 @@ class HttpProvider {
     TSearchObject extends BaseSearchObject
   >(String url, TSearchObject search, {Map<String, dynamic>? query}) async {
     try {
-      if (loadingType == LoadingType.global) {
-        _loadingProvider.startLoading();
-      }
+      _loadingProvider.startLoading(loadingType);
+
       var queryParameters = search.toJson();
       if (query != null) {
         queryParameters.addEntries(query.entries);
@@ -76,9 +74,8 @@ class HttpProvider {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      if (loadingType == LoadingType.global) {
-        _loadingProvider.startLoading();
-      }
+      _loadingProvider.startLoading(loadingType);
+
       var options = await _setRequestOptions();
       var response = await _dio.post(
         "$_apiUrl$url",

@@ -5,12 +5,14 @@ import 'package:moj_prijevoz/widgets/snackbars.dart';
 
 abstract class ErrorHandler {
   static void handle(Object ex, StackTrace stack) {
-    Exception exception = ex as Exception;
     _logToConsole(ex, stack);
-    _showSnackBar(_getMessageFromException(exception));
+    _showSnackBar(_getMessageFromException(ex));
   }
 
-  static void _logToConsole(Exception ex, StackTrace stack) {
+  static void _logToConsole(Object ex, StackTrace stack) {
+    if (ex is DioException) {
+      log("RESPONSE => ${ex.response}", time: DateTime.now(), level: 1000);
+    }
     log("ERROR => $ex", time: DateTime.now(), stackTrace: stack, level: 1000);
   }
 
@@ -20,9 +22,8 @@ abstract class ErrorHandler {
     );
   }
 
-  static String _getMessageFromException(Exception e) {
+  static String _getMessageFromException(Object e) {
     String message = "Something went wrong!";
-
     if (e is DioException &&
         e.response != null &&
         e.response!.data != null &&
