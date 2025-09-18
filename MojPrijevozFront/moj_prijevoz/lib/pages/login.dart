@@ -22,21 +22,19 @@ class LoginPage extends StatelessWidget {
           password: _passwordController.text,
         ),
       );
-      if (response != null) {
-        if (!context.mounted) return;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => MyHomePage(title: response.token),
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => MyHomePage(title: response.token),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Center(
+    return Scaffold(
+      body: Center(
         child: FractionallySizedBox(
           widthFactor: 0.5,
           child: Column(

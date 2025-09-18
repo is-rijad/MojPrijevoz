@@ -20,20 +20,17 @@ class UserProvider
           TPlaceholder
         > {
   late final AuthProvider _authProvider;
-  UserProvider() : super(providerName: "user") {
+  UserProvider({required super.loadingType}) : super(providerName: "user") {
     _authProvider = GetIt.I<AuthProvider>();
   }
 
-  Future<LoginResponse?> login(LoginRequest request) async {
+  Future<LoginResponse> login(LoginRequest request) async {
     var response = await httpProvider.post<LoginRequest, LoginResponse>(
       "user/login",
       request,
       includeAuthHeader: false,
     );
-    if (response != null) {
-      await _authProvider.setAccessToken(response.token);
-      return response;
-    }
-    return null;
+    await _authProvider.setAccessToken(response.token);
+    return response;
   }
 }

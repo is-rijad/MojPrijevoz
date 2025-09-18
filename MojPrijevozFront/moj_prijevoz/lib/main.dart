@@ -1,4 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/error_handler.dart';
+import 'package:moj_prijevoz/common/loading_type.dart';
+import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/widgets/app_overlay.dart';
@@ -12,16 +17,26 @@ import 'package:moj_prijevoz/providers/loading_provider.dart';
 void registerServices() {
   final getIt = GetIt.instance;
 
-  getIt.registerLazySingleton(() => HttpProvider());
   getIt.registerLazySingleton(() => AuthProvider());
   getIt.registerLazySingleton(() => LoadingProvider());
-  getIt.registerLazySingleton(() => UserProvider());
-  getIt.registerLazySingleton(() => CityProvider());
+
+  getIt.registerFactoryParam<HttpProvider, LoadingType, void>(
+    (p1, p2) => HttpProvider(loadingType: p1),
+  );
+  getIt.registerFactoryParam<UserProvider, LoadingType, void>(
+    (p1, p2) => UserProvider(loadingType: p1),
+  );
+  getIt.registerFactoryParam<CityProvider, LoadingType, void>(
+    (p1, p2) => CityProvider(loadingType: p1),
+  );
 }
 
 void main() {
   registerServices();
-  runApp(const MyApp());
+  runZonedGuarded(
+    () => runApp(const MyApp()),
+    (ex, stack) => ErrorHandler.handle(ex, stack),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -40,7 +55,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: Scaffold(body: AppOverlay(child: LoginPage())),
+      home: AppOverlay(child: RegisterPage()),
       scaffoldMessengerKey: Constants.messengerKey,
     );
   }
