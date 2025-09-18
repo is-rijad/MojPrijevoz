@@ -8,7 +8,7 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.City;
 
-public class AdminCityService : BaseCrudService<Database.City, CityInsertRequest, CityUpdateRequest, AdminCityResponse, CitySearchObject>
+public class AdminCityService : BaseCrudService<Database.City, Database.City, CityInsertRequest, CityUpdateRequest, AdminCityResponse, CitySearchObject>
 {
     public AdminCityService(MojPrijevozDbContext context, IMapper mapper, IAuthorizationService authorizationService) : base(context, mapper, authorizationService)
     {
