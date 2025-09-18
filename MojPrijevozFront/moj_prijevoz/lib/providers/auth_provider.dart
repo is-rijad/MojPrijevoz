@@ -12,7 +12,11 @@ class AuthProvider {
 
   Future<String> getAccessToken() async {
     var hive = await HiveProvider.getInstance();
-    return hive.get(_accessTokenKey);
+    var token = hive.get(_accessTokenKey);
+    if (token == null) {
+      throw Exception("User is not logged in!");
+    }
+    return token;
   }
 
   Future<AuthInfo> getAuthInfo() async {

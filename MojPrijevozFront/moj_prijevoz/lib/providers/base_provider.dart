@@ -6,8 +6,8 @@ import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 abstract class BaseGetProvider<
-  TGetResponse extends JsonParsable,
-  TGetAllResponse extends JsonParsable,
+  TResponse extends JsonParsable,
+  TDetailedResponse extends JsonParsable,
   TSearchObject extends BaseSearchObject
 > {
   late final HttpProvider httpProvider;
@@ -18,12 +18,12 @@ abstract class BaseGetProvider<
     httpProvider = GetIt.I<HttpProvider>(param1: loadingType);
   }
 
-  Future<TGetResponse> getById(int id) async {
-    return await httpProvider.getById<TGetResponse>(id, providerName);
+  Future<TDetailedResponse> getById(int id) async {
+    return await httpProvider.getById<TDetailedResponse>(id, providerName);
   }
 
-  Future<SearchResult<TGetResponse>> getAll(TSearchObject search) async {
-    return await httpProvider.get<TGetResponse, TSearchObject>(
+  Future<SearchResult<TResponse>> getAll(TSearchObject search) async {
+    return await httpProvider.get<TResponse, TSearchObject>(
       providerName,
       search,
     );
@@ -31,19 +31,17 @@ abstract class BaseGetProvider<
 }
 
 abstract class BaseProvider<
-  TGetResponse extends JsonParsable,
-  TGetAllResponse extends JsonParsable,
+  TResponse extends JsonParsable,
+  TDetailedResponse extends JsonParsable,
   TSearchObject extends BaseSearchObject,
   TInsertRequest extends JsonParsable,
-  TInsertResponse,
-  TUpdateRequest extends JsonParsable,
-  TUpdateResponse
+  TUpdateRequest extends JsonParsable
 >
-    extends BaseGetProvider<TGetResponse, TGetAllResponse, TSearchObject> {
+    extends BaseGetProvider<TResponse, TDetailedResponse, TSearchObject> {
   BaseProvider({required super.providerName, required super.loadingType});
 
-  Future<TInsertResponse> insert(TInsertRequest request) async {
-    return await httpProvider.post<TInsertRequest, TInsertResponse>(
+  Future<TDetailedResponse> insert(TInsertRequest request) async {
+    return await httpProvider.post<TInsertRequest, TDetailedResponse>(
       providerName,
       request,
     );

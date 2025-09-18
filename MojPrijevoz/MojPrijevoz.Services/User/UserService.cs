@@ -11,7 +11,7 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.User;
 
-public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateRequest, UserResponse, BaseSearchObject> {
+public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateRequest, UserResponse, UserResponse, BaseSearchObject> {
     private readonly IAuthorizationService _authorizationService;
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,

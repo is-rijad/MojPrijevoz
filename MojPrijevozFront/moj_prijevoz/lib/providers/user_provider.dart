@@ -15,8 +15,6 @@ class UserProvider
           UserResponse,
           BaseSearchObject,
           CreateUserRequest,
-          UserResponse,
-          TPlaceholder,
           TPlaceholder
         > {
   late final AuthProvider _authProvider;
@@ -28,7 +26,6 @@ class UserProvider
     var response = await httpProvider.post<LoginRequest, LoginResponse>(
       "user/login",
       request,
-      includeAuthHeader: false,
     );
     await _authProvider.setAccessToken(response.token);
     return response;

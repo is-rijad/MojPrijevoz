@@ -24,13 +24,12 @@ class HttpProvider {
     int id,
     String url, {
     Map<String, dynamic>? queryParameters,
-    bool includeAuthHeader = true,
   }) async {
     try {
       if (loadingType == LoadingType.global) {
         _loadingProvider.startLoading();
       }
-      var options = await _setRequestOptions(includeAuthHeader);
+      var options = await _setRequestOptions();
       var response = await _dio.get(
         "$_apiUrl$url/$id",
         options: options,
@@ -42,13 +41,10 @@ class HttpProvider {
     }
   }
 
-  Future<SearchResult<TResponse>>
-  get<TResponse, TSearchObject extends BaseSearchObject>(
-    String url,
-    TSearchObject search, {
-    Map<String, dynamic>? query,
-    bool includeAuthHeader = true,
-  }) async {
+  Future<SearchResult<TResponse>> get<
+    TResponse,
+    TSearchObject extends BaseSearchObject
+  >(String url, TSearchObject search, {Map<String, dynamic>? query}) async {
     try {
       if (loadingType == LoadingType.global) {
         _loadingProvider.startLoading();
@@ -57,7 +53,7 @@ class HttpProvider {
       if (query != null) {
         queryParameters.addEntries(query.entries);
       }
-      var options = await _setRequestOptions(includeAuthHeader);
+      var options = await _setRequestOptions();
       var response = await _dio.get(
         "$_apiUrl$url",
         options: options,
@@ -78,13 +74,12 @@ class HttpProvider {
     String url,
     TRequest request, {
     Map<String, dynamic>? queryParameters,
-    bool includeAuthHeader = true,
   }) async {
     try {
       if (loadingType == LoadingType.global) {
         _loadingProvider.startLoading();
       }
-      var options = await _setRequestOptions(includeAuthHeader);
+      var options = await _setRequestOptions();
       var response = await _dio.post(
         "$_apiUrl$url",
         data: request.toJson(),
@@ -97,13 +92,12 @@ class HttpProvider {
     }
   }
 
-  Future<Options> _setRequestOptions(bool includeAuthHeader) async {
+  Future<Options> _setRequestOptions() async {
     var options = Options(contentType: "application/json");
     var headersMap = <String, dynamic>{};
-    if (includeAuthHeader) {
-      var token = await _authProvider.getAccessToken();
-      headersMap.addEntries(<String, dynamic>{"Authorization": token}.entries);
-    }
+    var token = await _authProvider.getAccessToken();
+    headersMap.addEntries(<String, dynamic>{"Authorization": token}.entries);
+
     options.headers = headersMap;
     return options;
   }

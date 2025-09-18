@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace MojPrijevoz.Services.BaseServices;
 
-public abstract class BaseService<TResponse, TEntity, TSearchObject> : IBaseService<TResponse, TSearchObject> where TResponse : class where TEntity : class where TSearchObject : BaseSearchObject {
+public abstract class BaseService<TResponse, TDetailedResponse, TEntity, TSearchObject> : IBaseService<TResponse, TDetailedResponse, TSearchObject> where TResponse : class where TDetailedResponse : class where TEntity : class where TSearchObject : BaseSearchObject {
     protected readonly MojPrijevozDbContext _dbContext;
     protected readonly IMapper _mapper;
 
@@ -31,22 +31,22 @@ public abstract class BaseService<TResponse, TEntity, TSearchObject> : IBaseServ
         var list = await queryable.ToListAsync();
         return new PagedResult<TResponse>
         {
-            Items = list.Select(MapToResponseModel).ToList(),
+            Items = list.Select(MapToResponseModel<TResponse>).ToList(),
             Count = queryable.Count()
         };
     }
 
-    public async Task<TResponse> GetByIdAsync(int id)
+    public async Task<TDetailedResponse> GetByIdAsync(int id)
     {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         var entity = await queryable.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         if (entity == null)
             throw new NotFoundException($"Nije pronađeno!");
-        return MapToResponseModel(entity);
+        return MapToResponseModel<TDetailedResponse>(entity);
     }
 
-    protected TResponse MapToResponseModel(TEntity entity)
+    protected T MapToResponseModel<T>(TEntity entity)
     {
-        return _mapper.Map<TResponse>(entity);
+        return _mapper.Map<T>(entity);
     }
 }
