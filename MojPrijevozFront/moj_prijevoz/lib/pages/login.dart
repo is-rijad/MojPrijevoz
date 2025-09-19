@@ -6,7 +6,7 @@ import 'package:moj_prijevoz/main.dart';
 import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
-import 'package:moj_prijevoz/widgets/form/FormWrapper.dart';
+import 'package:moj_prijevoz/widgets/form/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 
 class LoginPage extends StatelessWidget {
