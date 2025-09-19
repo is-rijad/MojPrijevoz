@@ -1,0 +1,1 @@
+enum ProfileDropdownAction { profile, logout }

@@ -4,28 +4,29 @@ using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
 using System.Security.Cryptography;
+using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using MojPrijevoz.Database;
+using MojPrijevoz.Model.BaseModels;
+using MojPrijevoz.Model.Responses.Auth;
+using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.Authorization;
 
-public class AuthorizationService : IAuthorizationService {
+public class AuthorizationService : BaseService<TPlaceholder, AuthResponse, Database.User, BaseSearchObject> {
     private const int HashByteSize = 32;
     private const int SaltByteSize = 16;
     private const int Iterations = 100000;
 
     private readonly TokenManager _tokenManager;
     private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA256;
-    private readonly MojPrijevozDbContext _context;
 
-    public AuthorizationService(MojPrijevozDbContext context, TokenManager tokenManager)
-    {
+    public AuthorizationService(MojPrijevozDbContext context, IMapper mapper, TokenManager tokenManager) : base(context, mapper) {
         _tokenManager = tokenManager;
-        _context = context;
     }
 
     public async Task<UserLoginResponse> Login(UserLoginRequest request) {
-        var user = await _context.Users.FirstOrDefaultAsync(u =>
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u =>
             u.Username == request.Username || u.Email == request.Username);
         if (user == null || !VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
             throw new BadRequestException("Uneseni podaci nisu ispravni");
@@ -37,7 +38,7 @@ public class AuthorizationService : IAuthorizationService {
             UserId = user.Id
         };
 
-        var role = await _context.Administrators.FindAsync(user.Id);
+        var role = await _dbContext.Administrators.FindAsync(user.Id);
         if (role != null)
             tokenDto.Role = Convert.ToInt32(role.Role);
 
@@ -82,7 +83,7 @@ public class AuthorizationService : IAuthorizationService {
         return (await GetUserProfile(profileType))?.Id;
     }
     public async Task<UserProfile?> GetUserProfile(ProfileType profileType) {
-        return (await _context.UserProfiles
+        return (await _dbContext.UserProfiles
             .Where(up => up.UserId == GetUserId() && up.ProfileType == profileType)
             .FirstOrDefaultAsync());
     }

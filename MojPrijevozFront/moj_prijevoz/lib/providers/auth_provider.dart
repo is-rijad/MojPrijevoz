@@ -1,30 +1,18 @@
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:moj_prijevoz/providers/hive_provider.dart';
-import 'package:moj_prijevoz/resources/helpers/auth_info.dart';
+import 'package:moj_prijevoz/common/access_token_handler.dart';
+import 'package:moj_prijevoz/common/loading_type.dart';
+import 'package:moj_prijevoz/providers/base_provider.dart';
+import 'package:moj_prijevoz/resources/common/search_objects/base_search_object.dart';
+import 'package:moj_prijevoz/resources/helpers/tplaceholder.dart';
+import 'package:moj_prijevoz/resources/responses/auth/auth_response.dart';
 
-class AuthProvider {
-  static final _accessTokenKey = "access_token";
+class AuthProvider
+    extends BaseGetProvider<TPlaceholder, AuthResponse, BaseSearchObject> {
+  late AuthResponse _authInfo;
+  AuthResponse get authInfo => _authInfo;
 
-  Future<void> setAccessToken(String token) async {
-    var hive = await HiveProvider.getInstance();
-    hive.put(_accessTokenKey, token);
-  }
+  AuthProvider() : super(loadingType: LoadingType.global, providerName: "auth");
 
-  Future<String> getAccessToken() async {
-    var hive = await HiveProvider.getInstance();
-    var token = hive.get(_accessTokenKey);
-    if (token == null) {
-      throw Exception("User is not logged in!");
-    }
-    return token;
-  }
-
-  Future<AuthInfo> getAuthInfo() async {
-    var token = await getAccessToken();
-    var payload = JwtDecoder.decode(token);
-    return AuthInfo(
-      username: payload["username"],
-      userId: int.parse(payload["sub"]),
-    );
+  Future<void> setAuthInfo() async {
+    _authInfo = await getById(await AccessTokenHandler.getUserId());
   }
 }

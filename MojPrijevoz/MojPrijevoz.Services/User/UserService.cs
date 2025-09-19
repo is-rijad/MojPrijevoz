@@ -12,11 +12,11 @@ using MojPrijevoz.Services.BaseServices;
 namespace MojPrijevoz.Services.User;
 
 public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateRequest, UserResponse, UserResponse, BaseSearchObject> {
-    private readonly IAuthorizationService _authorizationService;
+    private readonly AuthorizationService _authorizationService;
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,
         IHttpContextAccessor httpContextAccessor,
-        IAuthorizationService authorizationService) : base(context, mapper, authorizationService)
+        AuthorizationService authorizationService) : base(context, mapper, authorizationService)
     {
         _authorizationService = authorizationService;
     }

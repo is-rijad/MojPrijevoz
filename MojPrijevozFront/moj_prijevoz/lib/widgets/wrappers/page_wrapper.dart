@@ -1,0 +1,126 @@
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/access_token_handler.dart';
+import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
+import 'package:moj_prijevoz/pages/login.dart';
+import 'package:moj_prijevoz/pages/my_profile.dart';
+import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/providers/ui_provider.dart';
+import 'package:moj_prijevoz/widgets/icons/avatar.dart';
+import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
+
+class PageWrapper extends StatefulWidget {
+  final Widget body;
+  final Widget? appBarTitle;
+
+  const PageWrapper({super.key, required this.body, this.appBarTitle});
+
+  @override
+  State<StatefulWidget> createState() => _PageWrapperState();
+}
+
+class _PageWrapperState extends State<PageWrapper> {
+  final AuthProvider _authProvider = GetIt.I<AuthProvider>();
+  final UIProvider _uiProvider = GetIt.I<UIProvider>();
+  final _avatarKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(appBar: _buildAppBar(context), body: widget.body);
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: widget.appBarTitle,
+      actions: [_buildProfileIcon(context)],
+    );
+  }
+
+  Widget _buildProfileIcon(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(2.5).copyWith(right: 10),
+      child: GestureDetector(
+        key: _avatarKey,
+        onTap: () => _showDropdown(context),
+        child: Avatar(radius: 20, user: _authProvider.authInfo),
+      ),
+    );
+  }
+
+  Future<void> _showDropdown(BuildContext context) async {
+    final RenderBox renderBox =
+        _avatarKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+    final Size size = renderBox.size;
+
+    _uiProvider.profileDropdownAction = await showMenu(
+      context: context,
+      color: AppOverlay.secondaryColor,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + size.height + 7,
+        offset.dx + size.width,
+        offset.dy + size.height,
+      ),
+      popUpAnimationStyle: AnimationStyle(
+        curve: Curves.easeInOut,
+        duration: Duration(milliseconds: 300),
+      ),
+      items: [
+        PopupMenuItem(
+          value: ProfileDropdownAction.profile,
+          enabled:
+              _uiProvider.profileDropdownAction !=
+              ProfileDropdownAction.profile,
+          child: Text(
+            "Moj profil",
+            style: TextStyle(
+              color:
+                  _uiProvider.profileDropdownAction ==
+                      ProfileDropdownAction.profile
+                  ? AppOverlay.primaryColor
+                  : null,
+            ),
+          ),
+        ),
+        PopupMenuItem(
+          value: ProfileDropdownAction.logout,
+          enabled:
+              _uiProvider.profileDropdownAction != ProfileDropdownAction.logout,
+          child: Text(
+            "Odjava",
+            style: TextStyle(
+              color:
+                  _uiProvider.profileDropdownAction ==
+                      ProfileDropdownAction.logout
+                  ? AppOverlay.primaryColor
+                  : null,
+            ),
+          ),
+        ),
+      ],
+    );
+    switch (_uiProvider.profileDropdownAction) {
+      case ProfileDropdownAction.profile:
+        if (!context.mounted) return;
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyProfile()),
+        );
+        break;
+      case ProfileDropdownAction.logout:
+        await AccessTokenHandler.logout();
+        if (!context.mounted) return;
+        await Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+        break;
+      default:
+    }
+
+    setState(() {
+      _uiProvider.profileDropdownAction = null;
+    });
+  }
+}

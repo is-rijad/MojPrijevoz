@@ -9,7 +9,7 @@ import 'package:moj_prijevoz/resources/requests/user/create_user_request.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:moj_prijevoz/widgets/form/form_wrapper.dart';
+import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -27,7 +27,7 @@ class RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return FormWrapper(
-      key: _formKey,
+      formKey: _formKey,
       appBar: AppBar(title: const Text("Registracija")),
       children: [
         ..._buildUserPersonalData(context),

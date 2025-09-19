@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/resources/common/search_objects/base_search_object.dart';
@@ -17,17 +18,17 @@ class UserProvider
           CreateUserRequest,
           TPlaceholder
         > {
-  late final AuthProvider _authProvider;
-  UserProvider({required super.loadingType}) : super(providerName: "user") {
-    _authProvider = GetIt.I<AuthProvider>();
-  }
+  UserProvider({required super.loadingType}) : super(providerName: "user");
 
   Future<LoginResponse> login(LoginRequest request) async {
     var response = await httpProvider.post<LoginRequest, LoginResponse>(
       "user/login",
       request,
     );
-    await _authProvider.setAccessToken(response.token);
+    var authProvider = GetIt.I<AuthProvider>();
+    await AccessTokenHandler.setAccessToken(response.token);
+    await authProvider.setAuthInfo();
+
     return response;
   }
 }

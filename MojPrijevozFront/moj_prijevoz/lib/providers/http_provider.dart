@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
-import 'package:moj_prijevoz/providers/loading_provider.dart';
+import "package:moj_prijevoz/providers/ui_provider.dart";
 import 'package:moj_prijevoz/resources/common/search_objects/base_search_object.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
@@ -11,13 +11,11 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 class HttpProvider {
   final _dio = Dio();
   final String _apiUrl = Environment.apiUrl;
-  late final AuthProvider _authProvider;
-  late final LoadingProvider _loadingProvider;
+  late final UIProvider _uiProvider;
   final LoadingType loadingType;
 
   HttpProvider({required this.loadingType}) {
-    _authProvider = GetIt.I<AuthProvider>();
-    _loadingProvider = GetIt.I<LoadingProvider>();
+    _uiProvider = GetIt.I<UIProvider>();
   }
 
   Future<TResponse> getById<TResponse>(
@@ -26,7 +24,7 @@ class HttpProvider {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      _loadingProvider.startLoading(loadingType);
+      _uiProvider.startLoading(loadingType);
 
       var options = await _setRequestOptions();
       var response = await _dio.get(
@@ -36,7 +34,7 @@ class HttpProvider {
       );
       return parseJson<TResponse>(response.data);
     } finally {
-      _loadingProvider.stopLoading();
+      _uiProvider.stopLoading();
     }
   }
 
@@ -45,7 +43,7 @@ class HttpProvider {
     TSearchObject extends BaseSearchObject
   >(String url, TSearchObject search, {Map<String, dynamic>? query}) async {
     try {
-      _loadingProvider.startLoading(loadingType);
+      _uiProvider.startLoading(loadingType);
 
       var queryParameters = search.toJson();
       if (query != null) {
@@ -64,7 +62,7 @@ class HttpProvider {
         count: response.data["count"],
       );
     } finally {
-      _loadingProvider.stopLoading();
+      _uiProvider.stopLoading();
     }
   }
 
@@ -74,7 +72,7 @@ class HttpProvider {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      _loadingProvider.startLoading(loadingType);
+      _uiProvider.startLoading(loadingType);
 
       var options = await _setRequestOptions();
       var response = await _dio.post(
@@ -85,15 +83,19 @@ class HttpProvider {
       );
       return parseJson<TResponse>(response.data);
     } finally {
-      _loadingProvider.stopLoading();
+      _uiProvider.stopLoading();
     }
   }
 
   Future<Options> _setRequestOptions() async {
     var options = Options(contentType: "application/json");
     var headersMap = <String, dynamic>{};
-    var token = await _authProvider.getAccessToken();
-    headersMap.addEntries(<String, dynamic>{"Authorization": token}.entries);
+    try {
+      var token = await AccessTokenHandler.getAccessToken();
+      headersMap.addEntries(
+        <String, dynamic>{"Authorization": "Bearer $token"}.entries,
+      );
+    } on Exception catch (e) {}
 
     options.headers = headersMap;
     return options;

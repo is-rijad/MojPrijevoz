@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MojPrijevoz.Model.Requests.User;
+using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.User;
-using IAuthorizationService = MojPrijevoz.Services.Authorization.IAuthorizationService;
 
 namespace MojPrijevoz.WebApi.Controllers;
 
@@ -11,10 +11,10 @@ namespace MojPrijevoz.WebApi.Controllers;
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;
-    private readonly IAuthorizationService _authorizationService;
+    private readonly AuthorizationService _authorizationService;
 
     public UserController(UserService userService,
-        IAuthorizationService authorizationService)
+        AuthorizationService authorizationService)
     {
         _userService = userService;
         _authorizationService = authorizationService;
@@ -33,6 +33,11 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
     {
         return Ok(await _authorizationService.Login(request));
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(int id) {
+        return Ok(await _userService.GetByIdAsync(id));
     }
 
     [HttpPut("{id}")]

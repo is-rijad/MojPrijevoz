@@ -27,7 +27,7 @@ builder.Services.AddMapster();
 TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<TokenManager>();
-builder.Services.AddTransient<IAuthorizationService, AuthorizationService>();
+builder.Services.AddTransient<AuthorizationService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddTransient<CityService>();
 builder.Services.AddTransient<AdminCityService>();

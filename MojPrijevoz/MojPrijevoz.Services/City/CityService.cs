@@ -10,7 +10,7 @@ namespace MojPrijevoz.Services.City;
 public class CityService : BaseService<CityResponse, CityResponse, Database.City, Model.SearchObjects.CitySearchObject> {
     public CityService(MojPrijevozDbContext dbContext,
         IMapper mapper,
-        IAuthorizationService authorizationService) : base(dbContext, mapper)
+        AuthorizationService authorizationService) : base(dbContext, mapper)
     {
     }
     public override IQueryable<Database.City> ApplyFilter(IQueryable<Database.City> queryable, Model.SearchObjects.CitySearchObject searchObject)

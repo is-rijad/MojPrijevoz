@@ -8,9 +8,9 @@ using MojPrijevoz.Services.Authorization;
 namespace MojPrijevoz.Services.BaseServices;
 
 public abstract class BaseCrudService<TEntity, TInsertRequest, TUpdateRequest, TResponse, TDetailedResponse, TSearchObject> : BaseService<TResponse, TDetailedResponse, TEntity, TSearchObject>, IBaseCRUDService<TInsertRequest, TUpdateRequest, TResponse, TDetailedResponse, TSearchObject> where TEntity: class where TInsertRequest : class where TUpdateRequest : class where TResponse:class where TDetailedResponse : class where TSearchObject : BaseSearchObject {
-    protected readonly IAuthorizationService _authorizationService;
+    protected readonly AuthorizationService _authorizationService;
 
-    public BaseCrudService(MojPrijevozDbContext context, IMapper mapper, IAuthorizationService authorizationService) : base(context, mapper)
+    public BaseCrudService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper)
     {
         _authorizationService = authorizationService;
     }

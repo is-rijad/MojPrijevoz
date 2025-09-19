@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
-import 'package:moj_prijevoz/main.dart';
+import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/register.dart';
+import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
-import 'package:moj_prijevoz/widgets/form/form_wrapper.dart';
+import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 
 class LoginPage extends StatelessWidget {
@@ -21,20 +22,18 @@ class LoginPage extends StatelessWidget {
   Future<void> submitForm(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      var response = await _userProvider.login(_loginRequest);
+      await _userProvider.login(_loginRequest);
       if (!context.mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => MyHomePage(title: response.token),
-        ),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (context) => Homepage()));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return FormWrapper(
-      key: _formKey,
+      formKey: _formKey,
       children: [
         Image.asset(
           "images/mojPrijevoz.png",

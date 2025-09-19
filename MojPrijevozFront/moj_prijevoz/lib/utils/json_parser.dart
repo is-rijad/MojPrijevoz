@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:moj_prijevoz/resources/responses/auth/auth_response.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/login_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
@@ -10,6 +11,7 @@ final Map<Type, _FromJson> _jsonFactories = {
   LoginResponse: (json) => LoginResponse.fromJson(json),
   CityResponse: (json) => CityResponse.fromJson(json),
   UserResponse: (json) => UserResponse.fromJson(json),
+  AuthResponse: (json) => AuthResponse.fromJson(json),
 };
 
 T parseJson<T>(Map<String, dynamic> json) {
