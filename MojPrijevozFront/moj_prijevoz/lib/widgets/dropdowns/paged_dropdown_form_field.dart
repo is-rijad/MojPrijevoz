@@ -16,11 +16,12 @@ class PagedDropdownFormField<
     required TSearchObject searchObject,
     required String Function(T) getLabel,
     required TValue Function(T) getValue,
-    required String defaultLabel,
+    String? defaultLabel,
     required ValueChanged<T> onChanged,
     super.onSaved,
     super.validator,
     super.initialValue,
+    InputDecoration? decoration,
     bool autovalidate = false,
   }) : super(
          autovalidateMode: autovalidate
@@ -32,6 +33,7 @@ class PagedDropdownFormField<
              children: [
                PagedDropdown<T, TValue, TProvider, TSearchObject>(
                  searchObject: searchObject,
+                 decoration: decoration,
                  getLabel: getLabel,
                  getValue: getValue,
                  defaultLabel: defaultLabel,

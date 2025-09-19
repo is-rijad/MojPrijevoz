@@ -18,7 +18,8 @@ class PagedDropdown<
   final String Function(T) getLabel;
   final TValue Function(T) getValue;
   final ValueChanged<T> onChanged;
-  final String defaultLabel;
+  final String? defaultLabel;
+  final InputDecoration? decoration;
 
   const PagedDropdown({
     super.key,
@@ -26,7 +27,8 @@ class PagedDropdown<
     required this.getValue,
     required this.searchObject,
     required this.onChanged,
-    required this.defaultLabel,
+    this.defaultLabel,
+    this.decoration,
   });
 
   @override
@@ -191,7 +193,7 @@ class _PagedDropdownState<
   void _changeDropdownText(T? item) {
     _textController.text = item != null
         ? widget.getLabel(item)
-        : widget.defaultLabel;
+        : widget.defaultLabel ?? "";
   }
 
   @override
@@ -216,7 +218,9 @@ class _PagedDropdownState<
                   onTap: _toggleDropdown,
                   focusNode: _focusNode,
                   onChanged: _onTextChanged,
-                  decoration: InputDecoration(border: InputBorder.none),
+                  decoration:
+                      widget.decoration?.copyWith(border: InputBorder.none) ??
+                      InputDecoration(border: InputBorder.none),
                 ),
               ),
               const Icon(Icons.arrow_drop_down),

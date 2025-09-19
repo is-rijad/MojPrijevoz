@@ -15,33 +15,34 @@ class AppOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       alignment: AlignmentGeometry.topCenter,
-      children: [
-        MaterialApp(
-          title: 'Moj Prijevoz',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.black,
-              primary: const Color(0xFF3F8ED4),
-              secondary: const Color(0xFFF1F5FE),
-            ),
-            useMaterial3: true,
-          ),
-          home: LoginPage(),
-          scaffoldMessengerKey: Constants.messengerKey,
-        ),
-        ValueListenableBuilder<bool>(
-          valueListenable: _loadingProvider.isLoading,
-          builder: (context, loading, _) {
-            if (!loading) return const SizedBox.shrink();
-            final backgroundColor = Theme.of(context).colorScheme.secondary;
+      children: [_buildApp(context), _buildLoadingOverlay(context)],
+    );
+  }
 
-            return Container(
-              color: backgroundColor.withAlpha(50),
-              child: const Center(child: CircularProgressIndicator()),
-            );
-          },
-        ),
-      ],
+  MaterialApp _buildApp(BuildContext context) {
+    return MaterialApp(
+      title: 'Moj Prijevoz',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF3F8ED4)),
+        useMaterial3: true,
+      ),
+      home: LoginPage(),
+      scaffoldMessengerKey: Constants.messengerKey,
+    );
+  }
+
+  ValueListenableBuilder<bool> _buildLoadingOverlay(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: _loadingProvider.isLoading,
+      builder: (context, loading, _) {
+        if (!loading) return const SizedBox.shrink();
+        final backgroundColor = Theme.of(context).colorScheme.secondary;
+
+        return Container(
+          color: backgroundColor.withAlpha(50),
+          child: const Center(child: CircularProgressIndicator()),
+        );
+      },
     );
   }
 }

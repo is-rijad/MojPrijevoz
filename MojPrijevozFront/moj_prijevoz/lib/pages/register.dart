@@ -9,6 +9,8 @@ import 'package:moj_prijevoz/resources/requests/user/create_user_request.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:moj_prijevoz/widgets/form/FormWrapper.dart';
+import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -24,128 +26,137 @@ class RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FormWrapper(
+      key: _formKey,
       appBar: AppBar(title: const Text("Registracija")),
-      body: Center(
-        child: FractionallySizedBox(
-          widthFactor: 0.5,
-          child: _buildForm(context),
-        ),
+      children: [
+        ..._buildUserPersonalData(context),
+        ..._buildPasswordInputs(context),
+        SizedBox(height: 8),
+        _buildCityDropdown(context),
+        SizedBox(height: 12),
+        _buildSubmitButton(context),
+      ],
+    );
+  }
+
+  List<Widget> _buildUserPersonalData(BuildContext context) {
+    return <Widget>[
+      TextFormField(
+        keyboardType: TextInputType.name,
+        decoration: InputDecoration(label: const Text("Ime")),
+        validator: (value) {
+          if (value == null || value.isEmpty) return "Ime nije validno!";
+          return null;
+        },
+        onSaved: (value) => _request.firstName = value!,
+      ),
+
+      TextFormField(
+        keyboardType: TextInputType.name,
+        decoration: InputDecoration(label: const Text("Prezime")),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return "Prezime nije validno!";
+          }
+          return null;
+        },
+        onSaved: (value) => _request.lastName = value!,
+      ),
+      TextFormField(
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(label: const Text("Email")),
+        validator: (value) {
+          if (value == null ||
+              value.isEmpty ||
+              !EmailValidator.validate(value)) {
+            return "Email nije validan!";
+          }
+          return null;
+        },
+        onSaved: (value) => _request.email = value!,
+      ),
+
+      TextFormField(
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(label: const Text("Korisničko ime")),
+        validator: (value) {
+          if (value == null ||
+              value.isEmpty ||
+              !Constants.usernameRegex.hasMatch(value)) {
+            return "Korisničko ime nije validno!";
+          }
+          return null;
+        },
+        onSaved: (value) => _request.username = value!,
+      ),
+    ];
+  }
+
+  List<Widget> _buildPasswordInputs(BuildContext context) {
+    return <Widget>[
+      TextFormField(
+        obscureText: true,
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(label: const Text("Lozinka")),
+        validator: (value) {
+          if (value == null ||
+              value.isEmpty ||
+              !Constants.passwordRegex.hasMatch(value)) {
+            return "Lozinka nije validna!";
+          }
+          return null;
+        },
+        onSaved: (value) => _request.password = value!,
+      ),
+
+      TextFormField(
+        obscureText: true,
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(label: const Text("Ponovite lozinku")),
+        validator: (value) {
+          if (value == null ||
+              value.isEmpty ||
+              !Constants.passwordRegex.hasMatch(value)) {
+            return "Lozinka nije validna!";
+          }
+          return null;
+        },
+        onSaved: (value) => _request.passwordAgain = value!,
+      ),
+    ];
+  }
+
+  Widget _buildCityDropdown(BuildContext context) {
+    return PagedDropdownFormField<
+      CityResponse,
+      int,
+      CityProvider,
+      CitySearchObject
+    >(
+      searchObject: CitySearchObject(),
+      getLabel: (i) => i.name,
+      onChanged: (value) => _request.cityId = value.id,
+      getValue: (i) => i.id,
+      validator: (value) {
+        if (value == null) {
+          return "Grad je obavezan!";
+        }
+        return null;
+      },
+      decoration: InputDecorationWithIcon(
+        iconData: Icons.location_city,
+        iconHint: "Grad",
       ),
     );
   }
 
-  Form _buildForm(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextFormField(
-            keyboardType: TextInputType.name,
-            decoration: InputDecoration(label: const Text("Ime")),
-            validator: (value) {
-              if (value == null || value.isEmpty) return "Ime nije validno!";
-              return null;
-            },
-            onSaved: (value) => _request.firstName = value!,
-          ),
-
-          TextFormField(
-            keyboardType: TextInputType.name,
-            decoration: InputDecoration(label: const Text("Prezime")),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "Prezime nije validno!";
-              }
-              return null;
-            },
-            onSaved: (value) => _request.lastName = value!,
-          ),
-          TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(label: const Text("Email")),
-            validator: (value) {
-              if (value == null ||
-                  value.isEmpty ||
-                  !EmailValidator.validate(value)) {
-                return "Email nije validan!";
-              }
-              return null;
-            },
-            onSaved: (value) => _request.email = value!,
-          ),
-
-          TextFormField(
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(label: const Text("Korisničko ime")),
-            validator: (value) {
-              if (value == null ||
-                  value.isEmpty ||
-                  !Constants.usernameRegex.hasMatch(value)) {
-                return "Korisničko ime nije validno!";
-              }
-              return null;
-            },
-            onSaved: (value) => _request.username = value!,
-          ),
-          TextFormField(
-            obscureText: true,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(label: const Text("Lozinka")),
-            validator: (value) {
-              if (value == null ||
-                  value.isEmpty ||
-                  !Constants.passwordRegex.hasMatch(value)) {
-                return "Lozinka nije validna!";
-              }
-              return null;
-            },
-            onSaved: (value) => _request.password = value!,
-          ),
-
-          TextFormField(
-            obscureText: true,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(label: const Text("Ponovite lozinku")),
-            validator: (value) {
-              if (value == null ||
-                  value.isEmpty ||
-                  !Constants.passwordRegex.hasMatch(value)) {
-                return "Lozinka nije validna!";
-              }
-              return null;
-            },
-            onSaved: (value) => _request.passwordAgain = value!,
-          ),
-          SizedBox(height: 8),
-          PagedDropdownFormField<
-            CityResponse,
-            int,
-            CityProvider,
-            CitySearchObject
-          >(
-            searchObject: CitySearchObject(),
-            getLabel: (i) => i.name,
-            defaultLabel: "Grad",
-            onChanged: (value) => _request.cityId = value.id,
-            getValue: (i) => i.id,
-            validator: (value) {
-              if (value == null) {
-                return "Grad je obavezan!";
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 12),
-          FractionallySizedBox(
-            widthFactor: 0.8,
-            child: ElevatedButton(
-              onPressed: _submitForm,
-              child: const Text("Registruj se"),
-            ),
-          ),
-        ],
+  Widget _buildSubmitButton(BuildContext context) {
+    return FractionallySizedBox(
+      widthFactor: 0.8,
+      child: ElevatedButton(
+        onPressed: _submitForm,
+        child: const Text("Registruj se"),
       ),
     );
   }
@@ -154,6 +165,7 @@ class RegisterPageState extends State<RegisterPage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       await _userProvider.insert(_request);
+      if (!mounted) return;
       Navigator.pop(context);
     }
   }
