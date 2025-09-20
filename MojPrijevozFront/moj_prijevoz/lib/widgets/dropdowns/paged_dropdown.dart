@@ -20,6 +20,7 @@ class PagedDropdown<
   final ValueChanged<T> onChanged;
   final String? defaultLabel;
   final InputDecoration? decoration;
+  final T? defaultItem;
 
   const PagedDropdown({
     super.key,
@@ -29,6 +30,7 @@ class PagedDropdown<
     required this.onChanged,
     this.defaultLabel,
     this.decoration,
+    this.defaultItem,
   });
 
   @override
@@ -65,8 +67,22 @@ class _PagedDropdownState<
     _provider = GetIt.I<TProvider>(param1: LoadingType.none);
     _searchObject = widget.searchObject;
     _scrollController.addListener(_scrollListener);
-    _changeDropdownText(null);
+    _changeSelectedItem(widget.defaultItem);
+    _changeDropdownText(selectedItem);
     _fetchPage();
+  }
+
+  @override
+  void didUpdateWidget(
+    covariant PagedDropdown<T, TValue, TProvider, TSearchObject> oldWidget,
+  ) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.defaultItem != oldWidget.defaultItem) {
+      setState(() {
+        _changeSelectedItem(widget.defaultItem);
+        _changeDropdownText(selectedItem);
+      });
+    }
   }
 
   void _scrollToSelected() {
@@ -138,50 +154,61 @@ class _PagedDropdownState<
     final Offset offset = renderBox.localToGlobal(Offset.zero);
 
     return OverlayEntry(
-      builder: (context) => Positioned(
-        left: offset.dx,
-        top: offset.dy + size.height,
-        width: size.width,
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          offset: Offset(0, size.height),
-          child: Material(
-            elevation: 4,
-            child: SizedBox(
-              height: 200,
-              child: ListView.builder(
-                controller: _scrollController,
-                itemExtent: _listElementHeight,
-                itemCount: _items.length + (_hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _items.length) {
-                    return const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  final item = _items[index];
-                  return ListTile(
-                    selected: selectedItem != null
-                        ? widget.getValue(item) ==
-                              widget.getValue(selectedItem!)
-                        : false,
-                    title: Text(widget.getLabel(item)),
-                    onTap: () {
-                      widget.onChanged.call(item);
-                      _toggleDropdown();
-                      setState(() {
-                        _changeDropdownText(item);
-                        _changeSelectedItem(item);
-                      });
+      builder: (context) => Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: _toggleDropdown,
+              behavior: HitTestBehavior.translucent,
+              child: Container(color: Colors.transparent),
+            ),
+          ),
+          Positioned(
+            left: offset.dx,
+            top: offset.dy + size.height,
+            width: size.width,
+            child: CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
+              offset: Offset(0, size.height),
+              child: Material(
+                elevation: 4,
+                child: SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemExtent: _listElementHeight,
+                    itemCount: _items.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _items.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      final item = _items[index];
+                      return ListTile(
+                        selected: selectedItem != null
+                            ? widget.getValue(item) ==
+                                  widget.getValue(selectedItem!)
+                            : false,
+                        title: Text(widget.getLabel(item)),
+                        onTap: () {
+                          widget.onChanged.call(item);
+                          _toggleDropdown();
+                          setState(() {
+                            _changeSelectedItem(item);
+                            _changeDropdownText(item);
+                          });
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

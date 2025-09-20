@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
@@ -15,7 +14,6 @@ void registerServices() {
   final getIt = GetIt.instance;
 
   getIt.registerLazySingleton(() => UIProvider());
-  getIt.registerLazySingleton(() => AuthProvider());
 
   getIt.registerFactoryParam<HttpProvider, LoadingType, void>(
     (p1, p2) => HttpProvider(loadingType: p1),

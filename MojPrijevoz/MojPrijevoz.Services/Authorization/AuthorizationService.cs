@@ -31,12 +31,7 @@ public class AuthorizationService : BaseService<TPlaceholder, AuthResponse, Data
         if (user == null || !VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
             throw new BadRequestException("Uneseni podaci nisu ispravni");
 
-        var tokenDto = new UserInfoTokenDto
-        {
-            Username = user.Username,
-            Email = user.Email,
-            UserId = user.Id
-        };
+        var tokenDto = _mapper.Map<UserInfoTokenDto>(user);
 
         var role = await _dbContext.Administrators.FindAsync(user.Id);
         if (role != null)
@@ -46,7 +41,7 @@ public class AuthorizationService : BaseService<TPlaceholder, AuthResponse, Data
 
         return new UserLoginResponse
         {
-            UserId = user.Id,
+            Id = user.Id,
             Token = token
         };
     }

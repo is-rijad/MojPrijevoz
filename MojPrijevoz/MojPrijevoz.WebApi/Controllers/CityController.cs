@@ -14,13 +14,18 @@ public class CityController : ControllerBase
     {
         _cityService = cityService;
     }
-
+    
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> Get([FromQuery] Model.SearchObjects.CitySearchObject search)
     {
-        var cities = await _cityService.GetAsync(search);
-        return Ok(cities);
+        return Ok(await _cityService.GetAsync(search));
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(int id)
+    {
+        return Ok(await _cityService.GetByIdAsync(id));
     }
 
 }

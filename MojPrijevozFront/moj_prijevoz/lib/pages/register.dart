@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
-import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
-import 'package:moj_prijevoz/resources/common/search_objects/city/city_search_object.dart';
 import 'package:moj_prijevoz/resources/requests/user/create_user_request.dart';
-import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
-import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
+import 'package:moj_prijevoz/widgets/dropdowns/city_paged_dropdown.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
-import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -128,26 +124,14 @@ class RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _buildCityDropdown(BuildContext context) {
-    return PagedDropdownFormField<
-      CityResponse,
-      int,
-      CityProvider,
-      CitySearchObject
-    >(
-      searchObject: CitySearchObject(),
-      getLabel: (i) => i.name,
+    return CityPagedDropdown(
       onChanged: (value) => _request.cityId = value.id,
-      getValue: (i) => i.id,
       validator: (value) {
         if (value == null) {
           return "Grad je obavezan!";
         }
         return null;
       },
-      decoration: InputDecorationWithIcon(
-        iconData: Icons.location_city,
-        iconHint: "Grad",
-      ),
     );
   }
 

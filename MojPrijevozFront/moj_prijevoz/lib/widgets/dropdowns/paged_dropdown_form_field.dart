@@ -17,6 +17,7 @@ class PagedDropdownFormField<
     required String Function(T) getLabel,
     required TValue Function(T) getValue,
     String? defaultLabel,
+    T? defaultItem,
     required ValueChanged<T> onChanged,
     super.onSaved,
     super.validator,
@@ -41,6 +42,7 @@ class PagedDropdownFormField<
                    fieldState.didChange(value);
                    onChanged(value);
                  },
+                 defaultItem: defaultItem,
                ),
                if (fieldState.errorText != null)
                  Padding(

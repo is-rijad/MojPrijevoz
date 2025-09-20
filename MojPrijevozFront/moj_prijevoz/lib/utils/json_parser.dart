@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:moj_prijevoz/resources/responses/auth/auth_response.dart';
+import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/login_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
@@ -8,10 +8,10 @@ import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
 typedef _FromJson<T> = T Function(Map<String, dynamic> json);
 
 final Map<Type, _FromJson> _jsonFactories = {
-  LoginResponse: (json) => LoginResponse.fromJson(json),
-  CityResponse: (json) => CityResponse.fromJson(json),
-  UserResponse: (json) => UserResponse.fromJson(json),
-  AuthResponse: (json) => AuthResponse.fromJson(json),
+  LoginResponse: (json) => LoginResponse.fromMap(json),
+  CityResponse: (json) => CityResponse.fromMap(json),
+  UserResponse: (json) => UserResponse.fromMap(json),
+  AccessTokenPayload: (json) => AccessTokenPayload.fromMap(json),
 };
 
 T parseJson<T>(Map<String, dynamic> json) {
@@ -22,5 +22,5 @@ T parseJson<T>(Map<String, dynamic> json) {
 }
 
 abstract class JsonParsable {
-  Map<String, dynamic> toJson();
+  Map<String, dynamic> toMap();
 }

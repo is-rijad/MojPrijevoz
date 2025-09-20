@@ -13,7 +13,7 @@ UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
   username: json['username'] as String,
   cityId: (json['cityId'] as num).toInt(),
   gender: $enumDecodeNullable(_$GenderEnumMap, json['gender']),
-);
+)..picture = json['picture'] as String?;
 
 Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
     <String, dynamic>{
@@ -23,6 +23,7 @@ Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
       'username': instance.username,
       'cityId': instance.cityId,
       'gender': _$GenderEnumMap[instance.gender],
+      'picture': instance.picture,
     };
 
 const _$GenderEnumMap = {Gender.female: 'female', Gender.male: 'male'};

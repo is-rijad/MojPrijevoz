@@ -4,7 +4,6 @@ import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/register.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';

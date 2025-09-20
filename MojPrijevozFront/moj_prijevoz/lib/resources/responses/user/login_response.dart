@@ -9,6 +9,6 @@ class LoginResponse {
 
   LoginResponse({required this.token, required this.userId});
 
-  factory LoginResponse.fromJson(Map<String, dynamic> json) =>
+  factory LoginResponse.fromMap(Map<String, dynamic> json) =>
       _$LoginResponseFromJson(json);
 }

@@ -1,6 +1,4 @@
-import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/access_token_handler.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/resources/common/search_objects/base_search_object.dart';
 import 'package:moj_prijevoz/resources/helpers/tplaceholder.dart';
@@ -25,10 +23,7 @@ class UserProvider
       "user/login",
       request,
     );
-    var authProvider = GetIt.I<AuthProvider>();
     await AccessTokenHandler.setAccessToken(response.token);
-    await authProvider.setAuthInfo();
-
     return response;
   }
 }

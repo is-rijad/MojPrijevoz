@@ -45,7 +45,7 @@ class HttpProvider {
     try {
       _uiProvider.startLoading(loadingType);
 
-      var queryParameters = search.toJson();
+      var queryParameters = search.toMap();
       if (query != null) {
         queryParameters.addEntries(query.entries);
       }
@@ -77,7 +77,7 @@ class HttpProvider {
       var options = await _setRequestOptions();
       var response = await _dio.post(
         "$_apiUrl$url",
-        data: request.toJson(),
+        data: request.toMap(),
         options: options,
         queryParameters: queryParameters,
       );

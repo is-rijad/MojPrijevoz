@@ -4,9 +4,10 @@ import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/pages/my_profile.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
+import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
+import 'package:moj_prijevoz/widgets/profile_dropdown/profile_dropdown_item.dart';
 import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
 
 class PageWrapper extends StatefulWidget {
@@ -20,9 +21,21 @@ class PageWrapper extends StatefulWidget {
 }
 
 class _PageWrapperState extends State<PageWrapper> {
-  final AuthProvider _authProvider = GetIt.I<AuthProvider>();
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
   final _avatarKey = GlobalKey();
+  AccessTokenPayload? _accessTokenPayload;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initState());
+  }
+
+  Future<void> _initState() async {
+    _accessTokenPayload = await AccessTokenHandler.getPayload();
+
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +55,7 @@ class _PageWrapperState extends State<PageWrapper> {
       child: GestureDetector(
         key: _avatarKey,
         onTap: () => _showDropdown(context),
-        child: Avatar(radius: 20, user: _authProvider.authInfo),
+        child: Avatar(radius: 20, user: _accessTokenPayload),
       ),
     );
   }
@@ -67,36 +80,13 @@ class _PageWrapperState extends State<PageWrapper> {
         duration: Duration(milliseconds: 300),
       ),
       items: [
-        PopupMenuItem(
+        ProfileDropdownItem(
+          text: "Moj profil",
           value: ProfileDropdownAction.profile,
-          enabled:
-              _uiProvider.profileDropdownAction !=
-              ProfileDropdownAction.profile,
-          child: Text(
-            "Moj profil",
-            style: TextStyle(
-              color:
-                  _uiProvider.profileDropdownAction ==
-                      ProfileDropdownAction.profile
-                  ? AppOverlay.primaryColor
-                  : null,
-            ),
-          ),
         ),
-        PopupMenuItem(
+        ProfileDropdownItem(
+          text: "Odjava",
           value: ProfileDropdownAction.logout,
-          enabled:
-              _uiProvider.profileDropdownAction != ProfileDropdownAction.logout,
-          child: Text(
-            "Odjava",
-            style: TextStyle(
-              color:
-                  _uiProvider.profileDropdownAction ==
-                      ProfileDropdownAction.logout
-                  ? AppOverlay.primaryColor
-                  : null,
-            ),
-          ),
         ),
       ],
     );

@@ -8,5 +8,5 @@ class CitySearchObject extends BaseSearchObject {
   CitySearchObject({super.contains, super.page, super.pageSize});
 
   @override
-  Map<String, dynamic> toJson() => _$CitySearchObjectToJson(this);
+  Map<String, dynamic> toMap() => _$CitySearchObjectToJson(this);
 }

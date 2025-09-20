@@ -27,6 +27,7 @@ public class TokenManager
 
     private string JwtExpiration => _configuration["Jwt:ExpirationInMinutes"] ??
                                     throw new InvalidOperationException("JWT Expiration is not configured.");
+    private const string PictureClaimType = "picture";
 
     public string GenerateToken(UserInfoTokenDto tokenDto)
     {
@@ -35,12 +36,13 @@ public class TokenManager
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, tokenDto.UserId.ToString()),
-            new(JwtRegisteredClaimNames.Email, tokenDto.Email),
+            new(JwtRegisteredClaimNames.Sub, tokenDto.Id.ToString()),
+            new(JwtRegisteredClaimNames.Name, tokenDto.FirstName),
+            new(JwtRegisteredClaimNames.FamilyName, tokenDto.LastName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("username", tokenDto.Username)
         };
         if (tokenDto.Role.HasValue) claims.Add(new Claim(ClaimTypes.Role, tokenDto.Role.Value.ToString()));
+        if (tokenDto.Picture != null) claims.Add(new Claim(PictureClaimType, tokenDto.Picture));
 
         var token = new JwtSecurityToken(
             JwtIssuer,
@@ -58,16 +60,20 @@ public class TokenManager
         var jwtToken = handler.ReadJwtToken(token);
         if (jwtToken == null)
             throw new InvalidOperationException("Invalid token!");
-        var userId = int.Parse(jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
-        var email = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value;
-        var username = jwtToken.Claims.First(c => c.Type == "Username").Value;
+        var id = int.Parse(jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
+        var firstName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value;
+        var lastName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value;
         var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
         int? role = roleClaim != null ? int.Parse(roleClaim.Value) : null;
+        var pictureClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PictureClaimType);
+        string? picture = pictureClaim?.Value;
+
         return new UserInfoTokenDto
         {
-            UserId = userId,
-            Email = email,
-            Username = username,
+            Id = id,
+            FirstName = firstName,
+            LastName = lastName,
+            Picture = picture,
             Role = role
         };
     }

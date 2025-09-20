@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/build_helper.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/pages/login.dart';
+import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 
 class AppOverlay extends StatelessWidget {
@@ -39,7 +40,7 @@ class AppOverlay extends StatelessWidget {
           iconTheme: IconThemeData(color: secondaryColor),
         ),
       ),
-      home: LoginPage(),
+      home: Homepage(),
       scaffoldMessengerKey: Constants.messengerKey,
     );
   }
@@ -49,7 +50,7 @@ class AppOverlay extends StatelessWidget {
       valueListenable: _uiProvider.isLoading,
       builder: (context, loading, _) {
         if (!loading) return const SizedBox.shrink();
-        final backgroundColor = Theme.of(context).colorScheme.secondary;
+        final backgroundColor = BuildHelper.getSecondaryColor(context);
 
         return Container(
           color: backgroundColor.withAlpha(50),
