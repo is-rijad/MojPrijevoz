@@ -24,17 +24,20 @@ class RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FormWrapper(
-      formKey: _formKey,
+    return Scaffold(
       appBar: AppBar(title: const Text("Registracija")),
-      children: [
-        ..._buildUserPersonalData(context),
-        ..._buildPasswordInputs(context),
-        SizedBox(height: 8),
-        _buildCityDropdown(context),
-        SizedBox(height: 12),
-        _buildSubmitButton(context),
-      ],
+      body: FormWrapper(
+        mainAxisAlignment: MainAxisAlignment.center,
+        formKey: _formKey,
+        children: [
+          ..._buildUserPersonalData(context),
+          ..._buildPasswordInputs(context),
+          SizedBox(height: 8),
+          _buildCityDropdown(context),
+          SizedBox(height: 12),
+          _buildSubmitButton(context),
+        ],
+      ),
     );
   }
 

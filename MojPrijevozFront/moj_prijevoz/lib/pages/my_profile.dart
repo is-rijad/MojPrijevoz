@@ -76,6 +76,7 @@ class _MyProfilState extends State<MyProfile> {
   Widget _build(BuildContext context) {
     return PageWrapper(
       body: FormWrapper(
+        mainAxisAlignment: MainAxisAlignment.start,
         formKey: _formKey,
         children: [
           ..._buildPersonalData(context),

@@ -33,19 +33,22 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FormWrapper(
-      formKey: _formKey,
-      children: [
-        Image.asset(
-          "images/mojPrijevoz.png",
-          fit: BoxFit.fitWidth,
-          width: 200,
-          height: 200,
-        ),
-        ..._buildInputs(context),
-        SizedBox(height: 12),
-        ..._buildButtons(context),
-      ],
+    return Scaffold(
+      body: FormWrapper(
+        mainAxisAlignment: MainAxisAlignment.center,
+        formKey: _formKey,
+        children: [
+          Image.asset(
+            "images/mojPrijevoz.png",
+            fit: BoxFit.fitWidth,
+            width: 200,
+            height: 200,
+          ),
+          ..._buildInputs(context),
+          SizedBox(height: 12),
+          ..._buildButtons(context),
+        ],
+      ),
     );
   }
 
