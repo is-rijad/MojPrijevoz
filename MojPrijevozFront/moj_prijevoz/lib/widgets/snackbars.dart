@@ -8,3 +8,12 @@ class ErrorSnackBar extends SnackBar {
         duration: const Duration(seconds: 3),
       );
 }
+
+class SuccessSnackBar extends SnackBar {
+  SuccessSnackBar({super.key, required String message})
+    : super(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+      );
+}

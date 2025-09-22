@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
+import 'package:moj_prijevoz/resources/requests/user/update_user_request.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/login_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
@@ -12,6 +13,7 @@ final Map<Type, _FromJson> _jsonFactories = {
   CityResponse: (json) => CityResponse.fromMap(json),
   UserResponse: (json) => UserResponse.fromMap(json),
   AccessTokenPayload: (json) => AccessTokenPayload.fromMap(json),
+  UpdateUserRequest: (json) => UpdateUserRequest.fromMap(json),
 };
 
 T parseJson<T>(Map<String, dynamic> json) {

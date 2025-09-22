@@ -6,14 +6,12 @@ import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 
 class AppOverlay extends StatelessWidget {
-  late final UIProvider _uiProvider;
+  final UIProvider _uiProvider = GetIt.I<UIProvider>();
 
   static const primaryColor = Color(0xFF3F8ED4);
   static const secondaryColor = Color(0xFFF1F5FE);
 
-  AppOverlay({super.key}) {
-    _uiProvider = GetIt.I<UIProvider>();
-  }
+  AppOverlay({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +48,8 @@ class AppOverlay extends StatelessWidget {
       valueListenable: _uiProvider.isLoading,
       builder: (context, loading, _) {
         if (!loading) return const SizedBox.shrink();
-        final backgroundColor = BuildHelper.getSecondaryColor(context);
-
         return Container(
-          color: backgroundColor.withAlpha(50),
+          color: BuildHelper.getSecondaryColor(context).withAlpha(50),
           child: const Center(child: CircularProgressIndicator()),
         );
       },

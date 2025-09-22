@@ -17,7 +17,7 @@ class PagedDropdown<
   final TSearchObject searchObject;
   final String Function(T) getLabel;
   final TValue Function(T) getValue;
-  final ValueChanged<T> onChanged;
+  final ValueChanged<T>? onChanged;
   final String? defaultLabel;
   final InputDecoration? decoration;
   final T? defaultItem;
@@ -27,7 +27,7 @@ class PagedDropdown<
     required this.getLabel,
     required this.getValue,
     required this.searchObject,
-    required this.onChanged,
+    this.onChanged,
     this.defaultLabel,
     this.decoration,
     this.defaultItem,
@@ -70,19 +70,6 @@ class _PagedDropdownState<
     _changeSelectedItem(widget.defaultItem);
     _changeDropdownText(selectedItem);
     _fetchPage();
-  }
-
-  @override
-  void didUpdateWidget(
-    covariant PagedDropdown<T, TValue, TProvider, TSearchObject> oldWidget,
-  ) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.defaultItem != oldWidget.defaultItem) {
-      setState(() {
-        _changeSelectedItem(widget.defaultItem);
-        _changeDropdownText(selectedItem);
-      });
-    }
   }
 
   void _scrollToSelected() {
@@ -194,7 +181,7 @@ class _PagedDropdownState<
                             : false,
                         title: Text(widget.getLabel(item)),
                         onTap: () {
-                          widget.onChanged.call(item);
+                          widget.onChanged?.call(item);
                           _toggleDropdown();
                           setState(() {
                             _changeSelectedItem(item);

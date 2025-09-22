@@ -109,8 +109,10 @@ class _PageWrapperState extends State<PageWrapper> {
       default:
     }
 
-    setState(() {
-      _uiProvider.profileDropdownAction = null;
-    });
+    if (mounted) {
+      setState(() {
+        _uiProvider.profileDropdownAction = null;
+      });
+    }
   }
 }

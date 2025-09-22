@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
@@ -6,6 +7,7 @@ import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
+import 'package:moj_prijevoz/widgets/form_fields/password_form_field.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 
@@ -58,23 +60,15 @@ class LoginPage extends StatelessWidget {
         validator: (value) {
           if (value == null ||
               !value.isNotEmpty ||
-              !Constants.usernameRegex.hasMatch(value)) {
-            return "Korisničko ime nije validno!";
+              (!Constants.usernameRegex.hasMatch(value) &&
+                  !EmailValidator.validate(value))) {
+            return "Korisničko ime ili email nije validan!";
           }
           return null;
         },
         onSaved: (value) => _loginRequest.username = value!,
       ),
-      TextFormField(
-        obscureText: true,
-        validator: (value) {
-          if (value == null ||
-              !value.isNotEmpty ||
-              !Constants.passwordRegex.hasMatch(value)) {
-            return "Lozinka mora imati minimalno 8 karaktera, mala i velika slova, znakove i brojeve!";
-          }
-          return null;
-        },
+      PasswordFormField(
         onSaved: (value) => _loginRequest.password = value!,
         decoration: InputDecorationWithIcon(
           iconData: Icons.password,

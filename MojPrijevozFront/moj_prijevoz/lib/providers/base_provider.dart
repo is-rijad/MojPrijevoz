@@ -46,4 +46,12 @@ abstract class BaseProvider<
       request,
     );
   }
+
+  Future<TDetailedResponse> update(int id, TUpdateRequest request) async {
+    return await httpProvider.put<TUpdateRequest, TDetailedResponse>(
+      providerName,
+      id,
+      request,
+    );
+  }
 }

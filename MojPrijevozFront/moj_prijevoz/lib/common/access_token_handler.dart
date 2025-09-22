@@ -13,7 +13,7 @@ abstract class AccessTokenHandler {
 
   static Future<String> getAccessToken() async {
     // TODO: Temp
-    return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMyIsIm5hbWUiOiJSaWphZCIsImZhbWlseV9uYW1lIjoiSXNpcmxpamEiLCJqdGkiOiJlMmZhNzYzNy03OTJjLTQ4OTQtODBiNS1iMDlkMTc2MjdjYzEiLCJleHAiOjE3NTg0MTE1MTUsImlzcyI6Ik1valByaWpldm96LldlYkFwaSJ9.MsV48qKI43yAFYnYsQFL5fk4GJvH_PyPaFhh0nhpKBE";
+    return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMyIsIm5hbWUiOiJSaWphZCIsImZhbWlseV9uYW1lIjoiSXNpcmxpamEiLCJqdGkiOiI0ODIxNDEwNy1jNGYyLTQxODUtOGI4ZS04MDQwNThmNDkwYjkiLCJleHAiOjIxOTA1MzI4OTEsImlzcyI6Ik1valByaWpldm96LldlYkFwaSJ9.O6D6gd8dLm__az_9ob34OSGVAXB5OyyJmMB__2xbmgs";
     var hive = await HiveProvider.getInstance();
     var token = hive.get(_accessTokenKey);
     if (token == null) {

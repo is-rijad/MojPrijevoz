@@ -26,4 +26,4 @@ Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
       'picture': instance.picture,
     };
 
-const _$GenderEnumMap = {Gender.female: 'female', Gender.male: 'male'};
+const _$GenderEnumMap = {Gender.female: 0, Gender.male: 1};

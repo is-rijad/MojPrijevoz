@@ -87,6 +87,28 @@ class HttpProvider {
     }
   }
 
+  Future<TResponse> put<TRequest extends JsonParsable, TResponse>(
+    String url,
+    int id,
+    TRequest request, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      _uiProvider.startLoading(loadingType);
+
+      var options = await _setRequestOptions();
+      var response = await _dio.put(
+        "$_apiUrl$url/$id",
+        data: request.toMap(),
+        options: options,
+        queryParameters: queryParameters,
+      );
+      return parseJson<TResponse>(response.data);
+    } finally {
+      _uiProvider.stopLoading();
+    }
+  }
+
   Future<Options> _setRequestOptions() async {
     var options = Options(contentType: "application/json");
     var headersMap = <String, dynamic>{};

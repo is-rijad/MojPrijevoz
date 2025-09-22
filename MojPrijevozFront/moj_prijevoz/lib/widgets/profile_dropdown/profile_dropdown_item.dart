@@ -5,6 +5,7 @@ import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 
 class ProfileDropdownItem extends PopupMenuItem<ProfileDropdownAction> {
+  @override
   final ProfileDropdownAction value;
   final String text;
 

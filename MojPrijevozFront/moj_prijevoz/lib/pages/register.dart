@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/create_user_request.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/city_paged_dropdown.dart';
-import 'package:email_validator/email_validator.dart';
+import 'package:moj_prijevoz/widgets/form_fields/email_form_field.dart';
+import 'package:moj_prijevoz/widgets/form_fields/name_form_field.dart';
+import 'package:moj_prijevoz/widgets/form_fields/password_form_field.dart';
+import 'package:moj_prijevoz/widgets/form_fields/username_form_field.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -38,52 +40,24 @@ class RegisterPageState extends State<RegisterPage> {
 
   List<Widget> _buildUserPersonalData(BuildContext context) {
     return <Widget>[
-      TextFormField(
-        keyboardType: TextInputType.name,
+      NameFormField(
         decoration: InputDecoration(label: const Text("Ime")),
-        validator: (value) {
-          if (value == null || value.isEmpty) return "Ime nije validno!";
-          return null;
-        },
         onSaved: (value) => _request.firstName = value!,
+        errorMessage: "Ime nije validno!",
       ),
 
-      TextFormField(
-        keyboardType: TextInputType.name,
+      NameFormField(
         decoration: InputDecoration(label: const Text("Prezime")),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Prezime nije validno!";
-          }
-          return null;
-        },
         onSaved: (value) => _request.lastName = value!,
+        errorMessage: "Prezime nije validno!",
       ),
-      TextFormField(
-        keyboardType: TextInputType.emailAddress,
+      EmailFormField(
         decoration: InputDecoration(label: const Text("Email")),
-        validator: (value) {
-          if (value == null ||
-              value.isEmpty ||
-              !EmailValidator.validate(value)) {
-            return "Email nije validan!";
-          }
-          return null;
-        },
         onSaved: (value) => _request.email = value!,
       ),
 
-      TextFormField(
-        keyboardType: TextInputType.text,
+      UsernameFormField(
         decoration: InputDecoration(label: const Text("Korisničko ime")),
-        validator: (value) {
-          if (value == null ||
-              value.isEmpty ||
-              !Constants.usernameRegex.hasMatch(value)) {
-            return "Korisničko ime nije validno!";
-          }
-          return null;
-        },
         onSaved: (value) => _request.username = value!,
       ),
     ];
@@ -91,33 +65,13 @@ class RegisterPageState extends State<RegisterPage> {
 
   List<Widget> _buildPasswordInputs(BuildContext context) {
     return <Widget>[
-      TextFormField(
-        obscureText: true,
-        keyboardType: TextInputType.text,
+      PasswordFormField(
         decoration: InputDecoration(label: const Text("Lozinka")),
-        validator: (value) {
-          if (value == null ||
-              value.isEmpty ||
-              !Constants.passwordRegex.hasMatch(value)) {
-            return "Lozinka nije validna!";
-          }
-          return null;
-        },
         onSaved: (value) => _request.password = value!,
       ),
 
-      TextFormField(
-        obscureText: true,
-        keyboardType: TextInputType.text,
+      PasswordFormField(
         decoration: InputDecoration(label: const Text("Ponovite lozinku")),
-        validator: (value) {
-          if (value == null ||
-              value.isEmpty ||
-              !Constants.passwordRegex.hasMatch(value)) {
-            return "Lozinka nije validna!";
-          }
-          return null;
-        },
         onSaved: (value) => _request.passwordAgain = value!,
       ),
     ];
