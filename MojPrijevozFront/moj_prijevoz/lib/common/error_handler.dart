@@ -4,9 +4,13 @@ import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
 
 abstract class ErrorHandler {
-  static void handle(Object ex, StackTrace stack) {
+  static String handle(Object ex, StackTrace stack, {showSnackBar = false}) {
     _logToConsole(ex, stack);
-    _showSnackBar(_getMessageFromException(ex));
+    var message = _getMessageFromException(ex);
+    if (showSnackBar) {
+      _showSnackBar(message);
+    }
+    return message;
   }
 
   static void _logToConsole(Object ex, StackTrace stack) {

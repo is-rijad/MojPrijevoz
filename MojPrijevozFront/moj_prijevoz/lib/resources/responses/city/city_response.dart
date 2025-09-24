@@ -17,9 +17,9 @@ class CityResponse extends JsonParsable {
     required this.lat,
   });
 
-  factory CityResponse.fromMap(Map<String, dynamic> json) =>
+  factory CityResponse.fromJson(Map<String, dynamic> json) =>
       _$CityResponseFromJson(json);
 
   @override
-  Map<String, dynamic> toMap() => _$CityResponseToJson(this);
+  Map<String, dynamic> toJson() => _$CityResponseToJson(this);
 }

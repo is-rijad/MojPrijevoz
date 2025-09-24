@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/resources/common/user_for_circle_avatar_interface.dart';
 
 class Avatar extends CircleAvatar {
-  final UserForCircleAvatarInterface? user;
+  final UserForCircleAvatarInterface user;
   Avatar({
     required this.user,
     super.key,
@@ -10,8 +10,8 @@ class Avatar extends CircleAvatar {
     super.maxRadius,
     super.minRadius,
   }) : super(
-         child: user?.picture == null
-             ? Text((user?.firstName[0] ?? "") + (user?.lastName[0] ?? ""))
-             : Image.network(user!.picture!),
+         child: user.picture == null
+             ? Text(user.firstName[0] + user.lastName[0])
+             : Image.network(user.picture!),
        );
 }

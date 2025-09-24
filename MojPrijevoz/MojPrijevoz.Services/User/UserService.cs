@@ -36,9 +36,9 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         return userInsertRequest;
     }
 
-    protected override void AfterInsert(Database.User entity)
+    protected override async Task AfterInsert(Database.User entity, MojPrijevozDbContext dbContext)
     {
-        base.AfterInsert(entity);
+        await base.AfterInsert(entity, dbContext);
         if (entity.UserProfiles == null)
             entity.UserProfiles = new List<UserProfile>();
         entity.UserProfiles.Add(new UserProfile
@@ -46,6 +46,7 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
             ProfileType = ProfileType.Passenger,
             User = entity
         });
+        await dbContext.SaveChangesAsync();
     }
 
     protected override Task BeforeUpdate(int id, UserUpdateRequest request, Database.User entity)

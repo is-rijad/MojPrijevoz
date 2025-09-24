@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Services.Authorization;
 
 namespace MojPrijevoz.WebApi.Controllers;
@@ -13,9 +15,15 @@ public class AuthController : ControllerBase
     {
         _authorizationService = authorizationService;
     }
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id)
+    [HttpGet]
+    public async Task<IActionResult> Get()
     {
-        return Ok(await _authorizationService.GetByIdAsync(id));
+        return Ok(await _authorizationService.GetNewToken());
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    public async Task<IActionResult> Login([FromBody] UserLoginRequest request) {
+        return Ok(await _authorizationService.Login(request));
     }
 }

@@ -20,18 +20,9 @@ class FormWrapper extends StatelessWidget {
       key: formKey,
       child: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(padding),
+          padding: EdgeInsets.symmetric(horizontal: padding, vertical: 0),
           child: SizedBox(
             width: BuildHelper.getScreenWidth(context) * 0.7,
-            height:
-                BuildHelper.getScreenHeight(context) -
-                (padding * 2) -
-                (context
-                        .findAncestorWidgetOfExactType<Scaffold>()
-                        ?.appBar
-                        ?.preferredSize
-                        .height ??
-                    0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: mainAxisAlignment,

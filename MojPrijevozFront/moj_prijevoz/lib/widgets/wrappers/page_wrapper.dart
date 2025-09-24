@@ -3,12 +3,14 @@ import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/pages/login.dart';
+import 'package:moj_prijevoz/pages/my_driver_profile.dart';
 import 'package:moj_prijevoz/pages/my_profile.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/profile_dropdown/profile_dropdown_item.dart';
 import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
+import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 
 class PageWrapper extends StatefulWidget {
   final Widget body;
@@ -23,23 +25,26 @@ class PageWrapper extends StatefulWidget {
 class _PageWrapperState extends State<PageWrapper> {
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
   final _avatarKey = GlobalKey();
-  AccessTokenPayload? _accessTokenPayload;
+  // TODO: create event to refresh payload
+  late final AccessTokenPayload _accessTokenPayload;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initState());
   }
 
-  Future<void> _initState() async {
+  Future<bool> _initState() async {
     _accessTokenPayload = await AccessTokenHandler.getPayload();
-
-    if (mounted) setState(() {});
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: _buildAppBar(context), body: widget.body);
+    return LoadUntilReadyWrapper(
+      buildFunction: (context) =>
+          Scaffold(appBar: _buildAppBar(context), body: widget.body),
+      futureFunction: _initState,
+    );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -85,6 +90,12 @@ class _PageWrapperState extends State<PageWrapper> {
           value: ProfileDropdownAction.profile,
         ),
         ProfileDropdownItem(
+          text: _accessTokenPayload.driverProfileId != null
+              ? "Moj profil (vozač)"
+              : "Postani vozač",
+          value: ProfileDropdownAction.driver,
+        ),
+        ProfileDropdownItem(
           text: "Odjava",
           value: ProfileDropdownAction.logout,
         ),
@@ -96,6 +107,13 @@ class _PageWrapperState extends State<PageWrapper> {
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => MyProfile()),
+        );
+        break;
+      case ProfileDropdownAction.driver:
+        if (!context.mounted) return;
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyDriverProfile()),
         );
         break;
       case ProfileDropdownAction.logout:

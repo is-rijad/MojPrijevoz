@@ -1,41 +1,82 @@
+import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/hive_provider.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
+import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 abstract class AccessTokenHandler {
   static final _accessTokenKey = "access_token";
+  static final _uiProvider = GetIt.I<UIProvider>();
+  static final _loadingType = LoadingType.global;
 
   static Future<void> setAccessToken(String token) async {
-    var hive = await HiveProvider.getInstance();
-    hive.put(_accessTokenKey, token);
+    try {
+      _uiProvider.startLoading(_loadingType);
+      var hive = await HiveProvider.getInstance();
+      hive.put(_accessTokenKey, token);
+    } finally {
+      _uiProvider.stopLoading();
+    }
   }
 
   static Future<String> getAccessToken() async {
-    // TODO: Temp
-    return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMyIsIm5hbWUiOiJSaWphZCIsImZhbWlseV9uYW1lIjoiSXNpcmxpamEiLCJqdGkiOiI0ODIxNDEwNy1jNGYyLTQxODUtOGI4ZS04MDQwNThmNDkwYjkiLCJleHAiOjIxOTA1MzI4OTEsImlzcyI6Ik1valByaWpldm96LldlYkFwaSJ9.O6D6gd8dLm__az_9ob34OSGVAXB5OyyJmMB__2xbmgs";
-    var hive = await HiveProvider.getInstance();
-    var token = hive.get(_accessTokenKey);
-    if (token == null) {
-      throw Exception("User is not logged in!");
+    try {
+      _uiProvider.startLoading(_loadingType);
+      var hive = await HiveProvider.getInstance();
+      var token = hive.get(_accessTokenKey);
+      if (token == null) {
+        throw Exception("User is not logged in!");
+      }
+      return token;
+    } finally {
+      _uiProvider.stopLoading();
     }
-    return token;
   }
 
   static Future<void> logout() async {
-    var hive = await HiveProvider.getInstance();
-    hive.delete(_accessTokenKey);
+    try {
+      _uiProvider.startLoading(_loadingType);
+      var hive = await HiveProvider.getInstance();
+      hive.delete(_accessTokenKey);
+    } finally {
+      _uiProvider.stopLoading();
+    }
   }
 
   static Future<int> getUserId() async {
-    var token = await getAccessToken();
-    var payload = JwtDecoder.decode(token);
-    return int.parse(payload["sub"]);
+    try {
+      _uiProvider.startLoading(_loadingType);
+      var token = await getAccessToken();
+      var payload = JwtDecoder.decode(token);
+      return int.parse(payload["sub"]);
+    } finally {
+      _uiProvider.stopLoading();
+    }
   }
 
   static Future<AccessTokenPayload> getPayload() async {
-    var token = await getAccessToken();
-    var payload = JwtDecoder.decode(token);
-    return parseJson<AccessTokenPayload>(payload);
+    try {
+      _uiProvider.startLoading(_loadingType);
+      var token = await getAccessToken();
+      var payload = JwtDecoder.decode(token);
+      return parseJson<AccessTokenPayload>(payload);
+    } finally {
+      _uiProvider.stopLoading();
+    }
+  }
+
+  static Future<int?> getProfileId(ProfileType profileType) async {
+    try {
+      _uiProvider.startLoading(_loadingType);
+      var payload = await getPayload();
+      return profileType == ProfileType.passenger
+          ? payload.passengerProfileId
+          : payload.driverProfileId;
+    } finally {
+      _uiProvider.stopLoading();
+    }
   }
 }

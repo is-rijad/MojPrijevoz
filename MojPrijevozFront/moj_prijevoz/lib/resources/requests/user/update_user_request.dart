@@ -29,7 +29,7 @@ class UpdateUserRequest extends JsonParsable {
   });
 
   @override
-  Map<String, dynamic> toMap() => _$UpdateUserRequestToJson(this);
+  Map<String, dynamic> toJson() => _$UpdateUserRequestToJson(this);
 
-  factory UpdateUserRequest.fromMap(json) => _$UpdateUserRequestFromJson(json);
+  factory UpdateUserRequest.fromJson(json) => _$UpdateUserRequestFromJson(json);
 }

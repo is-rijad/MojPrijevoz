@@ -1,47 +1,51 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MojPrijevoz.Model.Authorization;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
 using System.Security.Cryptography;
-using MapsterMapper;
-using Microsoft.AspNetCore.Http;
 using MojPrijevoz.Database;
-using MojPrijevoz.Model.BaseModels;
-using MojPrijevoz.Model.Responses.Auth;
-using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.Authorization;
 
-public class AuthorizationService : BaseService<TPlaceholder, AuthResponse, Database.User, BaseSearchObject> {
+public class AuthorizationService {
     private const int HashByteSize = 32;
     private const int SaltByteSize = 16;
     private const int Iterations = 100000;
 
     private readonly TokenManager _tokenManager;
     private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA256;
+    private readonly MojPrijevozDbContext _dbContext;
 
-    public AuthorizationService(MojPrijevozDbContext context, IMapper mapper, TokenManager tokenManager) : base(context, mapper) {
+    public AuthorizationService(MojPrijevozDbContext context, TokenManager tokenManager) {
+        _dbContext = context;
         _tokenManager = tokenManager;
     }
 
-    public async Task<UserLoginResponse> Login(UserLoginRequest request) {
+    public async Task<AccessTokenResponse> Login(UserLoginRequest request) {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u =>
             u.Username == request.Username || u.Email == request.Username);
         if (user == null || !VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
             throw new BadRequestException("Uneseni podaci nisu ispravni");
 
-        var tokenDto = _mapper.Map<UserInfoTokenDto>(user);
+        var token = await _tokenManager.GenerateToken(user);
 
-        var role = await _dbContext.Administrators.FindAsync(user.Id);
-        if (role != null)
-            tokenDto.Role = Convert.ToInt32(role.Role);
-
-        var token = _tokenManager.GenerateToken(tokenDto);
-
-        return new UserLoginResponse
+        return new AccessTokenResponse
         {
-            Id = user.Id,
+            Token = token
+        };
+    }
+
+    public async Task<AccessTokenResponse> GetNewToken()
+    {
+        var userId = GetUserId();
+
+        var user = await _dbContext.Users.FirstAsync(u =>
+            u.Id == userId);
+       
+        var token = await _tokenManager.GenerateToken(user);
+
+        return new AccessTokenResponse
+        {
             Token = token
         };
     }

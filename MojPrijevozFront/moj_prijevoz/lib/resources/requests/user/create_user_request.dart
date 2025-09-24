@@ -24,8 +24,8 @@ class CreateUserRequest implements JsonParsable {
   });
 
   @override
-  Map<String, dynamic> toMap() => _$CreateUserRequestToJson(this);
+  Map<String, dynamic> toJson() => _$CreateUserRequestToJson(this);
 
-  factory CreateUserRequest.fromMap(Map<String, dynamic> json) =>
+  factory CreateUserRequest.fromJson(Map<String, dynamic> json) =>
       _$CreateUserRequestFromJson(json);
 }

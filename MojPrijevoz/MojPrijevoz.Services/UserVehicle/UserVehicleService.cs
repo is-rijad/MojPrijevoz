@@ -6,15 +6,34 @@ using MojPrijevoz.Model.Responses.UserVehicle;
 using MojPrijevoz.Services.BaseServices;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Model.Exceptions;
+using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 
 namespace MojPrijevoz.Services.UserVehicle;
 
 public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehicleUpsertRequest,
-    UserVehicleUpsertRequest, UserVehicleResponse, UserVehicleResponse, BaseSearchObject>
+    UserVehicleUpsertRequest, UserVehicleResponse, UserVehicleResponse, UserVehicleSearchObject>
 {
     public UserVehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService)
     {
+    }
+
+    public override IQueryable<Database.UserVehicle> ApplyFilter(IQueryable<Database.UserVehicle> queryable, UserVehicleSearchObject searchObject)
+    {
+        return queryable.Where(uv => uv.ProfileId == searchObject.ProfileId);
+    }
+
+    protected override async Task PrepareForResponse(Database.UserVehicle entity, MojPrijevozDbContext dbContext)
+    {
+        entity.Vehicle = await dbContext.Vehicles.FindAsync(entity.VehicleId);
+        await base.PrepareForResponse(entity, dbContext);
+    }
+
+    public override async Task<IQueryable<Database.UserVehicle>> IncludeAdditionalEntities(IQueryable<Database.UserVehicle> queryable)
+    {
+        queryable = await base.IncludeAdditionalEntities(queryable);
+        queryable = queryable.Include(uv => uv.Vehicle);
+        return queryable;
     }
 
     protected override async Task BeforeInsert(UserVehicleUpsertRequest request)
@@ -34,6 +53,7 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
             if (await _dbContext.UserVehicles.AnyAsync(uv => uv.Profile == profile && uv.VehicleId == request.VehicleId && uv.ModelYear == request.ModelYear))
                 throw new BadRequestException("Vozilo već postoji.");
         }
+        await _dbContext.SaveChangesAsync();
         request.ProfileId = profile.Id;
     }
 
@@ -42,7 +62,7 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         await base.BeforeUpdate(id, request, entity);
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
         var profile = await _dbContext.UserProfiles.FindAsync(profileId);
-        if (await _dbContext.UserVehicles.AnyAsync(uv => uv.Profile == profile && uv.VehicleId == request.VehicleId && uv.ModelYear == request.ModelYear))
+        if (await _dbContext.UserVehicles.AnyAsync(uv => uv.Profile == profile && uv.VehicleId == request.VehicleId && uv.ModelYear == request.ModelYear && uv.Id != entity.Id))
             throw new BadRequestException("Vozilo već postoji.");
     }
 }

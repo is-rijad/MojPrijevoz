@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
-import 'package:moj_prijevoz/resources/common/search_objects/base_search_object.dart';
+import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
@@ -19,11 +19,14 @@ abstract class BaseGetProvider<
   }
 
   Future<TDetailedResponse> getById(int id) async {
-    return await httpProvider.getById<TDetailedResponse>(id, providerName);
+    return await httpProvider.getSingle<TDetailedResponse>(
+      providerName,
+      id: id,
+    );
   }
 
   Future<SearchResult<TResponse>> getAll(TSearchObject search) async {
-    return await httpProvider.get<TResponse, TSearchObject>(
+    return await httpProvider.getAll<TResponse, TSearchObject>(
       providerName,
       search,
     );

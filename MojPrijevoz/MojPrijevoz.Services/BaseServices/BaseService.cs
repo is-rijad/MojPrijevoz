@@ -23,11 +23,19 @@ public abstract class BaseService<TResponse, TDetailedResponse, TEntity, TSearch
         return queryable;
     }
 
+    public virtual Task<IQueryable<TEntity>> IncludeAdditionalEntities(IQueryable<TEntity> queryable) {
+        return Task.FromResult(queryable);
+    }
+
+    protected virtual Task PrepareForResponse(TEntity entity, MojPrijevozDbContext dbContext) { return Task.CompletedTask; }
+
+
     public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject)
     {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         queryable = ApplyFilter(queryable, searchObject);
         queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
+        queryable = await IncludeAdditionalEntities(queryable);
         var list = await queryable.ToListAsync();
         return new PagedResult<TResponse>
         {
@@ -42,6 +50,7 @@ public abstract class BaseService<TResponse, TDetailedResponse, TEntity, TSearch
         var entity = await queryable.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         if (entity == null)
             throw new NotFoundException($"Nije pronađeno!");
+        await PrepareForResponse(entity, _dbContext);
         return MapToResponseModel<TDetailedResponse>(entity);
     }
 

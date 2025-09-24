@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
-import 'package:moj_prijevoz/resources/common/search_objects/base_search_object.dart';
+import 'package:moj_prijevoz/resources/search_objects/base/string_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown.dart';
 
@@ -8,7 +8,7 @@ class PagedDropdownFormField<
   T extends JsonParsable,
   TValue,
   TProvider extends BaseGetProvider<T, T, TSearchObject>,
-  TSearchObject extends BaseSearchObject
+  TSearchObject extends StringSearchObject
 >
     extends FormField<T> {
   PagedDropdownFormField({

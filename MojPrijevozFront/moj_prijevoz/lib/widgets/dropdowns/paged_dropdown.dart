@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
-import 'package:moj_prijevoz/resources/common/search_objects/base_search_object.dart';
+import 'package:moj_prijevoz/resources/search_objects/base/string_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
+// TODO: request focus on button click
+// TODO: if scrolled past searched item, loading stuck until cursor go up
 class PagedDropdown<
   T extends JsonParsable,
   TValue,
   TProvider extends BaseGetProvider<T, T, TSearchObject>,
-  TSearchObject extends BaseSearchObject
+  TSearchObject extends StringSearchObject
 >
     extends StatefulWidget {
   final TSearchObject searchObject;
@@ -42,7 +44,7 @@ class _PagedDropdownState<
   T extends JsonParsable,
   TValue,
   TProvider extends BaseGetProvider<T, T, TSearchObject>,
-  TSearchObject extends BaseSearchObject
+  TSearchObject extends StringSearchObject
 >
     extends State<PagedDropdown<T, TValue, TProvider, TSearchObject>> {
   late final TProvider _provider;

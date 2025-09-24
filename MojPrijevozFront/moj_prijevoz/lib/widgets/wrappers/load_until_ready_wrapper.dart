@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/widgets.dart';
 import 'package:moj_prijevoz/common/build_helper.dart';
 
@@ -39,6 +41,9 @@ class _LoadUntilReadyWrapperState extends State<LoadUntilReadyWrapper> {
         if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData) {
           return widget.buildFunction(context);
+        }
+        if (snapshot.hasError) {
+          log("ERROR IN FUTURE BUILDER => ${snapshot.error}");
         }
         return Container(
           color: BuildHelper.getSecondaryColor(context),

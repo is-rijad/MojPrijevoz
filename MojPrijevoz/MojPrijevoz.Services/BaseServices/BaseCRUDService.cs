@@ -16,7 +16,7 @@ public abstract class BaseCrudService<TEntity, TInsertRequest, TUpdateRequest, T
     }
 
     protected virtual Task BeforeInsert(TInsertRequest request) { return Task.CompletedTask;}
-    protected virtual void AfterInsert(TEntity entity) {}
+    protected virtual Task AfterInsert(TEntity entity, MojPrijevozDbContext dbContext) { return Task.CompletedTask; }
     protected virtual TEntity MapToInsertEntity(TInsertRequest request) => _mapper.Map<TEntity>(request);
 
     public async Task<TDetailedResponse> InsertAsync(TInsertRequest request)
@@ -24,9 +24,10 @@ public abstract class BaseCrudService<TEntity, TInsertRequest, TUpdateRequest, T
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         await BeforeInsert(request);
         var entityEntry = await _dbContext.Set<TEntity>().AddAsync(MapToInsertEntity(request));
-        AfterInsert(entityEntry.Entity);
         await _dbContext.SaveChangesAsync();
+        await AfterInsert(entityEntry.Entity, _dbContext);
         await transaction.CommitAsync();
+        await PrepareForResponse(entityEntry.Entity, _dbContext);
         return MapToResponseModel<TDetailedResponse>(entityEntry.Entity);
     }
 
@@ -35,7 +36,7 @@ public abstract class BaseCrudService<TEntity, TInsertRequest, TUpdateRequest, T
         return Task.CompletedTask;
     }
 
-    protected virtual void AfterUpdate(TEntity entity) { }
+    protected virtual Task AfterUpdate(TEntity entity, MojPrijevozDbContext dbContext) {return Task.CompletedTask;}
     protected virtual void MapToUpdateEntity(TUpdateRequest request, TEntity entity) => _mapper.Map(request, entity);
 
     public async Task<TDetailedResponse> UpdateAsync(int id, TUpdateRequest request)
@@ -47,9 +48,10 @@ public abstract class BaseCrudService<TEntity, TInsertRequest, TUpdateRequest, T
             throw new NotFoundException($"Nije pronađeno!");
         await BeforeUpdate(id, request, entity);
         MapToUpdateEntity(request, entity);
-        AfterUpdate(entity);
         await _dbContext.SaveChangesAsync();
+        await AfterUpdate(entity, _dbContext);
         await transaction.CommitAsync();
+        await PrepareForResponse(entity, _dbContext);
         return MapToResponseModel<TDetailedResponse>(entity);
     }
 

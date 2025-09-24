@@ -4,7 +4,7 @@ import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
 import "package:moj_prijevoz/providers/ui_provider.dart";
-import 'package:moj_prijevoz/resources/common/search_objects/base_search_object.dart';
+import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
@@ -18,17 +18,18 @@ class HttpProvider {
     _uiProvider = GetIt.I<UIProvider>();
   }
 
-  Future<TResponse> getById<TResponse>(
-    int id,
+  Future<TResponse> getSingle<TResponse>(
     String url, {
+    int? id,
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
       _uiProvider.startLoading(loadingType);
-
+      var path = "$_apiUrl$url";
+      if (id != null) path += "/$id";
       var options = await _setRequestOptions();
       var response = await _dio.get(
-        "$_apiUrl$url/$id",
+        path,
         options: options,
         queryParameters: queryParameters,
       );
@@ -38,14 +39,14 @@ class HttpProvider {
     }
   }
 
-  Future<SearchResult<TResponse>> get<
+  Future<SearchResult<TResponse>> getAll<
     TResponse,
     TSearchObject extends BaseSearchObject
   >(String url, TSearchObject search, {Map<String, dynamic>? query}) async {
     try {
       _uiProvider.startLoading(loadingType);
 
-      var queryParameters = search.toMap();
+      var queryParameters = search.toJson();
       if (query != null) {
         queryParameters.addEntries(query.entries);
       }
@@ -77,7 +78,7 @@ class HttpProvider {
       var options = await _setRequestOptions();
       var response = await _dio.post(
         "$_apiUrl$url",
-        data: request.toMap(),
+        data: request.toJson(),
         options: options,
         queryParameters: queryParameters,
       );
@@ -99,7 +100,7 @@ class HttpProvider {
       var options = await _setRequestOptions();
       var response = await _dio.put(
         "$_apiUrl$url/$id",
-        data: request.toMap(),
+        data: request.toJson(),
         options: options,
         queryParameters: queryParameters,
       );
@@ -117,7 +118,7 @@ class HttpProvider {
       headersMap.addEntries(
         <String, dynamic>{"Authorization": "Bearer $token"}.entries,
       );
-    } on Exception catch (e) {}
+    } on Exception {}
 
     options.headers = headersMap;
     return options;

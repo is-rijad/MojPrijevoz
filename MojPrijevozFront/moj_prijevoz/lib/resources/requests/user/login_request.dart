@@ -10,9 +10,9 @@ class LoginRequest implements JsonParsable {
 
   LoginRequest({this.username = "", this.password = ""});
 
-  factory LoginRequest.fromMap(Map<String, dynamic> json) =>
+  factory LoginRequest.fromJson(Map<String, dynamic> json) =>
       _$LoginRequestFromJson(json);
 
   @override
-  Map<String, dynamic> toMap() => _$LoginRequestToJson(this);
+  Map<String, dynamic> toJson() => _$LoginRequestToJson(this);
 }

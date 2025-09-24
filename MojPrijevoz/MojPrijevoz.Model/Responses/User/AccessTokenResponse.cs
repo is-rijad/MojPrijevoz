@@ -1,7 +1,6 @@
 ﻿namespace MojPrijevoz.Model.Responses.User;
 
-public class UserLoginResponse
+public class AccessTokenResponse
 {
     public required string Token { get; set; }
-    public required int Id { get; set; }
 }

@@ -4,6 +4,7 @@ using MojPrijevoz.Services.City;
 using MojPrijevoz.Database;
 using MojPrijevoz.Services.User;
 using MojPrijevoz.Services.UserVehicle;
+using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddTransient<CityService>();
 builder.Services.AddTransient<AdminCityService>();
 builder.Services.AddTransient<UserVehicleService>();
+builder.Services.AddTransient<VehicleService>();
 
 var app = builder.Build();
 

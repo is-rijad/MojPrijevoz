@@ -28,13 +28,6 @@ public class UserController : ControllerBase
     }
 
 
-    [HttpPost("[action]")]
-    [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
-    {
-        return Ok(await _authorizationService.Login(request));
-    }
-
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id) {
         return Ok(await _userService.GetByIdAsync(id));
