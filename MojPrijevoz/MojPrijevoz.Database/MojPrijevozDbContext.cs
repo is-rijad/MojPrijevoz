@@ -63,19 +63,20 @@ public class MojPrijevozDbContext : DbContext
         var entries = ChangeTracker.Entries().Where(e =>
             e.Entity is IHasTimestamps && (e.State == EntityState.Added || e.State == EntityState.Modified));
         foreach (var entityEntry in entries)
-        {
             if (entityEntry.State == EntityState.Added)
                 ((IHasCreatedAtTimestamp)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
             else if (entityEntry.State == EntityState.Modified)
                 ((IHasTimestamps)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
-        }
     }
 
-    public override int SaveChanges() {
+    public override int SaveChanges()
+    {
         UpdateTimestamps();
         return base.SaveChanges();
     }
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) {
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
         UpdateTimestamps();
         return await base.SaveChangesAsync(cancellationToken);
     }

@@ -17,7 +17,7 @@ public class UserProfile
 
     public ProfileType ProfileType { get; set; }
 
-    public int NumberOfFares { get; set; } = 0;
+    public int NumberOfFares { get; set; }
 
     public virtual User? User { get; set; }
 

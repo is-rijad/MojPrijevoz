@@ -1,5 +1,4 @@
 ﻿using MapsterMapper;
-using Microsoft.AspNetCore.Http;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Responses.City;
 using MojPrijevoz.Model.SearchObjects;
@@ -8,16 +7,19 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.City;
 
-public class AdminCityService : BaseCrudService<Database.City, Database.City, CityInsertRequest, CityUpdateRequest, AdminCityResponse, CitySearchObject>
+public class AdminCityService : BaseCrudService<Database.City, Database.City, CityInsertRequest, CityUpdateRequest,
+    AdminCityResponse, CitySearchObject>
 {
-    public AdminCityService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService)
+    public AdminCityService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) :
+        base(context, mapper, authorizationService)
     {
     }
 
-    public override IQueryable<Database.City> ApplyFilter(IQueryable<Database.City> queryable, Model.SearchObjects.CitySearchObject searchObject) {
-        if (!string.IsNullOrWhiteSpace(searchObject.Contains)) {
+    public override IQueryable<Database.City> ApplyFilter(IQueryable<Database.City> queryable,
+        CitySearchObject searchObject)
+    {
+        if (!string.IsNullOrWhiteSpace(searchObject.Contains))
             queryable = queryable.Where(c => c.Name.Contains(searchObject.Contains));
-        }
         return queryable;
     }
 }

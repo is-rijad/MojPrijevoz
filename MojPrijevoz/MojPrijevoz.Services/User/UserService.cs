@@ -11,7 +11,9 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.User;
 
-public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateRequest, UserResponse, UserResponse, BaseSearchObject> {
+public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateRequest, UserResponse,
+    UserResponse, BaseSearchObject>
+{
     private readonly AuthorizationService _authorizationService;
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,
@@ -31,7 +33,8 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
     protected override Database.User MapToInsertEntity(UserInsertRequest request)
     {
         var userInsertRequest = _mapper.Map<Database.User>(request);
-        _authorizationService.CreatePassword(request.Password, request.PasswordAgain, out var passwordHash, out var passwordSalt);
+        _authorizationService.CreatePassword(request.Password, request.PasswordAgain, out var passwordHash,
+            out var passwordSalt);
         (userInsertRequest.PasswordHash, userInsertRequest.PasswordSalt) = (passwordHash, passwordSalt);
         return userInsertRequest;
     }
@@ -54,11 +57,13 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         base.BeforeUpdate(id, request, entity);
         if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null)
         {
-            if (!_authorizationService.VerifyPassword(request.OldPassword ?? string.Empty, entity.PasswordHash, entity.PasswordSalt))
+            if (!_authorizationService.VerifyPassword(request.OldPassword ?? string.Empty, entity.PasswordHash,
+                    entity.PasswordSalt))
                 throw new BadRequestException("Stara lozinka nije ispravna.");
             if (request.Password is null || request.PasswordAgain is null)
                 throw new BadRequestException("Nove lozinke moraju biti unesene.");
-            _authorizationService.CreatePassword(request.Password, request.PasswordAgain, out var passwordHash, out var passwordSalt);
+            _authorizationService.CreatePassword(request.Password, request.PasswordAgain, out var passwordHash,
+                out var passwordSalt);
             (entity.PasswordHash, entity.PasswordSalt) = (passwordHash, passwordSalt);
             (request.Password, request.PasswordAgain, request.OldPassword) = (null, null, null);
         }

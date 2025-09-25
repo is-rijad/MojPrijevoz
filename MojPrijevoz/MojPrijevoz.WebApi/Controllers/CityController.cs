@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.City;
 
 namespace MojPrijevoz.WebApi.Controllers;
@@ -14,10 +15,10 @@ public class CityController : ControllerBase
     {
         _cityService = cityService;
     }
-    
+
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> Get([FromQuery] Model.SearchObjects.CitySearchObject search)
+    public async Task<IActionResult> Get([FromQuery] CitySearchObject search)
     {
         return Ok(await _cityService.GetAsync(search));
     }
@@ -27,5 +28,4 @@ public class CityController : ControllerBase
     {
         return Ok(await _cityService.GetByIdAsync(id));
     }
-
 }

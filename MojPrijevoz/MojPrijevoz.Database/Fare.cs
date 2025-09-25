@@ -13,7 +13,8 @@ public enum FareStatus : short
     Completed = 4
 }
 
-public class Fare : IHasCreatedAtTimestamp {
+public class Fare : IHasCreatedAtTimestamp
+{
     public int Id { get; set; }
 
     public int OriginCityId { get; set; }
@@ -25,8 +26,6 @@ public class Fare : IHasCreatedAtTimestamp {
     public int Duration { get; set; }
 
     public FareStatus Status { get; set; } = FareStatus.Pending;
-
-    public DateTime CreatedAt { get; set; }
 
     public int DriverId { get; set; }
 
@@ -51,6 +50,8 @@ public class Fare : IHasCreatedAtTimestamp {
     public virtual ICollection<StopPoint>? StopPoints { get; set; }
 
     public virtual ICollection<Transaction>? Transactions { get; set; }
+
+    public DateTime CreatedAt { get; set; }
 }
 
 public class FareEntityConfiguration : IEntityTypeConfiguration<Fare>

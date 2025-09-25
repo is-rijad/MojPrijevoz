@@ -10,8 +10,8 @@ namespace MojPrijevoz.WebApi.Controllers;
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly UserService _userService;
     private readonly AuthorizationService _authorizationService;
+    private readonly UserService _userService;
 
     public UserController(UserService userService,
         AuthorizationService authorizationService)
@@ -29,12 +29,14 @@ public class UserController : ControllerBase
 
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id) {
+    public async Task<IActionResult> Get(int id)
+    {
         return Ok(await _userService.GetByIdAsync(id));
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id,[FromBody] UserUpdateRequest request) {
+    public async Task<IActionResult> Put(int id, [FromBody] UserUpdateRequest request)
+    {
         return Ok(await _userService.UpdateAsync(id, request));
     }
 }

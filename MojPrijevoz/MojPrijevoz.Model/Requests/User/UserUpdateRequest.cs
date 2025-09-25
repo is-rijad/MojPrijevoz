@@ -3,7 +3,8 @@ using MojPrijevoz.Database;
 
 namespace MojPrijevoz.Model.Requests.User;
 
-public class UserUpdateRequest {
+public class UserUpdateRequest
+{
     [MaxLength(32)] public string? FirstName { get; set; }
 
     [MaxLength(64)] public string? LastName { get; set; }
@@ -18,7 +19,7 @@ public class UserUpdateRequest {
     public string? Password { get; set; }
     public string? PasswordAgain { get; set; }
 
-    [EnumDataType(typeof(Gender))]
-    public Gender? Gender { get; set; }
+    [EnumDataType(typeof(Gender))] public Gender? Gender { get; set; }
+
     public int? CityId { get; set; }
 }

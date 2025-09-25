@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MojPrijevoz.Model.Exceptions;
-using MojPrijevoz.Model.Responses.City;
-using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.City;
 
 namespace MojPrijevoz.WebApi.Controllers;

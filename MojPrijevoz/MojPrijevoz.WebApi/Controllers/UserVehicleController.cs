@@ -21,18 +21,21 @@ public class UserVehicleController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] UserVehicleSearchObject searchObject) {
+    public async Task<IActionResult> GetAll([FromQuery] UserVehicleSearchObject searchObject)
+    {
         return Ok(await _userVehicleService.GetAsync(searchObject));
     }
 
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id, [FromBody] UserVehicleUpsertRequest request) {
+    public async Task<IActionResult> Put(int id, [FromBody] UserVehicleUpsertRequest request)
+    {
         return Ok(await _userVehicleService.UpdateAsync(id, request));
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id) {
+    public async Task<IActionResult> Delete(int id)
+    {
         await _userVehicleService.DeleteAsync(id);
         return Ok();
     }

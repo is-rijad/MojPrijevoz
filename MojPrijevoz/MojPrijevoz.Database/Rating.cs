@@ -4,7 +4,8 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class Rating : IHasCreatedAtTimestamp {
+public class Rating : IHasCreatedAtTimestamp
+{
     public int Id { get; set; }
 
     public int FromId { get; set; }
@@ -15,8 +16,6 @@ public class Rating : IHasCreatedAtTimestamp {
 
     public short Grade { get; set; }
 
-    public DateTime CreatedAt { get; set; }
-
     public int FareId { get; set; }
 
     public virtual Fare? Fare { get; set; }
@@ -24,6 +23,8 @@ public class Rating : IHasCreatedAtTimestamp {
     public virtual User? From { get; set; }
 
     public virtual User? To { get; set; }
+
+    public DateTime CreatedAt { get; set; }
 }
 
 public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating>

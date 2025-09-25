@@ -15,6 +15,7 @@ public class AuthController : ControllerBase
     {
         _authorizationService = authorizationService;
     }
+
     [HttpGet]
     public async Task<IActionResult> Get()
     {
@@ -23,7 +24,8 @@ public class AuthController : ControllerBase
 
     [HttpPost]
     [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] UserLoginRequest request) {
+    public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
+    {
         return Ok(await _authorizationService.Login(request));
     }
 }

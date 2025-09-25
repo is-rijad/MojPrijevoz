@@ -9,7 +9,8 @@ public enum NotificationType : short
     Default = 0
 }
 
-public class Notification : IHasCreatedAtTimestamp {
+public class Notification : IHasCreatedAtTimestamp
+{
     public int Id { get; set; }
 
     public string Message { get; set; } = null!;

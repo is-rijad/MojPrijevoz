@@ -1,6 +1,5 @@
 ﻿using MojPrijevoz.Database;
 using MojPrijevoz.Model.Responses.Vehicle;
-using System.ComponentModel.DataAnnotations;
 
 namespace MojPrijevoz.Model.Responses.UserVehicle;
 

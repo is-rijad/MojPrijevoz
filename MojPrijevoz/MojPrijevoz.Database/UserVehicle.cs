@@ -48,7 +48,7 @@ public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehic
             .HasMaxLength(64)
             .IsUnicode(false);
 
-        entity.HasIndex(e => new { e.ProfileId, e.VehicleId, e.ModelYear }).IsUnique(true);
+        entity.HasIndex(e => new { e.ProfileId, e.VehicleId, e.ModelYear }).IsUnique();
 
         entity.HasOne(d => d.Profile).WithMany(p => p.UserVehicles)
             .HasForeignKey(d => d.ProfileId)

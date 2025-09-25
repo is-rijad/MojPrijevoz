@@ -10,12 +10,11 @@ public enum TransactionSide : short
     Debit = 1
 }
 
-public class Transaction : IHasCreatedAtTimestamp {
+public class Transaction : IHasCreatedAtTimestamp
+{
     public int Id { get; set; }
 
     public int FareId { get; set; }
-
-    public DateTime CreatedAt { get; set; }
 
     public TransactionSide Side { get; set; }
 
@@ -24,6 +23,8 @@ public class Transaction : IHasCreatedAtTimestamp {
     public DateTime? PostedAt { get; set; }
 
     public virtual Fare? Fare { get; set; }
+
+    public DateTime CreatedAt { get; set; }
 }
 
 public class TransactionEntityConfiguration : IEntityTypeConfiguration<Transaction>

@@ -10,7 +10,8 @@ public enum FareOfferSide : short
     Passenger = 1
 }
 
-public class FareOffer : IHasCreatedAtTimestamp {
+public class FareOffer : IHasCreatedAtTimestamp
+{
     public int Id { get; set; }
 
     public int DriverId { get; set; }
@@ -22,8 +23,6 @@ public class FareOffer : IHasCreatedAtTimestamp {
     public float Budget { get; set; }
 
     public int VehicleId { get; set; }
-
-    public DateTime CreatedAt { get; set; }
 
     public int OriginCityId { get; set; }
 
@@ -40,6 +39,8 @@ public class FareOffer : IHasCreatedAtTimestamp {
     public virtual User? Passenger { get; set; }
 
     public virtual UserVehicle? Vehicle { get; set; }
+
+    public DateTime CreatedAt { get; set; }
 }
 
 public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer>

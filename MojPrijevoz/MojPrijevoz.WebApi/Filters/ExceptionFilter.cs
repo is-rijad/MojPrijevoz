@@ -28,7 +28,8 @@ public class ExceptionFilter : ExceptionFilterAttribute
             context.ModelState.AddModelError("notFound", context.Exception.Message);
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
         }
-        else {
+        else
+        {
             context.ModelState.AddModelError("serverError", "Something went wrong!");
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         }

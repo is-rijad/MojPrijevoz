@@ -4,7 +4,8 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class City : IHasTimestamps {
+public class City : IHasTimestamps
+{
     public int Id { get; set; }
 
     public string Name { get; set; } = null!;
@@ -12,10 +13,6 @@ public class City : IHasTimestamps {
     public string Long { get; set; } = null!;
 
     public string Lat { get; set; } = null!;
-
-    public DateTime? UpdatedAt { get; set; }
-
-    public DateTime CreatedAt { get; set; }
 
     public virtual ICollection<Fare>? FareDestinationCities { get; set; }
 
@@ -26,6 +23,10 @@ public class City : IHasTimestamps {
     public virtual ICollection<Fare>? FareOriginCities { get; set; }
 
     public virtual ICollection<User>? Users { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
+    public DateTime CreatedAt { get; set; }
 }
 
 public class CityEntityConfiguration : IEntityTypeConfiguration<City>
