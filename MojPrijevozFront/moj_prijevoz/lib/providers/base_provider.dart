@@ -57,4 +57,11 @@ abstract class BaseProvider<
       request,
     );
   }
+  
+  Future<void> delete(int id) async {
+    await httpProvider.delete(
+      providerName,
+      id,
+    );
+  }
 }

@@ -9,7 +9,6 @@ part of 'user_vehicle_upsert_request.dart';
 UserVehicleUpsertRequest _$UserVehicleUpsertRequestFromJson(
   Map<String, dynamic> json,
 ) => UserVehicleUpsertRequest(
-  id: (json['id'] as num?)?.toInt(),
   vehicleId: (json['vehicleId'] as num?)?.toInt(),
   modelYear: (json['modelYear'] as num?)?.toInt(),
   fuelConsumption: (json['fuelConsumption'] as num?)?.toDouble(),
@@ -20,7 +19,6 @@ UserVehicleUpsertRequest _$UserVehicleUpsertRequestFromJson(
 Map<String, dynamic> _$UserVehicleUpsertRequestToJson(
   UserVehicleUpsertRequest instance,
 ) => <String, dynamic>{
-  'id': instance.id,
   'vehicleId': instance.vehicleId,
   'modelYear': instance.modelYear,
   'fuelConsumption': instance.fuelConsumption,

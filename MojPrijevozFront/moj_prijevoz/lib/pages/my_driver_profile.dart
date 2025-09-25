@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/access_token_handler.dart';
-import 'package:moj_prijevoz/common/build_helper.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
@@ -19,6 +19,7 @@ import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_respo
 import 'package:moj_prijevoz/resources/responses/vehicle/vehicle_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/user_vehicle/user_vehicle_search_object.dart';
 import 'package:moj_prijevoz/resources/search_objects/vehicle/vehicle_search_object.dart';
+import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
@@ -49,24 +50,24 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
   SearchResult<UserVehicleResponse> _userVehicles = SearchResult(
     items: [],
     count: 0,
+    hasMore: false,
   );
-  final PageController _pageController = PageController();
-  bool _hasMore = true;
+  final PageController _pageController = PageController(viewportFraction: 0.7);
   int _currentPage = 0;
   final ValueNotifier<String?> _errorMessage = ValueNotifier(null);
+  final _pageSize = 4;
 
   Future<void> _onPageChanged(int value) async {
     if (value == (_searchObject.pageSize * _searchObject.page) - 1 &&
-        _hasMore) {
+        _userVehicles.hasMore) {
       _uiProvider.disableLoading();
 
       _searchObject.page++;
       var newItems = (await _userVehicleProvider.getAll(_searchObject));
-      _hasMore = _searchObject.pageSize == newItems.count;
 
       if (!mounted) return;
       setState(() {
-        _userVehicles.items.addAll(newItems.items);
+        newItems.copyTo(_userVehicles);
       });
     }
     setState(() {
@@ -94,7 +95,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
   Future<void> _initDriverData() async {
     _searchObject = UserVehicleSearchObject(
       profileId: _profileId!,
-      pageSize: 3,
+      pageSize: _pageSize,
     );
     _userVehicles = (await _userVehicleProvider.getAll(_searchObject));
   }
@@ -166,9 +167,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
                 width: isActive ? 12 : 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: isActive
-                      ? BuildHelper.getPrimaryColor(context)
-                      : Colors.grey,
+                  color: isActive ? context.primaryColor : Colors.grey,
                   borderRadius: BorderRadius.circular(4),
                 ),
               );
@@ -185,6 +184,8 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
   ) {
     return GestureDetector(
       onTap: () => _buildVehicleUpsertDialog(context, userVehicle),
+      onLongPress: () => _buildVehicleDeleteDialog(context, userVehicle),
+      onSecondaryTap: () => _buildVehicleDeleteDialog(context, userVehicle),
       child: Card(
         borderOnForeground: true,
         elevation: 4,
@@ -198,62 +199,60 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
             SizedBox(height: 20),
             _buildVehiclePicture(context, userVehicle),
             SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Flexible(
-                  fit: FlexFit.tight,
-                  child: Column(
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       IconFieldWithText(
-                        width: 120,
+                        width: 100,
                         iconData: Icons.calendar_month,
                         text: "${userVehicle.modelYear.toString()}.",
                         iconHint: "Godina proizvodnje",
                       ),
-
+                      SizedBox(height: 10),
                       IconFieldWithText(
-                        width: 120,
+                        width: 100,
+
                         iconData: Icons.local_gas_station,
                         text:
                             "${userVehicle.fuelConsumption.toString()} l/100km",
                         iconHint: "Prosječna potrošnja goriva",
                       ),
+                      SizedBox(height: 10),
                       IconFieldWithText(
-                        width: 120,
+                        width: 100,
                         iconData: Icons.money,
                         text: "${userVehicle.pricePerKm.toString()} KM/km",
                         iconHint: "Cijena po kilometru",
                       ),
                     ],
                   ),
-                ),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Column(
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       IconFieldWithText(
-                        width: 210,
+                        width: 100,
                         iconData: Icons.person,
                         text: userVehicle.vehicle.numberOfSeats.toString(),
                         iconHint: "Broj sjedećih mjesta",
                       ),
-
+                      SizedBox(height: 10),
                       IconFieldWithText(
-                        width: 210,
+                        width: 100,
                         iconData: Icons.info,
                         text: userVehicleStatusMap[userVehicle.status]!,
                         iconHint: "Status vozila",
                       ),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -272,7 +271,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
     return Image.asset(
       "images/vehicleFallback.png",
       height: imageHeight,
-      color: BuildHelper.getPrimaryColor(context),
+      color: context.primaryColor,
     );
   }
 
@@ -297,41 +296,13 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
               ),
             ],
           ),
-          content: Stack(
-            children: [
-              FormWrapper(
-                formKey: _formKey,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: _buildVehicleUpsertForm(context, selectedVehicle),
-              ),
-              ValueListenableBuilder<String?>(
-                valueListenable: _errorMessage,
-                builder: (context, value, _) {
-                  if (value != null) {
-                    return Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            value,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                  return SizedBox.shrink();
-                },
-              ),
-            ],
+          content: AlertDialogContent(
+            errorMessageValueNotifier: _errorMessage,
+            child: FormWrapper(
+              formKey: _formKey,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _buildVehicleUpsertForm(context, selectedVehicle),
+            ),
           ),
         );
       },
@@ -342,9 +313,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
     BuildContext context,
     UserVehicleResponse? selectedVehicle,
   ) {
-    _userVehicleUpsertRequest = UserVehicleUpsertRequest(
-      id: selectedVehicle?.id,
-    );
+    _userVehicleUpsertRequest = UserVehicleUpsertRequest();
     return [
       PagedDropdownFormField<
         VehicleResponse,
@@ -454,7 +423,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
       try {
         if (selectedVehicle != null) {
           var updatedItem = await _userVehicleProvider.update(
-            _userVehicleUpsertRequest!.id!,
+            selectedVehicle.id,
             _userVehicleUpsertRequest!,
           );
           var indexOfSelected = _userVehicles.items.indexOf(selectedVehicle);
@@ -468,7 +437,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
             _userVehicleUpsertRequest!,
           );
           if (!mounted) return;
-          if (!_hasMore && isDriver) {
+          if (!_userVehicles.hasMore && isDriver) {
             setState(() {
               _userVehicles.items.add(newItem);
             });
@@ -488,15 +457,13 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
               _profileId = driverProfileId;
               _searchObject = UserVehicleSearchObject(
                 profileId: _profileId!,
-                pageSize: 3,
+                pageSize: _pageSize,
               );
             });
-            var newVehicles = (await _userVehicleProvider.getAll(
-              _searchObject,
-            )).items;
+            var newVehicles = await _userVehicleProvider.getAll(_searchObject);
             if (!mounted) return;
             setState(() {
-              _userVehicles.items = newVehicles;
+              newVehicles.copyTo(_userVehicles);
             });
           }
         }
@@ -506,13 +473,75 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
           SuccessSnackBar(message: "Uspješno spremljeno!"),
         );
       } on Exception catch (ex, stack) {
-        var message = ErrorHandler.handle(ex, stack);
-        _errorMessage.value = message;
-        Timer.periodic(
-          Duration(seconds: 3),
-          (timer) => _errorMessage.value = null,
-        );
+        _errorMessage.value = ErrorHandler.handle(ex, stack);
       }
+    }
+  }
+
+  Future<void> _buildVehicleDeleteDialog(
+    BuildContext context,
+    UserVehicleResponse selectedVehicle,
+  ) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text("Obriši vozilo"),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(Icons.cancel),
+              ),
+            ],
+          ),
+          content: AlertDialogContent(
+            errorMessageValueNotifier: _errorMessage,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  "Da li ste sigurni da želite obrisati vozilo ${selectedVehicle.vehicleString}?",
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Otkaži"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _deleteVehicle(selectedVehicle),
+                      child: const Text("Obriši"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteVehicle(UserVehicleResponse selectedVehicle) async {
+    try {
+      await _userVehicleProvider.delete(selectedVehicle.id);
+      if (!mounted) return;
+      setState(() {
+        _userVehicles.items.remove(selectedVehicle);
+      });
+      Navigator.pop(context);
+      Constants.messengerKey.currentState!.showSnackBar(
+        SuccessSnackBar(message: "Uspješno obrisano!"),
+      );
+    } on Exception catch (ex, stack) {
+      _errorMessage.value = ErrorHandler.handle(ex, stack);
     }
   }
 }

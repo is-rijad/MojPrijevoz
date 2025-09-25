@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/build_helper.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 
@@ -20,7 +20,7 @@ class ProfileDropdownItem extends PopupMenuItem<ProfileDropdownAction> {
               text,
               style: TextStyle(
                 color: uiProvider.profileDropdownAction == value
-                    ? BuildHelper.getPrimaryColor(context)
+                    ? context.primaryColor
                     : null,
               ),
             );

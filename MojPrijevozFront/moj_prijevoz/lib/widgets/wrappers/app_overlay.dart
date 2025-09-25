@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/build_helper.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
-import 'package:moj_prijevoz/pages/my_driver_profile.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 
 class AppOverlay extends StatelessWidget {
@@ -50,7 +49,7 @@ class AppOverlay extends StatelessWidget {
       builder: (context, loading, _) {
         if (!loading) return const SizedBox.shrink();
         return Container(
-          color: BuildHelper.getSecondaryColor(context).withAlpha(50),
+          color: context.secondaryColor.withAlpha(150),
           child: const Center(child: CircularProgressIndicator()),
         );
       },

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/common/build_helper.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 
 class IconFieldWithText extends StatelessWidget {
   final IconData iconData;
@@ -17,13 +17,9 @@ class IconFieldWithText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var icon = Icon(
-      iconData,
-      color: BuildHelper.getPrimaryColor(context),
-      size: 22,
-    );
-    return SizedBox(
-      width: width,
+    var icon = Icon(iconData, color: context.primaryColor, size: 22);
+    return ConstrainedBox(
+      constraints: BoxConstraints.tightFor(width: width),
       child: Text.rich(
         TextSpan(
           children: [

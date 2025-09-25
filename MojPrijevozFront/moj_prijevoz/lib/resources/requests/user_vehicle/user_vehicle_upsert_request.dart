@@ -5,7 +5,6 @@ part 'user_vehicle_upsert_request.g.dart';
 
 @JsonSerializable()
 class UserVehicleUpsertRequest extends JsonParsable {
-  int? id;
   int? vehicleId;
   int? modelYear;
   double? fuelConsumption;
@@ -13,7 +12,6 @@ class UserVehicleUpsertRequest extends JsonParsable {
   String? picture;
 
   UserVehicleUpsertRequest({
-    this.id,
     this.vehicleId,
     this.modelYear,
     this.fuelConsumption,

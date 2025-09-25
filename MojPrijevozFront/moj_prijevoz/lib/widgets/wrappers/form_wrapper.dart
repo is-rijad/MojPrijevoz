@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/common/build_helper.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 
 class FormWrapper extends StatelessWidget {
   final List<Widget> children;
@@ -15,14 +15,14 @@ class FormWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var padding = BuildHelper.getScreenWidth(context) * 0.05;
+    var padding = context.screenWidth * 0.05;
     return Form(
       key: formKey,
       child: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: padding, vertical: 0),
           child: SizedBox(
-            width: BuildHelper.getScreenWidth(context) * 0.7,
+            width: context.screenWidth * 0.7,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: mainAxisAlignment,

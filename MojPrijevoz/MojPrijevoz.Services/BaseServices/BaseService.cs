@@ -34,13 +34,15 @@ public abstract class BaseService<TResponse, TDetailedResponse, TEntity, TSearch
     {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         queryable = ApplyFilter(queryable, searchObject);
+        var fullCount = await queryable.CountAsync();
         queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
         queryable = await IncludeAdditionalEntities(queryable);
         var list = await queryable.ToListAsync();
         return new PagedResult<TResponse>
         {
             Items = list.Select(MapToResponseModel<TResponse>).ToList(),
-            Count = queryable.Count()
+            Count = queryable.Count(),
+            HasMore = fullCount > searchObject.Page * searchObject.PageSize
         };
     }
 

@@ -56,13 +56,17 @@ class _MyProfilState extends State<MyProfile> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       await _userProvider.update(_userId, _userUpdateRequest);
-      _oldPasswordController.text = "";
-      _passwordController.text = "";
-      _passwordAgainController.text = "";
+      _resetForm();
       Constants.messengerKey.currentState?.showSnackBar(
         SuccessSnackBar(message: "Promjene su spremljene!"),
       );
     }
+  }
+
+  void _resetForm() {
+    _oldPasswordController.text = "";
+    _passwordController.text = "";
+    _passwordAgainController.text = "";
   }
 
   @override
@@ -101,7 +105,7 @@ class _MyProfilState extends State<MyProfile> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
-            children: [Avatar(user: _userData, maxRadius: 90)],
+            children: [Avatar(user: _userData, maxRadius: 60)],
           ),
           SizedBox(width: 50),
           Flexible(

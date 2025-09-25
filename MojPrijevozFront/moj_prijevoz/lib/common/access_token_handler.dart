@@ -16,7 +16,7 @@ abstract class AccessTokenHandler {
     try {
       _uiProvider.startLoading(_loadingType);
       var hive = await HiveProvider.getInstance();
-      hive.put(_accessTokenKey, token);
+      await hive.put(_accessTokenKey, token);
     } finally {
       _uiProvider.stopLoading();
     }
@@ -40,7 +40,7 @@ abstract class AccessTokenHandler {
     try {
       _uiProvider.startLoading(_loadingType);
       var hive = await HiveProvider.getInstance();
-      hive.delete(_accessTokenKey);
+      await hive.delete(_accessTokenKey);
     } finally {
       _uiProvider.stopLoading();
     }

@@ -61,6 +61,7 @@ class HttpProvider {
           response.data["items"].map((it) => parseJson<TResponse>(it)),
         ),
         count: response.data["count"],
+        hasMore: response.data["hasMore"],
       );
     } finally {
       _uiProvider.stopLoading();
@@ -105,6 +106,25 @@ class HttpProvider {
         queryParameters: queryParameters,
       );
       return parseJson<TResponse>(response.data);
+    } finally {
+      _uiProvider.stopLoading();
+    }
+  }
+
+  Future<void> delete(
+    String url,
+    int id, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      _uiProvider.startLoading(loadingType);
+
+      var options = await _setRequestOptions();
+      await _dio.delete(
+        "$_apiUrl$url/$id",
+        options: options,
+        queryParameters: queryParameters,
+      );
     } finally {
       _uiProvider.stopLoading();
     }

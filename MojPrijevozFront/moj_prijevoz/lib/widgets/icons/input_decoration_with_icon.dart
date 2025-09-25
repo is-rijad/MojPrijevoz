@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/common/build_helper.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 
 class InputDecorationWithIcon extends InputDecoration {
   final IconData? iconData;
@@ -13,7 +13,7 @@ class InputDecorationWithIcon extends InputDecoration {
                 message: iconHint ?? "",
                 child: Icon(
                   iconData,
-                  color: BuildHelper.getPrimaryColor(context),
+                  color: context.primaryColor,
                 ),
               );
             } else {

@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:flutter/widgets.dart';
-import 'package:moj_prijevoz/common/build_helper.dart';
 
 class LoadUntilReadyWrapper extends StatefulWidget {
   final Widget Function(BuildContext) buildFunction;
@@ -29,11 +28,7 @@ class _LoadUntilReadyWrapperState extends State<LoadUntilReadyWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_future == null) {
-      return Container(
-        color: BuildHelper.getSecondaryColor(context),
-        width: BuildHelper.getScreenWidth(context),
-        height: BuildHelper.getScreenHeight(context),
-      );
+      return SizedBox.shrink();
     }
     return FutureBuilder(
       future: _future,
@@ -45,11 +40,7 @@ class _LoadUntilReadyWrapperState extends State<LoadUntilReadyWrapper> {
         if (snapshot.hasError) {
           log("ERROR IN FUTURE BUILDER => ${snapshot.error}");
         }
-        return Container(
-          color: BuildHelper.getSecondaryColor(context),
-          width: BuildHelper.getScreenWidth(context),
-          height: BuildHelper.getScreenHeight(context),
-        );
+        return SizedBox.shrink();
       },
     );
   }
