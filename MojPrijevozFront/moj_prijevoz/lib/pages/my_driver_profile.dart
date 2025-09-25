@@ -47,11 +47,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
   UserVehicleUpsertRequest? _userVehicleUpsertRequest;
 
   late UserVehicleSearchObject _searchObject;
-  SearchResult<UserVehicleResponse> _userVehicles = SearchResult(
-    items: [],
-    count: 0,
-    hasMore: false,
-  );
+  final _userVehicles = SearchResult<UserVehicleResponse>();
   final PageController _pageController = PageController(viewportFraction: 0.7);
   int _currentPage = 0;
   final ValueNotifier<String?> _errorMessage = ValueNotifier(null);
@@ -97,7 +93,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
       profileId: _profileId!,
       pageSize: _pageSize,
     );
-    _userVehicles = (await _userVehicleProvider.getAll(_searchObject));
+    (await _userVehicleProvider.getAll(_searchObject)).copyTo(_userVehicles);
   }
 
   Widget _build(BuildContext context) {
@@ -322,7 +318,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
         VehicleSearchObject
       >(
         searchObject: VehicleSearchObject(),
-        getLabel: (i) => "${i.manufacturer} ${i.model}",
+        getLabel: (i) => i.toString(),
         getValue: (i) => i.id,
         decoration: InputDecorationWithIcon(
           iconData: Icons.directions_car_filled,
@@ -504,7 +500,7 @@ class _MyDriverProfileState extends State<MyDriverProfile> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Text(
-                  "Da li ste sigurni da želite obrisati vozilo ${selectedVehicle.vehicleString}?",
+                  "Da li ste sigurni da želite obrisati vozilo ${selectedVehicle.vehicle.toString()}?",
                 ),
                 SizedBox(height: 10),
                 Row(

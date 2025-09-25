@@ -3,11 +3,8 @@ class SearchResult<T> {
   int count;
   bool hasMore;
 
-  SearchResult({
-    required this.items,
-    required this.count,
-    required this.hasMore,
-  });
+  SearchResult({List<T>? items, this.count = 0, this.hasMore = true})
+    : items = items ?? List.empty(growable: true);
 
   void copyTo(SearchResult<T> searchResult) {
     searchResult.items.addAll(items);

@@ -17,6 +17,8 @@ abstract class AccessTokenHandler {
       _uiProvider.startLoading(_loadingType);
       var hive = await HiveProvider.getInstance();
       await hive.put(_accessTokenKey, token);
+    } on Exception {
+      rethrow;
     } finally {
       _uiProvider.stopLoading();
     }
@@ -31,6 +33,8 @@ abstract class AccessTokenHandler {
         throw Exception("User is not logged in!");
       }
       return token;
+    } on Exception {
+      rethrow;
     } finally {
       _uiProvider.stopLoading();
     }
@@ -41,6 +45,8 @@ abstract class AccessTokenHandler {
       _uiProvider.startLoading(_loadingType);
       var hive = await HiveProvider.getInstance();
       await hive.delete(_accessTokenKey);
+    } on Exception {
+      rethrow;
     } finally {
       _uiProvider.stopLoading();
     }
@@ -52,6 +58,8 @@ abstract class AccessTokenHandler {
       var token = await getAccessToken();
       var payload = JwtDecoder.decode(token);
       return int.parse(payload["sub"]);
+    } on Exception {
+      rethrow;
     } finally {
       _uiProvider.stopLoading();
     }
@@ -63,6 +71,8 @@ abstract class AccessTokenHandler {
       var token = await getAccessToken();
       var payload = JwtDecoder.decode(token);
       return parseJson<AccessTokenPayload>(payload);
+    } on Exception {
+      rethrow;
     } finally {
       _uiProvider.stopLoading();
     }
@@ -75,6 +85,8 @@ abstract class AccessTokenHandler {
       return profileType == ProfileType.passenger
           ? payload.passengerProfileId
           : payload.driverProfileId;
+    } on Exception {
+      rethrow;
     } finally {
       _uiProvider.stopLoading();
     }

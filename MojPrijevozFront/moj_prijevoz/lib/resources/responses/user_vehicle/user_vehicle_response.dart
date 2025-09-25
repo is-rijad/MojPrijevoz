@@ -15,8 +15,6 @@ class UserVehicleResponse extends JsonParsable {
   final UserVehicleStatus status;
   final VehicleResponse vehicle;
 
-  String get vehicleString => "${vehicle.manufacturer} ${vehicle.model}";
-
   UserVehicleResponse({
     required this.id,
     required this.vehicleId,

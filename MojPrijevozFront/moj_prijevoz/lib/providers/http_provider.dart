@@ -56,7 +56,7 @@ class HttpProvider {
         options: options,
         queryParameters: queryParameters,
       );
-      return SearchResult(
+      return SearchResult<TResponse>(
         items: List<TResponse>.from(
           response.data["items"].map((it) => parseJson<TResponse>(it)),
         ),

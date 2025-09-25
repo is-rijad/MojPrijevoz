@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
+import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/search_objects/base/string_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
-// TODO: request focus on button click
-// TODO: if scrolled past searched item, loading stuck until cursor go up
 class PagedDropdown<
   T extends JsonParsable,
   TValue,
@@ -49,7 +48,7 @@ class _PagedDropdownState<
     extends State<PagedDropdown<T, TValue, TProvider, TSearchObject>> {
   late final TProvider _provider;
   late final TSearchObject _searchObject;
-  final List<T> _items = [];
+  final _searchResult = SearchResult<T>();
   final ScrollController _scrollController = ScrollController();
   final double _listElementHeight = 50;
   final TextEditingController _textController = TextEditingController();
@@ -58,7 +57,6 @@ class _PagedDropdownState<
   T? selectedItem;
 
   bool _isLoading = false;
-  bool _hasMore = true;
 
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
@@ -76,16 +74,22 @@ class _PagedDropdownState<
 
   void _scrollToSelected() {
     if (_scrollController.hasClients && selectedItem != null) {
-      _scrollController.animateTo(
-        _listElementHeight *
-            _items.indexOf(
-              _items.firstWhere(
-                (i) => widget.getValue(i) == widget.getValue(selectedItem!),
+      try {
+        _scrollController.animateTo(
+          _listElementHeight *
+              _searchResult.items.indexOf(
+                _searchResult.items.firstWhere(
+                  (i) => widget.getValue(i) == widget.getValue(selectedItem!),
+                ),
               ),
-            ),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      } on StateError {
+        _scrollController.jumpTo(0);
+      }
+    } else {
+      _scrollController.jumpTo(0);
     }
   }
 
@@ -104,7 +108,7 @@ class _PagedDropdownState<
   }
 
   Future<void> _fetchPage() async {
-    if (_isLoading || !_hasMore) return;
+    if (_isLoading || !_searchResult.hasMore) return;
 
     setState(() {
       _isLoading = true;
@@ -113,9 +117,8 @@ class _PagedDropdownState<
     if (!mounted) return;
 
     setState(() {
-      _items.addAll(result.items);
+      result.copyTo(_searchResult);
       _searchObject.page++;
-      if (result.count < _searchObject.pageSize) _hasMore = false;
       _isLoading = false;
     });
 
@@ -123,11 +126,22 @@ class _PagedDropdownState<
   }
 
   void _toggleDropdown() {
-    _changeDropdownText(selectedItem);
-
+    if (selectedItem != null) {
+      _changeDropdownText(selectedItem);
+    }
     if (_overlayEntry == null) {
+      if (selectedItem != null) {
+        _searchObject.contains = widget.getLabel(selectedItem!);
+        _searchResult.items.clear();
+        _searchResult.hasMore = true;
+        _searchObject.page = 1;
+        _fetchPage();
+      }
       _overlayEntry = _createOverlay();
       Overlay.of(context).insert(_overlayEntry!);
+      if (!_focusNode.hasFocus) {
+        _focusNode.requestFocus();
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _scrollToSelected();
       });
@@ -167,15 +181,20 @@ class _PagedDropdownState<
                   child: ListView.builder(
                     controller: _scrollController,
                     itemExtent: _listElementHeight,
-                    itemCount: _items.length + (_hasMore ? 1 : 0),
+                    itemCount:
+                        _searchResult.items.length +
+                        (_searchResult.hasMore ? 1 : 0),
                     itemBuilder: (context, index) {
-                      if (index == _items.length) {
+                      if (_searchResult.items.isEmpty) {
+                        return SizedBox.shrink();
+                      }
+                      if (index == _searchResult.items.length) {
                         return const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Center(child: CircularProgressIndicator()),
                         );
                       }
-                      final item = _items[index];
+                      final item = _searchResult.items[index];
                       return ListTile(
                         selected: selectedItem != null
                             ? widget.getValue(item) ==
@@ -251,19 +270,19 @@ class _PagedDropdownState<
     _searchObject.contains = value.isNotEmpty ? value : null;
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      _items.clear();
-      _hasMore = true;
+      _searchResult.items.clear();
+      _searchResult.hasMore = true;
       _searchObject.page = 1;
       _fetchPage();
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_overlayEntry == null) {
-        _toggleDropdown();
-      }
-      if (!_focusNode.hasFocus) {
-        _focusNode.requestFocus();
-      }
-      value.isNotEmpty ? _scrollToSelected() : _scrollController.jumpTo(0);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_overlayEntry == null) {
+          _toggleDropdown();
+        }
+        if (!_focusNode.hasFocus) {
+          _focusNode.requestFocus();
+        }
+        _scrollController.jumpTo(0);
+      });
     });
   }
 }

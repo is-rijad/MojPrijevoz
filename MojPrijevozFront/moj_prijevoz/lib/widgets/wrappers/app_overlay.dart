@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
+import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 
 class AppOverlay extends StatelessWidget {

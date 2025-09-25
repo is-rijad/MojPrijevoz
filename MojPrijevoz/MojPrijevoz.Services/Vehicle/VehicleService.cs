@@ -18,7 +18,7 @@ public class VehicleService : BaseCrudService<Database.Vehicle,TPlaceholder,TPla
     {
         if (!string.IsNullOrWhiteSpace(searchObject.Contains))
             queryable = queryable.Where(v => v.Model.Contains(searchObject.Contains)
-            || v.Manufacturer.Contains(searchObject.Contains)); 
+            || v.Manufacturer.Contains(searchObject.Contains) || (v.Manufacturer + " " + v.Model).Contains(searchObject.Contains)); 
         return queryable;
     }
 }

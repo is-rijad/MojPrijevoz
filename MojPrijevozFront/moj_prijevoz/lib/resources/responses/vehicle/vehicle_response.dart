@@ -11,6 +11,11 @@ class VehicleResponse extends JsonParsable {
   final String model;
   final int numberOfSeats;
 
+  @override
+  String toString() {
+    return "${manufacturer} ${model}";
+  }
+
   VehicleResponse({
     required this.id,
     required this.manufacturer,
