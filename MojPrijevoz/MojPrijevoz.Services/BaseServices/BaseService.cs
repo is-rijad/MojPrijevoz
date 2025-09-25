@@ -1,14 +1,18 @@
 ﻿using MapsterMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Exceptions;
-using System.Linq.Expressions;
 
 namespace MojPrijevoz.Services.BaseServices;
 
-public abstract class BaseService<TResponse, TDetailedResponse, TEntity, TSearchObject> : IBaseService<TResponse, TDetailedResponse, TSearchObject> where TResponse : class where TDetailedResponse : class where TEntity : class where TSearchObject : BaseSearchObject {
+public abstract class
+    BaseService<TResponse, TDetailedResponse, TEntity, TSearchObject> : IBaseService<TResponse, TDetailedResponse,
+        TSearchObject> where TResponse : class
+    where TDetailedResponse : class
+    where TEntity : class
+    where TSearchObject : BaseSearchObject
+{
     protected readonly MojPrijevozDbContext _dbContext;
     protected readonly IMapper _mapper;
 
@@ -17,17 +21,6 @@ public abstract class BaseService<TResponse, TDetailedResponse, TEntity, TSearch
         _dbContext = dbContext;
         _mapper = mapper;
     }
-
-    public virtual IQueryable<TEntity> ApplyFilter(IQueryable<TEntity> queryable, TSearchObject searchObject)
-    {
-        return queryable;
-    }
-
-    public virtual Task<IQueryable<TEntity>> IncludeAdditionalEntities(IQueryable<TEntity> queryable) {
-        return Task.FromResult(queryable);
-    }
-
-    protected virtual Task PrepareForResponse(TEntity entity, MojPrijevozDbContext dbContext) { return Task.CompletedTask; }
 
 
     public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject)
@@ -51,9 +44,24 @@ public abstract class BaseService<TResponse, TDetailedResponse, TEntity, TSearch
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         var entity = await queryable.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         if (entity == null)
-            throw new NotFoundException($"Nije pronađeno!");
+            throw new NotFoundException("Nije pronađeno!");
         await PrepareForResponse(entity, _dbContext);
         return MapToResponseModel<TDetailedResponse>(entity);
+    }
+
+    public virtual IQueryable<TEntity> ApplyFilter(IQueryable<TEntity> queryable, TSearchObject searchObject)
+    {
+        return queryable;
+    }
+
+    public virtual Task<IQueryable<TEntity>> IncludeAdditionalEntities(IQueryable<TEntity> queryable)
+    {
+        return Task.FromResult(queryable);
+    }
+
+    protected virtual Task PrepareForResponse(TEntity entity, MojPrijevozDbContext dbContext)
+    {
+        return Task.CompletedTask;
     }
 
     protected T MapToResponseModel<T>(TEntity entity)

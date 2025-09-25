@@ -4,7 +4,8 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class Vehicle : IHasTimestamps {
+public class Vehicle : IHasTimestamps
+{
     public int Id { get; set; }
 
     public string Manufacturer { get; set; } = null!;
@@ -13,11 +14,11 @@ public class Vehicle : IHasTimestamps {
 
     public int NumberOfSeats { get; set; }
 
+    public virtual ICollection<UserVehicle>? UserVehicles { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
-
-    public virtual ICollection<UserVehicle>? UserVehicles { get; set; }
 }
 
 public class VehicleEntityConfiguration : IEntityTypeConfiguration<Vehicle>

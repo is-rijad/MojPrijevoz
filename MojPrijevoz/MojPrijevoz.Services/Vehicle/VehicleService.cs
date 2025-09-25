@@ -8,17 +8,21 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.Vehicle;
 
-public class VehicleService : BaseCrudService<Database.Vehicle,TPlaceholder,TPlaceholder,VehicleResponse,VehicleResponse,VehicleSearchObject>
+public class VehicleService : BaseCrudService<Database.Vehicle, TPlaceholder, TPlaceholder, VehicleResponse,
+    VehicleResponse, VehicleSearchObject>
 {
-    public VehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService)
+    public VehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) :
+        base(context, mapper, authorizationService)
     {
     }
 
-    public override IQueryable<Database.Vehicle> ApplyFilter(IQueryable<Database.Vehicle> queryable, VehicleSearchObject searchObject)
+    public override IQueryable<Database.Vehicle> ApplyFilter(IQueryable<Database.Vehicle> queryable,
+        VehicleSearchObject searchObject)
     {
         if (!string.IsNullOrWhiteSpace(searchObject.Contains))
             queryable = queryable.Where(v => v.Model.Contains(searchObject.Contains)
-            || v.Manufacturer.Contains(searchObject.Contains) || (v.Manufacturer + " " + v.Model).Contains(searchObject.Contains)); 
+                                             || v.Manufacturer.Contains(searchObject.Contains) ||
+                                             (v.Manufacturer + " " + v.Model).Contains(searchObject.Contains));
         return queryable;
     }
 }
