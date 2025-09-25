@@ -17,7 +17,7 @@ class IconFieldWithText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var icon = Icon(iconData, color: context.primaryColor, size: 22);
+    var icon = Icon(iconData, size: 22);
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(width: width),
       child: Text.rich(

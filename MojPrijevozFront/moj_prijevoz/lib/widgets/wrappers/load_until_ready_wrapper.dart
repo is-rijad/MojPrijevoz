@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/widgets.dart';
+import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
 
 class LoadUntilReadyWrapper extends StatefulWidget {
   final Widget Function(BuildContext) buildFunction;
@@ -39,8 +40,9 @@ class _LoadUntilReadyWrapperState extends State<LoadUntilReadyWrapper> {
         }
         if (snapshot.hasError) {
           log("ERROR IN FUTURE BUILDER => ${snapshot.error}");
+          throw Exception(snapshot.error);
         }
-        return SizedBox.shrink();
+        return AppOverlay.buildLoadingContainer(context);
       },
     );
   }

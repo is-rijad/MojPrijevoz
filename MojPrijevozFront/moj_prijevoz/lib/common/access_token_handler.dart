@@ -9,86 +9,42 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 
 abstract class AccessTokenHandler {
   static final _accessTokenKey = "access_token";
-  static final _uiProvider = GetIt.I<UIProvider>();
-  static final _loadingType = LoadingType.global;
 
   static Future<void> setAccessToken(String token) async {
-    try {
-      _uiProvider.startLoading(_loadingType);
-      var hive = await HiveProvider.getInstance();
-      await hive.put(_accessTokenKey, token);
-    } on Exception {
-      rethrow;
-    } finally {
-      _uiProvider.stopLoading();
-    }
+    var hive = await HiveProvider.getInstance();
+    await hive.put(_accessTokenKey, token);
   }
 
   static Future<String> getAccessToken() async {
-    try {
-      _uiProvider.startLoading(_loadingType);
-      var hive = await HiveProvider.getInstance();
-      var token = hive.get(_accessTokenKey);
-      if (token == null) {
-        throw Exception("User is not logged in!");
-      }
-      return token;
-    } on Exception {
-      rethrow;
-    } finally {
-      _uiProvider.stopLoading();
+    var hive = await HiveProvider.getInstance();
+    var token = hive.get(_accessTokenKey);
+    if (token == null) {
+      throw Exception("User is not logged in!");
     }
+    return token;
   }
 
   static Future<void> logout() async {
-    try {
-      _uiProvider.startLoading(_loadingType);
-      var hive = await HiveProvider.getInstance();
-      await hive.delete(_accessTokenKey);
-    } on Exception {
-      rethrow;
-    } finally {
-      _uiProvider.stopLoading();
-    }
+    var hive = await HiveProvider.getInstance();
+    await hive.delete(_accessTokenKey);
   }
 
   static Future<int> getUserId() async {
-    try {
-      _uiProvider.startLoading(_loadingType);
-      var token = await getAccessToken();
-      var payload = JwtDecoder.decode(token);
-      return int.parse(payload["sub"]);
-    } on Exception {
-      rethrow;
-    } finally {
-      _uiProvider.stopLoading();
-    }
+    var token = await getAccessToken();
+    var payload = JwtDecoder.decode(token);
+    return int.parse(payload["sub"]);
   }
 
   static Future<AccessTokenPayload> getPayload() async {
-    try {
-      _uiProvider.startLoading(_loadingType);
-      var token = await getAccessToken();
-      var payload = JwtDecoder.decode(token);
-      return parseJson<AccessTokenPayload>(payload);
-    } on Exception {
-      rethrow;
-    } finally {
-      _uiProvider.stopLoading();
-    }
+    var token = await getAccessToken();
+    var payload = JwtDecoder.decode(token);
+    return parseJson<AccessTokenPayload>(payload);
   }
 
   static Future<int?> getProfileId(ProfileType profileType) async {
-    try {
-      _uiProvider.startLoading(_loadingType);
-      var payload = await getPayload();
-      return profileType == ProfileType.passenger
-          ? payload.passengerProfileId
-          : payload.driverProfileId;
-    } on Exception {
-      rethrow;
-    } finally {
-      _uiProvider.stopLoading();
-    }
+    var payload = await getPayload();
+    return profileType == ProfileType.passenger
+        ? payload.passengerProfileId
+        : payload.driverProfileId;
   }
 }

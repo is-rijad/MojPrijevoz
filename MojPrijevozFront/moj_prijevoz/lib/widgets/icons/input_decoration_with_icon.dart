@@ -11,10 +11,7 @@ class InputDecorationWithIcon extends InputDecoration {
             if (iconData != null) {
               return Tooltip(
                 message: iconHint ?? "",
-                child: Icon(
-                  iconData,
-                  color: context.primaryColor,
-                ),
+                child: Icon(iconData, color: context.primaryColor),
               );
             } else {
               return SizedBox.shrink();

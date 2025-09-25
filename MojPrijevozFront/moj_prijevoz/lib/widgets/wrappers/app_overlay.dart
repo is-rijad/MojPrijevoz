@@ -3,8 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
-import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
+import 'package:moj_prijevoz/widgets/texts/text_theme.dart';
 
 class AppOverlay extends StatelessWidget {
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
@@ -36,8 +36,12 @@ class AppOverlay extends StatelessWidget {
         appBarTheme: AppBarTheme(
           backgroundColor: primaryColor,
           foregroundColor: secondaryColor,
-          iconTheme: IconThemeData(color: secondaryColor),
+          iconTheme: const IconThemeData(color: secondaryColor),
+          titleTextStyle: const TextStyle(color: secondaryColor, fontSize: 24),
         ),
+        iconTheme: const IconThemeData(color: primaryColor),
+        fontFamily: "Roboto",
+        textTheme: textTheme,
       ),
       home: Homepage(),
       scaffoldMessengerKey: Constants.messengerKey,
@@ -49,11 +53,17 @@ class AppOverlay extends StatelessWidget {
       valueListenable: _uiProvider.isLoading,
       builder: (context, loading, _) {
         if (!loading) return const SizedBox.shrink();
-        return Container(
-          color: context.secondaryColor.withAlpha(150),
-          child: const Center(child: CircularProgressIndicator()),
-        );
+        return buildLoadingContainer(context);
       },
+    );
+  }
+
+  static Widget buildLoadingContainer(BuildContext context) {
+    return Container(
+      color: context.secondaryColor.withAlpha(125),
+      child: const Center(
+        child: CircularProgressIndicator(color: AppOverlay.primaryColor),
+      ),
     );
   }
 }
