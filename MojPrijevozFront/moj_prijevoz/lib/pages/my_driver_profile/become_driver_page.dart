@@ -5,6 +5,7 @@ import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
+import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 
 class BecomeDriverPage extends StatefulWidget {
   final ValueNotifier<int?> profileIdNotifier;
@@ -18,6 +19,13 @@ class BecomeDriverPage extends StatefulWidget {
 class _BecomeDriverPageState extends State<BecomeDriverPage> {
   @override
   Widget build(BuildContext context) {
+    return PageWrapper(
+      body: _build(context),
+      appBarTitle: const Text("Postani vozač"),
+    );
+  }
+
+  Widget _build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
