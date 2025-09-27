@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/access_token_handler.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/pages/login.dart';
-import 'package:moj_prijevoz/pages/my_driver_profile.dart';
+import 'package:moj_prijevoz/pages/my_driver_profile/my_driver_profile.dart';
 import 'package:moj_prijevoz/pages/my_profile.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';

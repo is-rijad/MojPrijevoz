@@ -19,6 +19,7 @@ public class MojPrijevozDbContext : DbContext
     public virtual DbSet<Administrator> Administrators { get; set; }
 
     public virtual DbSet<City> Cities { get; set; }
+    public virtual DbSet<DriversDiscount> DriversDiscounts { get; set; }
 
     public virtual DbSet<Fare> Fares { get; set; }
 
@@ -46,6 +47,7 @@ public class MojPrijevozDbContext : DbContext
         modelBuilder.ApplyConfiguration(new AccountEntityConfiguration());
         modelBuilder.ApplyConfiguration(new AdministratorEntityConfiguration());
         modelBuilder.ApplyConfiguration(new CityEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new DriversDiscountEntityConfiguration());
         modelBuilder.ApplyConfiguration(new FareEntityConfiguration());
         modelBuilder.ApplyConfiguration(new FareOfferEntityConfiguration());
         modelBuilder.ApplyConfiguration(new NotificationEntityConfiguration());

@@ -17,6 +17,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Requests\UserVehicle\" />
+	  <Folder Include="Responses\DriversDiscount\" />
 	</ItemGroup>
 
 </Project>

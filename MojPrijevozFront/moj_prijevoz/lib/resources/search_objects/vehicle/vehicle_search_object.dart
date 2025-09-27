@@ -5,7 +5,11 @@ part 'vehicle_search_object.g.dart';
 
 @JsonSerializable()
 class VehicleSearchObject extends StringSearchObject {
-  VehicleSearchObject({super.contains, super.page, super.pageSize});
+  VehicleSearchObject({
+    super.contains,
+    required super.page,
+    required super.pageSize,
+  });
 
   @override
   Map<String, dynamic> toJson() => _$VehicleSearchObjectToJson(this);

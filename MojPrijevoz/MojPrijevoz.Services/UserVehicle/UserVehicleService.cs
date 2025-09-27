@@ -18,10 +18,10 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
     {
     }
 
-    public override IQueryable<Database.UserVehicle> ApplyFilter(IQueryable<Database.UserVehicle> queryable,
+    public override Task<IQueryable<Database.UserVehicle>> ApplyFilter(IQueryable<Database.UserVehicle> queryable,
         UserVehicleSearchObject searchObject)
     {
-        return queryable.Where(uv => uv.ProfileId == searchObject.ProfileId);
+        return Task.FromResult(queryable.Where(uv => uv.ProfileId == searchObject.ProfileId));
     }
 
     protected override async Task PrepareForResponse(Database.UserVehicle entity, MojPrijevozDbContext dbContext)

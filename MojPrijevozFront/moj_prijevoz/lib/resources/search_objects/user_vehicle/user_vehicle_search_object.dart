@@ -9,8 +9,8 @@ class UserVehicleSearchObject extends BaseSearchObject {
 
   UserVehicleSearchObject({
     required this.profileId,
-    super.page,
-    super.pageSize,
+    required super.page,
+    required super.pageSize,
   });
   @override
   Map<String, dynamic> toJson() => _$UserVehicleSearchObjectToJson(this);

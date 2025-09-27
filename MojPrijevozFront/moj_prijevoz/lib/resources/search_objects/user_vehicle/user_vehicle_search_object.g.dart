@@ -10,8 +10,8 @@ UserVehicleSearchObject _$UserVehicleSearchObjectFromJson(
   Map<String, dynamic> json,
 ) => UserVehicleSearchObject(
   profileId: (json['profileId'] as num).toInt(),
-  page: (json['page'] as num?)?.toInt() ?? 1,
-  pageSize: (json['pageSize'] as num?)?.toInt() ?? 10,
+  page: (json['page'] as num).toInt(),
+  pageSize: (json['pageSize'] as num).toInt(),
 );
 
 Map<String, dynamic> _$UserVehicleSearchObjectToJson(

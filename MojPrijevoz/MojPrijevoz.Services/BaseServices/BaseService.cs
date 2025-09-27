@@ -26,7 +26,7 @@ public abstract class
     public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject)
     {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
-        queryable = ApplyFilter(queryable, searchObject);
+        queryable = await ApplyFilter(queryable, searchObject);
         var fullCount = await queryable.CountAsync();
         queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
         queryable = await IncludeAdditionalEntities(queryable);
@@ -49,9 +49,10 @@ public abstract class
         return MapToResponseModel<TDetailedResponse>(entity);
     }
 
-    public virtual IQueryable<TEntity> ApplyFilter(IQueryable<TEntity> queryable, TSearchObject searchObject)
+    public virtual Task<IQueryable<TEntity>> ApplyFilter(IQueryable<TEntity> queryable,
+        TSearchObject searchObject)
     {
-        return queryable;
+        return Task.FromResult(queryable);
     }
 
     public virtual Task<IQueryable<TEntity>> IncludeAdditionalEntities(IQueryable<TEntity> queryable)

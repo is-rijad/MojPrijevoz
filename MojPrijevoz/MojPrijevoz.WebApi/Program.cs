@@ -2,6 +2,7 @@ using Mapster;
 using MojPrijevoz.Database;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.City;
+using MojPrijevoz.Services.DriversDiscount;
 using MojPrijevoz.Services.User;
 using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
@@ -34,6 +35,7 @@ builder.Services.AddTransient<CityService>();
 builder.Services.AddTransient<AdminCityService>();
 builder.Services.AddTransient<UserVehicleService>();
 builder.Services.AddTransient<VehicleService>();
+builder.Services.AddTransient<DriversDiscountService>();
 
 var app = builder.Build();
 

@@ -2,5 +2,9 @@ import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.da
 
 abstract class StringSearchObject extends BaseSearchObject {
   String? contains;
-  StringSearchObject({this.contains, super.page, super.pageSize});
+  StringSearchObject({
+    this.contains,
+    required super.page,
+    required super.pageSize,
+  });
 }

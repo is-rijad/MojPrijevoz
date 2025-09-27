@@ -4,5 +4,5 @@ abstract class BaseSearchObject extends JsonParsable {
   int page;
   final int pageSize;
 
-  BaseSearchObject({this.page = 1, this.pageSize = 10});
+  BaseSearchObject({required this.page, required this.pageSize});
 }

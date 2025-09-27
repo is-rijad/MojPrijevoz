@@ -22,6 +22,7 @@ public class UserProfile
     public virtual User? User { get; set; }
 
     public virtual ICollection<UserVehicle>? UserVehicles { get; set; }
+    public virtual ICollection<DriversDiscount>? DriversDiscounts { get; set; }
 }
 
 public class UserProfileEntityConfiguration : IEntityTypeConfiguration<UserProfile>

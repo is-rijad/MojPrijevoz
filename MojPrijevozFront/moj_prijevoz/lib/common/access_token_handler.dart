@@ -1,8 +1,5 @@
-import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/hive_provider.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';

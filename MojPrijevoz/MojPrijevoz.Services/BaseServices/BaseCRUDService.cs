@@ -60,7 +60,7 @@ public abstract class
         var entity = await _dbContext.Set<TEntity>().FindAsync(id);
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
-        BeforeDelete(id);
+        BeforeDelete(id, entity);
         dbSet.Remove(entity);
         AfterDelete();
         await transaction.CommitAsync();
@@ -97,8 +97,9 @@ public abstract class
         _mapper.Map(request, entity);
     }
 
-    protected virtual void BeforeDelete(int id)
+    protected virtual Task BeforeDelete(int id, TEntity entity)
     {
+        return Task.CompletedTask;
     }
 
     protected virtual void AfterDelete()

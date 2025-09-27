@@ -9,8 +9,8 @@ part of 'vehicle_search_object.dart';
 VehicleSearchObject _$VehicleSearchObjectFromJson(Map<String, dynamic> json) =>
     VehicleSearchObject(
       contains: json['contains'] as String?,
-      page: (json['page'] as num?)?.toInt() ?? 1,
-      pageSize: (json['pageSize'] as num?)?.toInt() ?? 10,
+      page: (json['page'] as num).toInt(),
+      pageSize: (json['pageSize'] as num).toInt(),
     );
 
 Map<String, dynamic> _$VehicleSearchObjectToJson(

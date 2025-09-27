@@ -16,13 +16,13 @@ public class VehicleService : BaseCrudService<Database.Vehicle, TPlaceholder, TP
     {
     }
 
-    public override IQueryable<Database.Vehicle> ApplyFilter(IQueryable<Database.Vehicle> queryable,
+    public override Task<IQueryable<Database.Vehicle>> ApplyFilter(IQueryable<Database.Vehicle> queryable,
         VehicleSearchObject searchObject)
     {
         if (!string.IsNullOrWhiteSpace(searchObject.Contains))
             queryable = queryable.Where(v => v.Model.Contains(searchObject.Contains)
                                              || v.Manufacturer.Contains(searchObject.Contains) ||
                                              (v.Manufacturer + " " + v.Model).Contains(searchObject.Contains));
-        return queryable;
+        return Task.FromResult(queryable);
     }
 }

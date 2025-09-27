@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 
 class IconFieldWithText extends StatelessWidget {
   final IconData iconData;

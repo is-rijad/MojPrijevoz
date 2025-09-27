@@ -9,8 +9,8 @@ part of 'city_search_object.dart';
 CitySearchObject _$CitySearchObjectFromJson(Map<String, dynamic> json) =>
     CitySearchObject(
       contains: json['contains'] as String?,
-      page: (json['page'] as num?)?.toInt() ?? 1,
-      pageSize: (json['pageSize'] as num?)?.toInt() ?? 10,
+      page: (json['page'] as num).toInt(),
+      pageSize: (json['pageSize'] as num).toInt(),
     );
 
 Map<String, dynamic> _$CitySearchObjectToJson(CitySearchObject instance) =>

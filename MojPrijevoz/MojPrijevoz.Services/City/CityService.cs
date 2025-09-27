@@ -15,11 +15,11 @@ public class CityService : BaseService<CityResponse, CityResponse, Database.City
     {
     }
 
-    public override IQueryable<Database.City> ApplyFilter(IQueryable<Database.City> queryable,
+    public override Task<IQueryable<Database.City>> ApplyFilter(IQueryable<Database.City> queryable,
         CitySearchObject searchObject)
     {
         if (!string.IsNullOrWhiteSpace(searchObject.Contains))
             queryable = queryable.Where(c => c.Name.Contains(searchObject.Contains));
-        return queryable;
+        return  Task.FromResult(queryable);
     }
 }
