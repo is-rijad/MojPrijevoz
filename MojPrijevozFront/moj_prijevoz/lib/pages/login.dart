@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
@@ -14,9 +13,7 @@ import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 
 class LoginPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
-  final AuthProvider _authProvider = GetIt.I<AuthProvider>(
-    param1: LoadingType.global,
-  );
+  final AuthProvider _authProvider = GetIt.I<AuthProvider>();
   final _loginRequest = LoginRequest();
 
   LoginPage({super.key});

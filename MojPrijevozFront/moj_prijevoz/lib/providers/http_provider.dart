@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/env.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import "package:moj_prijevoz/providers/ui_provider.dart";
 import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
@@ -12,9 +11,8 @@ class HttpProvider {
   final _dio = Dio();
   final String _apiUrl = Environment.apiUrl;
   late final UIProvider _uiProvider;
-  final LoadingType loadingType;
 
-  HttpProvider({required this.loadingType}) {
+  HttpProvider() {
     _uiProvider = GetIt.I<UIProvider>();
   }
 
@@ -24,7 +22,7 @@ class HttpProvider {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      _uiProvider.startLoading(loadingType);
+      _uiProvider.startLoading();
       var path = "$_apiUrl$url";
       if (id != null) path += "/$id";
       var options = await _setRequestOptions();
@@ -44,7 +42,7 @@ class HttpProvider {
     TSearchObject extends BaseSearchObject
   >(String url, TSearchObject search, {Map<String, dynamic>? query}) async {
     try {
-      _uiProvider.startLoading(loadingType);
+      _uiProvider.startLoading();
 
       var queryParameters = search.toJson();
       if (query != null) {
@@ -74,7 +72,7 @@ class HttpProvider {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      _uiProvider.startLoading(loadingType);
+      _uiProvider.startLoading();
 
       var options = await _setRequestOptions();
       var response = await _dio.post(
@@ -96,7 +94,7 @@ class HttpProvider {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      _uiProvider.startLoading(loadingType);
+      _uiProvider.startLoading();
 
       var options = await _setRequestOptions();
       var response = await _dio.put(
@@ -117,7 +115,7 @@ class HttpProvider {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      _uiProvider.startLoading(loadingType);
+      _uiProvider.startLoading();
 
       var options = await _setRequestOptions();
       await _dio.delete(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 
 class UIProvider {
@@ -11,8 +10,8 @@ class UIProvider {
     _loadingDisabled = true;
   }
 
-  void startLoading(LoadingType loadingType) {
-    if (loadingType == LoadingType.global && !_loadingDisabled) {
+  void startLoading() {
+    if (!_loadingDisabled) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => isLoading.value = true,
       );

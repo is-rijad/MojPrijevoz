@@ -13,5 +13,5 @@ class UserProvider
           CreateUserRequest,
           UpdateUserRequest
         > {
-  UserProvider({required super.loadingType}) : super(providerName: "user");
+  UserProvider() : super(providerName: "user");
 }

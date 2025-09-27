@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
-import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
@@ -21,9 +19,7 @@ class UserVehicleDeleteDialog extends StatefulWidget {
 
 class _UserVehicleDeleteDialogState extends State<UserVehicleDeleteDialog> {
   final _errorMessage = ValueNotifier<String?>(null);
-  final _userVehicleProvider = GetIt.I<UserVehicleProvider>(
-    param1: LoadingType.global,
-  );
+  final _userVehicleProvider = GetIt.I<UserVehicleProvider>();
 
   @override
   Widget build(BuildContext context) {

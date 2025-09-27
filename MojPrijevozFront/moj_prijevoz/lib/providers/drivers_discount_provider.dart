@@ -12,6 +12,5 @@ class DriversDiscountProvider
           DriversDiscountUpsertRequest,
           DriversDiscountUpsertRequest
         > {
-  DriversDiscountProvider({required super.loadingType})
-    : super(providerName: "driversdiscount");
+  DriversDiscountProvider() : super(providerName: "driversdiscount");
 }

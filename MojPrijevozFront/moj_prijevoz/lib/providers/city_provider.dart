@@ -4,5 +4,5 @@ import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 
 class CityProvider
     extends BaseGetProvider<CityResponse, CityResponse, CitySearchObject> {
-  CityProvider({required super.loadingType}) : super(providerName: "city");
+  CityProvider() : super(providerName: "city");
 }

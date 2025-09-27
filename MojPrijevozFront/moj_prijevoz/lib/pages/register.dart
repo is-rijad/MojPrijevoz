@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/create_user_request.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/city_paged_dropdown.dart';
@@ -19,7 +18,7 @@ class RegisterPage extends StatefulWidget {
 
 class RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  final _userProvider = GetIt.I<UserProvider>(param1: LoadingType.global);
+  final _userProvider = GetIt.I<UserProvider>();
   final _request = CreateUserRequest();
 
   @override

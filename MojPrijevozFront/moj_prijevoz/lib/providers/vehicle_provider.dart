@@ -5,6 +5,5 @@ import 'package:moj_prijevoz/resources/search_objects/vehicle/vehicle_search_obj
 class VehicleProvider
     extends
         BaseGetProvider<VehicleResponse, VehicleResponse, VehicleSearchObject> {
-  VehicleProvider({required super.loadingType})
-    : super(providerName: "vehicle");
+  VehicleProvider() : super(providerName: "vehicle");
 }

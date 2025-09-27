@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_delete_dialog.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
@@ -24,9 +23,7 @@ class DriverPage extends StatefulWidget {
 }
 
 class _DriverPageState extends State<DriverPage> {
-  final _userVehicleProvider = GetIt.I<UserVehicleProvider>(
-    param1: LoadingType.global,
-  );
+  final _userVehicleProvider = GetIt.I<UserVehicleProvider>();
   final _uiProvider = GetIt.I<UIProvider>();
   late UserVehicleSearchObject _userVehicleSearchObject;
   final _userVehicles = SearchResult<UserVehicleResponse>();

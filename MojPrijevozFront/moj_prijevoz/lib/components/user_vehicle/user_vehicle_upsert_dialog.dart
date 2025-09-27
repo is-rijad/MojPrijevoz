@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user_vehicle/user_vehicle_upsert_request.dart';
@@ -29,9 +28,7 @@ class _UserVehicleUpsertDialogState extends State<UserVehicleUpsertDialog> {
   final _errorMessage = ValueNotifier<String?>(null);
   final _formKey = GlobalKey<FormState>();
   UserVehicleUpsertRequest? _userVehicleUpsertRequest;
-  final _userVehicleProvider = GetIt.I<UserVehicleProvider>(
-    param1: LoadingType.global,
-  );
+  final _userVehicleProvider = GetIt.I<UserVehicleProvider>();
 
   @override
   Widget build(BuildContext context) {

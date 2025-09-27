@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
+import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/search_objects/base/string_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
@@ -64,7 +64,7 @@ class _PagedDropdownState<
   @override
   void initState() {
     super.initState();
-    _provider = GetIt.I<TProvider>(param1: LoadingType.none);
+    _provider = GetIt.I<TProvider>();
     _searchObject = widget.searchObject;
     _scrollController.addListener(_scrollListener);
     _changeSelectedItem(widget.defaultItem);
@@ -113,6 +113,7 @@ class _PagedDropdownState<
     setState(() {
       _isLoading = true;
     });
+    GetIt.I<UIProvider>().disableLoading();
     final result = await _provider.getAll(_searchObject);
     if (!mounted) return;
 

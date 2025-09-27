@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/access_token_handler.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
@@ -42,9 +41,7 @@ class _BecomeDriverPageState extends State<BecomeDriverPage> {
       },
     );
     if (addedItem != null) {
-      var response = await GetIt.I<AuthProvider>(
-        param1: LoadingType.global,
-      ).getNewToken();
+      var response = await GetIt.I<AuthProvider>().getNewToken();
       await AccessTokenHandler.setAccessToken(response.token);
       widget.profileIdNotifier.value = await AccessTokenHandler.getProfileId(
         ProfileType.driver,

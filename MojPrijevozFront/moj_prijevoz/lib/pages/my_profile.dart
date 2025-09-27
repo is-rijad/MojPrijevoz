@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/common/gender.dart';
@@ -28,8 +27,8 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfilState extends State<MyProfile> {
-  final _userProvider = GetIt.I<UserProvider>(param1: LoadingType.global);
-  final _cityProvider = GetIt.I<CityProvider>(param1: LoadingType.global);
+  final _userProvider = GetIt.I<UserProvider>();
+  final _cityProvider = GetIt.I<CityProvider>();
   late final UserResponse _userData;
   final _formKey = GlobalKey<FormState>();
   late final CityResponse _userCity;

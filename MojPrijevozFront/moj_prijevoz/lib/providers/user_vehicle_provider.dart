@@ -12,6 +12,5 @@ class UserVehicleProvider
           UserVehicleUpsertRequest,
           UserVehicleUpsertRequest
         > {
-  UserVehicleProvider({required super.loadingType})
-    : super(providerName: "uservehicle");
+  UserVehicleProvider() : super(providerName: "uservehicle");
 }

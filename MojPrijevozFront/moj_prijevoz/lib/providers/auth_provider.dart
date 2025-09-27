@@ -1,15 +1,13 @@
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/loading_type.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
 import 'package:moj_prijevoz/resources/responses/user/access_token_response.dart';
 
 class AuthProvider {
-  final LoadingType loadingType;
   late final HttpProvider _httpProvider;
   final providerName = "auth";
-  AuthProvider({required this.loadingType}) {
-    _httpProvider = GetIt.I<HttpProvider>(param1: loadingType);
+  AuthProvider() {
+    _httpProvider = GetIt.I<HttpProvider>();
   }
 
   Future<AccessTokenResponse> login(LoginRequest request) async {
