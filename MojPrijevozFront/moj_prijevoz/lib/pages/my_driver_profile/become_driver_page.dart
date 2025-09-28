@@ -45,7 +45,7 @@ class _BecomeDriverPageState extends State<BecomeDriverPage> {
     final addedItem = await showDialog<UserVehicleResponse>(
       context: context,
       builder: (BuildContext context) {
-        return UserVehicleUpsertDialog(selectedVehicle: null);
+        return UserVehicleUpsertDialog(selectedItem: null);
       },
     );
     if (addedItem != null) {

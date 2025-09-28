@@ -1,54 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user_vehicle/user_vehicle_upsert_request.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
 import 'package:moj_prijevoz/resources/responses/vehicle/vehicle_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/vehicle/vehicle_search_object.dart';
-import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
-import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
+import 'package:moj_prijevoz/widgets/dialogs/upsert_dialog.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
-import 'package:moj_prijevoz/widgets/snackbars.dart';
-import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 
-class UserVehicleUpsertDialog extends StatefulWidget {
-  final UserVehicleResponse? selectedVehicle;
-
-  const UserVehicleUpsertDialog({super.key, this.selectedVehicle});
-
-  @override
-  State<StatefulWidget> createState() => _UserVehicleUpsertDialogState();
-}
-
-class _UserVehicleUpsertDialogState extends State<UserVehicleUpsertDialog> {
-  final _errorMessage = ValueNotifier<String?>(null);
-  final _formKey = GlobalKey<FormState>();
-  UserVehicleUpsertRequest? _userVehicleUpsertRequest;
-  final _userVehicleProvider = GetIt.I<UserVehicleProvider>();
+class UserVehicleUpsertDialog
+    extends
+        UpsertDialog<
+          UserVehicleUpsertRequest,
+          UserVehicleResponse,
+          UserVehicleProvider
+        > {
+  UserVehicleUpsertDialog({super.key, required super.selectedItem})
+    : super(request: UserVehicleUpsertRequest(), entityName: "vozilo");
 
   @override
-  Widget build(BuildContext context) {
-    return MPAlertDialog(
-      content: AlertDialogContent(
-        errorMessageValueNotifier: _errorMessage,
-        child: FormWrapper(
-          formKey: _formKey,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: _buildVehicleUpsertForm(context, widget.selectedVehicle),
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildVehicleUpsertForm(
-    BuildContext context,
-    UserVehicleResponse? selectedVehicle,
-  ) {
-    _userVehicleUpsertRequest = UserVehicleUpsertRequest();
+  List<Widget> buildContent(BuildContext context, request) {
     return [
       PagedDropdownFormField<
         VehicleResponse,
@@ -63,12 +35,12 @@ class _UserVehicleUpsertDialogState extends State<UserVehicleUpsertDialog> {
           iconData: Icons.directions_car_filled,
           iconHint: "Vozilo",
         ),
-        onSaved: (value) => _userVehicleUpsertRequest!.vehicleId = value!.id,
+        onSaved: (value) => request.vehicleId = value!.id,
         validator: (value) {
           if (value == null) return "Vozilo je obavezno!";
           return null;
         },
-        initialValue: selectedVehicle?.vehicle,
+        initialValue: selectedItem?.vehicle,
       ),
       TextFormField(
         keyboardType: TextInputType.numberWithOptions(
@@ -79,8 +51,7 @@ class _UserVehicleUpsertDialogState extends State<UserVehicleUpsertDialog> {
           iconData: Icons.calendar_month,
           iconHint: "Godina proizvodnje",
         ),
-        onSaved: (value) =>
-            _userVehicleUpsertRequest!.modelYear = int.parse(value!),
+        onSaved: (value) => request.modelYear = int.parse(value!),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return "Godina proizvodnje je obavezna!";
@@ -90,7 +61,7 @@ class _UserVehicleUpsertDialogState extends State<UserVehicleUpsertDialog> {
           }
           return null;
         },
-        initialValue: selectedVehicle?.modelYear.toString(),
+        initialValue: selectedItem?.modelYear.toString(),
       ),
       TextFormField(
         keyboardType: TextInputType.numberWithOptions(
@@ -101,8 +72,7 @@ class _UserVehicleUpsertDialogState extends State<UserVehicleUpsertDialog> {
           iconData: Icons.local_gas_station,
           iconHint: "Prosječna potrošnja goriva",
         ),
-        onSaved: (value) =>
-            _userVehicleUpsertRequest!.fuelConsumption = double.parse(value!),
+        onSaved: (value) => request.fuelConsumption = double.parse(value!),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return "Prosječna potrošnja goriva je obavezna!";
@@ -115,7 +85,7 @@ class _UserVehicleUpsertDialogState extends State<UserVehicleUpsertDialog> {
           }
           return null;
         },
-        initialValue: selectedVehicle?.fuelConsumption.toString(),
+        initialValue: selectedItem?.fuelConsumption.toString(),
       ),
       TextFormField(
         keyboardType: TextInputType.numberWithOptions(
@@ -126,8 +96,7 @@ class _UserVehicleUpsertDialogState extends State<UserVehicleUpsertDialog> {
           iconData: Icons.money,
           iconHint: "Cijena po kilometru",
         ),
-        onSaved: (value) =>
-            _userVehicleUpsertRequest!.pricePerKm = double.parse(value!),
+        onSaved: (value) => request.pricePerKm = double.parse(value!),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return "Cijena po kilometru je obavezna!";
@@ -140,42 +109,8 @@ class _UserVehicleUpsertDialogState extends State<UserVehicleUpsertDialog> {
           }
           return null;
         },
-        initialValue: selectedVehicle?.pricePerKm.toString(),
-      ),
-      SizedBox(height: 20),
-      ElevatedButton(
-        onPressed: () => _submitForm(selectedVehicle),
-        child: selectedVehicle != null
-            ? const Text("Spremi promjene")
-            : const Text("Dodaj vozilo"),
+        initialValue: selectedItem?.pricePerKm.toString(),
       ),
     ];
-  }
-
-  Future<void> _submitForm(UserVehicleResponse? selectedVehicle) async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      try {
-        UserVehicleResponse? resultItem;
-
-        if (selectedVehicle != null) {
-          resultItem = await _userVehicleProvider.update(
-            selectedVehicle.id,
-            _userVehicleUpsertRequest!,
-          );
-        } else {
-          resultItem = await _userVehicleProvider.insert(
-            _userVehicleUpsertRequest!,
-          );
-        }
-        if (!mounted) return;
-        Navigator.pop(context, resultItem);
-        Constants.messengerKey.currentState!.showSnackBar(
-          SuccessSnackBar(message: "Uspješno spremljeno!"),
-        );
-      } on Exception catch (ex, stack) {
-        _errorMessage.value = ErrorHandler.handle(ex, stack);
-      }
-    }
   }
 }

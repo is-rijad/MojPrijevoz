@@ -6,8 +6,10 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 part 'user_response.g.dart';
 
 @JsonSerializable()
-class UserResponse extends JsonParsable
+class UserResponse extends JsonResponse
     implements UserForCircleAvatarInterface {
+  @override
+  final int id;
   @override
   String firstName;
   @override
@@ -20,6 +22,7 @@ class UserResponse extends JsonParsable
   String? picture;
 
   UserResponse({
+    required this.id,
     required this.firstName,
     required this.lastName,
     required this.email,

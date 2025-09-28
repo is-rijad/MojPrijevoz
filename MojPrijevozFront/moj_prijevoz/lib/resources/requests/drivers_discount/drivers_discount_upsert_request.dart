@@ -4,7 +4,7 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 part 'drivers_discount_upsert_request.g.dart';
 
 @JsonSerializable()
-class DriversDiscountUpsertRequest extends JsonParsable {
+class DriversDiscountUpsertRequest extends JsonRequest {
   double? minKm;
   double? maxKm;
   double? discount;

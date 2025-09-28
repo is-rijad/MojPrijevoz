@@ -4,11 +4,12 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 part 'city_response.g.dart';
 
 @JsonSerializable()
-class CityResponse extends JsonParsable {
-  int id;
-  String name;
-  String long;
-  String lat;
+class CityResponse extends JsonResponse {
+  @override
+  final int id;
+  final String name;
+  final String long;
+  final String lat;
 
   CityResponse({
     required this.id,
@@ -21,5 +22,5 @@ class CityResponse extends JsonParsable {
       _$CityResponseFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$CityResponseToJson(this);
+  Map<String, dynamic> toJson() => _$CityResponseToJson(this);  
 }

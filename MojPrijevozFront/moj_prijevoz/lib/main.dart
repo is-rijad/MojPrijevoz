@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
+import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
@@ -23,6 +24,9 @@ void registerServices() {
   getIt.registerFactory<VehicleProvider>(() => VehicleProvider());
   getIt.registerFactory<UserVehicleProvider>(() => UserVehicleProvider());
   getIt.registerFactory<AuthProvider>(() => AuthProvider());
+  getIt.registerFactory<DriversDiscountProvider>(
+    () => DriversDiscountProvider(),
+  );
 }
 
 void main() {

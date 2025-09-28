@@ -9,7 +9,7 @@ import 'package:moj_prijevoz/resources/search_objects/base/string_search_object.
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 class PagedDropdown<
-  T extends JsonParsable,
+  T extends JsonResponse,
   TValue,
   TProvider extends BaseGetProvider<T, T, TSearchObject>,
   TSearchObject extends StringSearchObject
@@ -40,7 +40,7 @@ class PagedDropdown<
 }
 
 class _PagedDropdownState<
-  T extends JsonParsable,
+  T extends JsonResponse,
   TValue,
   TProvider extends BaseGetProvider<T, T, TSearchObject>,
   TSearchObject extends StringSearchObject
@@ -113,7 +113,6 @@ class _PagedDropdownState<
     setState(() {
       _isLoading = true;
     });
-    GetIt.I<UIProvider>().disableLoading();
     final result = await _provider.getAll(_searchObject);
     if (!mounted) return;
 

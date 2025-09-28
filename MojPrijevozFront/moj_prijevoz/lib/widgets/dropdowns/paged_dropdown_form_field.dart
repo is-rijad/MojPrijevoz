@@ -5,7 +5,7 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown.dart';
 
 class PagedDropdownFormField<
-  T extends JsonParsable,
+  T extends JsonResponse,
   TValue,
   TProvider extends BaseGetProvider<T, T, TSearchObject>,
   TSearchObject extends StringSearchObject

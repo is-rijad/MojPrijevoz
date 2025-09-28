@@ -5,7 +5,8 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 part 'vehicle_response.g.dart';
 
 @JsonSerializable()
-class VehicleResponse extends JsonParsable {
+class VehicleResponse extends JsonResponse {
+  @override
   final int id;
   final String manufacturer;
   final String model;

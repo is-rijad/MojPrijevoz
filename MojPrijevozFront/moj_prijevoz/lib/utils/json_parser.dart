@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
+import 'package:moj_prijevoz/resources/responses/drivers_discount/drivers_discount_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/access_token_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
@@ -16,6 +17,7 @@ final Map<Type, _FromJson> _jsonFactories = {
   AccessTokenPayload: (json) => AccessTokenPayload.fromJson(json),
   UserVehicleResponse: (json) => UserVehicleResponse.fromJson(json),
   VehicleResponse: (json) => VehicleResponse.fromJson(json),
+  DriversDiscountResponse: (json) => DriversDiscountResponse.fromJson(json),
 };
 
 T parseJson<T>(Map<String, dynamic> json) {
@@ -27,4 +29,10 @@ T parseJson<T>(Map<String, dynamic> json) {
 
 abstract class JsonParsable {
   Map<String, dynamic> toJson();
+}
+
+abstract class JsonRequest extends JsonParsable {}
+
+abstract class JsonResponse extends JsonParsable {
+  abstract final int id;
 }

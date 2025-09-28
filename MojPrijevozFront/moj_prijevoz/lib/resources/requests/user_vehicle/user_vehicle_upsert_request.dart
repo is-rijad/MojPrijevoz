@@ -4,7 +4,7 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 part 'user_vehicle_upsert_request.g.dart';
 
 @JsonSerializable()
-class UserVehicleUpsertRequest extends JsonParsable {
+class UserVehicleUpsertRequest extends JsonRequest {
   int? vehicleId;
   int? modelYear;
   double? fuelConsumption;

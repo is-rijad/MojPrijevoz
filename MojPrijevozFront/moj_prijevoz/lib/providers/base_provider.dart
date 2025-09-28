@@ -1,30 +1,32 @@
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
+import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 abstract class BaseGetProvider<
-  TResponse extends JsonParsable,
-  TDetailedResponse extends JsonParsable,
+  TResponse extends JsonResponse,
+  TDetailedResponse extends JsonResponse,
   TSearchObject extends BaseSearchObject
 > {
-  late final HttpProvider httpProvider;
+  final _httpProvider = GetIt.I<HttpProvider>();
+  final _uiProvider = GetIt.I<UIProvider>();
+
   final String providerName;
 
-  BaseGetProvider({required this.providerName}) {
-    httpProvider = GetIt.I<HttpProvider>();
-  }
+  BaseGetProvider({required this.providerName});
 
   Future<TDetailedResponse> getById(int id) async {
-    return await httpProvider.getSingle<TDetailedResponse>(
+    return await _httpProvider.getSingle<TDetailedResponse>(
       providerName,
       id: id,
     );
   }
 
   Future<SearchResult<TResponse>> getAll(TSearchObject search) async {
-    return await httpProvider.getAll<TResponse, TSearchObject>(
+    _uiProvider.disableLoading();
+    return await _httpProvider.getAll<TResponse, TSearchObject>(
       providerName,
       search,
     );
@@ -32,24 +34,24 @@ abstract class BaseGetProvider<
 }
 
 abstract class BaseProvider<
-  TResponse extends JsonParsable,
-  TDetailedResponse extends JsonParsable,
+  TResponse extends JsonResponse,
+  TDetailedResponse extends JsonResponse,
   TSearchObject extends BaseSearchObject,
-  TInsertRequest extends JsonParsable,
-  TUpdateRequest extends JsonParsable
+  TInsertRequest extends JsonRequest,
+  TUpdateRequest extends JsonRequest
 >
     extends BaseGetProvider<TResponse, TDetailedResponse, TSearchObject> {
   BaseProvider({required super.providerName});
 
   Future<TDetailedResponse> insert(TInsertRequest request) async {
-    return await httpProvider.post<TInsertRequest, TDetailedResponse>(
+    return await _httpProvider.post<TInsertRequest, TDetailedResponse>(
       providerName,
       request,
     );
   }
 
   Future<TDetailedResponse> update(int id, TUpdateRequest request) async {
-    return await httpProvider.put<TUpdateRequest, TDetailedResponse>(
+    return await _httpProvider.put<TUpdateRequest, TDetailedResponse>(
       providerName,
       id,
       request,
@@ -57,6 +59,6 @@ abstract class BaseProvider<
   }
 
   Future<void> delete(int id) async {
-    await httpProvider.delete(providerName, id);
+    await _httpProvider.delete(providerName, id);
   }
 }

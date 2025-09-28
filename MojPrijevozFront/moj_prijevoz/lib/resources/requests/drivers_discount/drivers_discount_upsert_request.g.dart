@@ -9,9 +9,9 @@ part of 'drivers_discount_upsert_request.dart';
 DriversDiscountUpsertRequest _$DriversDiscountUpsertRequestFromJson(
   Map<String, dynamic> json,
 ) => DriversDiscountUpsertRequest(
-  minKm: (json['minKm'] as num).toDouble(),
+  minKm: (json['minKm'] as num?)?.toDouble(),
   maxKm: (json['maxKm'] as num?)?.toDouble(),
-  discount: (json['discount'] as num).toDouble(),
+  discount: (json['discount'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$DriversDiscountUpsertRequestToJson(

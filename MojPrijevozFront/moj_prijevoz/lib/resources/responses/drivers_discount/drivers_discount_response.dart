@@ -4,7 +4,8 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 part 'drivers_discount_response.g.dart';
 
 @JsonSerializable()
-class DriversDiscountResponse extends JsonParsable {
+class DriversDiscountResponse extends JsonResponse {
+  @override
   final int id;
   final double minKm;
   final double? maxKm;
@@ -17,7 +18,12 @@ class DriversDiscountResponse extends JsonParsable {
     required this.discount,
   });
 
-    @override
+  @override
+  String toString() {
+    return "${minKm}km - ${maxKm ?? "Neograničeno "}km";
+  }
+
+  @override
   Map<String, dynamic> toJson() => _$DriversDiscountResponseToJson(this);
 
   factory DriversDiscountResponse.fromJson(Map<String, dynamic> json) =>

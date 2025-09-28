@@ -5,7 +5,7 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 part 'update_user_request.g.dart';
 
 @JsonSerializable()
-class UpdateUserRequest extends JsonParsable {
+class UpdateUserRequest extends JsonRequest {
   String? firstName;
   String? lastName;
   String? email;

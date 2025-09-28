@@ -46,6 +46,7 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
       pageSize: _pageSize,
       page: 1,
     );
+
     (await _userVehicleProvider.getAll(
       _userVehicleSearchObject,
     )).copyTo(_userVehicles);
@@ -58,7 +59,6 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
                     _userVehicleSearchObject.page) -
                 1 &&
         _userVehicles.hasMore) {
-      _uiProvider.disableLoading();
 
       _userVehicleSearchObject.page++;
       var newItems = (await _userVehicleProvider.getAll(
@@ -78,7 +78,7 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
   Widget _build(BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints.loose(
-        Size(double.infinity, context.screenHeight * 0.7),
+        Size(double.infinity, context.screenHeight * 0.5),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -106,7 +106,7 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
     final result = await showDialog<UserVehicleResponse>(
       context: context,
       builder: (BuildContext context) {
-        return UserVehicleUpsertDialog(selectedVehicle: selectedVehicle);
+        return UserVehicleUpsertDialog(selectedItem: selectedVehicle);
       },
     );
     if (result != null && mounted) {
@@ -124,6 +124,9 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
   }
 
   List<Widget> _buildVehicles(BuildContext context) {
+    if (_userVehicles.items.isEmpty) {
+      return [Expanded(child: const Center(child: Text("Nemate vozila!")))];
+    }
     return [
       Flexible(
         fit: FlexFit.loose,
@@ -262,7 +265,7 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
     final deleted = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return UserVehicleDeleteDialog(selectedVehicle: selectedVehicle);
+        return UserVehicleDeleteDialog(selectedItem: selectedVehicle);
       },
     );
     if (deleted != null && deleted && mounted) {

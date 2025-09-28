@@ -21,8 +21,8 @@ public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, 
     private async Task<bool> AreOverlapping(int profileId, float minKm, float? maxKm, int? id = null)
     {
         var queryable = _dbContext.DriversDiscounts.Where(dd =>
-            dd.ProfileId == profileId && dd.MinKm <= (maxKm ?? double.MaxValue) &&
-            minKm <= (dd.MaxKm ?? double.MaxValue));
+            dd.ProfileId == profileId && (maxKm == null || dd.MinKm <= maxKm) &&
+            (dd.MaxKm == null || minKm <= dd.MaxKm));
         if (id.HasValue)
             queryable = queryable.Where(dd => dd.Id != id.Value);
         return await queryable.AnyAsync();

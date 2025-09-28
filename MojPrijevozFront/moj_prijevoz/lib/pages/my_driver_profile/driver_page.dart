@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/components/user_vehicles_component.dart';
+import 'package:moj_prijevoz/components/drivers_discount/drivers_discount_component.dart';
+import 'package:moj_prijevoz/components/user_vehicle/user_vehicles_component.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 
 class DriverPage extends StatefulWidget {
@@ -31,6 +32,7 @@ class _DriverPageState extends State<DriverPage> {
           ),
           SizedBox(height: 20),
           UserVehiclesComponent(profileId: widget.profileId),
+          DriversDiscountComponent(profileId: widget.profileId)
         ],
       ),
     );
