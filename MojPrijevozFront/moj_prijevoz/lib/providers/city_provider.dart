@@ -3,6 +3,6 @@ import 'package:moj_prijevoz/resources/search_objects/city/city_search_object.da
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 
 class CityProvider
-    extends BaseGetProvider<CityResponse, CityResponse, CitySearchObject> {
+    extends BaseGetProvider<CityResponse, CitySearchObject> {
   CityProvider() : super(providerName: "city");
 }

@@ -7,7 +7,7 @@ import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown.dart';
 class PagedDropdownFormField<
   T extends JsonResponse,
   TValue,
-  TProvider extends BaseGetProvider<T, T, TSearchObject>,
+  TProvider extends BaseGetProvider<T, TSearchObject>,
   TSearchObject extends StringSearchObject
 >
     extends FormField<T> {

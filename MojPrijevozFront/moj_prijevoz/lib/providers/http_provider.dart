@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/env.dart';
+import 'package:moj_prijevoz/providers/auth_provider.dart';
 import "package:moj_prijevoz/providers/ui_provider.dart";
 import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
@@ -132,7 +132,7 @@ class HttpProvider {
     var options = Options(contentType: "application/json");
     var headersMap = <String, dynamic>{};
     try {
-      var token = await AccessTokenHandler.getAccessToken();
+      var token = await AuthProvider.getAccessToken();
       headersMap.addEntries(
         <String, dynamic>{"Authorization": "Bearer $token"}.entries,
       );

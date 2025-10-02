@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/create_user_request.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/city_paged_dropdown.dart';
@@ -8,6 +7,7 @@ import 'package:moj_prijevoz/widgets/form_fields/name_form_field.dart';
 import 'package:moj_prijevoz/widgets/form_fields/password_form_field.dart';
 import 'package:moj_prijevoz/widgets/form_fields/username_form_field.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -18,7 +18,6 @@ class RegisterPage extends StatefulWidget {
 
 class RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  final _userProvider = GetIt.I<UserProvider>();
   final _request = CreateUserRequest();
 
   @override
@@ -104,7 +103,7 @@ class RegisterPageState extends State<RegisterPage> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      await _userProvider.insert(_request);
+      await context.read<UserProvider>().insert(_request);
       if (!mounted) return;
       Navigator.pop(context);
     }

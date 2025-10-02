@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
-import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class PaginatedTable<
   T extends JsonResponse,
@@ -17,10 +16,8 @@ class PaginatedTable<
   final List<String> header;
   final List<String Function(T)> items;
 
-  final Future<void> Function(T? selectedItem, SearchResult<T> items)?
-  buildUpsertDialog;
-  final Future<void> Function(T? selectedItem, SearchResult<T> items)?
-  buildDeleteDialog;
+  final Future<void> Function(T? selectedItem)? buildUpsertDialog;
+  final Future<void> Function(T selectedItem)? buildDeleteDialog;
 
   const PaginatedTable({
     super.key,
@@ -44,8 +41,6 @@ class _PaginatedTableState<
 >
     extends State<PaginatedTable<T, TProvider, TSearchObject>> {
   final _scrollController = ScrollController();
-  final _provider = GetIt.I<TProvider>();
-  final _items = SearchResult<T>();
 
   bool _isLoading = false;
   @override
@@ -68,16 +63,14 @@ class _PaginatedTableState<
   }
 
   Future<void> _fetchData() async {
-    if (_isLoading || !_items.hasMore) return;
+    if (_isLoading || !context.read<TProvider>().searchResult.hasMore) return;
+
     setState(() {
       _isLoading == true;
     });
-    widget.searchObject.page++;
-    var newItems =
-        (await _provider.getAll(widget.searchObject)) as SearchResult<T>;
+    await context.read<TProvider>().fetchData(widget.searchObject);
     if (mounted) {
       setState(() {
-        newItems.copyTo(_items);
         _isLoading == false;
       });
     }
@@ -89,12 +82,12 @@ class _PaginatedTableState<
   }
 
   Future<bool> _init() async {
-    final newItems = await _provider.getAll(widget.searchObject);
-    (newItems as SearchResult<T>).copyTo(_items);
+    await context.read<TProvider>().fetchData(widget.searchObject);
     return true;
   }
 
   Widget _build(BuildContext context) {
+    final searchResult = context.watch<TProvider>().searchResult;
     return Flexible(
       fit: FlexFit.loose,
       child: Column(
@@ -123,14 +116,14 @@ class _PaginatedTableState<
               controller: _scrollController,
               child: Table(
                 border: TableBorder.all(color: Colors.grey.shade200),
-                children: _items.items
-                    .map((item) => _buildRow(context, item))
+                children: searchResult.items
+                    .map((item) => _buildRow(context, item as T))
                     .toList(),
               ),
             ),
           ),
 
-          if (_items.hasMore)
+          if (searchResult.hasMore)
             const Padding(
               padding: EdgeInsets.all(8.0),
               child: CircularProgressIndicator(),
@@ -147,8 +140,9 @@ class _PaginatedTableState<
             (method) => Padding(
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
-                onTap: () => widget.buildUpsertDialog?.call(item, _items),
-                onDoubleTap: () => widget.buildDeleteDialog?.call(item, _items),
+                onTap: () => widget.buildUpsertDialog?.call(item),
+                onSecondaryTap: () => widget.buildDeleteDialog?.call(item),
+                onLongPress: () => widget.buildDeleteDialog?.call(item),
                 child: Text(method(item), textAlign: TextAlign.center),
               ),
             ),

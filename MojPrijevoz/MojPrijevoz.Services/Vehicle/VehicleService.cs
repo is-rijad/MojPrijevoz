@@ -9,7 +9,7 @@ using MojPrijevoz.Services.BaseServices;
 namespace MojPrijevoz.Services.Vehicle;
 
 public class VehicleService : BaseCrudService<Database.Vehicle, TPlaceholder, TPlaceholder, VehicleResponse,
-    VehicleResponse, VehicleSearchObject>
+    VehicleSearchObject>
 {
     public VehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) :
         base(context, mapper, authorizationService)

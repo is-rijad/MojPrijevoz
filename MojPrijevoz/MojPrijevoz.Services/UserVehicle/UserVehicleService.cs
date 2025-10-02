@@ -11,7 +11,7 @@ using MojPrijevoz.Services.BaseServices;
 namespace MojPrijevoz.Services.UserVehicle;
 
 public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehicleUpsertRequest,
-    UserVehicleUpsertRequest, UserVehicleResponse, UserVehicleResponse, UserVehicleSearchObject>
+    UserVehicleUpsertRequest, UserVehicleResponse, UserVehicleSearchObject>
 {
     public UserVehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) :
         base(context, mapper, authorizationService)

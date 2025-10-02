@@ -7,7 +7,6 @@ class UserVehicleProvider
     extends
         BaseProvider<
           UserVehicleResponse,
-          UserVehicleResponse,
           UserVehicleSearchObject,
           UserVehicleUpsertRequest,
           UserVehicleUpsertRequest

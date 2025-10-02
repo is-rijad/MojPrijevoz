@@ -26,7 +26,6 @@ var connectionString = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDatabaseServices(connectionString);
 
 builder.Services.AddMapster();
-TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<TokenManager>();
 builder.Services.AddTransient<AuthorizationService>();

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_delete_dialog.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
-import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/common/statuses/user_vehicle_status.dart';
@@ -11,6 +9,7 @@ import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_respo
 import 'package:moj_prijevoz/resources/search_objects/user_vehicle/user_vehicle_search_object.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class UserVehiclesComponent extends StatefulWidget {
   final int profileId;
@@ -21,10 +20,7 @@ class UserVehiclesComponent extends StatefulWidget {
 }
 
 class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
-  final _userVehicleProvider = GetIt.I<UserVehicleProvider>();
-  final _uiProvider = GetIt.I<UIProvider>();
   late UserVehicleSearchObject _userVehicleSearchObject;
-  final _userVehicles = SearchResult<UserVehicleResponse>();
   final PageController _pageController = PageController(viewportFraction: 0.7);
   int _currentPage = 0;
   final _pageSize = 4;
@@ -47,35 +43,33 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
       page: 1,
     );
 
-    (await _userVehicleProvider.getAll(
+    await context.read<UserVehicleProvider>().fetchData(
       _userVehicleSearchObject,
-    )).copyTo(_userVehicles);
+    );
     return true;
   }
 
-  Future<void> _onPageChanged(int value) async {
+  Future<void> _onPageChanged(
+    int value,
+    SearchResult<UserVehicleResponse> searchResult,
+  ) async {
     if (value ==
             (_userVehicleSearchObject.pageSize *
                     _userVehicleSearchObject.page) -
                 1 &&
-        _userVehicles.hasMore) {
-
-      _userVehicleSearchObject.page++;
-      var newItems = (await _userVehicleProvider.getAll(
+        searchResult.hasMore) {
+      await context.read<UserVehicleProvider>().fetchData(
         _userVehicleSearchObject,
-      ));
-
-      if (!mounted) return;
-      setState(() {
-        newItems.copyTo(_userVehicles);
-      });
+      );
     }
+    if (!mounted) return;
     setState(() {
       _currentPage = value;
     });
   }
 
   Widget _build(BuildContext context) {
+    final searchResult = context.watch<UserVehicleProvider>().searchResult;
     return ConstrainedBox(
       constraints: BoxConstraints.loose(
         Size(double.infinity, context.screenHeight * 0.5),
@@ -93,7 +87,7 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
               ),
             ],
           ),
-          ..._buildVehicles(context),
+          ..._buildVehicles(context, searchResult),
         ],
       ),
     );
@@ -103,28 +97,19 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
     BuildContext context,
     UserVehicleResponse? selectedVehicle,
   ) async {
-    final result = await showDialog<UserVehicleResponse>(
+    await showDialog<UserVehicleResponse>(
       context: context,
       builder: (BuildContext context) {
         return UserVehicleUpsertDialog(selectedItem: selectedVehicle);
       },
     );
-    if (result != null && mounted) {
-      if (selectedVehicle != null) {
-        var selectedItemIndex = _userVehicles.items.indexOf(selectedVehicle);
-        setState(() {
-          _userVehicles.items[selectedItemIndex] = result;
-        });
-      } else {
-        setState(() {
-          _userVehicles.items.add(result);
-        });
-      }
-    }
   }
 
-  List<Widget> _buildVehicles(BuildContext context) {
-    if (_userVehicles.items.isEmpty) {
+  List<Widget> _buildVehicles(
+    BuildContext context,
+    SearchResult<UserVehicleResponse> searchResult,
+  ) {
+    if (searchResult.items.isEmpty) {
       return [Expanded(child: const Center(child: Text("Nemate vozila!")))];
     }
     return [
@@ -132,8 +117,8 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
         fit: FlexFit.loose,
         child: PageView(
           controller: _pageController,
-          onPageChanged: _onPageChanged,
-          children: _userVehicles.items
+          onPageChanged: (index) => _onPageChanged(index, searchResult),
+          children: searchResult.items
               .map((i) => _buildUserVehicleCard(context, i))
               .toList(),
         ),
@@ -141,7 +126,7 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
       SizedBox(height: 10),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(_userVehicles.items.length, (i) {
+        children: List.generate(searchResult.items.length, (i) {
           final isActive = i == _currentPage;
           return AnimatedContainer(
             duration: const Duration(milliseconds: 300),
@@ -262,16 +247,11 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
     BuildContext context,
     UserVehicleResponse selectedVehicle,
   ) async {
-    final deleted = await showDialog<bool>(
+    await showDialog<bool>(
       context: context,
       builder: (context) {
         return UserVehicleDeleteDialog(selectedItem: selectedVehicle);
       },
     );
-    if (deleted != null && deleted && mounted) {
-      setState(() {
-        _userVehicles.items.remove(selectedVehicle);
-      });
-    }
   }
 }

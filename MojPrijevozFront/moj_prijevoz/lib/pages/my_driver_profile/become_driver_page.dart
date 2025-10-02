@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
-import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class BecomeDriverPage extends StatefulWidget {
-  final ValueNotifier<int?> profileIdNotifier;
+  final int? profileId;
 
-  const BecomeDriverPage({super.key, required this.profileIdNotifier});
+  const BecomeDriverPage({super.key, required this.profileId});
 
   @override
   State<StatefulWidget> createState() => _BecomeDriverPageState();
@@ -49,11 +47,9 @@ class _BecomeDriverPageState extends State<BecomeDriverPage> {
       },
     );
     if (addedItem != null) {
-      var response = await GetIt.I<AuthProvider>().getNewToken();
-      await AccessTokenHandler.setAccessToken(response.token);
-      widget.profileIdNotifier.value = await AccessTokenHandler.getProfileId(
-        ProfileType.driver,
-      );
+      if (!context.mounted) return;
+
+      await context.read<AuthProvider>().getNewToken();
     }
   }
 }

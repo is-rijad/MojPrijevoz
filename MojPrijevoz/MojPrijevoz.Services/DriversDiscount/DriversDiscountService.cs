@@ -12,7 +12,7 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.DriversDiscount;
 
-public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, DriversDiscountUpsertRequest, DriversDiscountUpsertRequest, DriversDiscountResponse, DriversDiscountResponse, DriversDiscountSearchObject>
+public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, DriversDiscountUpsertRequest, DriversDiscountUpsertRequest, DriversDiscountResponse, DriversDiscountSearchObject>
 {
     public DriversDiscountService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService)
     {

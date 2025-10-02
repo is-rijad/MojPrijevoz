@@ -8,11 +8,12 @@ import 'package:moj_prijevoz/widgets/texts/text_theme.dart';
 
 class AppOverlay extends StatelessWidget {
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
+  final Widget child;
 
   static const primaryColor = Color(0xFF3F8ED4);
   static const secondaryColor = Color(0xFFF1F5FE);
 
-  AppOverlay({super.key});
+  AppOverlay({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +44,7 @@ class AppOverlay extends StatelessWidget {
         fontFamily: "Roboto",
         textTheme: textTheme,
       ),
-      home: Homepage(),
+      home: child,
       scaffoldMessengerKey: Constants.messengerKey,
     );
   }

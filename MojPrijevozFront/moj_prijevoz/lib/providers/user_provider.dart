@@ -8,7 +8,6 @@ class UserProvider
     extends
         BaseProvider<
           UserResponse,
-          UserResponse,
           BaseSearchObject,
           CreateUserRequest,
           UpdateUserRequest

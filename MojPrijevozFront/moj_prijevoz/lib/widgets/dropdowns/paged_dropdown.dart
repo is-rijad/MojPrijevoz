@@ -1,17 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
-import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/search_objects/base/string_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
+import 'package:provider/provider.dart';
 
 class PagedDropdown<
   T extends JsonResponse,
   TValue,
-  TProvider extends BaseGetProvider<T, T, TSearchObject>,
+  TProvider extends BaseGetProvider<T, TSearchObject>,
   TSearchObject extends StringSearchObject
 >
     extends StatefulWidget {
@@ -42,13 +41,11 @@ class PagedDropdown<
 class _PagedDropdownState<
   T extends JsonResponse,
   TValue,
-  TProvider extends BaseGetProvider<T, T, TSearchObject>,
+  TProvider extends BaseGetProvider<T, TSearchObject>,
   TSearchObject extends StringSearchObject
 >
     extends State<PagedDropdown<T, TValue, TProvider, TSearchObject>> {
-  late final TProvider _provider;
   late final TSearchObject _searchObject;
-  final _searchResult = SearchResult<T>();
   final ScrollController _scrollController = ScrollController();
   final double _listElementHeight = 50;
   final TextEditingController _textController = TextEditingController();
@@ -64,7 +61,6 @@ class _PagedDropdownState<
   @override
   void initState() {
     super.initState();
-    _provider = GetIt.I<TProvider>();
     _searchObject = widget.searchObject;
     _scrollController.addListener(_scrollListener);
     _changeSelectedItem(widget.defaultItem);
@@ -72,13 +68,13 @@ class _PagedDropdownState<
     _fetchPage();
   }
 
-  void _scrollToSelected() {
+  void _scrollToSelected(SearchResult<T> searchResult) {
     if (_scrollController.hasClients && selectedItem != null) {
       try {
         _scrollController.animateTo(
           _listElementHeight *
-              _searchResult.items.indexOf(
-                _searchResult.items.firstWhere(
+              searchResult.items.indexOf(
+                searchResult.items.firstWhere(
                   (i) => widget.getValue(i) == widget.getValue(selectedItem!),
                 ),
               ),
@@ -108,32 +104,27 @@ class _PagedDropdownState<
   }
 
   Future<void> _fetchPage() async {
-    if (_isLoading || !_searchResult.hasMore) return;
-
+    if (_isLoading || !context.read<TProvider>().searchResult.hasMore) return;
     setState(() {
       _isLoading = true;
     });
-    final result = await _provider.getAll(_searchObject);
-    if (!mounted) return;
+
+    await context.read<TProvider>().fetchData(_searchObject);
 
     setState(() {
-      result.copyTo(_searchResult);
-      _searchObject.page++;
       _isLoading = false;
     });
-
-    _overlayEntry?.markNeedsBuild();
   }
 
-  void _toggleDropdown() {
+  void _toggleDropdown(SearchResult<T> searchResult) {
     if (selectedItem != null) {
       _changeDropdownText(selectedItem);
     }
     if (_overlayEntry == null) {
       if (selectedItem != null) {
         _searchObject.contains = widget.getLabel(selectedItem!);
-        _searchResult.items.clear();
-        _searchResult.hasMore = true;
+        searchResult.items.clear();
+        searchResult.hasMore = true;
         _searchObject.page = 1;
         _fetchPage();
       }
@@ -143,7 +134,7 @@ class _PagedDropdownState<
         _focusNode.requestFocus();
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToSelected();
+        _scrollToSelected(searchResult);
       });
     } else {
       _overlayEntry?.remove();
@@ -157,67 +148,70 @@ class _PagedDropdownState<
     final Offset offset = renderBox.localToGlobal(Offset.zero);
 
     return OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: _toggleDropdown,
-              behavior: HitTestBehavior.translucent,
-              child: Container(color: Colors.transparent),
+      builder: (context) {
+        final searchResult = context.watch<TProvider>().searchResult;
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => _toggleDropdown(searchResult),
+                behavior: HitTestBehavior.translucent,
+                child: Container(color: Colors.transparent),
+              ),
             ),
-          ),
-          Positioned(
-            left: offset.dx,
-            top: offset.dy + size.height,
-            width: size.width,
-            child: CompositedTransformFollower(
-              link: _layerLink,
-              showWhenUnlinked: false,
-              offset: Offset(0, size.height),
-              child: Material(
-                elevation: 4,
-                child: SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    itemExtent: _listElementHeight,
-                    itemCount:
-                        _searchResult.items.length +
-                        (_searchResult.hasMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (_searchResult.items.isEmpty) {
-                        return SizedBox.shrink();
-                      }
-                      if (index == _searchResult.items.length) {
-                        return const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Center(child: CircularProgressIndicator()),
+            Positioned(
+              left: offset.dx,
+              top: offset.dy + size.height,
+              width: size.width,
+              child: CompositedTransformFollower(
+                link: _layerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0, size.height),
+                child: Material(
+                  elevation: 4,
+                  child: SizedBox(
+                    height: 200,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      itemExtent: _listElementHeight,
+                      itemCount:
+                          searchResult.items.length +
+                          (searchResult.hasMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (searchResult.items.isEmpty) {
+                          return SizedBox.shrink();
+                        }
+                        if (index == searchResult.items.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+                        final item = searchResult.items[index];
+                        return ListTile(
+                          selected: selectedItem != null
+                              ? widget.getValue(item) ==
+                                    widget.getValue(selectedItem!)
+                              : false,
+                          title: Text(widget.getLabel(item)),
+                          onTap: () {
+                            widget.onChanged?.call(item);
+                            _toggleDropdown(searchResult);
+                            setState(() {
+                              _changeSelectedItem(item);
+                              _changeDropdownText(item);
+                            });
+                          },
                         );
-                      }
-                      final item = _searchResult.items[index];
-                      return ListTile(
-                        selected: selectedItem != null
-                            ? widget.getValue(item) ==
-                                  widget.getValue(selectedItem!)
-                            : false,
-                        title: Text(widget.getLabel(item)),
-                        onTap: () {
-                          widget.onChanged?.call(item);
-                          _toggleDropdown();
-                          setState(() {
-                            _changeSelectedItem(item);
-                            _changeDropdownText(item);
-                          });
-                        },
-                      );
-                    },
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
@@ -233,11 +227,12 @@ class _PagedDropdownState<
 
   @override
   Widget build(BuildContext context) {
+    final searchResult = context.watch<TProvider>().searchResult;
     return CompositedTransformTarget(
       link: _layerLink,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: _toggleDropdown,
+        onTap: () => _toggleDropdown(searchResult),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
           decoration: BoxDecoration(
@@ -250,9 +245,10 @@ class _PagedDropdownState<
               Expanded(
                 child: TextField(
                   controller: _textController,
-                  onTap: _toggleDropdown,
+                  onTap: () => _toggleDropdown(searchResult),
+
                   focusNode: _focusNode,
-                  onChanged: _onTextChanged,
+                  onChanged: (value) => _onTextChanged(value, searchResult),
                   decoration:
                       widget.decoration?.copyWith(border: InputBorder.none) ??
                       InputDecoration(border: InputBorder.none),
@@ -266,17 +262,17 @@ class _PagedDropdownState<
     );
   }
 
-  void _onTextChanged(String value) {
+  void _onTextChanged(String value, SearchResult<T> searchResult) {
     _searchObject.contains = value.isNotEmpty ? value : null;
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      _searchResult.items.clear();
-      _searchResult.hasMore = true;
+      searchResult.items.clear();
+      searchResult.hasMore = true;
       _searchObject.page = 1;
       _fetchPage();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_overlayEntry == null) {
-          _toggleDropdown();
+          _toggleDropdown(searchResult);
         }
         if (!_focusNode.hasFocus) {
           _focusNode.requestFocus();

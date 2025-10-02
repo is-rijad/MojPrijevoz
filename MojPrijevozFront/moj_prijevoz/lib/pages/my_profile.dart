@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/common/gender.dart';
@@ -18,6 +17,7 @@ import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class MyProfile extends StatefulWidget {
   const MyProfile({super.key});
@@ -27,8 +27,8 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfilState extends State<MyProfile> {
-  final _userProvider = GetIt.I<UserProvider>();
-  final _cityProvider = GetIt.I<CityProvider>();
+  late final UserProvider _userProvider;
+  late final CityProvider _cityProvider;
   late final UserResponse _userData;
   final _formKey = GlobalKey<FormState>();
   late final CityResponse _userCity;
@@ -44,8 +44,15 @@ class _MyProfilState extends State<MyProfile> {
     super.initState();
   }
 
+  @override
+  void didChangeDependencies() {
+    _userProvider = context.read<UserProvider>();
+    _cityProvider = context.read<CityProvider>();
+    super.didChangeDependencies();
+  }
+
   Future<bool> _getUserInfo() async {
-    _userId = await AccessTokenHandler.getUserId();
+    _userId = context.read<AuthProvider>().accessTokenPayload.id;
     _userData = await _userProvider.getById(_userId);
     _userCity = await _cityProvider.getById(_userData.cityId);
     return true;

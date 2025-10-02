@@ -7,14 +7,13 @@ using MojPrijevoz.Services.Authorization;
 namespace MojPrijevoz.Services.BaseServices;
 
 public abstract class
-    BaseCrudService<TEntity, TInsertRequest, TUpdateRequest, TResponse, TDetailedResponse, TSearchObject> :
-        BaseService<TResponse, TDetailedResponse, TEntity, TSearchObject>,
-        IBaseCRUDService<TInsertRequest, TUpdateRequest, TResponse, TDetailedResponse, TSearchObject>
+    BaseCrudService<TEntity, TInsertRequest, TUpdateRequest, TResponse, TSearchObject> :
+        BaseService<TResponse, TEntity, TSearchObject>,
+        IBaseCRUDService<TInsertRequest, TUpdateRequest, TResponse, TSearchObject>
     where TEntity : class
     where TInsertRequest : class
     where TUpdateRequest : class
     where TResponse : class
-    where TDetailedResponse : class
     where TSearchObject : BaseSearchObject
 {
     protected readonly AuthorizationService _authorizationService;
@@ -25,7 +24,7 @@ public abstract class
         _authorizationService = authorizationService;
     }
 
-    public async Task<TDetailedResponse> InsertAsync(TInsertRequest request)
+    public async Task<TResponse> InsertAsync(TInsertRequest request)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         await BeforeInsert(request);
@@ -34,10 +33,10 @@ public abstract class
         await AfterInsert(entityEntry.Entity, _dbContext);
         await transaction.CommitAsync();
         await PrepareForResponse(entityEntry.Entity, _dbContext);
-        return MapToResponseModel<TDetailedResponse>(entityEntry.Entity);
+        return MapToResponseModel<TResponse>(entityEntry.Entity, _mapper);
     }
 
-    public async Task<TDetailedResponse> UpdateAsync(int id, TUpdateRequest request)
+    public async Task<TResponse> UpdateAsync(int id, TUpdateRequest request)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
@@ -50,7 +49,7 @@ public abstract class
         await AfterUpdate(entity, _dbContext);
         await transaction.CommitAsync();
         await PrepareForResponse(entity, _dbContext);
-        return MapToResponseModel<TDetailedResponse>(entity);
+        return MapToResponseModel<TResponse>(entity, _mapper);
     }
 
     public async Task DeleteAsync(int id)
@@ -60,7 +59,7 @@ public abstract class
         var entity = await _dbContext.Set<TEntity>().FindAsync(id);
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
-        BeforeDelete(id, entity);
+        await BeforeDelete(id, entity);
         dbSet.Remove(entity);
         AfterDelete();
         await transaction.CommitAsync();

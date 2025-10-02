@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
@@ -8,6 +7,7 @@ import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
+import 'package:provider/provider.dart';
 
 abstract class UpsertDialog<
   TRequest extends JsonRequest,
@@ -41,7 +41,6 @@ class _UpsertDialogState<
     extends State<UpsertDialog> {
   final _errorMessage = ValueNotifier<String?>(null);
   final _formKey = GlobalKey<FormState>();
-  final _provider = GetIt.I<TProvider>();
 
   @override
   Widget build(BuildContext context) {
@@ -90,15 +89,17 @@ class _UpsertDialogState<
         JsonResponse? resultItem;
 
         if (widget.selectedItem != null) {
-          resultItem = await _provider.update(
+          resultItem = await context.read<TProvider>().updateWithEvent(
             widget.selectedItem!.id,
             widget.request,
           );
         } else {
-          resultItem = await _provider.insert(widget.request);
+          resultItem = await context.read<TProvider>().insertWithEvent(
+            widget.request,
+          );
         }
         if (!mounted) return;
-        Navigator.pop(context, resultItem as TResponse);
+        Navigator.pop(context, resultItem);
         Constants.messengerKey.currentState!.showSnackBar(
           SuccessSnackBar(message: "Uspješno spremljeno!"),
         );

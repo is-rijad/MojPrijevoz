@@ -7,6 +7,7 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:provider/provider.dart';
 
 abstract class DeleteDialog<
   TResponse extends JsonResponse,
@@ -35,7 +36,6 @@ class _DeleteDialogState<
 >
     extends State<DeleteDialog<TResponse, TProvider>> {
   final _errorMessage = ValueNotifier<String?>(null);
-  final _provider = GetIt.I<TProvider>();
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +77,7 @@ class _DeleteDialogState<
 
   Future<void> _submitForm() async {
     try {
-      await _provider.delete(widget.selectedItem.id);
+      await context.read<TProvider>().deleteWithEvent(widget.selectedItem.id);
 
       if (!mounted) return;
       Navigator.pop(context, true);

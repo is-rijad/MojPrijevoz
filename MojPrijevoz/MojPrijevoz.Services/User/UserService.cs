@@ -12,7 +12,7 @@ using MojPrijevoz.Services.BaseServices;
 namespace MojPrijevoz.Services.User;
 
 public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateRequest, UserResponse,
-    UserResponse, BaseSearchObject>
+    BaseSearchObject>
 {
     private readonly AuthorizationService _authorizationService;
 

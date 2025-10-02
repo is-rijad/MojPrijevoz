@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/access_token_handler.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/pages/my_driver_profile/my_driver_profile.dart';
 import 'package:moj_prijevoz/pages/my_profile.dart';
+import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/profile_dropdown/profile_dropdown_item.dart';
 import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
-import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class PageWrapper extends StatefulWidget {
   final Widget body;
@@ -26,25 +26,17 @@ class _PageWrapperState extends State<PageWrapper> {
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
   final _avatarKey = GlobalKey();
   // TODO: create event to refresh payload
-  late final AccessTokenPayload _accessTokenPayload;
+  late AccessTokenPayload _accessTokenPayload;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  Future<bool> _initState() async {
-    _accessTokenPayload = await AccessTokenHandler.getPayload();
-    return true;
+  void didChangeDependencies() {
+    _accessTokenPayload = context.watch<AuthProvider>().accessTokenPayload;
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return LoadUntilReadyWrapper(
-      buildFunction: (context) =>
-          Scaffold(appBar: _buildAppBar(context), body: widget.body),
-      futureFunction: _initState,
-    );
+    return Scaffold(appBar: _buildAppBar(context), body: widget.body);
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -55,13 +47,17 @@ class _PageWrapperState extends State<PageWrapper> {
   }
 
   Widget _buildProfileIcon(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(2.5).copyWith(right: 10),
-      child: GestureDetector(
-        key: _avatarKey,
-        onTap: () => _showDropdown(context),
-        child: Avatar(radius: 20, user: _accessTokenPayload),
-      ),
+    return Consumer<AuthProvider>(
+      builder: (context, value, _) {
+        return Padding(
+          padding: EdgeInsets.all(2.5).copyWith(right: 10),
+          child: GestureDetector(
+            key: _avatarKey,
+            onTap: () => _showDropdown(context),
+            child: Avatar(radius: 20, user: value.accessTokenPayload),
+          ),
+        );
+      },
     );
   }
 
@@ -117,7 +113,8 @@ class _PageWrapperState extends State<PageWrapper> {
         );
         break;
       case ProfileDropdownAction.logout:
-        await AccessTokenHandler.logout();
+        if (!context.mounted) return;
+        await context.read<AuthProvider>().logout();
         if (!context.mounted) return;
         await Navigator.pushReplacement(
           context,

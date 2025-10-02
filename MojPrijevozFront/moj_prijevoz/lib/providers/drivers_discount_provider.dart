@@ -7,7 +7,6 @@ class DriversDiscountProvider
     extends
         BaseProvider<
           DriversDiscountResponse,
-          DriversDiscountResponse,
           DriversDiscountSearchObject,
           DriversDiscountUpsertRequest,
           DriversDiscountUpsertRequest

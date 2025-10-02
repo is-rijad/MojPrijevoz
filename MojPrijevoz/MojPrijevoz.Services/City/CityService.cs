@@ -7,7 +7,7 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.City;
 
-public class CityService : BaseService<CityResponse, CityResponse, Database.City, CitySearchObject>
+public class CityService : BaseService<CityResponse, Database.City, CitySearchObject>
 {
     public CityService(MojPrijevozDbContext dbContext,
         IMapper mapper,

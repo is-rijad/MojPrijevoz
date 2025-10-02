@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
+import 'package:moj_prijevoz/components/drivers_discount/drivers_discount_delete_dialog.dart';
 import 'package:moj_prijevoz/components/drivers_discount/drivers_discount_upsert_dialog.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
-import 'package:moj_prijevoz/providers/ui_provider.dart';
-import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/responses/drivers_discount/drivers_discount_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/drivers_discount/drivers_discount_search_object.dart';
 import 'package:moj_prijevoz/widgets/tables/paginated_table.dart';
-import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
-import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 
 class DriversDiscountComponent extends StatefulWidget {
   final int profileId;
@@ -38,7 +33,7 @@ class _DriversDiscountComponent extends State<DriversDiscountComponent> {
             children: [
               const Text("Moji popusti"),
               ElevatedButton(
-                onPressed: () => true,
+                onPressed: () => _buildDiscountUpsertDialog(null),
                 child: const Text("Dodaj popust"),
               ),
             ],
@@ -57,7 +52,8 @@ class _DriversDiscountComponent extends State<DriversDiscountComponent> {
       DriversDiscountSearchObject
     >(
       pageSize: _pageSize,
-
+      buildUpsertDialog: _buildDiscountUpsertDialog,
+      buildDeleteDialog: _buildDiscountDeleteDialog,
       searchObject: DriversDiscountSearchObject(page: 1, pageSize: _pageSize),
       header: [
         "Donja granica kilometara",
@@ -74,25 +70,23 @@ class _DriversDiscountComponent extends State<DriversDiscountComponent> {
 
   Future<void> _buildDiscountUpsertDialog(
     DriversDiscountResponse? selectedItem,
-    SearchResult<DriversDiscountResponse> items,
   ) async {
-    final result = await showDialog<DriversDiscountResponse>(
+    await showDialog<DriversDiscountResponse>(
       context: context,
       builder: (context) {
         return DriversDiscountUpsertDialog(selectedItem: selectedItem);
       },
     );
-    if (result != null && mounted) {
-      if (selectedItem != null) {
-        var selectedIndex = items.items.indexOf(selectedItem);
-        setState(() {
-          items.items[selectedIndex] = result;
-        });
-      } else {
-        setState(() {
-          items.items.add(result);
-        });
-      }
-    }
+  }
+
+  Future<void> _buildDiscountDeleteDialog(
+    DriversDiscountResponse selectedItem,
+  ) async {
+    await showDialog<DriversDiscountResponse>(
+      context: context,
+      builder: (context) {
+        return DriversDiscountDeleteDialog(selectedItem: selectedItem);
+      },
+    );
   }
 }

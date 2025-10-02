@@ -2,16 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
+import 'package:moj_prijevoz/pages/home_page.dart';
+import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
+import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
 void registerServices() {
   final getIt = GetIt.instance;
@@ -19,30 +24,48 @@ void registerServices() {
   getIt.registerLazySingleton(() => UIProvider());
 
   getIt.registerFactory<HttpProvider>(() => HttpProvider());
-  getIt.registerFactory<UserProvider>(() => UserProvider());
-  getIt.registerFactory<CityProvider>(() => CityProvider());
-  getIt.registerFactory<VehicleProvider>(() => VehicleProvider());
-  getIt.registerFactory<UserVehicleProvider>(() => UserVehicleProvider());
-  getIt.registerFactory<AuthProvider>(() => AuthProvider());
-  getIt.registerFactory<DriversDiscountProvider>(
-    () => DriversDiscountProvider(),
-  );
 }
 
-void main() {
+List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
+  return [
+    ChangeNotifierProvider(create: (_) => AuthProvider(payload)),
+    ChangeNotifierProvider(create: (_) => UserProvider()),
+    ChangeNotifierProvider(create: (_) => CityProvider()),
+    ChangeNotifierProvider(create: (_) => VehicleProvider()),
+    ChangeNotifierProvider(create: (_) => UserVehicleProvider()),
+    ChangeNotifierProvider(create: (_) => DriversDiscountProvider()),
+  ];
+}
+
+Future<void> main() async {
+  AccessTokenPayload? payload;
+
+  WidgetsFlutterBinding.ensureInitialized();
   registerServices();
+
+  try {
+    payload = await AuthProvider.getPayload();
+  } on Exception catch (e) {}
+
+  final child = payload != null ? Homepage() : LoginPage();
   runZonedGuarded(
-    () => runApp(const MPApp()),
+    () => runApp(
+      MultiProvider(
+        providers: registerProviders(payload),
+        child: MPApp(child: child),
+      ),
+    ),
     (ex, stack) => ErrorHandler.handle(ex, stack),
   );
 }
 
 class MPApp extends StatelessWidget {
-  const MPApp({super.key});
+  final Widget child;
+  const MPApp({super.key, required this.child});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return AppOverlay();
+    return AppOverlay(child: child);
   }
 }

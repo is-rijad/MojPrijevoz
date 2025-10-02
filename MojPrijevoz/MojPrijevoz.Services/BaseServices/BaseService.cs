@@ -7,9 +7,7 @@ using MojPrijevoz.Model.Exceptions;
 namespace MojPrijevoz.Services.BaseServices;
 
 public abstract class
-    BaseService<TResponse, TDetailedResponse, TEntity, TSearchObject> : IBaseService<TResponse, TDetailedResponse,
-        TSearchObject> where TResponse : class
-    where TDetailedResponse : class
+    BaseService<TResponse, TEntity, TSearchObject> : IBaseService<TResponse, TSearchObject> where TResponse : class
     where TEntity : class
     where TSearchObject : BaseSearchObject
 {
@@ -30,23 +28,23 @@ public abstract class
         var fullCount = await queryable.CountAsync();
         queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
         queryable = await IncludeAdditionalEntities(queryable);
-        var list = await queryable.ToListAsync();
+        var list = await queryable.Select(e => MapToResponseModel<TResponse>(e, _mapper)).ToListAsync();
         return new PagedResult<TResponse>
         {
-            Items = list.Select(MapToResponseModel<TResponse>).ToList(),
+            Items = list,
             Count = queryable.Count(),
             HasMore = fullCount > searchObject.Page * searchObject.PageSize
         };
     }
 
-    public async Task<TDetailedResponse> GetByIdAsync(int id)
+    public async Task<TResponse> GetByIdAsync(int id)
     {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         var entity = await queryable.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
         await PrepareForResponse(entity, _dbContext);
-        return MapToResponseModel<TDetailedResponse>(entity);
+        return MapToResponseModel<TResponse>(entity, _mapper);
     }
 
     public virtual Task<IQueryable<TEntity>> ApplyFilter(IQueryable<TEntity> queryable,
@@ -65,8 +63,8 @@ public abstract class
         return Task.CompletedTask;
     }
 
-    protected T MapToResponseModel<T>(TEntity entity)
+    protected static T MapToResponseModel<T>(TEntity entity, IMapper mapper)
     {
-        return _mapper.Map<T>(entity);
+        return mapper.Map<T>(entity);
     }
 }
