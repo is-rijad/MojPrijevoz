@@ -14,7 +14,7 @@ class VehicleResponse extends JsonResponse {
 
   @override
   String toString() {
-    return "${manufacturer} ${model}";
+    return "$manufacturer $model";
   }
 
   VehicleResponse({

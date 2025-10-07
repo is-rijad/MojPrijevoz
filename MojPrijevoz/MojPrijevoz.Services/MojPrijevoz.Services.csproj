@@ -18,4 +18,8 @@
 		<ProjectReference Include="..\MojPrijevoz.Model\MojPrijevoz.Model.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Driver\" />
+	</ItemGroup>
+
 </Project>

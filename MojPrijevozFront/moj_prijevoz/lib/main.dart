@@ -7,6 +7,7 @@ import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
+import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
@@ -24,6 +25,7 @@ void registerServices() {
   getIt.registerLazySingleton(() => UIProvider());
 
   getIt.registerFactory<HttpProvider>(() => HttpProvider());
+  getIt.registerFactory<MapProvider>(() => MapProvider());
 }
 
 List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
@@ -38,25 +40,23 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
 }
 
 Future<void> main() async {
-  AccessTokenPayload? payload;
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    registerServices();
 
-  WidgetsFlutterBinding.ensureInitialized();
-  registerServices();
+    AccessTokenPayload? payload;
+    try {
+      payload = await AuthProvider.getPayload();
+    } on Exception {}
+    final child = payload != null ? HomePage() : LoginPage();
 
-  try {
-    payload = await AuthProvider.getPayload();
-  } on Exception catch (e) {}
-
-  final child = payload != null ? Homepage() : LoginPage();
-  runZonedGuarded(
-    () => runApp(
+    runApp(
       MultiProvider(
         providers: registerProviders(payload),
         child: MPApp(child: child),
       ),
-    ),
-    (ex, stack) => ErrorHandler.handle(ex, stack),
-  );
+    );
+  }, (ex, stack) => ErrorHandler.handle(ex, stack));
 }
 
 class MPApp extends StatelessWidget {

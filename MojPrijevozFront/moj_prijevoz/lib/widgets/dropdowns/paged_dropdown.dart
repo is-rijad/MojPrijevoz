@@ -246,7 +246,6 @@ class _PagedDropdownState<
                 child: TextField(
                   controller: _textController,
                   onTap: () => _toggleDropdown(searchResult),
-
                   focusNode: _focusNode,
                   onChanged: (value) => _onTextChanged(value, searchResult),
                   decoration:

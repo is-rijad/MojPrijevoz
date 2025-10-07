@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/user_exception.dart';
+import 'package:moj_prijevoz/pages/map_page.dart';
+import 'package:moj_prijevoz/providers/city_provider.dart';
+import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
+import 'package:moj_prijevoz/resources/search_objects/city/city_search_object.dart';
+import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 
-class Homepage extends StatelessWidget {
-  const Homepage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  CityResponse? location;
+
   @override
   Widget build(BuildContext context) {
     return PageWrapper(body: _buildHomePage(context));
@@ -40,20 +54,33 @@ class Homepage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Flexible(
-              child: TextFormField(
-                decoration: InputDecorationWithIcon(iconData: Icons.location_on)
-                    .copyWith(
-                      hintText: "Gdje želite putovati?",
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 12,
-                      ),
-                    ),
-              ),
+              child:
+                  PagedDropdownFormField<
+                    CityResponse,
+                    int,
+                    CityProvider,
+                    CitySearchObject
+                  >(
+                    decoration:
+                        InputDecorationWithIcon(
+                          iconData: Icons.location_on,
+                        ).copyWith(
+                          hintText: "Gdje želite putovati?",
+                          border: OutlineInputBorder(),
+                        ),
+                    searchObject: CitySearchObject(page: 1, pageSize: 5),
+                    getLabel: (i) => i.name,
+                    getValue: (i) => i.id,
+                    onChanged: (value) => setState(() {
+                      location = value;
+                    }),
+                  ),
             ),
             SizedBox(width: 20),
-            ElevatedButton(onPressed: () => true, child: const Text("Započni")),
+            ElevatedButton(
+              onPressed: location != null ? searchLocation : null,
+              child: const Text("Započni"),
+            ),
           ],
         ),
       ),
@@ -77,6 +104,16 @@ class Homepage extends StatelessWidget {
         const Text("Preporučeni vozači"),
         Container(color: Colors.deepOrange, height: 200),
       ],
+    );
+  }
+
+  Future<void> searchLocation() async {
+    if (location == null) {
+      throw UserException("Lokacija je obavezan!");
+    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MapPage(to: location!)),
     );
   }
 }

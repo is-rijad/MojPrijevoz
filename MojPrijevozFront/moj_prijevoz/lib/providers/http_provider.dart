@@ -10,11 +10,7 @@ import 'package:moj_prijevoz/utils/json_parser.dart';
 class HttpProvider {
   final _dio = Dio();
   final String _apiUrl = Environment.apiUrl;
-  late final UIProvider _uiProvider;
-
-  HttpProvider() {
-    _uiProvider = GetIt.I<UIProvider>();
-  }
+  final UIProvider _uiProvider = GetIt.I<UIProvider>();
 
   Future<TResponse> getSingle<TResponse>(
     String url, {

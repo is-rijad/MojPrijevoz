@@ -42,7 +42,7 @@ class _PaginatedTableState<
     extends State<PaginatedTable<T, TProvider, TSearchObject>> {
   final _scrollController = ScrollController();
 
-  bool _isLoading = false;
+  final bool _isLoading = false;
   @override
   void dispose() {
     _scrollController.dispose();

@@ -32,6 +32,12 @@ abstract class BaseGetProvider<
     );
   }
 
+  Future<void> fetchClean(TSearchObject search) async {
+    _searchResult.items.clear();
+    search.page = 1;
+    await fetchData(search);
+  }
+
   Future<void> fetchData(TSearchObject search) async {
     final newItems = await _getAll(search);
     newItems.copyTo(_searchResult);
