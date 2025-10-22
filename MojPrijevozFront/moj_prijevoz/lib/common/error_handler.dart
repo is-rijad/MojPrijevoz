@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'dart:developer';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
 
 abstract class ErrorHandler {
@@ -50,6 +51,8 @@ abstract class ErrorHandler {
           e.response!.data["message"] != null) {
         message = e.response!.data["message"];
       }
+    } else if (e is UserException && e.message != null) {
+      message = e.message!;
     }
     return message;
   }

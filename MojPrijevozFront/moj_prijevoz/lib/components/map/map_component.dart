@@ -5,11 +5,12 @@ import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
+import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
 import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
 
 class MapComponent extends StatefulWidget {
   final CityResponse? from;
-  final CityResponse? to;
+  final NominatimResponse? to;
   const MapComponent({super.key, required this.from, required this.to});
 
   @override
@@ -26,7 +27,8 @@ class _MapComponentState extends State<MapComponent> {
 
   @override
   void didUpdateWidget(covariant MapComponent oldWidget) {
-    if (oldWidget.from != widget.from || oldWidget.to != widget.to) {
+    if ((widget.from != null && widget.to != null) &&
+        (oldWidget.from != widget.from || oldWidget.to != widget.to)) {
       _findRoute();
     }
     super.didUpdateWidget(oldWidget);
@@ -49,81 +51,72 @@ class _MapComponentState extends State<MapComponent> {
 
   void _fitBounds() {
     final bounds = LatLngBounds.fromPoints(_routePoints);
-    if (widget.from != widget.to || widget.from == null) {
-      _mapController.fitCamera(
-        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(40)),
-      );
-    } else {
-      _mapController.move(
-        LatLng(double.parse(widget.to!.lat), double.parse(widget.to!.long)),
-        10,
-      );
-    }
+    _mapController.fitCamera(
+      CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(40)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: FlutterMap(
-        mapController: _mapController,
-        options: MapOptions(
-          initialCenter: LatLng(
-            double.parse(widget.to!.lat),
-            double.parse(widget.to!.long),
-          ),
-          initialZoom: 10,
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        initialCenter: LatLng(
+          double.parse(widget.to!.lat),
+          double.parse(widget.to!.lon),
         ),
-        children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.example.mapapp',
-          ),
-          if (_isLoading)
-            Expanded(child: AppOverlay.buildLoadingContainer(context)),
-          if (widget.from != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: LatLng(
-                    double.parse(widget.from!.lat),
-                    double.parse(widget.from!.long),
-                  ),
-                  width: 40,
-                  height: 40,
-                  child: const Icon(
-                    Icons.location_pin,
-                    color: Colors.green,
-                    size: 40,
-                  ),
-                ),
-              ],
-            ),
-          if (widget.to != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: LatLng(
-                    double.parse(widget.to!.lat),
-                    double.parse(widget.to!.long),
-                  ),
-                  width: 40,
-                  height: 40,
-                  child: const Icon(Icons.flag, color: Colors.red, size: 40),
-                ),
-              ],
-            ),
-          if (_routePoints.isNotEmpty)
-            PolylineLayer(
-              polylines: [
-                Polyline(
-                  points: _routePoints,
-                  color: Colors.blue,
-                  strokeWidth: 4,
-                ),
-              ],
-            ),
-        ],
+        initialZoom: 10,
       ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.example.mapapp',
+        ),
+        if (_isLoading)
+          Expanded(child: AppOverlay.buildLoadingContainer(context)),
+        if (widget.from != null)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: LatLng(
+                  double.parse(widget.from!.lat),
+                  double.parse(widget.from!.long),
+                ),
+                width: 40,
+                height: 40,
+                child: const Icon(
+                  Icons.location_pin,
+                  color: Colors.green,
+                  size: 40,
+                ),
+              ),
+            ],
+          ),
+        if (widget.to != null)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: LatLng(
+                  double.parse(widget.to!.lat),
+                  double.parse(widget.to!.lon),
+                ),
+                width: 40,
+                height: 40,
+                child: const Icon(Icons.flag, color: Colors.red, size: 40),
+              ),
+            ],
+          ),
+        if (_routePoints.isNotEmpty)
+          PolylineLayer(
+            polylines: [
+              Polyline(
+                points: _routePoints,
+                color: Colors.blue,
+                strokeWidth: 4,
+              ),
+            ],
+          ),
+      ],
     );
   }
 }

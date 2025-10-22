@@ -5,7 +5,7 @@ import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
-import 'package:moj_prijevoz/widgets/form_fields/password_form_field.dart';
+import 'package:moj_prijevoz/widgets/common_form_fields/password_form_field.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 import 'package:provider/provider.dart';

@@ -8,6 +8,7 @@ import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
+import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
@@ -36,6 +37,7 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
     ChangeNotifierProvider(create: (_) => VehicleProvider()),
     ChangeNotifierProvider(create: (_) => UserVehicleProvider()),
     ChangeNotifierProvider(create: (_) => DriversDiscountProvider()),
+    ChangeNotifierProvider(create: (_) => NominatimProvider()),
   ];
 }
 
@@ -56,7 +58,7 @@ Future<void> main() async {
         child: MPApp(child: child),
       ),
     );
-  }, (ex, stack) => ErrorHandler.handle(ex, stack));
+  }, (ex, stack) => ErrorHandler.handle(ex, stack, showSnackBar: true));
 }
 
 class MPApp extends StatelessWidget {

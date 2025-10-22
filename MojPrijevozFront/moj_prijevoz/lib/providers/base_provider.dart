@@ -7,7 +7,7 @@ import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 abstract class BaseGetProvider<
-  TResponse extends JsonResponse,
+  TResponse extends JsonParsable,
   TSearchObject extends BaseSearchObject
 >
     with ChangeNotifier {
@@ -32,16 +32,17 @@ abstract class BaseGetProvider<
     );
   }
 
-  Future<void> fetchClean(TSearchObject search) async {
+  void clearData(TSearchObject searchObject) {
     _searchResult.items.clear();
-    search.page = 1;
-    await fetchData(search);
+    _searchResult.hasMore = true;
+    searchObject.page = 1;
+    notifyListeners();
   }
 
-  Future<void> fetchData(TSearchObject search) async {
-    final newItems = await _getAll(search);
+  Future<void> fetchData(TSearchObject searchObject) async {
+    final newItems = await _getAll(searchObject);
     newItems.copyTo(_searchResult);
-    search.page++;
+    searchObject.page++;
     notifyListeners();
   }
 }

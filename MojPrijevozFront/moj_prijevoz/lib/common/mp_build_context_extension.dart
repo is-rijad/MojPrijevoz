@@ -8,4 +8,6 @@ extension MPBuildContext on BuildContext {
   Color get primaryColor => Theme.of(this).colorScheme.primary;
 
   Color get secondaryColor => Theme.of(this).colorScheme.secondary;
+
+  Color get canvasColor => Theme.of(this).canvasColor;
 }

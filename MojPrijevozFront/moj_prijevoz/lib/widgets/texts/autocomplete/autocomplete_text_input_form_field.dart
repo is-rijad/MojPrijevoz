@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/resources/search_objects/base/string_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
-import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown.dart';
+import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input.dart';
 
-class PagedDropdownFormField<
+class AutocompleteTextInputFormField<
   T extends JsonParsable,
   TValue,
   TProvider extends BaseGetProvider<T, TSearchObject>,
   TSearchObject extends StringSearchObject
 >
     extends FormField<T> {
-  PagedDropdownFormField({
+  AutocompleteTextInputFormField({
     super.key,
     required TSearchObject searchObject,
     required String Function(T) getLabel,
     required TValue Function(T) getValue,
     String? defaultLabel,
     ValueChanged<T>? onSelectionChanged,
-    ValueChanged<T>? onTextChanged,
+    ValueChanged<String>? onTextChanged,
+    super.initialValue,
     super.onSaved,
     super.validator,
-    super.initialValue,
     InputDecoration? decoration,
     bool autovalidate = false,
   }) : super(
@@ -32,17 +32,18 @@ class PagedDropdownFormField<
            return Column(
              crossAxisAlignment: CrossAxisAlignment.start,
              children: [
-               PagedDropdown<T, TValue, TProvider, TSearchObject>(
+               AutocompleteTextInput<T, TValue, TProvider, TSearchObject>(
                  searchObject: searchObject,
                  decoration: decoration,
                  getLabel: getLabel,
                  getValue: getValue,
                  defaultLabel: defaultLabel,
+                 onTextChanged: onTextChanged,
+                 selectedItem: initialValue,
                  onSelectionChanged: (value) {
                    fieldState.didChange(value);
                    onSelectionChanged?.call(value);
                  },
-                 selectedItem: initialValue,
                ),
                if (fieldState.errorText != null)
                  Padding(

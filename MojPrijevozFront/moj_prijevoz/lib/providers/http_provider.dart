@@ -54,7 +54,6 @@ class HttpProvider {
         items: List<TResponse>.from(
           response.data["items"].map((it) => parseJson<TResponse>(it)),
         ),
-        count: response.data["count"],
         hasMore: response.data["hasMore"],
       );
     } finally {

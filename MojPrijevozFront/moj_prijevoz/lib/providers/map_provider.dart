@@ -6,26 +6,27 @@ import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/resources/requests/maps/maps_route_request.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
+import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
 
 class MapProvider {
   final _dio = Dio();
-  final _apiUrl = Environment.openRouteApiUrl;
+  final _openRouteApiUrl = Environment.openRouteApiUrl;
 
   Future<MapsRouteResponse> getRoute(
     CityResponse cityFrom,
-    CityResponse cityTo,
+    NominatimResponse cityTo,
   ) async {
     try {
       final body = MapsRouteRequest(
         coordinates: [
           [cityFrom.long, cityFrom.lat],
-          [cityTo.long, cityTo.lat],
+          [cityTo.lon, cityTo.lat],
         ],
         radiuses: [-1],
         units: "km",
       );
       final response = await _dio.post(
-        "${_apiUrl}directions/driving-car",
+        "${_openRouteApiUrl}directions/driving-car",
         data: body.toJson(),
         options: _setRequestOptions(),
       );
@@ -34,7 +35,7 @@ class MapProvider {
         distance: response.data["routes"][0]["summary"]["distance"],
         duration: response.data["routes"][0]["summary"]["duration"],
       );
-    } on DioException catch (e) {
+    } on DioException {
       throw UserException("Greška prilikom preuzimanja rute!");
     }
   }
@@ -55,7 +56,6 @@ class MapProvider {
         <String, dynamic>{"Authorization": Environment.openRouteKey}.entries,
       );
     } on Exception {}
-
     options.headers = headersMap;
     return options;
   }

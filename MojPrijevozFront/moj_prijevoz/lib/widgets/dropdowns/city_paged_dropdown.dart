@@ -28,7 +28,7 @@ class CityPagedDropdown extends StatelessWidget {
       searchObject: CitySearchObject(page: 1, pageSize: 10),
       getLabel: (i) => i.name,
       getValue: (i) => i.id,
-      onChanged: onChanged,
+      onSelectionChanged: onChanged,
       onSaved: onSaved,
       validator: validator,
       initialValue: initialValue,

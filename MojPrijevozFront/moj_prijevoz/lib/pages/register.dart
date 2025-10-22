@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/create_user_request.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/city_paged_dropdown.dart';
-import 'package:moj_prijevoz/widgets/form_fields/email_form_field.dart';
-import 'package:moj_prijevoz/widgets/form_fields/name_form_field.dart';
-import 'package:moj_prijevoz/widgets/form_fields/password_form_field.dart';
-import 'package:moj_prijevoz/widgets/form_fields/username_form_field.dart';
+import 'package:moj_prijevoz/widgets/common_form_fields/email_form_field.dart';
+import 'package:moj_prijevoz/widgets/common_form_fields/name_form_field.dart';
+import 'package:moj_prijevoz/widgets/common_form_fields/password_form_field.dart';
+import 'package:moj_prijevoz/widgets/common_form_fields/username_form_field.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:provider/provider.dart';
 

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
-import 'package:moj_prijevoz/pages/map_page.dart';
-import 'package:moj_prijevoz/providers/city_provider.dart';
-import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
-import 'package:moj_prijevoz/resources/search_objects/city/city_search_object.dart';
-import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
+import 'package:moj_prijevoz/pages/search_fare_page.dart';
+import 'package:moj_prijevoz/providers/nominatim_provider.dart';
+import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
+import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search_object.dart';
+import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
+import 'package:moj_prijevoz/widgets/dialogs/modal_bottom_sheet.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,7 +18,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  CityResponse? location;
+  final _searchObject = NominatimSearchObject();
+  late final NominatimPlaceSelector _nominatimPlaceSelector;
+
+  @override
+  void initState() {
+    super.initState();
+    _nominatimPlaceSelector = NominatimPlaceSelector(
+      searchObject: _searchObject,
+    );
+    print("Init called");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,30 +67,34 @@ class _HomePageState extends State<HomePage> {
           children: [
             Flexible(
               child:
-                  PagedDropdownFormField<
-                    CityResponse,
+                  AutocompleteTextInput<
+                    NominatimResponse,
                     int,
-                    CityProvider,
-                    CitySearchObject
+                    NominatimProvider,
+                    NominatimSearchObject
                   >(
-                    decoration:
-                        InputDecorationWithIcon(
-                          iconData: Icons.location_on,
-                        ).copyWith(
-                          hintText: "Gdje želite putovati?",
-                          border: OutlineInputBorder(),
-                        ),
-                    searchObject: CitySearchObject(page: 1, pageSize: 5),
-                    getLabel: (i) => i.name,
-                    getValue: (i) => i.id,
-                    onChanged: (value) => setState(() {
-                      location = value;
-                    }),
+                    decoration: InputDecorationWithIcon(
+                      iconData: Icons.location_on,
+                    ).copyWith(hintText: "Gdje želite putovati?"),
+                    searchObject: _searchObject,
+                    getLabel: (i) => i.displayName,
+                    getValue: (i) => i.placeId,
+                    onTextChanged: (value) {
+                      _nominatimPlaceSelector.resetSelection();
+                      setState(() {
+                        _searchObject.contains = value.isNotEmpty
+                            ? value
+                            : null;
+                      });
+                    },
+                    onSelectionChanged: (value) {
+                      _nominatimPlaceSelector.selectPlace(value);
+                    },
                   ),
             ),
             SizedBox(width: 20),
             ElevatedButton(
-              onPressed: location != null ? searchLocation : null,
+              onPressed: _searchObject.contains != null ? searchLocation : null,
               child: const Text("Započni"),
             ),
           ],
@@ -108,12 +124,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> searchLocation() async {
-    if (location == null) {
-      throw UserException("Lokacija je obavezan!");
+    if (_searchObject.contains == null) {
+      throw UserException("Lokacija je obavezna!");
     }
+    if (_nominatimPlaceSelector.locationBound == null) {
+      final location =
+          await ModalBottomSheet.showModalSheet<
+            NominatimResponse,
+            NominatimSearchObject,
+            NominatimProvider
+          >(context, _searchObject, (i) => i.displayName);
+      _nominatimPlaceSelector.selectPlace(location);
+    }
+    if (!mounted) return;
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => MapPage(to: location!)),
+      MaterialPageRoute(
+        builder: (context) =>
+            SearchFarePage(to: _nominatimPlaceSelector.locationBound!),
+      ),
     );
   }
 }
