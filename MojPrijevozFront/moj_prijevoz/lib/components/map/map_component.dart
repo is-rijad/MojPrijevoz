@@ -26,12 +26,9 @@ class _MapComponentState extends State<MapComponent> {
   bool _isLoading = false;
 
   @override
-  void didUpdateWidget(covariant MapComponent oldWidget) {
-    if ((widget.from != null && widget.to != null) &&
-        (oldWidget.from != widget.from || oldWidget.to != widget.to)) {
-      _findRoute();
-    }
-    super.didUpdateWidget(oldWidget);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _findRoute();
   }
 
   Future<void> _findRoute() async {
@@ -72,8 +69,7 @@ class _MapComponentState extends State<MapComponent> {
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.example.mapapp',
         ),
-        if (_isLoading)
-          Expanded(child: AppOverlay.buildLoadingContainer(context)),
+        if (_isLoading) AppOverlay.buildLoadingContainer(context),
         if (widget.from != null)
           MarkerLayer(
             markers: [
@@ -84,11 +80,7 @@ class _MapComponentState extends State<MapComponent> {
                 ),
                 width: 40,
                 height: 40,
-                child: const Icon(
-                  Icons.location_pin,
-                  color: Colors.green,
-                  size: 40,
-                ),
+                child: const Icon(Icons.flag, color: Colors.green, size: 40),
               ),
             ],
           ),
@@ -102,7 +94,11 @@ class _MapComponentState extends State<MapComponent> {
                 ),
                 width: 40,
                 height: 40,
-                child: const Icon(Icons.flag, color: Colors.red, size: 40),
+                child: const Icon(
+                  Icons.location_pin,
+                  color: Colors.red,
+                  size: 40,
+                ),
               ),
             ],
           ),

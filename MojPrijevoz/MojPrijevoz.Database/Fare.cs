@@ -6,11 +6,12 @@ namespace MojPrijevoz.Database;
 
 public enum FareStatus : short
 {
-    Pending = 0,
-    Accepted = 1,
-    Rejected = 2,
-    Cancelled = 3,
-    Completed = 4
+    WaitingForNegotiation = 0,
+    Pending = 1,
+    Accepted = 2,
+    Rejected = 3,
+    Cancelled = 4,
+    Completed = 5
 }
 
 public class Fare : IHasCreatedAtTimestamp
@@ -19,13 +20,15 @@ public class Fare : IHasCreatedAtTimestamp
 
     public int OriginCityId { get; set; }
 
-    public int DestinationCityId { get; set; }
+    public string DestinationLat { get; set; } = null!;
+
+    public string DestinationLong { get; set; } = null!;
 
     public int Length { get; set; }
 
     public int Duration { get; set; }
 
-    public FareStatus Status { get; set; } = FareStatus.Pending;
+    public FareStatus Status { get; set; } = FareStatus.WaitingForNegotiation;
 
     public int DriverId { get; set; }
 
@@ -33,13 +36,9 @@ public class Fare : IHasCreatedAtTimestamp
 
     public float Price { get; set; }
 
-    public int? OfferId { get; set; }
-
-    public virtual City? DestinationCity { get; set; }
+    public DateTime FareDateTime { get; set; }
 
     public virtual User? Driver { get; set; }
-
-    public virtual FareOffer? Offer { get; set; }
 
     public virtual City? OriginCity { get; set; }
 
@@ -50,6 +49,7 @@ public class Fare : IHasCreatedAtTimestamp
     public virtual ICollection<StopPoint>? StopPoints { get; set; }
 
     public virtual ICollection<Transaction>? Transactions { get; set; }
+    public virtual ICollection<FareOffer>? FareOffers { get; set; }
 
     public DateTime CreatedAt { get; set; }
 }
@@ -58,32 +58,28 @@ public class FareEntityConfiguration : IEntityTypeConfiguration<Fare>
 {
     public void Configure(EntityTypeBuilder<Fare> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PK__Fare__3214EC07BCB6FFC7");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("Fare");
 
-        entity.HasOne(d => d.DestinationCity).WithMany(p => p.FareDestinationCities)
-            .HasForeignKey(d => d.DestinationCityId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_Fare_Destination");
+        entity.Property(e => e.DestinationLat)
+            .HasMaxLength(16)
+            .IsUnicode(false);
+
+        entity.Property(e => e.DestinationLong)
+            .HasMaxLength(16)
+            .IsUnicode(false);
 
         entity.HasOne(d => d.Driver).WithMany(p => p.FareDrivers)
             .HasForeignKey(d => d.DriverId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_Fare_Driver");
-
-        entity.HasOne(d => d.Offer).WithMany(p => p.Fares)
-            .HasForeignKey(d => d.OfferId)
-            .HasConstraintName("FK_Fare_Offer");
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
         entity.HasOne(d => d.OriginCity).WithMany(p => p.FareOriginCities)
             .HasForeignKey(d => d.OriginCityId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_Fare_Origin");
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
         entity.HasOne(d => d.Passenger).WithMany(p => p.FarePassengers)
             .HasForeignKey(d => d.PassengerId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_Fare_Passenger");
+            .OnDelete(DeleteBehavior.ClientSetNull);
     }
 }

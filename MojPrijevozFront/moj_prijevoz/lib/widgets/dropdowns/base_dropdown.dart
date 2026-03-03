@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/search_objects/base/string_search_object.dart';
@@ -46,7 +47,8 @@ class BaseDropdownState<
     extends State<TDropdown> {
   late final TSearchObject searchObject;
   final ScrollController _scrollController = ScrollController();
-  final double _listElementHeight = 60;
+  final double _listElementHeight =
+      Constants.autoCompleteTextInputElementHeight;
   final TextEditingController textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   Timer? _debounce;

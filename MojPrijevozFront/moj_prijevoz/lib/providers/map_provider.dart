@@ -33,7 +33,7 @@ class MapProvider {
       return MapsRouteResponse(
         routePoints: _decodePolyline(response.data["routes"][0]["geometry"]),
         distance: response.data["routes"][0]["summary"]["distance"],
-        duration: response.data["routes"][0]["summary"]["duration"],
+        duration: response.data["routes"][0]["summary"]["duration"] / 60,
       );
     } on DioException {
       throw UserException("Greška prilikom preuzimanja rute!");

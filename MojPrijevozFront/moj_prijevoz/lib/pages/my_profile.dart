@@ -153,7 +153,10 @@ class _MyProfilState extends State<MyProfile> {
                       .map(
                         (i) => DropdownMenuItem(
                           value: i,
-                          child: Text(translatedGenders[i]!),
+                          child: Text(
+                            translatedGenders[i]!,
+                            style: TextStyle(color: Colors.black),
+                          ),
                         ),
                       )
                       .toList(),

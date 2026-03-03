@@ -26,7 +26,7 @@ public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notifica
 {
     public void Configure(EntityTypeBuilder<Notification> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC0702ADD287");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("Notification");
 

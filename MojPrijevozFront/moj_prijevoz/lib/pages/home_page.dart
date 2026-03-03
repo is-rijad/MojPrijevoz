@@ -27,7 +27,6 @@ class _HomePageState extends State<HomePage> {
     _nominatimPlaceSelector = NominatimPlaceSelector(
       searchObject: _searchObject,
     );
-    print("Init called");
   }
 
   @override

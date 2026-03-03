@@ -40,7 +40,7 @@ public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehic
 {
     public void Configure(EntityTypeBuilder<UserVehicle> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PK__UserVehi__3214EC07F49804F0");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("UserVehicle");
 
@@ -52,12 +52,10 @@ public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehic
 
         entity.HasOne(d => d.Profile).WithMany(p => p.UserVehicles)
             .HasForeignKey(d => d.ProfileId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_UserVehicle_Profile");
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
         entity.HasOne(d => d.Vehicle).WithMany(p => p.UserVehicles)
             .HasForeignKey(d => d.VehicleId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_UserVehicle_Vehicle");
+            .OnDelete(DeleteBehavior.ClientSetNull);
     }
 }

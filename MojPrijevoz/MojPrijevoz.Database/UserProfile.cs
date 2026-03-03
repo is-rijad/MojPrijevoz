@@ -29,17 +29,16 @@ public class UserProfileEntityConfiguration : IEntityTypeConfiguration<UserProfi
 {
     public void Configure(EntityTypeBuilder<UserProfile> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PK__UserProf__3214EC079A04CFBD");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("UserProfile");
 
         entity.Property(e => e.ProfileType).IsRequired();
 
-        entity.HasIndex(e => new { e.UserId, e.ProfileType }, "UQ_UserProfile").IsUnique();
+        entity.HasIndex(e => new { e.UserId, e.ProfileType }).IsUnique();
 
         entity.HasOne(d => d.User).WithMany(p => p.UserProfiles)
             .HasForeignKey(d => d.UserId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_UserProfile_User");
+            .OnDelete(DeleteBehavior.ClientSetNull);
     }
 }

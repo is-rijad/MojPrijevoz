@@ -35,13 +35,13 @@ public class AccountEntityConfiguration : IEntityTypeConfiguration<Account>
 {
     public void Configure(EntityTypeBuilder<Account> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PK__Account__3214EC076FA573F4");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("Account");
 
-        entity.HasIndex(e => e.Username, "UQ__Account__536C85E49E14A489").IsUnique();
+        entity.HasIndex(e => e.Username).IsUnique();
 
-        entity.HasIndex(e => e.Email, "UQ__Account__A9D10534BCB5A733").IsUnique();
+        entity.HasIndex(e => e.Email).IsUnique();
 
         entity.Property(e => e.Email)
             .HasMaxLength(32)

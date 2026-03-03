@@ -31,11 +31,11 @@ public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating>
 {
     public void Configure(EntityTypeBuilder<Rating> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PK__Rating__3214EC07E2D5E6A8");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("Rating");
 
-        entity.HasIndex(e => new { e.FareId, e.FromId, e.ToId }, "UQ_Rating").IsUnique();
+        entity.HasIndex(e => new { e.FareId, e.FromId, e.ToId }).IsUnique();
 
         entity.Property(e => e.Comment)
             .HasMaxLength(256)
@@ -43,17 +43,14 @@ public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating>
 
         entity.HasOne(d => d.Fare).WithMany(p => p.Ratings)
             .HasForeignKey(d => d.FareId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_Rating_Fare");
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
         entity.HasOne(d => d.From).WithMany(p => p.RatingFroms)
             .HasForeignKey(d => d.FromId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_Rating_From");
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
         entity.HasOne(d => d.To).WithMany(p => p.RatingTos)
             .HasForeignKey(d => d.ToId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_Rating_To");
+            .OnDelete(DeleteBehavior.ClientSetNull);
     }
 }

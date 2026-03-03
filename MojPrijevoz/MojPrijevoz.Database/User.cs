@@ -20,10 +20,6 @@ public class User : Account
 
     public virtual ICollection<Fare>? FareDrivers { get; set; }
 
-    public virtual ICollection<FareOffer>? FareOfferDrivers { get; set; }
-
-    public virtual ICollection<FareOffer>? FareOfferPassengers { get; set; }
-
     public virtual ICollection<Fare>? FarePassengers { get; set; }
 
     public virtual ICollection<Rating>? RatingFroms { get; set; }
@@ -46,7 +42,6 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User>
 
         entity.HasOne(d => d.City).WithMany(p => p.Users)
             .HasForeignKey(d => d.CityId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_User_City");
+            .OnDelete(DeleteBehavior.ClientSetNull);
     }
 }

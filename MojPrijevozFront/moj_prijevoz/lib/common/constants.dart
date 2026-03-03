@@ -5,4 +5,5 @@ abstract class Constants {
   static final GlobalKey<ScaffoldMessengerState> messengerKey =
       GlobalKey<ScaffoldMessengerState>();
   static const userAgent = "MojPrijevoz (rijad.isirlija@edu.fit.ba)";
+  static const double autoCompleteTextInputElementHeight = 50;
 }

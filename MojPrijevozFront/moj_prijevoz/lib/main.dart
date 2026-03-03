@@ -9,6 +9,7 @@ import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
+import 'package:moj_prijevoz/providers/search_fare_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
@@ -38,6 +39,7 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
     ChangeNotifierProvider(create: (_) => UserVehicleProvider()),
     ChangeNotifierProvider(create: (_) => DriversDiscountProvider()),
     ChangeNotifierProvider(create: (_) => NominatimProvider()),
+    ChangeNotifierProvider(create: (_) => SearchFareProvider()),
   ];
 }
 

@@ -25,7 +25,7 @@ public class VehicleEntityConfiguration : IEntityTypeConfiguration<Vehicle>
 {
     public void Configure(EntityTypeBuilder<Vehicle> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PK__Vehicle__3214EC07351EED90");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("Vehicle");
 

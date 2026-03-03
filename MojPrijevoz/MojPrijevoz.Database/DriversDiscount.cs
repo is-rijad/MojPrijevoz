@@ -15,12 +15,14 @@ public class DriversDiscount
 
 public class DriversDiscountEntityConfiguration : IEntityTypeConfiguration<DriversDiscount> {
     public void Configure(EntityTypeBuilder<DriversDiscount> entity) {
-        entity.HasKey(e => e.Id).HasName("PK__DriversD__3214EC07DA90E731");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("DriversDiscount");
 
         entity.Property(e => e.MinKm).IsRequired();
         entity.Property(e => e.Discount).IsRequired();
-        entity.HasOne<UserProfile>(e => e.Profile).WithMany(e => e.DriversDiscounts).HasForeignKey(e => e.ProfileId);
+        entity.HasOne<UserProfile>(e => e.Profile)
+            .WithMany(e => e.DriversDiscounts)
+            .HasForeignKey(e => e.ProfileId);
     }
 }

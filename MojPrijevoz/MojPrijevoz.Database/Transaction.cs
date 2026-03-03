@@ -31,13 +31,12 @@ public class TransactionEntityConfiguration : IEntityTypeConfiguration<Transacti
 {
     public void Configure(EntityTypeBuilder<Transaction> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PK__Transact__3214EC071B4CE3F1");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("Transaction");
 
         entity.HasOne(d => d.Fare).WithMany(p => p.Transactions)
             .HasForeignKey(d => d.FareId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_Transaction_Fare");
+            .OnDelete(DeleteBehavior.ClientSetNull);
     }
 }

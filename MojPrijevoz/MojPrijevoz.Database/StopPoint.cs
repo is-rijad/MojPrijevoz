@@ -22,11 +22,11 @@ public class StopPointEntityConfiguration : IEntityTypeConfiguration<StopPoint>
 {
     public void Configure(EntityTypeBuilder<StopPoint> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PK__StopPoin__3214EC0778A7FE19");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("StopPoint");
 
-        entity.HasIndex(e => new { e.FareId, e.Order }, "UQ_StopPoint").IsUnique();
+        entity.HasIndex(e => new { e.FareId, e.Order }).IsUnique();
 
         entity.Property(e => e.Lat)
             .HasMaxLength(16)
@@ -37,7 +37,6 @@ public class StopPointEntityConfiguration : IEntityTypeConfiguration<StopPoint>
 
         entity.HasOne(d => d.Fare).WithMany(p => p.StopPoints)
             .HasForeignKey(d => d.FareId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK_StopPoint_Fare");
+            .OnDelete(DeleteBehavior.ClientSetNull);
     }
 }
