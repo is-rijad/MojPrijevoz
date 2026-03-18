@@ -24,7 +24,7 @@ public class DriversDiscountController : ControllerBase {
     }
     [HttpPost]
     public async Task<IActionResult> Post(DriversDiscountUpsertRequest request) {
-        return Ok(await _driversDiscountService.InsertAsync(request));
+        return Ok(await _driversDiscountService.InsertWithTransactionAsync(request));
     }
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, DriversDiscountUpsertRequest request) {

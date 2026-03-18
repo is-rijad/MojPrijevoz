@@ -21,11 +21,13 @@ public class FareOffer : IHasCreatedAtTimestamp
     public DateTime CreatedAt { get; set; }
 
     public int FareId { get; set; }
+    public int UserVehicleId { get; set; }
 
     public int? LastOfferId { get; set; }
 
     public virtual Fare? Fare { get; set; }
     public virtual FareOffer? LastOffer { get; set; }
+    public virtual UserVehicle? UserVehicle { get; set; }
 
 }
 
@@ -45,6 +47,8 @@ public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer>
             .WithMany()
             .HasForeignKey(it => it.LastOfferId)
             .IsRequired(false);
-
+        entity.HasOne<UserVehicle>(it => it.UserVehicle)
+            .WithMany()
+            .HasForeignKey(it => it.UserVehicleId);
     }
 }

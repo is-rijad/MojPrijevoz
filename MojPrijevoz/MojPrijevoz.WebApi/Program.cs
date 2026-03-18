@@ -3,6 +3,9 @@ using MojPrijevoz.Database;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.City;
 using MojPrijevoz.Services.DriversDiscount;
+using MojPrijevoz.Services.Fare;
+using MojPrijevoz.Services.FareOffer;
+using MojPrijevoz.Services.OpenRoute;
 using MojPrijevoz.Services.SearchFare;
 using MojPrijevoz.Services.User;
 using MojPrijevoz.Services.UserVehicle;
@@ -28,6 +31,9 @@ builder.Services.AddDatabaseServices(connectionString);
 
 builder.Services.AddMapster();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
+
+
 builder.Services.AddTransient<TokenManager>();
 builder.Services.AddTransient<AuthorizationService>();
 builder.Services.AddScoped<UserService>();
@@ -36,9 +42,12 @@ builder.Services.AddTransient<AdminCityService>();
 builder.Services.AddTransient<UserVehicleService>();
 builder.Services.AddTransient<VehicleService>();
 builder.Services.AddTransient<DriversDiscountService>();
-
+builder.Services.AddTransient<FareOfferService>();
+builder.Services.AddTransient<IFareService, FareService>();
 
 builder.Services.AddTransient<ISearchFareService, SearchFareService>();
+builder.Services.AddTransient<IOpenRouteService, OpenRouteService>();
+
 
 var app = builder.Build();
 

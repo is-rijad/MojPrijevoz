@@ -17,7 +17,7 @@ public class UserVehicleController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] UserVehicleUpsertRequest request)
     {
-        return Ok(await _userVehicleService.InsertAsync(request));
+        return Ok(await _userVehicleService.InsertWithTransactionAsync(request));
     }
 
     [HttpGet]

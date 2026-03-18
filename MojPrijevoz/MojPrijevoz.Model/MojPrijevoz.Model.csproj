@@ -16,10 +16,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Requests\SearchFare\" />
+	  <Folder Include="Requests\OpenRoute\" />
 	  <Folder Include="Requests\UserVehicle\" />
 	  <Folder Include="Responses\DriversDiscount\" />
-	  <Folder Include="Responses\SearchFare\" />
+	  <Folder Include="Responses\FareOffer\" />
+	  <Folder Include="Responses\Fare\" />
 	</ItemGroup>
 
 </Project>

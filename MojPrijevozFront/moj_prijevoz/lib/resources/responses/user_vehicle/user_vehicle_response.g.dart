@@ -18,6 +18,7 @@ UserVehicleResponse _$UserVehicleResponseFromJson(Map<String, dynamic> json) =>
       vehicle: VehicleResponse.fromJson(
         json['vehicle'] as Map<String, dynamic>,
       ),
+      profileId: (json['profileId'] as num).toInt(),
     );
 
 Map<String, dynamic> _$UserVehicleResponseToJson(
@@ -25,6 +26,7 @@ Map<String, dynamic> _$UserVehicleResponseToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'vehicleId': instance.vehicleId,
+  'profileId': instance.profileId,
   'modelYear': instance.modelYear,
   'fuelConsumption': instance.fuelConsumption,
   'pricePerKm': instance.pricePerKm,

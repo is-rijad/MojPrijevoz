@@ -60,7 +60,7 @@ class AuthProvider with ChangeNotifier {
     return token;
   }
 
-  Future<int> _getUserId() async {
+  Future<int> getUserId() async {
     var token = await getAccessToken();
     var payload = JwtDecoder.decode(token);
     return int.parse(payload["sub"]);

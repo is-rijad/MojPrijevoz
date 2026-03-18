@@ -70,6 +70,7 @@ class HttpProvider {
       _uiProvider.startLoading();
 
       var options = await _setRequestOptions();
+
       var response = await _dio.post(
         "$_apiUrl$url",
         data: request.toJson(),

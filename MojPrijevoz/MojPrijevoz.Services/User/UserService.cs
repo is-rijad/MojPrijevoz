@@ -14,13 +14,11 @@ namespace MojPrijevoz.Services.User;
 public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateRequest, UserResponse,
     BaseSearchObject>
 {
-    private readonly AuthorizationService _authorizationService;
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,
         IHttpContextAccessor httpContextAccessor,
         AuthorizationService authorizationService) : base(context, mapper, authorizationService)
     {
-        _authorizationService = authorizationService;
     }
 
     protected override async Task BeforeInsert(UserInsertRequest request)

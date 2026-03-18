@@ -16,15 +16,8 @@ public class User : Account
     public int CityId { get; set; }
 
     public virtual City? City { get; set; }
+
     public Gender? Gender { get; set; }
-
-    public virtual ICollection<Fare>? FareDrivers { get; set; }
-
-    public virtual ICollection<Fare>? FarePassengers { get; set; }
-
-    public virtual ICollection<Rating>? RatingFroms { get; set; }
-
-    public virtual ICollection<Rating>? RatingTos { get; set; }
 
     public virtual ICollection<UserProfile>? UserProfiles { get; set; }
 }

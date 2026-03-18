@@ -11,7 +11,13 @@ import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
 class MapComponent extends StatefulWidget {
   final CityResponse? from;
   final NominatimResponse? to;
-  const MapComponent({super.key, required this.from, required this.to});
+  final List<NominatimResponse>? stopPoints;
+  const MapComponent({
+    super.key,
+    required this.from,
+    required this.to,
+    this.stopPoints,
+  });
 
   @override
   State<MapComponent> createState() => _MapComponentState();
@@ -37,7 +43,11 @@ class _MapComponentState extends State<MapComponent> {
       _routePoints.clear();
     });
 
-    final response = await _mapProvider.getRoute(widget.from!, widget.to!);
+    final response = await _mapProvider.getRoute(
+      widget.from!,
+      widget.to!,
+      stopPlaces: widget.stopPoints,
+    );
 
     setState(() {
       _isLoading = false;
@@ -80,7 +90,7 @@ class _MapComponentState extends State<MapComponent> {
                 ),
                 width: 40,
                 height: 40,
-                child: const Icon(Icons.flag, color: Colors.green, size: 40),
+                child: const Icon(Icons.circle, color: Colors.green, size: 20),
               ),
             ],
           ),
@@ -97,11 +107,30 @@ class _MapComponentState extends State<MapComponent> {
                 child: const Icon(
                   Icons.location_pin,
                   color: Colors.red,
-                  size: 40,
+                  size: 30,
                 ),
               ),
             ],
           ),
+        if (widget.stopPoints?.isNotEmpty ?? false)
+          for (var i = 0; i < widget.stopPoints!.length; i++)
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: LatLng(
+                    double.parse(widget.stopPoints![i].lat),
+                    double.parse(widget.stopPoints![i].lon),
+                  ),
+                  width: 40,
+                  height: 40,
+                  child: const Icon(
+                    Icons.location_pin,
+                    color: Colors.green,
+                    size: 30,
+                  ),
+                ),
+              ],
+            ),
         if (_routePoints.isNotEmpty)
           PolylineLayer(
             polylines: [

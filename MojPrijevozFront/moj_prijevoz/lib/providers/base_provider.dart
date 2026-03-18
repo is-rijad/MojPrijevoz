@@ -20,8 +20,15 @@ abstract class BaseGetProvider<
 
   BaseGetProvider({required this.providerName});
 
-  Future<TResponse> getById(int id) async {
-    return await _httpProvider.getSingle<TResponse>(providerName, id: id);
+  Future<TResponse> getById(
+    int id, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    return await _httpProvider.getSingle<TResponse>(
+      providerName,
+      id: id,
+      queryParameters: queryParameters,
+    );
   }
 
   Future<SearchResult<TResponse>> _getAll(TSearchObject search) async {
@@ -44,6 +51,15 @@ abstract class BaseGetProvider<
     newItems.copyTo(_searchResult);
     searchObject.page++;
     notifyListeners();
+  }
+
+  Future<TResponse> getByIdWithEvent(
+    int id, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    final response = await getById(id, queryParameters: queryParameters);
+    notifyListeners();
+    return response;
   }
 }
 

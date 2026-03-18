@@ -14,12 +14,18 @@ class MapProvider {
 
   Future<MapsRouteResponse> getRoute(
     CityResponse cityFrom,
-    NominatimResponse cityTo,
-  ) async {
+    NominatimResponse cityTo, {
+    List<NominatimResponse>? stopPlaces,
+  }) async {
     try {
+      final stopPlaceCoordinates = List.empty(growable: true);
+      for (var i = 0; i < (stopPlaces?.length ?? 0); i++) {
+        stopPlaceCoordinates.add([stopPlaces![i].lon, stopPlaces[i].lat]);
+      }
       final body = MapsRouteRequest(
         coordinates: [
           [cityFrom.long, cityFrom.lat],
+          ...stopPlaceCoordinates,
           [cityTo.lon, cityTo.lat],
         ],
         radiuses: [-1],
@@ -35,7 +41,7 @@ class MapProvider {
         distance: response.data["routes"][0]["summary"]["distance"],
         duration: response.data["routes"][0]["summary"]["duration"] / 60,
       );
-    } on DioException {
+    } on DioException catch (e) {
       throw UserException("Greška prilikom preuzimanja rute!");
     }
   }

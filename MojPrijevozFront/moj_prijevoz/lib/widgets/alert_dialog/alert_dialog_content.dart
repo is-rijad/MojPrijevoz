@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AlertDialogContent extends StatelessWidget {
   final Widget child;
-  final ValueNotifier<String?> errorMessageValueNotifier;
+  final ValueNotifier<String?>? errorMessageValueNotifier;
 
   const AlertDialogContent({
     super.key,
@@ -16,12 +16,12 @@ class AlertDialogContent extends StatelessWidget {
       children: [
         child,
         ValueListenableBuilder<String?>(
-          valueListenable: errorMessageValueNotifier,
+          valueListenable: errorMessageValueNotifier ?? ValueNotifier<String?>(null),
           builder: (context, value, _) {
             if (value != null) {
               Future.delayed(
                 Duration(seconds: 3),
-                () => errorMessageValueNotifier.value = null,
+                () => errorMessageValueNotifier?.value = null,
               );
               return Positioned(
                 bottom: 10,

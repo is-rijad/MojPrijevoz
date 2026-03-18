@@ -13,6 +13,7 @@ class SearchFareRequest extends JsonRequest {
   DateTime? fareDateTime;
   double? budget;
   bool isValid = false;
+  bool isChanged = false;
   SearchFareRequest({
     this.startLocation,
     this.stopPlaces,

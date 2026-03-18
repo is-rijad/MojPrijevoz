@@ -20,9 +20,9 @@ public class Rating : IHasCreatedAtTimestamp
 
     public virtual Fare? Fare { get; set; }
 
-    public virtual User? From { get; set; }
+    public virtual UserProfile? From { get; set; }
 
-    public virtual User? To { get; set; }
+    public virtual UserProfile? To { get; set; }
 
     public DateTime CreatedAt { get; set; }
 }

@@ -23,7 +23,7 @@ class DriversDiscountUpsertDialog
           signed: true,
           decimal: true,
         ),
-        decoration: InputDecorationWithIcon(iconHint: "Minimum kilometara"),
+        decoration: InputDecoration(hintText: "Minimum kilometara"),
         onSaved: (value) => request.minKm = double.parse(value!),
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -44,7 +44,7 @@ class DriversDiscountUpsertDialog
           signed: true,
           decimal: true,
         ),
-        decoration: InputDecorationWithIcon(iconHint: "Maksimum kilometara"),
+        decoration: InputDecoration(hintText: "Maksimum kilometara"),
         onSaved: (value) => request.maxKm = double.tryParse(value!),
         validator: (value) {
           if (value != null &&
@@ -61,7 +61,7 @@ class DriversDiscountUpsertDialog
           signed: true,
           decimal: true,
         ),
-        decoration: InputDecorationWithIcon(iconHint: "Popust u procentima"),
+        decoration: InputDecoration(hintText: "Popust u procentima"),
         onSaved: (value) => request.discount = double.parse(value!),
         validator: (value) {
           if (value == null || value.isEmpty) {

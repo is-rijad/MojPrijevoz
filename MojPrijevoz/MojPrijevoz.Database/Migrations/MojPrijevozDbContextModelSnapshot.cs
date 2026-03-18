@@ -812,7 +812,10 @@ namespace MojPrijevoz.Database.Migrations
                     b.Property<short>("Side")
                         .HasColumnType("smallint");
 
-                    b.Property<int?>("UserVehicleId")
+                    b.Property<int>("UserVehicleId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserVehicleId1")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -822,6 +825,8 @@ namespace MojPrijevoz.Database.Migrations
                     b.HasIndex("LastOfferId");
 
                     b.HasIndex("UserVehicleId");
+
+                    b.HasIndex("UserVehicleId1");
 
                     b.ToTable("FareOffer", (string)null);
                 });
@@ -1101,7 +1106,7 @@ namespace MojPrijevoz.Database.Migrations
 
             modelBuilder.Entity("MojPrijevoz.Database.Fare", b =>
                 {
-                    b.HasOne("MojPrijevoz.Database.User", "Driver")
+                    b.HasOne("MojPrijevoz.Database.UserProfile", "Driver")
                         .WithMany("FareDrivers")
                         .HasForeignKey("DriverId")
                         .IsRequired();
@@ -1111,7 +1116,7 @@ namespace MojPrijevoz.Database.Migrations
                         .HasForeignKey("OriginCityId")
                         .IsRequired();
 
-                    b.HasOne("MojPrijevoz.Database.User", "Passenger")
+                    b.HasOne("MojPrijevoz.Database.UserProfile", "Passenger")
                         .WithMany("FarePassengers")
                         .HasForeignKey("PassengerId")
                         .IsRequired();
@@ -1135,13 +1140,21 @@ namespace MojPrijevoz.Database.Migrations
                         .WithMany()
                         .HasForeignKey("LastOfferId");
 
+                    b.HasOne("MojPrijevoz.Database.UserVehicle", "UserVehicle")
+                        .WithMany()
+                        .HasForeignKey("UserVehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MojPrijevoz.Database.UserVehicle", null)
                         .WithMany("FareOffers")
-                        .HasForeignKey("UserVehicleId");
+                        .HasForeignKey("UserVehicleId1");
 
                     b.Navigation("Fare");
 
                     b.Navigation("LastOffer");
+
+                    b.Navigation("UserVehicle");
                 });
 
             modelBuilder.Entity("MojPrijevoz.Database.Rating", b =>
@@ -1151,12 +1164,12 @@ namespace MojPrijevoz.Database.Migrations
                         .HasForeignKey("FareId")
                         .IsRequired();
 
-                    b.HasOne("MojPrijevoz.Database.User", "From")
+                    b.HasOne("MojPrijevoz.Database.UserProfile", "From")
                         .WithMany("RatingFroms")
                         .HasForeignKey("FromId")
                         .IsRequired();
 
-                    b.HasOne("MojPrijevoz.Database.User", "To")
+                    b.HasOne("MojPrijevoz.Database.UserProfile", "To")
                         .WithMany("RatingTos")
                         .HasForeignKey("ToId")
                         .IsRequired();
@@ -1262,6 +1275,14 @@ namespace MojPrijevoz.Database.Migrations
                 {
                     b.Navigation("DriversDiscounts");
 
+                    b.Navigation("FareDrivers");
+
+                    b.Navigation("FarePassengers");
+
+                    b.Navigation("RatingFroms");
+
+                    b.Navigation("RatingTos");
+
                     b.Navigation("UserVehicles");
                 });
 
@@ -1277,14 +1298,6 @@ namespace MojPrijevoz.Database.Migrations
 
             modelBuilder.Entity("MojPrijevoz.Database.User", b =>
                 {
-                    b.Navigation("FareDrivers");
-
-                    b.Navigation("FarePassengers");
-
-                    b.Navigation("RatingFroms");
-
-                    b.Navigation("RatingTos");
-
                     b.Navigation("UserProfiles");
                 });
 #pragma warning restore 612, 618

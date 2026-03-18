@@ -8,6 +8,7 @@ public class UserVehicleResponse
     public int Id { get; set; }
 
     public int VehicleId { get; set; }
+    public int ProfileId { get; set; }
 
     public int ModelYear { get; set; }
 

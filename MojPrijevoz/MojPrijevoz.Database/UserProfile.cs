@@ -23,6 +23,12 @@ public class UserProfile
 
     public virtual ICollection<UserVehicle>? UserVehicles { get; set; }
     public virtual ICollection<DriversDiscount>? DriversDiscounts { get; set; }
+    public virtual ICollection<Fare>? FareDrivers { get; set; }
+    public virtual ICollection<Fare>? FarePassengers { get; set; }
+
+    public virtual ICollection<Rating>? RatingFroms { get; set; }
+
+    public virtual ICollection<Rating>? RatingTos { get; set; }
 }
 
 public class UserProfileEntityConfiguration : IEntityTypeConfiguration<UserProfile>

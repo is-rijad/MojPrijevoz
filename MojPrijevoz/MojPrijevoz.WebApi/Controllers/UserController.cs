@@ -24,7 +24,7 @@ public class UserController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Post([FromBody] UserInsertRequest request)
     {
-        return Ok(await _userService.InsertAsync(request));
+        return Ok(await _userService.InsertWithTransactionAsync(request));
     }
 
 

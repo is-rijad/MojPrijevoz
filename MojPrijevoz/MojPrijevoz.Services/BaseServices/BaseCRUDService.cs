@@ -1,4 +1,6 @@
-﻿using MapsterMapper;
+﻿using System.Reflection.Metadata.Ecma335;
+using MapsterMapper;
+using Microsoft.EntityFrameworkCore.Storage;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Exceptions;
@@ -24,19 +26,24 @@ public abstract class
         _authorizationService = authorizationService;
     }
 
-    public async Task<TResponse> InsertAsync(TInsertRequest request)
+    public virtual async Task<TResponse> InsertWithTransactionAsync(TInsertRequest request)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        var response = await InsertAsync(request);
+        await transaction.CommitAsync();
+        return response;
+    }
+
+    public virtual async Task<TResponse> InsertAsync(TInsertRequest request) {
         await BeforeInsert(request);
         var entityEntry = await _dbContext.Set<TEntity>().AddAsync(MapToInsertEntity(request));
         await _dbContext.SaveChangesAsync();
         await AfterInsert(entityEntry.Entity, _dbContext);
-        await transaction.CommitAsync();
         await PrepareForResponse(entityEntry.Entity, _dbContext);
         return MapToResponseModel<TResponse>(entityEntry.Entity, _mapper);
     }
 
-    public async Task<TResponse> UpdateAsync(int id, TUpdateRequest request)
+    public virtual async Task<TResponse> UpdateAsync(int id, TUpdateRequest request)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 

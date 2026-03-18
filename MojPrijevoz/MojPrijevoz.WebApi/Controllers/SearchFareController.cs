@@ -19,4 +19,8 @@ public class SearchFareController : ControllerBase {
     {
         return Ok(await _searchFareService.Search(searchObject));
     }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id, [FromQuery] SearchFareDriverSearchObject searchObject) {
+        return Ok(await _searchFareService.SearchDriver(id, searchObject));
+    }
 }

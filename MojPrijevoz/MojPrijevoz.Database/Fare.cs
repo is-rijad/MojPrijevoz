@@ -38,11 +38,11 @@ public class Fare : IHasCreatedAtTimestamp
 
     public DateTime FareDateTime { get; set; }
 
-    public virtual User? Driver { get; set; }
+    public virtual UserProfile? Driver { get; set; }
 
     public virtual City? OriginCity { get; set; }
 
-    public virtual User? Passenger { get; set; }
+    public virtual UserProfile? Passenger { get; set; }
 
     public virtual ICollection<Rating>? Ratings { get; set; }
 
