@@ -16,6 +16,7 @@ import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/dtos/fare_offer/fare_offer_driver_price_dto.dart';
 import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
+import 'package:moj_prijevoz/resources/dtos/stop_point/stop_point_dto.dart';
 import 'package:moj_prijevoz/resources/requests/fare_offer/fare_offer_insert_request.dart';
 import 'package:moj_prijevoz/resources/requests/search_fare/search_fare_request.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
@@ -287,13 +288,30 @@ class _SearchFarePageState extends State<SearchFarePage> {
                   Container(
                     width: 1,
                     height:
-                        (_nominatimSearchObjects.length) *
+                        _nominatimSearchObjects.length *
                         Constants.autoCompleteTextInputElementHeight,
                     color: Colors.black,
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   Expanded(
-                    child: Column(
+                    child: ReorderableListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      buildDefaultDragHandles: false,
+                      onReorder: (oldIndex, newIndex) {
+                        setState(() {
+                          if (newIndex > oldIndex) newIndex--;
+                          final obj = _nominatimSearchObjects.removeAt(
+                            oldIndex,
+                          );
+                          final sel = _nominatimPlaceSelectors.removeAt(
+                            oldIndex,
+                          );
+                          _nominatimSearchObjects.insert(newIndex, obj);
+                          _nominatimPlaceSelectors.insert(newIndex, sel);
+                          _request.isChanged = true;
+                        });
+                      },
                       children: List.generate(_nominatimSearchObjects.length, (
                         index,
                       ) {
@@ -303,14 +321,16 @@ class _SearchFarePageState extends State<SearchFarePage> {
                         return Row(
                           key: ValueKey(searchObject),
                           children: [
+                            ReorderableDragStartListener(
+                              index: index,
+                              child: const Icon(Icons.drag_handle),
+                            ),
                             IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _nominatimSearchObjects.removeAt(index);
-                                  _nominatimPlaceSelectors.removeAt(index);
-                                });
-                              },
-                              icon: Icon(Icons.remove),
+                              onPressed: () => setState(() {
+                                _nominatimSearchObjects.removeAt(index);
+                                _nominatimPlaceSelectors.removeAt(index);
+                              }),
+                              icon: const Icon(Icons.remove),
                             ),
                             Expanded(
                               child:
@@ -323,17 +343,16 @@ class _SearchFarePageState extends State<SearchFarePage> {
                                     getLabel: (i) => i.displayName,
                                     getValue: (i) => i.placeId,
                                     searchObject: searchObject,
-                                    onTextChanged: (_) {
-                                      placeSelector.resetSelection();
-                                    },
-                                    decoration: InputDecoration(
+                                    onTextChanged: (_) =>
+                                        placeSelector.resetSelection(),
+                                    decoration: const InputDecoration(
                                       labelText: "Zaustavno mjesto",
                                     ),
                                     onSelectionChanged: (value) {
                                       _request.isChanged = true;
-                                      setState(() {
-                                        placeSelector.selectPlace(value);
-                                      });
+                                      setState(
+                                        () => placeSelector.selectPlace(value),
+                                      );
                                     },
                                     selectedItem: placeSelector.locationBound,
                                   ),
@@ -348,10 +367,8 @@ class _SearchFarePageState extends State<SearchFarePage> {
             ),
           ),
           IconButton(
-            onPressed: () => setState(() {
-              _addStopPlace();
-            }),
-            icon: Icon(Icons.add_location_rounded),
+            onPressed: () => setState(_addStopPlace),
+            icon: const Icon(Icons.add_location_rounded),
           ),
         ],
       ),
@@ -726,6 +743,15 @@ class _SearchFarePageState extends State<SearchFarePage> {
           )
           .toList(),
       fareDateTime: _searchFareSearchObject.fareDateTime!,
+      stopPoints: _nominatimPlaceSelectors
+          .where((it) => it.locationBound != null)
+          .map(
+            (it) => StopPointDto(
+              lat: it.locationBound!.lat,
+              long: it.locationBound!.lon,
+            ),
+          )
+          .toList(),
     );
     await context.read<FareOfferProvider>().insert(request);
     Constants.messengerKey.currentState?.showSnackBar(

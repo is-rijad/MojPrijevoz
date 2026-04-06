@@ -1,6 +1,7 @@
 ﻿using MojPrijevoz.Model.Dtos.Nominatim;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MojPrijevoz.Model.Requests.StopPoint;
 
 namespace MojPrijevoz.Model.Requests.FareOffer;
 
@@ -16,6 +17,7 @@ public class FareOfferInsertRequest : IValidatableObject {
     [NotMapped] public int UserVehicleId { get; set; }
 
     [Required] public ICollection<FareOfferDriverPriceDto> DriversPrices { get; set; } = null!;
+    [Required] public IReadOnlyList<StopPointInsertRequest> StopPoints { get; set; } = null!;
 
     [Required] public DateTime FareDateTime { get; set; }
 

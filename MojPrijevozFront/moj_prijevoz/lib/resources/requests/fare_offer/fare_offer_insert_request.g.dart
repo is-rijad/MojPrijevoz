@@ -18,6 +18,9 @@ FareOfferInsertRequest _$FareOfferInsertRequestFromJson(
   driversPrices: (json['driversPrices'] as List<dynamic>)
       .map((e) => FareOfferDriverPriceDto.fromJson(e as Map<String, dynamic>))
       .toList(),
+  stopPoints: (json['stopPoints'] as List<dynamic>?)
+      ?.map((e) => StopPointDto.fromJson(e as Map<String, dynamic>))
+      .toList(),
   fareDateTime: DateTime.parse(json['fareDateTime'] as String),
 );
 
@@ -29,5 +32,6 @@ Map<String, dynamic> _$FareOfferInsertRequestToJson(
   'length': instance.length,
   'duration': instance.duration,
   'driversPrices': instance.driversPrices.map((e) => e.toJson()).toList(),
+  'stopPoints': instance.stopPoints?.map((e) => e.toJson()).toList(),
   'fareDateTime': instance.fareDateTime.toIso8601String(),
 };

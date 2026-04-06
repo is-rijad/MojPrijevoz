@@ -21,6 +21,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Driver\" />
+	  <Folder Include="StopPoint\" />
 	</ItemGroup>
 
 </Project>

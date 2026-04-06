@@ -24,8 +24,6 @@ public class Fare : IHasCreatedAtTimestamp {
     public int PassengerId { get; set; }
     public virtual ICollection<Rating>? Ratings { get; set; }
 
-    public virtual ICollection<StopPoint>? StopPoints { get; set; }
-
     public virtual ICollection<Transaction>? Transactions { get; set; }
     public virtual FareData? FareData { get; set; }
     public virtual UserProfile? Driver { get; set; }

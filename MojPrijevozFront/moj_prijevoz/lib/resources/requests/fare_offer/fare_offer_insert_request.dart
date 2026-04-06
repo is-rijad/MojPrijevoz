@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moj_prijevoz/resources/dtos/fare_offer/fare_offer_driver_price_dto.dart';
 import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
+import 'package:moj_prijevoz/resources/dtos/stop_point/stop_point_dto.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 part 'fare_offer_insert_request.g.dart';
@@ -12,6 +13,7 @@ class FareOfferInsertRequest extends JsonRequest {
   final double length;
   final double duration;
   final List<FareOfferDriverPriceDto> driversPrices;
+  final List<StopPointDto>? stopPoints;
   final DateTime fareDateTime;
 
   FareOfferInsertRequest({
@@ -20,6 +22,7 @@ class FareOfferInsertRequest extends JsonRequest {
     required this.length,
     required this.duration,
     required this.driversPrices,
+    this.stopPoints,
     required this.fareDateTime,
   });
 

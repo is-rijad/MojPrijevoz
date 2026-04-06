@@ -1,5 +1,10 @@
-﻿namespace MojPrijevoz.Services.FareOffer;
+﻿using MojPrijevoz.Model.Requests.FareOffer;
+using MojPrijevoz.Model.Responses.FareOffer;
+using MojPrijevoz.Model.SearchObjects;
+using MojPrijevoz.Services.BaseServices;
 
-public interface IFareOfferService {
+namespace MojPrijevoz.Services.FareOffer;
+
+public interface IFareOfferService : IBaseCRUDService<FareOfferInsertRequest, FareOfferInsertRequest, FareOfferResponse, FareOfferSearchObject> {
 
 }

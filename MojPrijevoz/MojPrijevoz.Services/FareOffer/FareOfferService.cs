@@ -6,23 +6,27 @@ using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Requests.FareData;
 using MojPrijevoz.Model.Requests.FareOffer;
+using MojPrijevoz.Model.Requests.StopPoint;
 using MojPrijevoz.Model.Responses.FareOffer;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.Fare;
 using MojPrijevoz.Services.FareData;
+using MojPrijevoz.Services.StopPoint;
 
 namespace MojPrijevoz.Services.FareOffer;
 
 public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferInsertRequest, FareOfferInsertRequest, FareOfferResponse, FareOfferSearchObject>, IFareOfferService {
     private readonly IFareService _fareService;
     private readonly IFareDataService _fareDataService;
+    private readonly IStopPointService _stopPointService;
 
     public FareOfferService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
-        IFareService fareService, IFareDataService fareDataService) : base(context, mapper, authorizationService) {
+        IFareService fareService, IFareDataService fareDataService, IStopPointService stopPointService) : base(context, mapper, authorizationService) {
         _fareService = fareService;
         _fareDataService = fareDataService;
+        _stopPointService = stopPointService;
     }
 
     protected override async Task BeforeInsert(FareOfferInsertRequest request) {
@@ -43,12 +47,19 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         fareDataRequest.DestinationLong = request.DestinationCity.DestinationLong;
         var fareData = await _fareDataService.InsertAsync(fareDataRequest);
 
+        for (int i = 0; i < request.StopPoints.Count; i++) {
+            var stopPointRequest = _mapper.Map<StopPointInsertRequest>(request.StopPoints[i]);
+            stopPointRequest.FareDataId = fareData.Id;
+            stopPointRequest.Order = (short)i;
+            await _stopPointService.InsertAsync(stopPointRequest);
+        }
+
         EntityEntry<Database.FareOffer>? entityEntry = null;
         foreach (var driversPrice in request.DriversPrices) {
             var fareRequest = MapToFareInsertRequest(passengerId, fareData.Id, driversPrice, request);
             var fare = await _fareService.InsertAsync(fareRequest);
 
-            request.Price = fare.Price;
+            request.Price = request.Price;
             request.UserVehicleId = driversPrice.UserVehicleId;
             request.FareDataId = fareData.Id;
 

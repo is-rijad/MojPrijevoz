@@ -8,6 +8,7 @@ using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer;
 using MojPrijevoz.Services.OpenRoute;
 using MojPrijevoz.Services.SearchFare;
+using MojPrijevoz.Services.StopPoint;
 using MojPrijevoz.Services.User;
 using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
@@ -46,6 +47,7 @@ builder.Services.AddTransient<DriversDiscountService>();
 builder.Services.AddTransient<FareOfferService>();
 builder.Services.AddTransient<IFareService, FareService>();
 builder.Services.AddTransient<IFareDataService, FareDataService>();
+builder.Services.AddTransient<IStopPointService, StopPointService>();
 
 builder.Services.AddTransient<ISearchFareService, SearchFareService>();
 builder.Services.AddTransient<IOpenRouteService, OpenRouteService>();
