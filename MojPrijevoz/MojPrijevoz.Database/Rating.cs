@@ -4,8 +4,7 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class Rating : IHasCreatedAtTimestamp
-{
+public class Rating : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
     public int FromId { get; set; }
@@ -27,10 +26,8 @@ public class Rating : IHasCreatedAtTimestamp
     public DateTime CreatedAt { get; set; }
 }
 
-public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating>
-{
-    public void Configure(EntityTypeBuilder<Rating> entity)
-    {
+public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating> {
+    public void Configure(EntityTypeBuilder<Rating> entity) {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("Rating");

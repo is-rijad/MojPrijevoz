@@ -9,20 +9,17 @@ namespace MojPrijevoz.Services.BaseServices;
 public abstract class
     BaseService<TResponse, TEntity, TSearchObject> : IBaseService<TResponse, TSearchObject> where TResponse : class
     where TEntity : class
-    where TSearchObject : BaseSearchObject
-{
+    where TSearchObject : BaseSearchObject {
     protected readonly MojPrijevozDbContext _dbContext;
     protected readonly IMapper _mapper;
 
-    public BaseService(MojPrijevozDbContext dbContext, IMapper mapper)
-    {
+    public BaseService(MojPrijevozDbContext dbContext, IMapper mapper) {
         _dbContext = dbContext;
         _mapper = mapper;
     }
 
 
-    public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject)
-    {
+    public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject) {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         queryable = await ApplyFilter(queryable, searchObject);
         var fullCount = await queryable.CountAsync();
@@ -37,8 +34,7 @@ public abstract class
         };
     }
 
-    public async Task<TResponse> GetByIdAsync(int id)
-    {
+    public async Task<TResponse> GetByIdAsync(int id) {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         var entity = await queryable.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         if (entity == null)
@@ -48,23 +44,19 @@ public abstract class
     }
 
     public virtual Task<IQueryable<TEntity>> ApplyFilter(IQueryable<TEntity> queryable,
-        TSearchObject searchObject)
-    {
+        TSearchObject searchObject) {
         return Task.FromResult(queryable);
     }
 
-    public virtual Task<IQueryable<TEntity>> IncludeAdditionalEntities(IQueryable<TEntity> queryable)
-    {
+    public virtual Task<IQueryable<TEntity>> IncludeAdditionalEntities(IQueryable<TEntity> queryable) {
         return Task.FromResult(queryable);
     }
 
-    protected virtual Task PrepareForResponse(TEntity entity, MojPrijevozDbContext dbContext)
-    {
+    protected virtual Task PrepareForResponse(TEntity entity, MojPrijevozDbContext dbContext) {
         return Task.CompletedTask;
     }
 
-    protected static T MapToResponseModel<T>(TEntity entity, IMapper mapper)
-    {
+    protected static T MapToResponseModel<T>(TEntity entity, IMapper mapper) {
         return mapper.Map<T>(entity);
     }
 }

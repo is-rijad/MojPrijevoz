@@ -3,15 +3,12 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class MojPrijevozDbContext : DbContext
-{
-    public MojPrijevozDbContext()
-    {
+public class MojPrijevozDbContext : DbContext {
+    public MojPrijevozDbContext() {
     }
 
     public MojPrijevozDbContext(DbContextOptions<MojPrijevozDbContext> options)
-        : base(options)
-    {
+        : base(options) {
     }
 
     public virtual DbSet<Account> Accounts { get; set; }
@@ -41,8 +38,7 @@ public class MojPrijevozDbContext : DbContext
 
     public virtual DbSet<Vehicle> Vehicles { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new AccountEntityConfiguration());
         modelBuilder.ApplyConfiguration(new AdministratorEntityConfiguration());
@@ -60,8 +56,7 @@ public class MojPrijevozDbContext : DbContext
         modelBuilder.ApplyConfiguration(new VehicleEntityConfiguration());
     }
 
-    private void UpdateTimestamps()
-    {
+    private void UpdateTimestamps() {
         var entries = ChangeTracker.Entries().Where(e =>
             e.Entity is IHasTimestamps && (e.State == EntityState.Added || e.State == EntityState.Modified));
         foreach (var entityEntry in entries)
@@ -71,14 +66,12 @@ public class MojPrijevozDbContext : DbContext
                 ((IHasTimestamps)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
     }
 
-    public override int SaveChanges()
-    {
+    public override int SaveChanges() {
         UpdateTimestamps();
         return base.SaveChanges();
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) {
         UpdateTimestamps();
         return await base.SaveChangesAsync(cancellationToken);
     }

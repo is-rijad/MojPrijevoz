@@ -3,16 +3,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public enum AccountStatus : short
-{
+public enum AccountStatus : short {
     Banned = 0,
     Active = 1,
     WaitingForChanges = 2,
     WaitingForReview = 3
 }
 
-public abstract class Account
-{
+public abstract class Account {
     public int Id { get; set; }
 
     public string FirstName { get; set; } = null!;
@@ -31,10 +29,8 @@ public abstract class Account
     public AccountStatus Status { get; set; } = AccountStatus.Active;
 }
 
-public class AccountEntityConfiguration : IEntityTypeConfiguration<Account>
-{
-    public void Configure(EntityTypeBuilder<Account> entity)
-    {
+public class AccountEntityConfiguration : IEntityTypeConfiguration<Account> {
+    public void Configure(EntityTypeBuilder<Account> entity) {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("Account");

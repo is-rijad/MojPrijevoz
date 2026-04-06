@@ -8,35 +8,30 @@ namespace MojPrijevoz.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController : ControllerBase
-{
+public class UserController : ControllerBase {
     private readonly AuthorizationService _authorizationService;
     private readonly UserService _userService;
 
     public UserController(UserService userService,
-        AuthorizationService authorizationService)
-    {
+        AuthorizationService authorizationService) {
         _userService = userService;
         _authorizationService = authorizationService;
     }
 
     [HttpPost]
     [AllowAnonymous]
-    public async Task<IActionResult> Post([FromBody] UserInsertRequest request)
-    {
+    public async Task<IActionResult> Post([FromBody] UserInsertRequest request) {
         return Ok(await _userService.InsertWithTransactionAsync(request));
     }
 
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id)
-    {
+    public async Task<IActionResult> Get(int id) {
         return Ok(await _userService.GetByIdAsync(id));
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id, [FromBody] UserUpdateRequest request)
-    {
+    public async Task<IActionResult> Put(int id, [FromBody] UserUpdateRequest request) {
         return Ok(await _userService.UpdateAsync(id, request));
     }
 }

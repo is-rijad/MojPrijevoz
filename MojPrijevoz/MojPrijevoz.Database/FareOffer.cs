@@ -4,14 +4,12 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public enum FareOfferSide : short
-{
+public enum FareOfferSide : short {
     Driver = 0,
     Passenger = 1
 }
 
-public class FareOffer : IHasCreatedAtTimestamp
-{
+public class FareOffer : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
     public FareOfferSide Side { get; set; }
@@ -31,10 +29,8 @@ public class FareOffer : IHasCreatedAtTimestamp
 
 }
 
-public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer>
-{
-    public void Configure(EntityTypeBuilder<FareOffer> entity)
-    {
+public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer> {
+    public void Configure(EntityTypeBuilder<FareOffer> entity) {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("FareOffer");

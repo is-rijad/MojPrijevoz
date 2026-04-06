@@ -1,7 +1,6 @@
 ﻿namespace MojPrijevoz.Model.Responses.Auth;
 
-public class AuthResponse
-{
+public class AuthResponse {
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Email { get; set; }

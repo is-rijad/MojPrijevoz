@@ -9,14 +9,12 @@ namespace MojPrijevoz.WebApi.Controllers;
 public class SearchFareController : ControllerBase {
     private readonly ISearchFareService _searchFareService;
 
-    public SearchFareController(ISearchFareService searchFareService)
-    {
+    public SearchFareController(ISearchFareService searchFareService) {
         _searchFareService = searchFareService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] SearchFareSearchObject searchObject)
-    {
+    public async Task<IActionResult> Get([FromQuery] SearchFareSearchObject searchObject) {
         return Ok(await _searchFareService.Search(searchObject));
     }
     [HttpGet("{id}")]

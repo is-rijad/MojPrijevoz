@@ -1,6 +1,5 @@
 ﻿namespace MojPrijevoz.Services.FareOffer;
 
-public interface IFareOfferService
-{
-    
+public interface IFareOfferService {
+
 }

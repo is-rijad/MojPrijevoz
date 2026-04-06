@@ -12,24 +12,20 @@ using MojPrijevoz.Services.BaseServices;
 namespace MojPrijevoz.Services.User;
 
 public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateRequest, UserResponse,
-    BaseSearchObject>
-{
+    BaseSearchObject> {
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,
         IHttpContextAccessor httpContextAccessor,
-        AuthorizationService authorizationService) : base(context, mapper, authorizationService)
-    {
+        AuthorizationService authorizationService) : base(context, mapper, authorizationService) {
     }
 
-    protected override async Task BeforeInsert(UserInsertRequest request)
-    {
+    protected override async Task BeforeInsert(UserInsertRequest request) {
         await base.BeforeInsert(request);
         if (await _dbContext.Users.AnyAsync(u => u.Username == request.Username || u.Email == request.Email))
             throw new BadRequestException("Korisničko ime ili email već postoji.");
     }
 
-    protected override Database.User MapToInsertEntity(UserInsertRequest request)
-    {
+    protected override Database.User MapToInsertEntity(UserInsertRequest request) {
         var userInsertRequest = _mapper.Map<Database.User>(request);
         _authorizationService.CreatePassword(request.Password, request.PasswordAgain, out var passwordHash,
             out var passwordSalt);
@@ -37,8 +33,7 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         return userInsertRequest;
     }
 
-    protected override async Task AfterInsert(Database.User entity, MojPrijevozDbContext dbContext)
-    {
+    protected override async Task AfterInsert(Database.User entity, MojPrijevozDbContext dbContext) {
         await base.AfterInsert(entity, dbContext);
         if (entity.UserProfiles == null)
             entity.UserProfiles = new List<UserProfile>();
@@ -50,11 +45,9 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         await dbContext.SaveChangesAsync();
     }
 
-    protected override Task BeforeUpdate(int id, UserUpdateRequest request, Database.User entity)
-    {
+    protected override Task BeforeUpdate(int id, UserUpdateRequest request, Database.User entity) {
         base.BeforeUpdate(id, request, entity);
-        if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null)
-        {
+        if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null) {
             if (!_authorizationService.VerifyPassword(request.OldPassword ?? string.Empty, entity.PasswordHash,
                     entity.PasswordSalt))
                 throw new BadRequestException("Stara lozinka nije ispravna.");

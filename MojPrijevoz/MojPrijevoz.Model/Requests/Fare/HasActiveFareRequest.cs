@@ -1,12 +1,10 @@
 ﻿
-using System.ComponentModel.DataAnnotations;
-using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Nominatim;
+using System.ComponentModel.DataAnnotations;
 
 namespace MojPrijevoz.Model.Requests.Fare;
 
-public class HasActiveFareRequest
-{
+public class HasActiveFareRequest {
     [Required]
     public DateTime FareDateTime { get; set; }
     [Required]

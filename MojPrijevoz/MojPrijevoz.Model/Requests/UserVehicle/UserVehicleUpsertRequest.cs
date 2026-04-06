@@ -3,8 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace MojPrijevoz.Model.Requests.UserVehicle;
 
-public class UserVehicleUpsertRequest : IValidatableObject
-{
+public class UserVehicleUpsertRequest : IValidatableObject {
     public int VehicleId { get; set; }
 
     public int ModelYear { get; set; }
@@ -17,8 +16,7 @@ public class UserVehicleUpsertRequest : IValidatableObject
 
     [JsonIgnore] public int? ProfileId { get; set; }
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
         if (ModelYear < 1900)
             yield return new ValidationResult("Godina proizvodnje ne može biti manja od 1900.",
                 new[] { nameof(ModelYear) });

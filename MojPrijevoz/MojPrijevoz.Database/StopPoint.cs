@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public class StopPoint
-{
+public class StopPoint {
     public int Id { get; set; }
 
     public int FareId { get; set; }
@@ -18,10 +17,8 @@ public class StopPoint
     public virtual Fare? Fare { get; set; }
 }
 
-public class StopPointEntityConfiguration : IEntityTypeConfiguration<StopPoint>
-{
-    public void Configure(EntityTypeBuilder<StopPoint> entity)
-    {
+public class StopPointEntityConfiguration : IEntityTypeConfiguration<StopPoint> {
+    public void Configure(EntityTypeBuilder<StopPoint> entity) {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("StopPoint");

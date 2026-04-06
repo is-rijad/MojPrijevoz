@@ -11,23 +11,20 @@ using MojPrijevoz.Services.OpenRoute;
 
 namespace MojPrijevoz.Services.SearchFare;
 
-public class SearchFareService : ISearchFareService
-{
+public class SearchFareService : ISearchFareService {
     private readonly MojPrijevozDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly AuthorizationService _authorizationService;
     private readonly IOpenRouteService _openRouteService;
 
     public SearchFareService(MojPrijevozDbContext dbContext,
-        IMapper mapper, AuthorizationService authorizationService, IOpenRouteService openRouteService)
-    {
+        IMapper mapper, AuthorizationService authorizationService, IOpenRouteService openRouteService) {
         _dbContext = dbContext;
         _mapper = mapper;
         _authorizationService = authorizationService;
         _openRouteService = openRouteService;
     }
-    public async Task<PagedResult<SearchFareResponse>> Search(SearchFareSearchObject searchObject)
-    {
+    public async Task<PagedResult<SearchFareResponse>> Search(SearchFareSearchObject searchObject) {
         var newStart = searchObject.FareDateTime;
         var newEnd = searchObject.FareDateTime.AddMinutes(searchObject.Duration);
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
@@ -61,13 +58,12 @@ public class SearchFareService : ISearchFareService
         };
     }
 
-    public async Task<SearchFareDriverResponse> SearchDriver(int profileId, SearchFareDriverSearchObject searchObject)
-    {
+    public async Task<SearchFareDriverResponse> SearchDriver(int profileId, SearchFareDriverSearchObject searchObject) {
         var driversCityId = await _dbContext.UserProfiles.Where(it => it.Id == profileId).Select(it => it.User!.CityId)
             .FirstAsync();
         var distance = searchObject.Distance;
         var additionalDistance = (await _openRouteService.GetDistance(new GetDistanceRequest()
-            { CityFrom = driversCityId, CityTo = searchObject.OriginCityId })).Distance;
+        { CityFrom = driversCityId, CityTo = searchObject.OriginCityId })).Distance;
         var finalDistance = distance + additionalDistance;
 
         var driversDiscount = await _dbContext.DriversDiscounts.Where(it =>

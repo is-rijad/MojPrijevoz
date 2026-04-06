@@ -3,14 +3,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public enum ProfileType : short
-{
+public enum ProfileType : short {
     Passenger = 0,
     Driver = 1
 }
 
-public class UserProfile
-{
+public class UserProfile {
     public int Id { get; set; }
 
     public int UserId { get; set; }
@@ -31,10 +29,8 @@ public class UserProfile
     public virtual ICollection<Rating>? RatingTos { get; set; }
 }
 
-public class UserProfileEntityConfiguration : IEntityTypeConfiguration<UserProfile>
-{
-    public void Configure(EntityTypeBuilder<UserProfile> entity)
-    {
+public class UserProfileEntityConfiguration : IEntityTypeConfiguration<UserProfile> {
+    public void Configure(EntityTypeBuilder<UserProfile> entity) {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("UserProfile");

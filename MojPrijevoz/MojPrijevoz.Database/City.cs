@@ -1,12 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MojPrijevoz.Database.Interfaces;
-using System.Reflection.Emit;
 
 namespace MojPrijevoz.Database;
 
-public class City : IHasTimestamps
-{
+public class City : IHasTimestamps {
     public int Id { get; set; }
 
     public string Name { get; set; } = null!;
@@ -25,10 +23,8 @@ public class City : IHasTimestamps
     public DateTime CreatedAt { get; set; }
 }
 
-public class CityEntityConfiguration : IEntityTypeConfiguration<City>
-{
-    public void Configure(EntityTypeBuilder<City> entity)
-    {
+public class CityEntityConfiguration : IEntityTypeConfiguration<City> {
+    public void Configure(EntityTypeBuilder<City> entity) {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("City");

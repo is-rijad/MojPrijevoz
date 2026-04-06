@@ -1,37 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using MojPrijevoz.Database;
+﻿using Microsoft.Extensions.Configuration;
 using MojPrijevoz.Model.Requests.OpenRoute;
 using MojPrijevoz.Model.Responses.OpenRoute;
-using Newtonsoft.Json;
+using MojPrijevoz.Services.City;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using MojPrijevoz.Services.City;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace MojPrijevoz.Services.OpenRoute;
 
-public class OpenRouteService : IOpenRouteService
-{
+public class OpenRouteService : IOpenRouteService {
     private readonly IConfigurationSection _openApiConfiguration;
     private readonly HttpClient _httpClient;
     private readonly CityService _cityService;
 
     public OpenRouteService(IConfiguration configuration, IHttpClientFactory httpClientFactory,
-        CityService cityService)
-    {
+        CityService cityService) {
         _openApiConfiguration = configuration.GetSection("OpenRouteApi");
         _httpClient = httpClientFactory.CreateClient();
         _cityService = cityService;
     }
 
-    public async Task<GetDistanceResponse> GetDistance(GetDistanceRequest request)
-    {
-        if (request.CityFrom == request.CityTo)
-        {
+    public async Task<GetDistanceResponse> GetDistance(GetDistanceRequest request) {
+        if (request.CityFrom == request.CityTo) {
             return new GetDistanceResponse() { Distance = 0, Duration = 0 };
         }
         var cityFrom = await _cityService.GetByIdAsync(request.CityFrom);

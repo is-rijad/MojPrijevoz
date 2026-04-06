@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -8,13 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text;
 
 namespace MojPrijevoz.Services.Authorization;
 
-public static class AuthorizationConfiguration
-{
-    public static void ConfigureAuthorization(this IServiceCollection services, IConfiguration configuration)
-    {
+public static class AuthorizationConfiguration {
+    public static void ConfigureAuthorization(this IServiceCollection services, IConfiguration configuration) {
         var jwtSettings = configuration.GetSection("Jwt");
         services.AddAuthentication(options =>
             {
@@ -40,16 +38,14 @@ public static class AuthorizationConfiguration
         services.AddAuthorization();
     }
 
-    public static void ConfigureControllerAuthorization(this MvcOptions config)
-    {
+    public static void ConfigureControllerAuthorization(this MvcOptions config) {
         var policy = new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .Build();
         config.Filters.Add(new AuthorizeFilter(policy));
     }
 
-    public static void ConfigureSwaggerAuthorization(this SwaggerGenOptions options)
-    {
+    public static void ConfigureSwaggerAuthorization(this SwaggerGenOptions options) {
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
             Name = "Authorization",

@@ -2,8 +2,7 @@
 
 namespace MojPrijevoz.Model.Responses.User;
 
-public class UserResponse
-{
+public class UserResponse {
     public int Id { get; set; }
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;

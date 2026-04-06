@@ -6,12 +6,10 @@ namespace MojPrijevoz.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FareOfferController : ControllerBase
-{
+public class FareOfferController : ControllerBase {
     private readonly FareOfferService _fareOfferService;
 
-    public FareOfferController(FareOfferService fareOfferService)
-    {
+    public FareOfferController(FareOfferService fareOfferService) {
         _fareOfferService = fareOfferService;
     }
 

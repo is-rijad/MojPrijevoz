@@ -3,8 +3,7 @@ using MojPrijevoz.Model.Responses.Fare;
 
 namespace MojPrijevoz.Model.Responses.FareOffer;
 
-public class FareOfferResponse
-{
+public class FareOfferResponse {
     public int Id { get; set; }
 
     public FareOfferSide Side { get; set; }

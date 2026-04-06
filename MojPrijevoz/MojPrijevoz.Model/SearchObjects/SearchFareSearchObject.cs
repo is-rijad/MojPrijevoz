@@ -2,8 +2,7 @@
 
 namespace MojPrijevoz.Model.SearchObjects;
 
-public class SearchFareSearchObject : BaseSearchObject
-{
+public class SearchFareSearchObject : BaseSearchObject {
     public int OriginCityId { get; set; }
     public DateTime FareDateTime { get; set; }
     public double Budget { get; set; }

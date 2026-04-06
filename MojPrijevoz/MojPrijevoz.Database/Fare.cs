@@ -4,8 +4,7 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public enum FareStatus : short
-{
+public enum FareStatus : short {
     WaitingForNegotiation = 0,
     Pending = 1,
     Accepted = 2,
@@ -14,8 +13,7 @@ public enum FareStatus : short
     Completed = 5
 }
 
-public class Fare : IHasCreatedAtTimestamp
-{
+public class Fare : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
     public int OriginCityId { get; set; }
@@ -54,10 +52,8 @@ public class Fare : IHasCreatedAtTimestamp
     public DateTime CreatedAt { get; set; }
 }
 
-public class FareEntityConfiguration : IEntityTypeConfiguration<Fare>
-{
-    public void Configure(EntityTypeBuilder<Fare> entity)
-    {
+public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
+    public void Configure(EntityTypeBuilder<Fare> entity) {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("Fare");

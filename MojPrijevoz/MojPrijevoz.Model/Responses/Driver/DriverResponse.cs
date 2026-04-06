@@ -1,6 +1,5 @@
 ﻿namespace MojPrijevoz.Model.Responses.Driver;
 
-public class DriverResponse
-{
-    
+public class DriverResponse {
+
 }

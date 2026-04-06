@@ -3,16 +3,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public enum UserVehicleStatus : short
-{
+public enum UserVehicleStatus : short {
     Deleted = 0,
     Active = 1,
     WaitingForChanges = 2,
     WaitingForReview = 3
 }
 
-public class UserVehicle
-{
+public class UserVehicle {
     public int Id { get; set; }
 
     public int ProfileId { get; set; }
@@ -36,10 +34,8 @@ public class UserVehicle
     public virtual Vehicle? Vehicle { get; set; }
 }
 
-public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehicle>
-{
-    public void Configure(EntityTypeBuilder<UserVehicle> entity)
-    {
+public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehicle> {
+    public void Configure(EntityTypeBuilder<UserVehicle> entity) {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("UserVehicle");

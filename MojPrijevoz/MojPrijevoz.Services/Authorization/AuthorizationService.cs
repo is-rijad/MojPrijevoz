@@ -1,14 +1,13 @@
-﻿using System.Security.Cryptography;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
+using System.Security.Cryptography;
 
 namespace MojPrijevoz.Services.Authorization;
 
-public class AuthorizationService
-{
+public class AuthorizationService {
     private const int HashByteSize = 32;
     private const int SaltByteSize = 16;
     private const int Iterations = 100000;
@@ -17,14 +16,12 @@ public class AuthorizationService
 
     private readonly TokenManager _tokenManager;
 
-    public AuthorizationService(MojPrijevozDbContext context, TokenManager tokenManager)
-    {
+    public AuthorizationService(MojPrijevozDbContext context, TokenManager tokenManager) {
         _dbContext = context;
         _tokenManager = tokenManager;
     }
 
-    public async Task<AccessTokenResponse> Login(UserLoginRequest request)
-    {
+    public async Task<AccessTokenResponse> Login(UserLoginRequest request) {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u =>
             u.Username == request.Username || u.Email == request.Username);
         if (user == null || !VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
@@ -38,8 +35,7 @@ public class AuthorizationService
         };
     }
 
-    public async Task<AccessTokenResponse> GetNewToken()
-    {
+    public async Task<AccessTokenResponse> GetNewToken() {
         var userId = GetUserId();
 
         var user = await _dbContext.Users.FirstAsync(u =>
@@ -53,8 +49,7 @@ public class AuthorizationService
         };
     }
 
-    public void CreatePassword(string password, string passwordAgain, out string hash, out string salt)
-    {
+    public void CreatePassword(string password, string passwordAgain, out string hash, out string salt) {
         if (password != passwordAgain)
             throw new BadRequestException("Lozinke se ne podudaraju.");
         using var rng = RandomNumberGenerator.Create();
@@ -68,8 +63,7 @@ public class AuthorizationService
     }
 
 
-    public bool VerifyPassword(string password, string storedHash, string storedSalt)
-    {
+    public bool VerifyPassword(string password, string storedHash, string storedSalt) {
         var saltBytes = Convert.FromBase64String(storedSalt);
         using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, Iterations, _hashAlgorithm);
         var hashBytes = pbkdf2.GetBytes(HashByteSize);
@@ -77,18 +71,15 @@ public class AuthorizationService
         return hash == storedHash;
     }
 
-    public int GetUserId()
-    {
+    public int GetUserId() {
         return _tokenManager.GetUserId();
     }
 
-    public async Task<int?> GetProfileId(ProfileType profileType)
-    {
+    public async Task<int?> GetProfileId(ProfileType profileType) {
         return (await GetUserProfile(profileType))?.Id;
     }
 
-    public async Task<UserProfile?> GetUserProfile(ProfileType profileType)
-    {
+    public async Task<UserProfile?> GetUserProfile(ProfileType profileType) {
         return await _dbContext.UserProfiles
             .Where(up => up.UserId == GetUserId() && up.ProfileType == profileType)
             .FirstOrDefaultAsync();

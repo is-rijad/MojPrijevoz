@@ -6,18 +6,15 @@ namespace MojPrijevoz.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class VehicleController : ControllerBase
-{
+public class VehicleController : ControllerBase {
     private readonly VehicleService _vehicleService;
 
-    public VehicleController(VehicleService vehicleService)
-    {
+    public VehicleController(VehicleService vehicleService) {
         _vehicleService = vehicleService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] VehicleSearchObject search)
-    {
+    public async Task<IActionResult> Get([FromQuery] VehicleSearchObject search) {
         return Ok(await _vehicleService.GetAsync(search));
     }
 }

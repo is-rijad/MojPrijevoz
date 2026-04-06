@@ -1,8 +1,6 @@
-﻿using Azure.Core;
-using MapsterMapper;
+﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
-using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.DriversDiscount;
 using MojPrijevoz.Model.Responses.DriversDiscount;
@@ -12,14 +10,11 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.DriversDiscount;
 
-public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, DriversDiscountUpsertRequest, DriversDiscountUpsertRequest, DriversDiscountResponse, DriversDiscountSearchObject>
-{
-    public DriversDiscountService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService)
-    {
+public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, DriversDiscountUpsertRequest, DriversDiscountUpsertRequest, DriversDiscountResponse, DriversDiscountSearchObject> {
+    public DriversDiscountService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService) {
     }
 
-    private async Task<bool> AreOverlapping(int profileId, float minKm, float? maxKm, int? id = null)
-    {
+    private async Task<bool> AreOverlapping(int profileId, float minKm, float? maxKm, int? id = null) {
         var queryable = _dbContext.DriversDiscounts.Where(dd =>
             dd.ProfileId == profileId && (maxKm == null || dd.MinKm <= maxKm) &&
             (dd.MaxKm == null || minKm <= dd.MaxKm));
@@ -29,16 +24,14 @@ public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, 
 
     }
     public override async Task<IQueryable<Database.DriversDiscount>> ApplyFilter(
-        IQueryable<Database.DriversDiscount> queryable, DriversDiscountSearchObject searchObject)
-    {
+        IQueryable<Database.DriversDiscount> queryable, DriversDiscountSearchObject searchObject) {
         var profileId = (await _authorizationService.GetProfileId(ProfileType.Driver));
         if (!profileId.HasValue)
             throw new BadRequestException("Niste vozač");
 
         return queryable.Where(dd => dd.ProfileId == profileId.Value);
     }
-    protected override async Task BeforeInsert(DriversDiscountUpsertRequest request)
-    {
+    protected override async Task BeforeInsert(DriversDiscountUpsertRequest request) {
         await base.BeforeInsert(request);
         var profileId = (await _authorizationService.GetProfileId(ProfileType.Driver));
         if (!profileId.HasValue)
@@ -59,12 +52,11 @@ public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, 
         request.ProfileId = profileId.Value;
     }
 
-    protected override async Task BeforeDelete(int id, Database.DriversDiscount entity)
-    {
+    protected override async Task BeforeDelete(int id, Database.DriversDiscount entity) {
         await base.BeforeDelete(id, entity);
         var profileId = (await _authorizationService.GetProfileId(ProfileType.Driver));
         if (!profileId.HasValue)
-            throw new BadRequestException("Niste vozač"); 
+            throw new BadRequestException("Niste vozač");
         if (entity.ProfileId != profileId.Value)
             throw new BadRequestException("Nije vaš popust!");
     }

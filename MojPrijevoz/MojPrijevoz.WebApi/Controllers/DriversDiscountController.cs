@@ -10,12 +10,11 @@ namespace MojPrijevoz.WebApi.Controllers;
 public class DriversDiscountController : ControllerBase {
     private readonly DriversDiscountService _driversDiscountService;
 
-    public DriversDiscountController(DriversDiscountService driversDiscountService)
-    {
+    public DriversDiscountController(DriversDiscountService driversDiscountService) {
         _driversDiscountService = driversDiscountService;
     }
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery]DriversDiscountSearchObject searchObject) {
+    public async Task<IActionResult> Get([FromQuery] DriversDiscountSearchObject searchObject) {
         return Ok(await _driversDiscountService.GetAsync(searchObject));
     }
     [HttpGet("{id}")]

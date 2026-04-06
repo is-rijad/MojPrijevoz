@@ -3,5 +3,5 @@
 namespace MojPrijevoz.Model.SearchObjects;
 
 public class UserSearchObject : StringSearchObject {
-    
+
 }

@@ -1,5 +1,4 @@
 ﻿namespace MojPrijevoz.Model.BaseModels;
 
-public class TPlaceholder
-{
+public class TPlaceholder {
 }

@@ -3,8 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MojPrijevoz.Model.Requests.FareOffer;
 
-public class FareOfferDriverPriceDto
-{
+public class FareOfferDriverPriceDto {
     [Required]
     public int DriverId { get; set; }
     [Required]

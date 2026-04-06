@@ -4,13 +4,11 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public enum NotificationType : short
-{
+public enum NotificationType : short {
     Default = 0
 }
 
-public class Notification : IHasCreatedAtTimestamp
-{
+public class Notification : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
     public string Message { get; set; } = null!;
@@ -22,10 +20,8 @@ public class Notification : IHasCreatedAtTimestamp
     public DateTime CreatedAt { get; set; }
 }
 
-public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notification>
-{
-    public void Configure(EntityTypeBuilder<Notification> entity)
-    {
+public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notification> {
+    public void Configure(EntityTypeBuilder<Notification> entity) {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("Notification");

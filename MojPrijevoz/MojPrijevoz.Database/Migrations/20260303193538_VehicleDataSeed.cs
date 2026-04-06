@@ -2,16 +2,13 @@
 
 #nullable disable
 
-namespace MojPrijevoz.Database.Migrations
-{
+namespace MojPrijevoz.Database.Migrations {
     /// <inheritdoc />
-    public partial class VehicleDataSeed : Migration
-    {
+    public partial class VehicleDataSeed : Migration {
         private static readonly DateTime _seededAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder) 
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.InsertData(
                 table: "Vehicle",
                 columns: new[] { "Id", "Manufacturer", "Model", "NumberOfSeats", "CreatedAt" },

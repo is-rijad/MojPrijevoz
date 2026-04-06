@@ -9,13 +9,10 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.Fare;
 
-public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, FareInsertRequest, FareResponse, FareSearchObject>, IFareService
-{
-    public FareService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService)
-    {
+public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, FareInsertRequest, FareResponse, FareSearchObject>, IFareService {
+    public FareService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService) {
     }
-    public async Task<bool> HasActiveFareForRoute(int passengerId, HasActiveFareRequest request)
-    {
+    public async Task<bool> HasActiveFareForRoute(int passengerId, HasActiveFareRequest request) {
         var queryable = _dbContext.Fares.Where(it =>
             it.FareDateTime.Date == request.FareDateTime.Date
         );

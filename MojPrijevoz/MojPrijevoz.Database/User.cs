@@ -3,14 +3,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public enum Gender : short
-{
+public enum Gender : short {
     Female = 0,
     Male = 1
 }
 
-public class User : Account
-{
+public class User : Account {
     public string? Picture { get; set; }
 
     public int CityId { get; set; }
@@ -22,10 +20,8 @@ public class User : Account
     public virtual ICollection<UserProfile>? UserProfiles { get; set; }
 }
 
-public class UserEntityConfiguration : IEntityTypeConfiguration<User>
-{
-    public void Configure(EntityTypeBuilder<User> entity)
-    {
+public class UserEntityConfiguration : IEntityTypeConfiguration<User> {
+    public void Configure(EntityTypeBuilder<User> entity) {
         entity.ToTable("User");
         entity.HasBaseType<Account>();
 

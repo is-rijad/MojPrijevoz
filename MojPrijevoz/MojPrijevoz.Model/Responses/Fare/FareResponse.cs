@@ -2,8 +2,7 @@
 
 namespace MojPrijevoz.Model.Responses.Fare;
 
-public class FareResponse
-{
+public class FareResponse {
     public int Id { get; set; }
 
     public int OriginCityId { get; set; }

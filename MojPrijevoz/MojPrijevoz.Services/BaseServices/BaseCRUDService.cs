@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using MapsterMapper;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using MapsterMapper;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Exceptions;
@@ -16,18 +14,15 @@ public abstract class
     where TInsertRequest : class
     where TUpdateRequest : class
     where TResponse : class
-    where TSearchObject : BaseSearchObject
-{
+    where TSearchObject : BaseSearchObject {
     protected readonly AuthorizationService _authorizationService;
 
     public BaseCrudService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) :
-        base(context, mapper)
-    {
+        base(context, mapper) {
         _authorizationService = authorizationService;
     }
 
-    public virtual async Task<TResponse> InsertWithTransactionAsync(TInsertRequest request)
-    {
+    public virtual async Task<TResponse> InsertWithTransactionAsync(TInsertRequest request) {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         var response = await InsertAsync(request);
         await transaction.CommitAsync();
@@ -43,8 +38,7 @@ public abstract class
         return MapToResponseModel<TResponse>(entityEntry.Entity, _mapper);
     }
 
-    public virtual async Task<TResponse> UpdateAsync(int id, TUpdateRequest request)
-    {
+    public virtual async Task<TResponse> UpdateAsync(int id, TUpdateRequest request) {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
         var entity = await _dbContext.Set<TEntity>().FindAsync(id);
@@ -59,8 +53,7 @@ public abstract class
         return MapToResponseModel<TResponse>(entity, _mapper);
     }
 
-    public async Task DeleteAsync(int id)
-    {
+    public async Task DeleteAsync(int id) {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         var dbSet = _dbContext.Set<TEntity>();
         var entity = await _dbContext.Set<TEntity>().FindAsync(id);
@@ -73,42 +66,34 @@ public abstract class
         await _dbContext.SaveChangesAsync();
     }
 
-    protected virtual Task BeforeInsert(TInsertRequest request)
-    {
+    protected virtual Task BeforeInsert(TInsertRequest request) {
         return Task.CompletedTask;
     }
 
-    protected virtual Task AfterInsert(TEntity entity, MojPrijevozDbContext dbContext)
-    {
+    protected virtual Task AfterInsert(TEntity entity, MojPrijevozDbContext dbContext) {
         return Task.CompletedTask;
     }
 
-    protected virtual TEntity MapToInsertEntity(TInsertRequest request)
-    {
+    protected virtual TEntity MapToInsertEntity(TInsertRequest request) {
         return _mapper.Map<TEntity>(request);
     }
 
-    protected virtual Task BeforeUpdate(int id, TUpdateRequest request, TEntity entity)
-    {
+    protected virtual Task BeforeUpdate(int id, TUpdateRequest request, TEntity entity) {
         return Task.CompletedTask;
     }
 
-    protected virtual Task AfterUpdate(TEntity entity, MojPrijevozDbContext dbContext)
-    {
+    protected virtual Task AfterUpdate(TEntity entity, MojPrijevozDbContext dbContext) {
         return Task.CompletedTask;
     }
 
-    protected virtual void MapToUpdateEntity(TUpdateRequest request, TEntity entity)
-    {
+    protected virtual void MapToUpdateEntity(TUpdateRequest request, TEntity entity) {
         _mapper.Map(request, entity);
     }
 
-    protected virtual Task BeforeDelete(int id, TEntity entity)
-    {
+    protected virtual Task BeforeDelete(int id, TEntity entity) {
         return Task.CompletedTask;
     }
 
-    protected virtual void AfterDelete()
-    {
+    protected virtual void AfterDelete() {
     }
 }

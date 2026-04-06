@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public class DriversDiscount
-{
+public class DriversDiscount {
     public int Id { get; set; }
     public int ProfileId { get; set; }
     public float MinKm { get; set; }

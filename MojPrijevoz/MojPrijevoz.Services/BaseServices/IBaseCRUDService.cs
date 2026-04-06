@@ -7,8 +7,7 @@ public interface
         TResponse, TSearchObject> where TInsertRequest : class
     where TUpdateRequest : class
     where TResponse : class
-    where TSearchObject : BaseSearchObject
-{
+    where TSearchObject : BaseSearchObject {
     public Task<TResponse> InsertWithTransactionAsync(TInsertRequest request);
     public Task<TResponse> InsertAsync(TInsertRequest request);
     public Task<TResponse> UpdateAsync(int id, TUpdateRequest request);

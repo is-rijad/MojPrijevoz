@@ -2,7 +2,6 @@
 
 namespace MojPrijevoz.Model.SearchObjects;
 
-public class UserVehicleSearchObject : BaseSearchObject
-{
+public class UserVehicleSearchObject : BaseSearchObject {
     public int ProfileId { get; set; }
 }

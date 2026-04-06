@@ -2,8 +2,7 @@
 
 namespace MojPrijevoz.Model.Responses.SearchFare;
 
-public class SearchFareResponse
-{
+public class SearchFareResponse {
     public int Id { get; set; }
     public int ProfileId { get; set; }
     public string FirstName { get; set; } = null!;
