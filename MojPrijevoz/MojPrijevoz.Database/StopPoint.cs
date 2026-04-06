@@ -6,7 +6,7 @@ namespace MojPrijevoz.Database;
 public class StopPoint {
     public int Id { get; set; }
 
-    public int FareId { get; set; }
+    public int FareDataId { get; set; }
 
     public short Order { get; set; }
 
@@ -14,7 +14,7 @@ public class StopPoint {
 
     public string Lat { get; set; } = null!;
 
-    public virtual Fare? Fare { get; set; }
+    public virtual FareData? FareData { get; set; }
 }
 
 public class StopPointEntityConfiguration : IEntityTypeConfiguration<StopPoint> {
@@ -23,7 +23,7 @@ public class StopPointEntityConfiguration : IEntityTypeConfiguration<StopPoint> 
 
         entity.ToTable("StopPoint");
 
-        entity.HasIndex(e => new { e.FareId, e.Order }).IsUnique();
+        entity.HasIndex(e => new { e.FareDataId, e.Order }).IsUnique();
 
         entity.Property(e => e.Lat)
             .HasMaxLength(16)
@@ -32,8 +32,8 @@ public class StopPointEntityConfiguration : IEntityTypeConfiguration<StopPoint> 
             .HasMaxLength(16)
             .IsUnicode(false);
 
-        entity.HasOne(d => d.Fare).WithMany(p => p.StopPoints)
-            .HasForeignKey(d => d.FareId)
+        entity.HasOne(d => d.FareData).WithMany(p => p.StopPoints)
+            .HasForeignKey(d => d.FareDataId)
             .OnDelete(DeleteBehavior.ClientSetNull);
     }
 }

@@ -30,8 +30,8 @@ public class SearchFareService : ISearchFareService {
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
         var unAvailableDrivers = await _dbContext.Fares.Where(it => it.Status == FareStatus.Accepted)
             .Where(f =>
-                f.FareDateTime.AddMinutes(f.Duration) <= newStart
-                || f.FareDateTime >= newEnd
+                f.FareData!.FareDateTime.AddMinutes(f.FareData.Duration) <= newStart
+                || f.FareData!.FareDateTime >= newEnd
             ).Select(it => it.DriverId).ToListAsync();
         var profilesQuery = _dbContext.UserProfiles.Where(it => it.ProfileType == ProfileType.Driver && it.Id != profileId && !unAvailableDrivers.Contains(it.Id)).AsQueryable();
 

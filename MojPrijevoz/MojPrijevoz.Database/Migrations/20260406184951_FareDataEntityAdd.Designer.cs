@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojPrijevoz.Database;
 
@@ -11,9 +12,11 @@ using MojPrijevoz.Database;
 namespace MojPrijevoz.Database.Migrations
 {
     [DbContext(typeof(MojPrijevozDbContext))]
-    partial class MojPrijevozDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260406184951_FareDataEntityAdd")]
+    partial class FareDataEntityAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -818,6 +821,9 @@ namespace MojPrijevoz.Database.Migrations
                     b.Property<int>("FareDataId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("FareId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("LastOfferId")
                         .HasColumnType("int");
 
@@ -833,6 +839,8 @@ namespace MojPrijevoz.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FareDataId");
+
+                    b.HasIndex("FareId");
 
                     b.HasIndex("LastOfferId");
 
@@ -1162,6 +1170,10 @@ namespace MojPrijevoz.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MojPrijevoz.Database.Fare", null)
+                        .WithMany("FareOffers")
+                        .HasForeignKey("FareId");
+
                     b.HasOne("MojPrijevoz.Database.FareOffer", "LastOffer")
                         .WithMany()
                         .HasForeignKey("LastOfferId");
@@ -1288,6 +1300,8 @@ namespace MojPrijevoz.Database.Migrations
 
             modelBuilder.Entity("MojPrijevoz.Database.Fare", b =>
                 {
+                    b.Navigation("FareOffers");
+
                     b.Navigation("Ratings");
 
                     b.Navigation("StopPoints");

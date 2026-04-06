@@ -11,7 +11,7 @@ public class FareOfferInsertRequest : IValidatableObject {
     [Required][Range(1, int.MaxValue)] public float Duration { get; set; }
 
     [NotMapped] public int PassengerId { get; set; }
-    [NotMapped] public int FareId { get; set; }
+    [NotMapped] public int FareDataId { get; set; }
     [NotMapped] public float Price { get; set; }
     [NotMapped] public int UserVehicleId { get; set; }
 

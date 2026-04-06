@@ -14,7 +14,7 @@ public class City : IHasTimestamps {
     public string Lat { get; set; } = null!;
 
 
-    public virtual ICollection<Fare>? FareOriginCities { get; set; }
+    public virtual ICollection<FareData>? FareDataOriginCities { get; set; }
 
     public virtual ICollection<User>? Users { get; set; }
 

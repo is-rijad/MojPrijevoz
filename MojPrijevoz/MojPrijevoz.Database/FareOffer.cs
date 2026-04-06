@@ -18,15 +18,14 @@ public class FareOffer : IHasCreatedAtTimestamp {
 
     public DateTime CreatedAt { get; set; }
 
-    public int FareId { get; set; }
+    public int FareDataId { get; set; }
     public int UserVehicleId { get; set; }
 
     public int? LastOfferId { get; set; }
 
-    public virtual Fare? Fare { get; set; }
+    public virtual FareData? FareData { get; set; }
     public virtual FareOffer? LastOffer { get; set; }
     public virtual UserVehicle? UserVehicle { get; set; }
-
 }
 
 public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer> {
@@ -35,16 +34,17 @@ public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer> 
 
         entity.ToTable("FareOffer");
 
-        entity.HasOne<Fare>(it => it.Fare)
+        entity.HasOne<FareData>(it => it.FareData)
             .WithMany(it => it.FareOffers)
-            .HasForeignKey(it => it.FareId);
+            .HasForeignKey(it => it.FareDataId);
 
         entity.HasOne<FareOffer>(it => it.LastOffer)
             .WithMany()
             .HasForeignKey(it => it.LastOfferId)
             .IsRequired(false);
+
         entity.HasOne<UserVehicle>(it => it.UserVehicle)
-            .WithMany()
+            .WithMany(it => it.FareOffers)
             .HasForeignKey(it => it.UserVehicleId);
     }
 }
