@@ -20,7 +20,7 @@ class UserResponse extends JsonResponse
   Gender? gender;
   @override
   String? picture;
-
+  String get fullName => "$firstName $lastName";
   UserResponse({
     required this.id,
     required this.firstName,

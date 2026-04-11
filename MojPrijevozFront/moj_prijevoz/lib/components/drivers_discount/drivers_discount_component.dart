@@ -52,8 +52,8 @@ class _DriversDiscountComponent extends State<DriversDiscountComponent> {
       DriversDiscountSearchObject
     >(
       pageSize: _pageSize,
-      buildUpsertDialog: _buildDiscountUpsertDialog,
-      buildDeleteDialog: _buildDiscountDeleteDialog,
+      onTap: _buildDiscountUpsertDialog,
+      onSecondaryOrLongPress: _buildDiscountDeleteDialog,
       searchObject: DriversDiscountSearchObject(page: 1, pageSize: _pageSize),
       header: [
         "Donja granica kilometara",
@@ -61,9 +61,9 @@ class _DriversDiscountComponent extends State<DriversDiscountComponent> {
         "Popust",
       ],
       items: [
-        (i) => "${i.minKm} km",
-        (i) => "${i.maxKm?.toString() ?? "Neograničeno"} km",
-        (i) => "${i.discount}%",
+        (i) => Text("${i.minKm} km"),
+        (i) => Text("${i.maxKm?.toString() ?? "Neograničeno"} km"),
+        (i) => Text("${i.discount}%"),
       ],
     );
   }

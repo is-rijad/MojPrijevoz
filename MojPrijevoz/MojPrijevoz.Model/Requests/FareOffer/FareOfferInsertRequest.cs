@@ -8,13 +8,16 @@ namespace MojPrijevoz.Model.Requests.FareOffer;
 public class FareOfferInsertRequest : IValidatableObject {
     [Required] public int OriginCityId { get; set; }
     [Required] public NominatimCityDto DestinationCity { get; set; } = null!;
+    [Required] public string DestinationName { get; set; } = null!;
     [Required][Range(1, int.MaxValue)] public float Length { get; set; }
     [Required][Range(1, int.MaxValue)] public float Duration { get; set; }
 
     [NotMapped] public int PassengerId { get; set; }
     [NotMapped] public int FareDataId { get; set; }
     [NotMapped] public float Price { get; set; }
+    [NotMapped] public float? AdditionalPrice { get; set; }
     [NotMapped] public int UserVehicleId { get; set; }
+    [NotMapped] public int? LastOfferId { get; set; }
 
     [Required] public ICollection<FareOfferDriverPriceDto> DriversPrices { get; set; } = null!;
     [Required] public IReadOnlyList<StopPointInsertRequest> StopPoints { get; set; } = null!;

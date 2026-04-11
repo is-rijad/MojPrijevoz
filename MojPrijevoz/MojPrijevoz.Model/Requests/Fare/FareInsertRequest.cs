@@ -3,6 +3,5 @@
 public class FareInsertRequest {
     public int? DriverId { get; set; }
     public int PassengerId { get; set; }
-    public float? Price { get; set; }
     public int? FareDataId { get; set; }
 }

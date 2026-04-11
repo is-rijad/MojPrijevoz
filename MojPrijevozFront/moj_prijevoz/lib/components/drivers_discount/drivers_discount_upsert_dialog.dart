@@ -3,7 +3,6 @@ import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/resources/requests/drivers_discount/drivers_discount_upsert_request.dart';
 import 'package:moj_prijevoz/resources/responses/drivers_discount/drivers_discount_response.dart';
 import 'package:moj_prijevoz/widgets/dialogs/upsert_dialog.dart';
-import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 
 class DriversDiscountUpsertDialog
     extends

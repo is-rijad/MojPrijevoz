@@ -785,6 +785,10 @@ namespace MojPrijevoz.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DestinationName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
@@ -812,6 +816,9 @@ namespace MojPrijevoz.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<float?>("AdditionalPrice")
+                        .HasColumnType("real");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -825,6 +832,9 @@ namespace MojPrijevoz.Database.Migrations
                         .HasColumnType("real");
 
                     b.Property<short>("Side")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("Status")
                         .HasColumnType("smallint");
 
                     b.Property<int>("UserVehicleId")
@@ -931,6 +941,12 @@ namespace MojPrijevoz.Database.Migrations
                         .HasMaxLength(16)
                         .IsUnicode(false)
                         .HasColumnType("varchar(16)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(2147483647)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<short>("Order")
                         .HasColumnType("smallint");

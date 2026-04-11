@@ -12,6 +12,7 @@ FareOfferDriverPriceDto _$FareOfferDriverPriceDtoFromJson(
   userVehicleId: (json['userVehicleId'] as num).toInt(),
   driverId: (json['driverId'] as num).toInt(),
   price: (json['price'] as num).toDouble(),
+  additionalPrice: (json['additionalPrice'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$FareOfferDriverPriceDtoToJson(
@@ -20,4 +21,5 @@ Map<String, dynamic> _$FareOfferDriverPriceDtoToJson(
   'driverId': instance.driverId,
   'userVehicleId': instance.userVehicleId,
   'price': instance.price,
+  'additionalPrice': instance.additionalPrice,
 };

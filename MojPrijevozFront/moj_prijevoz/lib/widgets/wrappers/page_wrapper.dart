@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/pages/my_driver_profile/my_driver_profile.dart';
+import 'package:moj_prijevoz/pages/my_fares/my_fares_page.dart';
 import 'package:moj_prijevoz/pages/my_profile.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
@@ -92,6 +93,10 @@ class _PageWrapperState extends State<PageWrapper> {
           value: ProfileDropdownAction.driver,
         ),
         ProfileDropdownItem(
+          text: "Moje vožnje",
+          value: ProfileDropdownAction.fares,
+        ),
+        ProfileDropdownItem(
           text: "Odjava",
           value: ProfileDropdownAction.logout,
         ),
@@ -110,6 +115,13 @@ class _PageWrapperState extends State<PageWrapper> {
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => MyDriverProfile()),
+        );
+        break;
+      case ProfileDropdownAction.fares:
+        if (!context.mounted) return;
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyFaresPage()),
         );
         break;
       case ProfileDropdownAction.logout:

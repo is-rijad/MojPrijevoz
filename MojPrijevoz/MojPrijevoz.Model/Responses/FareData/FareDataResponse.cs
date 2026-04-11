@@ -1,4 +1,8 @@
-﻿namespace MojPrijevoz.Model.Responses.FareData;
+﻿using MojPrijevoz.Model.Responses.City;
+using MojPrijevoz.Model.Responses.FareOffer;
+using MojPrijevoz.Model.Responses.StopPoint;
+
+namespace MojPrijevoz.Model.Responses.FareData;
 
 public class FareDataResponse {
     public int Id { get; set; }
@@ -8,6 +12,7 @@ public class FareDataResponse {
     public string DestinationLat { get; set; } = null!;
 
     public string DestinationLong { get; set; } = null!;
+    public string DestinationName { get; set; } = null!;
 
     public int Length { get; set; }
 
@@ -15,4 +20,7 @@ public class FareDataResponse {
 
     public DateTime FareDateTime { get; set; }
     public DateTime CreatedAt { get; set; }
+    public ICollection<FareOfferResponse> FareOffers { get; set; } = null!;
+    public ICollection<StopPointResponse> StopPoints { get; set; } = null!;
+    public CityResponse? OriginCity { get; set; }
 }

@@ -13,6 +13,7 @@ public class StopPoint {
     public string Long { get; set; } = null!;
 
     public string Lat { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public virtual FareData? FareData { get; set; }
 }
@@ -31,6 +32,9 @@ public class StopPointEntityConfiguration : IEntityTypeConfiguration<StopPoint> 
         entity.Property(e => e.Long)
             .HasMaxLength(16)
             .IsUnicode(false);
+        entity.Property(e => e.Name)
+            .HasMaxLength(int.MaxValue)
+            .IsUnicode(true);
 
         entity.HasOne(d => d.FareData).WithMany(p => p.StopPoints)
             .HasForeignKey(d => d.FareDataId)

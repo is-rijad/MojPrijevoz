@@ -6,8 +6,15 @@ part of 'stop_point_dto.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-StopPointDto _$StopPointDtoFromJson(Map<String, dynamic> json) =>
-    StopPointDto(lat: json['lat'] as String, long: json['long'] as String);
+StopPointDto _$StopPointDtoFromJson(Map<String, dynamic> json) => StopPointDto(
+  lat: json['lat'] as String,
+  long: json['long'] as String,
+  name: json['name'] as String,
+);
 
 Map<String, dynamic> _$StopPointDtoToJson(StopPointDto instance) =>
-    <String, dynamic>{'lat': instance.lat, 'long': instance.long};
+    <String, dynamic>{
+      'lat': instance.lat,
+      'long': instance.long,
+      'name': instance.name,
+    };

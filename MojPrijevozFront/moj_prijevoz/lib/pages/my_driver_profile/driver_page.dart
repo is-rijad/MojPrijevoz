@@ -28,11 +28,12 @@ class _DriverPageState extends State<DriverPage> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // TODO: Change to actual number of fares
             children: [const Text("Broj vožnji"), const Text("0")],
           ),
           SizedBox(height: 20),
           UserVehiclesComponent(profileId: widget.profileId),
-          DriversDiscountComponent(profileId: widget.profileId)
+          DriversDiscountComponent(profileId: widget.profileId),
         ],
       ),
     );

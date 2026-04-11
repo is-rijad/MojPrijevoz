@@ -72,7 +72,7 @@ class AuthProvider with ChangeNotifier {
     return parseJson<AccessTokenPayload>(payload);
   }
 
-  Future<int?> _getProfileId(ProfileType profileType) async {
+  Future<int?> getProfileId(ProfileType profileType) async {
     var payload = await getPayload();
     return profileType == ProfileType.passenger
         ? payload.passengerProfileId

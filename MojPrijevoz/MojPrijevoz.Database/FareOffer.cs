@@ -4,17 +4,21 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public enum FareOfferSide : short {
-    Driver = 0,
-    Passenger = 1
+public enum FareOfferStatus : short {
+    Rejected = 0,
+    Accepted = 1,
+    WaitingForResponse = 2,
+    Expired = 3
 }
 
 public class FareOffer : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
-    public FareOfferSide Side { get; set; }
+    public ProfileType Side { get; set; }
+    public FareOfferStatus Status { get; set; }
 
     public float Price { get; set; }
+    public float? AdditionalPrice { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

@@ -63,7 +63,7 @@ class HttpProvider {
 
   Future<TResponse> post<TRequest extends JsonParsable, TResponse>(
     String url,
-    TRequest request, {
+    TRequest? request, {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
@@ -73,7 +73,7 @@ class HttpProvider {
 
       var response = await _dio.post(
         "$_apiUrl$url",
-        data: request.toJson(),
+        data: request?.toJson(),
         options: options,
         queryParameters: queryParameters,
       );

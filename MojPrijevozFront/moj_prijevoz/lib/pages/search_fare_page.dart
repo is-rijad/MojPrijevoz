@@ -30,9 +30,9 @@ import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search
 import 'package:moj_prijevoz/resources/search_objects/search_fare/search_fare_driver_search_object.dart';
 import 'package:moj_prijevoz/resources/search_objects/search_fare/search_fare_search_object.dart';
 import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
-import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
-import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
 import 'package:moj_prijevoz/widgets/date_time/date_time_picker_form_field.dart';
+import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
+import 'package:moj_prijevoz/widgets/dialogs/general_dialog.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
@@ -609,10 +609,97 @@ class _SearchFarePageState extends State<SearchFarePage> {
                 ),
               ],
             ),
+            SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () => _buildNegotiationDialog(driver.profileId),
+              child: const Text("Uredi ponudu"),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future _buildNegotiationDialog(int profileId) async {
+    var fareDriver = context.read<SearchFareProvider>().fareDrivers[profileId];
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return GeneralDialog<SearchFareDriverResponse, dynamic>(
+          title: "Uređivanje ponude",
+          onSubmit: () async => true,
+          submitButtonTitle: "Nastavi",
+          entity: fareDriver,
+          buildContent: _buildNegotiationDialogContent,
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildNegotiationDialogContent(
+    BuildContext context,
+    SearchFareDriverResponse fareDriver,
+  ) {
+    var price = fareDriver.price;
+    var additionalPrice = fareDriver.additionalPrice;
+    return [
+      Row(
+        spacing: 20,
+        children: [
+          Icon(Icons.price_change),
+          Expanded(
+            child: TextFormField(
+              initialValue: price.toString(),
+              keyboardType: TextInputType.numberWithOptions(
+                signed: true,
+                decimal: true,
+              ),
+              validator: (value) {
+                if (value == null ||
+                    value.isEmpty ||
+                    double.tryParse(value) == null ||
+                    double.parse(value) < 0) {
+                  return "Unos nije validan!";
+                }
+              },
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onChanged: (value) => setState(() {
+                price = double.tryParse(value) ?? 0;
+              }),
+              onSaved: (value) => setState(() {
+                fareDriver.price = price;
+              }),
+            ),
+          ),
+          Icon(Icons.add),
+          Expanded(
+            child: TextFormField(
+              keyboardType: TextInputType.numberWithOptions(
+                signed: true,
+                decimal: true,
+              ),
+              validator: (value) {
+                if (value == null ||
+                    value.isEmpty ||
+                    double.tryParse(value) == null ||
+                    double.parse(value) < 0) {
+                  return "Unos nije validan!";
+                }
+              },
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onChanged: (value) => setState(() {
+                additionalPrice = double.tryParse(value);
+              }),
+              initialValue: additionalPrice?.toString() ?? "0.0",
+              onSaved: (value) => setState(() {
+                fareDriver.additionalPrice = additionalPrice;
+              }),
+            ),
+          ),
+          Text("KM*"),
+        ],
+      ),
+    ];
   }
 
   Widget _buildSummary() {
@@ -707,21 +794,11 @@ class _SearchFarePageState extends State<SearchFarePage> {
   }
 
   Widget _buildConfirmationDialog(BuildContext context) {
-    return AlertDialog(
-      title: const Text("Pošaljite zahtjeve izabranim vozačima"),
+    return ConfirmationDialog(
       content: const Text(
         "Da li ste sigurni da želite poslati zahtjeve izabranim vozačima?",
       ),
-      actions: [
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("Ne"),
-        ),
-        ElevatedButton(
-          onPressed: () => _sendFareOffers(),
-          child: const Text("Da"),
-        ),
-      ],
+      onSubmit: () => _sendFareOffers(),
     );
   }
 
@@ -731,6 +808,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
       destinationCity: NominatimCityDto.fromNominatimResponse(
         _request.finalLocation!,
       ),
+      destinationName: _request.finalLocation!.displayName,
       length: _searchFareSearchObject.distance!,
       duration: _searchFareSearchObject.duration!,
       driversPrices: _selectedDrivers.entries
@@ -738,7 +816,8 @@ class _SearchFarePageState extends State<SearchFarePage> {
             (it) => FareOfferDriverPriceDto(
               userVehicleId: it.value.userVehicleId,
               driverId: it.value.id,
-              price: (it.value.price + (it.value.additionalPrice ?? 0)),
+              price: it.value.price,
+              additionalPrice: it.value.additionalPrice,
             ),
           )
           .toList(),
@@ -747,6 +826,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
           .where((it) => it.locationBound != null)
           .map(
             (it) => StopPointDto(
+              name: it.locationBound!.displayName,
               lat: it.locationBound!.lat,
               long: it.locationBound!.lon,
             ),

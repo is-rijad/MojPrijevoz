@@ -38,9 +38,14 @@ public abstract class
         return MapToResponseModel<TResponse>(entityEntry.Entity, _mapper);
     }
 
-    public virtual async Task<TResponse> UpdateAsync(int id, TUpdateRequest request) {
+    public virtual async Task<TResponse> UpdateWithTransactionAsync(int id, TUpdateRequest request) {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        var response = await UpdateAsync(id, request);
+        await transaction.CommitAsync();
+        return response;
+    }
 
+    public virtual async Task<TResponse> UpdateAsync(int id, TUpdateRequest request) {
         var entity = await _dbContext.Set<TEntity>().FindAsync(id);
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
@@ -48,7 +53,6 @@ public abstract class
         MapToUpdateEntity(request, entity);
         await _dbContext.SaveChangesAsync();
         await AfterUpdate(entity, _dbContext);
-        await transaction.CommitAsync();
         await PrepareForResponse(entity, _dbContext);
         return MapToResponseModel<TResponse>(entity, _mapper);
     }

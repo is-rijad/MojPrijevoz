@@ -8,9 +8,16 @@ part of 'fare_search_object.dart';
 
 FareSearchObject _$FareSearchObjectFromJson(Map<String, dynamic> json) =>
     FareSearchObject(
+      fareRole: $enumDecode(_$ProfileTypeEnumMap, json['fareRole']),
       page: (json['page'] as num).toInt(),
       pageSize: (json['pageSize'] as num).toInt(),
     );
 
 Map<String, dynamic> _$FareSearchObjectToJson(FareSearchObject instance) =>
-    <String, dynamic>{'page': instance.page, 'pageSize': instance.pageSize};
+    <String, dynamic>{
+      'page': instance.page,
+      'pageSize': instance.pageSize,
+      'fareRole': _$ProfileTypeEnumMap[instance.fareRole]!,
+    };
+
+const _$ProfileTypeEnumMap = {ProfileType.passenger: 0, ProfileType.driver: 1};

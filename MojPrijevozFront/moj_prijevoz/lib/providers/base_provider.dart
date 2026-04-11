@@ -11,7 +11,7 @@ abstract class BaseGetProvider<
   TSearchObject extends BaseSearchObject
 >
     with ChangeNotifier {
-  final _httpProvider = GetIt.I<HttpProvider>();
+  final httpProvider = GetIt.I<HttpProvider>();
   final _uiProvider = GetIt.I<UIProvider>();
 
   final String providerName;
@@ -24,7 +24,7 @@ abstract class BaseGetProvider<
     int id, {
     Map<String, dynamic>? queryParameters,
   }) async {
-    return await _httpProvider.getSingle<TResponse>(
+    return await httpProvider.getSingle<TResponse>(
       providerName,
       id: id,
       queryParameters: queryParameters,
@@ -33,7 +33,7 @@ abstract class BaseGetProvider<
 
   Future<SearchResult<TResponse>> _getAll(TSearchObject search) async {
     _uiProvider.disableLoading();
-    return await _httpProvider.getAll<TResponse, TSearchObject>(
+    return await httpProvider.getAll<TResponse, TSearchObject>(
       providerName,
       search,
     );
@@ -47,6 +47,9 @@ abstract class BaseGetProvider<
   }
 
   Future<void> fetchData(TSearchObject searchObject) async {
+    if (searchObject.page == 0 || searchObject.page == 1) {
+      _searchResult.items.clear();
+    }
     final newItems = await _getAll(searchObject);
     newItems.copyTo(_searchResult);
     searchObject.page++;
@@ -73,7 +76,7 @@ abstract class BaseProvider<
   BaseProvider({required super.providerName});
 
   Future<TResponse> insert(TInsertRequest request) async {
-    return await _httpProvider.post<TInsertRequest, TResponse>(
+    return await httpProvider.post<TInsertRequest, TResponse>(
       providerName,
       request,
     );
@@ -87,7 +90,7 @@ abstract class BaseProvider<
   }
 
   Future<TResponse> update(int id, TUpdateRequest request) async {
-    return await _httpProvider.put<TUpdateRequest, TResponse>(
+    return await httpProvider.put<TUpdateRequest, TResponse>(
       providerName,
       id,
       request,
@@ -108,7 +111,7 @@ abstract class BaseProvider<
   }
 
   Future<void> delete(int id) async {
-    await _httpProvider.delete(providerName, id);
+    await httpProvider.delete(providerName, id);
   }
 
   Future<void> deleteWithEvent(int id) async {

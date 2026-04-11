@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
@@ -14,10 +15,10 @@ class PaginatedTable<
   final int? pageSize;
   final TSearchObject searchObject;
   final List<String> header;
-  final List<String Function(T)> items;
+  final List<Widget Function(T)> items;
 
-  final Future<void> Function(T? selectedItem)? buildUpsertDialog;
-  final Future<void> Function(T selectedItem)? buildDeleteDialog;
+  final Future<void> Function(T? selectedItem)? onTap;
+  final Future<void> Function(T selectedItem)? onSecondaryOrLongPress;
 
   const PaginatedTable({
     super.key,
@@ -25,8 +26,8 @@ class PaginatedTable<
     required this.searchObject,
     required this.header,
     required this.items,
-    this.buildUpsertDialog,
-    this.buildDeleteDialog,
+    this.onTap,
+    this.onSecondaryOrLongPress,
   });
 
   @override
@@ -40,19 +41,19 @@ class _PaginatedTableState<
   TSearchObject extends BaseSearchObject
 >
     extends State<PaginatedTable<T, TProvider, TSearchObject>> {
-  final _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoading = false;
 
-  final bool _isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    _scrollController.addListener(_scrollListener);
-    super.initState();
   }
 
   void _scrollListener() {
@@ -63,22 +64,20 @@ class _PaginatedTableState<
   }
 
   Future<void> _fetchData() async {
-    if (_isLoading || !context.read<TProvider>().searchResult.hasMore) return;
+    final provider = context.read<TProvider>();
+    if (_isLoading || !provider.searchResult.hasMore) return;
 
     setState(() {
-      _isLoading == true;
+      _isLoading = true;
     });
-    await context.read<TProvider>().fetchData(widget.searchObject);
+
+    await provider.fetchData(widget.searchObject);
+
     if (mounted) {
       setState(() {
-        _isLoading == false;
+        _isLoading = false;
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init);
   }
 
   Future<bool> _init() async {
@@ -86,68 +85,72 @@ class _PaginatedTableState<
     return true;
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init);
+  }
+
   Widget _build(BuildContext context) {
     final searchResult = context.watch<TProvider>().searchResult;
-    return Flexible(
-      fit: FlexFit.loose,
-      child: Column(
-        children: [
-          Table(
-            border: TableBorder.all(color: Colors.grey.shade300),
-            children: [
-              TableRow(
-                decoration: BoxDecoration(color: Color(0xFFEFEFEF)),
-                children: widget.header.map((i) {
-                  return Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      i,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-          Flexible(
-            fit: FlexFit.loose,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Table(
-                border: TableBorder.all(color: Colors.grey.shade200),
-                children: searchResult.items
-                    .map((item) => _buildRow(context, item as T))
-                    .toList(),
-              ),
-            ),
-          ),
 
-          if (searchResult.hasMore)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: constraints.maxWidth,
+              minHeight: constraints.maxHeight,
             ),
-        ],
-      ),
+            child: SizedBox(
+              height: constraints.maxHeight,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                scrollDirection: Axis.vertical,
+                child: DataTable(
+                  headingRowHeight: 56,
+                  dataRowMaxHeight: 56,
+                  columns: widget.header
+                      .map(
+                        (h) => DataColumn(
+                          label: Text(
+                            h,
+                            style: TextStyle(color: context.primaryColor),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  rows: searchResult.items.map((item) {
+                    return DataRow(
+                      cells: widget.items.map((method) {
+                        return DataCell(
+                          MouseRegion(
+                            cursor: _hasClick()
+                                ? SystemMouseCursors.click
+                                : SystemMouseCursors.basic,
+                            child: GestureDetector(
+                              onTap: () => widget.onTap?.call(item),
+                              onSecondaryTap: () =>
+                                  widget.onSecondaryOrLongPress?.call(item),
+                              onLongPress: () =>
+                                  widget.onSecondaryOrLongPress?.call(item),
+                              child: method(item as T),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
-  TableRow _buildRow(BuildContext context, T item) {
-    return TableRow(
-      children: widget.items
-          .map(
-            (method) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GestureDetector(
-                onTap: () => widget.buildUpsertDialog?.call(item),
-                onSecondaryTap: () => widget.buildDeleteDialog?.call(item),
-                onLongPress: () => widget.buildDeleteDialog?.call(item),
-                child: Text(method(item), textAlign: TextAlign.center),
-              ),
-            ),
-          )
-          .toList(),
-    );
+  bool _hasClick() {
+    return widget.onTap != null;
   }
 }

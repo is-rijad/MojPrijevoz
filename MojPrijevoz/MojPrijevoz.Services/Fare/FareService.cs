@@ -1,6 +1,7 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
+using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Responses.Fare;
 using MojPrijevoz.Model.SearchObjects;
@@ -24,5 +25,40 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         
         
         return await queryable.AnyAsync();
+    }
+
+    public override async Task<IQueryable<Database.Fare>> ApplyFilter(IQueryable<Database.Fare> queryable, FareSearchObject searchObject)
+    {
+        queryable = await base.ApplyFilter(queryable, searchObject);
+        var profileId = await _authorizationService.GetProfileId(searchObject.FareRole);
+
+        if (profileId == null)
+            throw new BadRequestException("Profil nije pronađen!");
+
+        if (searchObject.FareRole == ProfileType.Driver)
+        {
+            queryable = queryable.Where(it => it.DriverId == profileId);
+        }
+        else if (searchObject.FareRole == ProfileType.Passenger)
+        {
+            queryable = queryable.Where(it => it.PassengerId == profileId);
+        }
+        return queryable;
+    }
+
+    public override async Task<IQueryable<Database.Fare>> IncludeAdditionalEntities(IQueryable<Database.Fare> queryable)
+    {
+        queryable = await base.IncludeAdditionalEntities(queryable);
+        queryable = queryable.Include(it => it.FareData)
+            .ThenInclude(it => it!.OriginCity)
+            .Include(it => it.FareData)
+            .ThenInclude(it => it!.FareOffers)
+            .Include(it => it.Driver)
+            .ThenInclude(it => it!.User)
+            .Include(it => it.Passenger)
+            .ThenInclude(it => it!.User)
+            .Include(it => it.FareData)
+            .ThenInclude(it => it!.StopPoints);
+        return queryable;
     }
 }

@@ -22,7 +22,7 @@ class FormWrapper extends StatelessWidget {
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: padding, vertical: 0),
           child: SizedBox(
-            width: context.screenWidth * 0.7,
+            width: context.screenWidth * 0.5,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: mainAxisAlignment,

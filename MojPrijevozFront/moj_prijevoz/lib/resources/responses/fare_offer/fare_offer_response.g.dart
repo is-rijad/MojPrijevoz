@@ -10,7 +10,9 @@ FareOfferResponse _$FareOfferResponseFromJson(Map<String, dynamic> json) =>
     FareOfferResponse(
       id: (json['id'] as num).toInt(),
       side: $enumDecode(_$FareOfferSideEnumMap, json['side']),
+      status: $enumDecode(_$FareOfferStatusEnumMap, json['status']),
       price: (json['price'] as num).toDouble(),
+      additionalPrice: (json['additionalPrice'] as num?)?.toDouble(),
       createdAt: DateTime.parse(json['createdAt'] as String),
       fareId: (json['fareId'] as num).toInt(),
       lastOfferId: (json['lastOfferId'] as num?)?.toInt(),
@@ -23,7 +25,9 @@ Map<String, dynamic> _$FareOfferResponseToJson(FareOfferResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
       'side': _$FareOfferSideEnumMap[instance.side]!,
+      'status': _$FareOfferStatusEnumMap[instance.status]!,
       'price': instance.price,
+      'additionalPrice': instance.additionalPrice,
       'createdAt': instance.createdAt.toIso8601String(),
       'fareId': instance.fareId,
       'lastOfferId': instance.lastOfferId,
@@ -33,4 +37,10 @@ Map<String, dynamic> _$FareOfferResponseToJson(FareOfferResponse instance) =>
 const _$FareOfferSideEnumMap = {
   FareOfferSide.passenger: 0,
   FareOfferSide.driver: 1,
+};
+
+const _$FareOfferStatusEnumMap = {
+  FareOfferStatus.rejected: 0,
+  FareOfferStatus.accepted: 1,
+  FareOfferStatus.waitingForResponse: 2,
 };

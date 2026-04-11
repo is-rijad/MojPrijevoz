@@ -7,9 +7,9 @@ namespace MojPrijevoz.WebApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class FareOfferController : ControllerBase {
-    private readonly FareOfferService _fareOfferService;
+    private readonly IFareOfferService _fareOfferService;
 
-    public FareOfferController(FareOfferService fareOfferService) {
+    public FareOfferController(IFareOfferService fareOfferService) {
         _fareOfferService = fareOfferService;
     }
 
@@ -17,4 +17,26 @@ public class FareOfferController : ControllerBase {
     public async Task<IActionResult> Post([FromBody] FareOfferInsertRequest request) {
         return Ok(await _fareOfferService.InsertWithTransactionAsync(request));
     }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Put(int id, [FromBody] FareOfferUpdateRequest request) {
+        return Ok(await _fareOfferService.UpdateAsync(id, request));
+    }
+
+
+    [HttpPost("{id}/accept")]
+    public async Task<IActionResult> Accept(int id) {
+        return Ok(await _fareOfferService.AcceptOfferAsync(id));
+    }
+
+    [HttpPost("{id}/reject")]
+    public async Task<IActionResult> Reject(int id) {
+        return Ok(await _fareOfferService.RejectOfferAsync(id));
+    }
+
+    [HttpGet("{id}/allowed")]
+    public async Task<IActionResult> Allowed(int id) {
+        return Ok(await _fareOfferService.AllowedActions(id));
+    }
+
 }

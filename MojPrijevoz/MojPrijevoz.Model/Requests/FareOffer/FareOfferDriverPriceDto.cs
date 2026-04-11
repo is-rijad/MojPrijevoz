@@ -9,6 +9,7 @@ public class FareOfferDriverPriceDto {
     [Required]
 
     public float Price { get; set; }
+    public float? AdditionalPrice { get; set; }
     [Required]
 
     public int UserVehicleId { get; set; }

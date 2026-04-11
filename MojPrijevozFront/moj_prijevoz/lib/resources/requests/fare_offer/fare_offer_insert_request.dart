@@ -10,6 +10,7 @@ part 'fare_offer_insert_request.g.dart';
 class FareOfferInsertRequest extends JsonRequest {
   final int originCityId;
   final NominatimCityDto destinationCity;
+  final String destinationName;
   final double length;
   final double duration;
   final List<FareOfferDriverPriceDto> driversPrices;
@@ -24,6 +25,7 @@ class FareOfferInsertRequest extends JsonRequest {
     required this.driversPrices,
     this.stopPoints,
     required this.fareDateTime,
+    required this.destinationName,
   });
 
   @override

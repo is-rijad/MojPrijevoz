@@ -1,1 +1,1 @@
-enum ProfileDropdownAction { profile, driver, logout }
+enum ProfileDropdownAction { profile, driver, fares, logout }

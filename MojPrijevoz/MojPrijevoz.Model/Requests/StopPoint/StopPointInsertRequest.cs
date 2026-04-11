@@ -11,4 +11,7 @@ public class StopPointInsertRequest
     public string Lat { get; set; } = null!;
     [Required]
     public string Long { get; set; } = null!;
+
+    [Required]
+    public string Name { get; set; } = null!;
 }
