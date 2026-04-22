@@ -20,7 +20,6 @@ public class FareData : IHasCreatedAtTimestamp
     public DateTime FareDateTime { get; set; }
     public virtual City? OriginCity { get; set; }
     public virtual Fare? Fare { get; set; }
-    public virtual ICollection<FareOffer>? FareOffers { get; set; }
     public virtual ICollection<StopPoint>? StopPoints { get; set; }
 
     public DateTime CreatedAt { get; set; }

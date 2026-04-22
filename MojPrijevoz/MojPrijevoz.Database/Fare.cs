@@ -1,32 +1,38 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
 public enum FareStatus : short {
-    WaitingForNegotiation = 0,
-    Pending = 1,
-    Accepted = 2,
-    Rejected = 3,
-    Cancelled = 4,
-    Completed = 5
+    InNegotiation = 0,
+    Accepted = 1,
+    Rejected = 2,
+    Cancelled = 3,
+    Completed = 4,
+    Expired = 5,
+    InProgress = 6
 }
 
 public class Fare : IHasCreatedAtTimestamp {
     public int Id { get; set; }
 
-    public FareStatus Status { get; set; } = FareStatus.WaitingForNegotiation;
+    public FareStatus Status { get; set; } = FareStatus.InNegotiation;
     public int FareDataId { get; set; }
+    public int? UserVehicleId { get; set; }
 
     public int DriverId { get; set; }
 
     public int PassengerId { get; set; }
+    public DateTime? FareStartAfter { get; set; }
     public virtual ICollection<Rating>? Ratings { get; set; }
 
     public virtual ICollection<Transaction>? Transactions { get; set; }
     public virtual FareData? FareData { get; set; }
     public virtual UserProfile? Driver { get; set; }
+    public virtual ICollection<FareOffer>? FareOffers { get; set; }
+    public virtual UserVehicle? UserVehicle { get; set; }
 
     public virtual UserProfile? Passenger { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -54,5 +60,10 @@ public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
             .WithMany(p => p.FarePassengers)
             .HasForeignKey(d => d.PassengerId)
             .OnDelete(DeleteBehavior.ClientSetNull);
+
+
+        entity.HasOne<UserVehicle>(it => it.UserVehicle)
+            .WithMany(it => it.Fares)
+            .HasForeignKey(it => it.UserVehicleId);
     }
 }

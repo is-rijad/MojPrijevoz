@@ -1,31 +1,57 @@
 import 'package:moj_prijevoz/providers/base_provider.dart';
+import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/requests/fare_offer/fare_offer_insert_request.dart';
 import 'package:moj_prijevoz/resources/requests/fare_offer/fare_offer_update_request.dart';
-import 'package:moj_prijevoz/resources/responses/fare_offer/fare_offer_response.dart';
+import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/fare_offer/fare_offer_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 class FareOfferProvider
     extends
         BaseProvider<
-          FareOfferResponse,
+          FareResponse,
           FareOfferSearchObject,
           FareOfferInsertRequest,
           FareOfferUpdateRequest
         > {
-  FareOfferProvider() : super(providerName: "fareoffer");
+  final FareProvider fareProvider;
+  FareOfferProvider({required this.fareProvider})
+    : super(providerName: "fareoffer");
 
-  Future<FareOfferResponse> accept(int id) async {
-    return await httpProvider.post<JsonParsable, FareOfferResponse>(
+  @override
+  Future<FareResponse> updateWithEvent(
+    int id,
+    FareOfferUpdateRequest request,
+  ) async {
+    final updatedItem = await super.update(id, request);
+    fareProvider.updateLocally(updatedItem);
+    return updatedItem;
+  }
+
+  Future<FareResponse> accept(int id) async {
+    return await httpProvider.post<JsonParsable, FareResponse>(
       "$providerName/$id/accept",
       null,
     );
   }
 
-  Future<FareOfferResponse> reject(int id) async {
-    return await httpProvider.post<JsonParsable, FareOfferResponse>(
+  Future<FareResponse> acceptWithEvent(int id) async {
+    final acceptedItem = await accept(id);
+    fareProvider.updateLocally(acceptedItem);
+    return acceptedItem;
+  }
+
+  Future<FareResponse> reject(int id) async {
+    return await httpProvider.post<JsonParsable, FareResponse>(
       "$providerName/$id/reject",
       null,
     );
+  }
+
+  Future<FareResponse> rejectWithEvent(int id) async {
+    final rejectedItem = await reject(id);
+    fareProvider.updateLocally(rejectedItem);
+
+    return rejectedItem;
   }
 }

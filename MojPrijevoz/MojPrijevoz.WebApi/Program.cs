@@ -4,6 +4,7 @@ using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.City;
 using MojPrijevoz.Services.DriversDiscount;
 using MojPrijevoz.Services.Fare;
+using MojPrijevoz.Services.Fare.StateMachine;
 using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer;
 using MojPrijevoz.Services.FareOffer.StateMachine;
@@ -14,6 +15,7 @@ using MojPrijevoz.Services.User;
 using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json").AddUserSecrets<Program>();
@@ -24,6 +26,9 @@ builder.Services.AddControllers(config =>
 {
     config.ConfigureControllerAuthorization();
     config.Filters.Add<ExceptionFilter>();
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -54,7 +59,14 @@ builder.Services.AddTransient<IOpenRouteService, OpenRouteService>();
 
 
 builder.Services.AddTransient<BaseFareOfferState>();
-builder.Services.AddTransient<InitialFareOfferState>();
+builder.Services.AddTransient<InitialFareOfferState>(); 
+builder.Services.AddTransient<InNegotiationFareOfferState>(); 
+
+
+builder.Services.AddTransient<BaseFareState>();
+builder.Services.AddTransient<InitialFareState>();
+builder.Services.AddTransient<InNegotiationFareState>();
+builder.Services.AddTransient<AcceptedFareState>();
 
 
 var app = builder.Build();

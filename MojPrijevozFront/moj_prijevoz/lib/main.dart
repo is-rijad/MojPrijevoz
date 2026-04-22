@@ -42,8 +42,11 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
     ChangeNotifierProvider(create: (_) => DriversDiscountProvider()),
     ChangeNotifierProvider(create: (_) => NominatimProvider()),
     ChangeNotifierProvider(create: (_) => SearchFareProvider()),
-    ChangeNotifierProvider(create: (_) => FareOfferProvider()),
     ChangeNotifierProvider(create: (_) => FareProvider()),
+    ChangeNotifierProvider(
+      create: (context) =>
+          FareOfferProvider(fareProvider: context.read<FareProvider>()),
+    ),
   ];
 }
 

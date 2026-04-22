@@ -19,7 +19,7 @@ public class UserVehicle {
 
     public int ModelYear { get; set; }
 
-    public float FuelConsumption { get; set; }
+    public string LicensePlate { get; set; } = null!;
 
     public float PricePerKm { get; set; }
 
@@ -27,7 +27,7 @@ public class UserVehicle {
 
     public UserVehicleStatus Status { get; set; } = UserVehicleStatus.WaitingForReview;
 
-    public virtual ICollection<FareOffer>? FareOffers { get; set; }
+    public virtual ICollection<Fare>? Fares { get; set; }
 
     public virtual UserProfile? Profile { get; set; }
 
@@ -42,6 +42,10 @@ public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehic
 
         entity.Property(e => e.Picture)
             .HasMaxLength(64)
+            .IsUnicode(false);
+
+        entity.Property(e => e.LicensePlate)
+            .HasMaxLength(9)
             .IsUnicode(false);
 
         entity.HasIndex(e => new { e.ProfileId, e.VehicleId, e.ModelYear }).IsUnique();

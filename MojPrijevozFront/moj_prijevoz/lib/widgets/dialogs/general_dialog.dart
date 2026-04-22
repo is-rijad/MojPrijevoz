@@ -93,7 +93,7 @@ class _GeneralDialogState<TResponse, TRequest>
           ),
         if (widget.buildButtons != null) ...widget.buildButtons!.call(),
         ElevatedButton(
-          onPressed: () => _submitForm(),
+          onPressed: () async => await _submitForm(),
           child: Text(widget.submitButtonTitle),
         ),
       ],

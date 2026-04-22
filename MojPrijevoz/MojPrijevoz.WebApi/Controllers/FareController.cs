@@ -20,4 +20,13 @@ public class FareController : ControllerBase {
         return Ok(await _fareService.GetAsync(searchObject));
     }
 
+
+    [HttpPost("{id}/start")]
+    public async Task<IActionResult> Start(int id) {
+        return Ok(await _fareService.StartAsync(id));
+    }
+    [HttpGet("next")]
+    public async Task<IActionResult> GetNextAcceptedFaresAsync([FromQuery] FareSearchObject searchObject) {
+        return Ok(await _fareService.GetNextAcceptedFaresAsync(searchObject));
+    }
 }

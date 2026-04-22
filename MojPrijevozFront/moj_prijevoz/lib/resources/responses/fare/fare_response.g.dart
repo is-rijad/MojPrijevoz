@@ -22,6 +22,18 @@ FareResponse _$FareResponseFromJson(Map<String, dynamic> json) => FareResponse(
   passenger: json['passenger'] == null
       ? null
       : UserProfileResponse.fromJson(json['passenger'] as Map<String, dynamic>),
+  fareOffers: (json['fareOffers'] as List<dynamic>)
+      .map((e) => FareOfferResponse.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  fareStartAfter: json['fareStartAfter'] == null
+      ? null
+      : DateTime.parse(json['fareStartAfter'] as String),
+  userVehicleId: (json['userVehicleId'] as num).toInt(),
+  userVehicle: json['userVehicle'] == null
+      ? null
+      : UserVehicleResponse.fromJson(
+          json['userVehicle'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$FareResponseToJson(FareResponse instance) =>
@@ -31,17 +43,22 @@ Map<String, dynamic> _$FareResponseToJson(FareResponse instance) =>
       'driverId': instance.driverId,
       'passengerId': instance.passengerId,
       'fareDataId': instance.fareDataId,
+      'userVehicleId': instance.userVehicleId,
       'createdAt': instance.createdAt.toIso8601String(),
+      'fareStartAfter': instance.fareStartAfter?.toIso8601String(),
       'fareData': instance.fareData,
       'driver': instance.driver,
       'passenger': instance.passenger,
+      'fareOffers': instance.fareOffers,
+      'userVehicle': instance.userVehicle,
     };
 
 const _$FareStatusEnumMap = {
-  FareStatus.waitingForNegotiation: 0,
-  FareStatus.pending: 1,
-  FareStatus.accepted: 2,
-  FareStatus.rejected: 3,
-  FareStatus.cancelled: 4,
-  FareStatus.completed: 5,
+  FareStatus.inNegotiation: 0,
+  FareStatus.accepted: 1,
+  FareStatus.rejected: 2,
+  FareStatus.cancelled: 3,
+  FareStatus.completed: 4,
+  FareStatus.expired: 5,
+  FareStatus.inProgress: 6,
 };

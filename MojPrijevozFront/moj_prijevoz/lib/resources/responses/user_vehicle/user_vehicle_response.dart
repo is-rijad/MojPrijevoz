@@ -11,7 +11,7 @@ class UserVehicleResponse extends JsonResponse {
   final int vehicleId;
   final int profileId;
   final int modelYear;
-  final double fuelConsumption;
+  final String licensePlate;
   final double pricePerKm;
   final String? picture;
   final UserVehicleStatus status;
@@ -21,7 +21,7 @@ class UserVehicleResponse extends JsonResponse {
     required this.id,
     required this.vehicleId,
     required this.modelYear,
-    required this.fuelConsumption,
+    required this.licensePlate,
     required this.pricePerKm,
     this.picture,
     required this.status,

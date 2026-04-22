@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
@@ -12,11 +14,10 @@ abstract class BaseGetProvider<
 >
     with ChangeNotifier {
   final httpProvider = GetIt.I<HttpProvider>();
-  final _uiProvider = GetIt.I<UIProvider>();
+  final uiProvider = GetIt.I<UIProvider>();
 
   final String providerName;
-  final _searchResult = SearchResult<TResponse>();
-  SearchResult<TResponse> get searchResult => _searchResult;
+  final searchResult = SearchResult<TResponse>();
 
   BaseGetProvider({required this.providerName});
 
@@ -32,7 +33,7 @@ abstract class BaseGetProvider<
   }
 
   Future<SearchResult<TResponse>> _getAll(TSearchObject search) async {
-    _uiProvider.disableLoading();
+    uiProvider.disableLoading();
     return await httpProvider.getAll<TResponse, TSearchObject>(
       providerName,
       search,
@@ -40,18 +41,18 @@ abstract class BaseGetProvider<
   }
 
   void clearData(TSearchObject searchObject) {
-    _searchResult.items.clear();
-    _searchResult.hasMore = true;
+    searchResult.items.clear();
+    searchResult.hasMore = true;
     searchObject.page = 1;
     notifyListeners();
   }
 
   Future<void> fetchData(TSearchObject searchObject) async {
     if (searchObject.page == 0 || searchObject.page == 1) {
-      _searchResult.items.clear();
+      searchResult.items.clear();
     }
     final newItems = await _getAll(searchObject);
-    newItems.copyTo(_searchResult);
+    newItems.copyTo(searchResult);
     searchObject.page++;
     notifyListeners();
   }
@@ -84,9 +85,13 @@ abstract class BaseProvider<
 
   Future<TResponse> insertWithEvent(TInsertRequest request) async {
     final newItem = await insert(request);
-    _searchResult.items.add(newItem);
-    notifyListeners();
+    insertLocally(newItem);
     return newItem;
+  }
+
+  void insertLocally(TResponse entity) {
+    searchResult.items.add(entity);
+    notifyListeners();
   }
 
   Future<TResponse> update(int id, TUpdateRequest request) async {
@@ -99,15 +104,19 @@ abstract class BaseProvider<
 
   Future<TResponse> updateWithEvent(int id, TUpdateRequest request) async {
     final updatedItem = await update(id, request);
-    final index = _searchResult.items.indexOf(
-      _searchResult.items.firstWhere((i) => i.id == id),
+    updateLocally(updatedItem);
+    return updatedItem;
+  }
+
+  void updateLocally(TResponse entity) {
+    final index = searchResult.items.indexOf(
+      searchResult.items.firstWhere((i) => i.id == entity.id),
     );
     if (index == -1) {
       throw Exception("Item does not exist");
     }
-    _searchResult.items[index] = updatedItem;
+    searchResult.items[index] = entity;
     notifyListeners();
-    return updatedItem;
   }
 
   Future<void> delete(int id) async {
@@ -116,13 +125,17 @@ abstract class BaseProvider<
 
   Future<void> deleteWithEvent(int id) async {
     await delete(id);
-    final index = _searchResult.items.indexOf(
-      _searchResult.items.firstWhere((i) => i.id == id),
+    deleteLocally(id);
+    notifyListeners();
+  }
+
+  void deleteLocally(int id) {
+    final index = searchResult.items.indexOf(
+      searchResult.items.firstWhere((i) => i.id == id),
     );
     if (index == -1) {
       throw Exception("Item does not exist");
     }
-    _searchResult.items.removeAt(index);
-    notifyListeners();
+    searchResult.items.removeAt(index);
   }
 }

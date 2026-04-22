@@ -2,24 +2,27 @@ import 'package:json_annotation/json_annotation.dart';
 
 enum FareStatus {
   @JsonValue(0)
-  waitingForNegotiation,
+  inNegotiation,
   @JsonValue(1)
-  pending,
-  @JsonValue(2)
   accepted,
-  @JsonValue(3)
+  @JsonValue(2)
   rejected,
-  @JsonValue(4)
+  @JsonValue(3)
   cancelled,
-  @JsonValue(5)
+  @JsonValue(4)
   completed,
+  @JsonValue(5)
+  expired,
+  @JsonValue(6)
+  inProgress,
 }
 
 Map<FareStatus, String> fareStatusMap = {
-  FareStatus.waitingForNegotiation: "Čeka na pregovor",
-  FareStatus.pending: "Na čekanju",
+  FareStatus.inNegotiation: "U pregovorima",
   FareStatus.accepted: "Prihvaćena",
   FareStatus.rejected: "Odbijena",
   FareStatus.cancelled: "Otkazana",
   FareStatus.completed: "Završena",
+  FareStatus.expired: "Istekla",
+  FareStatus.inProgress: "U toku",
 };

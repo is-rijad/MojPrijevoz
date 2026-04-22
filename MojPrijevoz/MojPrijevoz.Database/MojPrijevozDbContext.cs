@@ -21,6 +21,7 @@ public class MojPrijevozDbContext : DbContext {
     public virtual DbSet<Fare> Fares { get; set; }
 
     public virtual DbSet<FareOffer> FareOffers { get; set; }
+    public virtual DbSet<FareData> FareData { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
@@ -54,11 +55,12 @@ public class MojPrijevozDbContext : DbContext {
         modelBuilder.ApplyConfiguration(new UserProfileEntityConfiguration());
         modelBuilder.ApplyConfiguration(new UserVehicleEntityConfiguration());
         modelBuilder.ApplyConfiguration(new VehicleEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new FareDataEntityConfiguration());
     }
 
     private void UpdateTimestamps() {
         var entries = ChangeTracker.Entries().Where(e =>
-            e.Entity is IHasTimestamps && (e.State == EntityState.Added || e.State == EntityState.Modified));
+            e is { Entity: IHasCreatedAtTimestamp, State: EntityState.Added } or { Entity: IHasTimestamps, State: EntityState.Modified });
         foreach (var entityEntry in entries)
             if (entityEntry.State == EntityState.Added)
                 ((IHasCreatedAtTimestamp)entityEntry.Entity).CreatedAt = DateTime.UtcNow;

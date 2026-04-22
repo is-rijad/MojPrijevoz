@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
+import 'package:moj_prijevoz/components/next_fares/next_fares_component.dart';
 import 'package:moj_prijevoz/pages/search_fare_page.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
@@ -106,8 +107,8 @@ class _HomePageState extends State<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Preporučene vožnje"),
-        Container(color: Colors.amber, height: 200),
+        const Text("Vaše zakazane vožnje"),
+        SizedBox(height: 200, child: NextFaresComponent()),
       ],
     );
   }

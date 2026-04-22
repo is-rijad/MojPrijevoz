@@ -3,30 +3,32 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
+import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
 import 'package:moj_prijevoz/resources/requests/maps/maps_route_request.dart';
-import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
-import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
 
 class MapProvider {
   final _dio = Dio();
   final _openRouteApiUrl = Environment.openRouteApiUrl;
 
   Future<MapsRouteResponse> getRoute(
-    CityResponse cityFrom,
-    NominatimResponse cityTo, {
-    List<NominatimResponse>? stopPlaces,
+    NominatimCityDto cityFrom,
+    NominatimCityDto cityTo, {
+    List<NominatimCityDto>? stopPlaces,
   }) async {
     try {
       final stopPlaceCoordinates = List.empty(growable: true);
       for (var i = 0; i < (stopPlaces?.length ?? 0); i++) {
-        stopPlaceCoordinates.add([stopPlaces![i].lon, stopPlaces[i].lat]);
+        stopPlaceCoordinates.add([
+          stopPlaces![i].destinationLat,
+          stopPlaces[i].destinationLat,
+        ]);
       }
       final body = MapsRouteRequest(
         coordinates: [
-          [cityFrom.long, cityFrom.lat],
+          [cityFrom.destinationLong, cityFrom.destinationLat],
           ...stopPlaceCoordinates,
-          [cityTo.lon, cityTo.lat],
+          [cityTo.destinationLong, cityTo.destinationLat],
         ],
         radiuses: [-1],
         units: "km",

@@ -20,7 +20,6 @@ class FareDataResponse extends JsonResponse {
   final String destinationName;
   final CityResponse? originCity;
   final List<StopPointResponse>? stopPoints;
-  final List<FareOfferResponse>? fareOffers;
   String get trimmedDestinationName => destinationName.split(",")[0];
   FareDataResponse({
     required this.id,
@@ -34,7 +33,6 @@ class FareDataResponse extends JsonResponse {
     required this.destinationName,
     this.stopPoints,
     this.originCity,
-    this.fareOffers,
   });
 
   @override

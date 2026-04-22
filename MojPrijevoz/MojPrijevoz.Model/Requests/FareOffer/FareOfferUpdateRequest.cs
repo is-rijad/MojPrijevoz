@@ -2,6 +2,6 @@
 
 public class FareOfferUpdateRequest
 {
-    public double Price { get; set; }
-    public double? AddtionalPrice { get; set; }
+    public float Price { get; set; }
+    public float? AdditionalPrice { get; set; }
 }

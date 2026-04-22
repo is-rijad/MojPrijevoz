@@ -13,22 +13,10 @@ public class InitialFareOfferState : BaseFareOfferState
         entity.Status = Database.FareOfferStatus.WaitingForResponse;
         return entity;
     }
-    public override Database.FareOffer Reject(Database.FareOffer entity) {
-        entity.Status = Database.FareOfferStatus.Rejected;
-        return entity;
-    }
-    public override Database.FareOffer Accept(Database.FareOffer entity) {
-        entity.Status = Database.FareOfferStatus.Accepted;
-        return entity;
-    }
-    public override Database.FareOffer Expire(Database.FareOffer entity) {
-        entity.Status = Database.FareOfferStatus.Expired;
-        return entity;
-    }
 
     public override Task<List<string>> AllowedActions(int id)
     {
-        var list = new List<string>() { nameof(Create), nameof(Accept), nameof(Reject) };
+        var list = new List<string>() { nameof(Create)};
         return Task.FromResult(list);
     }
 }

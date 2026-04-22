@@ -18,5 +18,4 @@ public class FareOfferResponse {
 
     public int? LastOfferId { get; set; }
 
-    public virtual FareResponse? Fare { get; set; }
 }

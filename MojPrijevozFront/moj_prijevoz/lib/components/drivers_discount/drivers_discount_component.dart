@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/drivers_discount/drivers_discount_delete_dialog.dart';
 import 'package:moj_prijevoz/components/drivers_discount/drivers_discount_upsert_dialog.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
@@ -23,7 +24,7 @@ class _DriversDiscountComponent extends State<DriversDiscountComponent> {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints.loose(
-        Size(double.infinity, _itemExtent * (_pageSize - 1)),
+        Size(context.screenWidth, _itemExtent * (_pageSize - 1)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -46,25 +47,31 @@ class _DriversDiscountComponent extends State<DriversDiscountComponent> {
   }
 
   Widget _buildList(BuildContext context) {
-    return PaginatedTable<
-      DriversDiscountResponse,
-      DriversDiscountProvider,
-      DriversDiscountSearchObject
-    >(
-      pageSize: _pageSize,
-      onTap: _buildDiscountUpsertDialog,
-      onSecondaryOrLongPress: _buildDiscountDeleteDialog,
-      searchObject: DriversDiscountSearchObject(page: 1, pageSize: _pageSize),
-      header: [
-        "Donja granica kilometara",
-        "Gornja granica kilometara",
-        "Popust",
-      ],
-      items: [
-        (i) => Text("${i.minKm} km"),
-        (i) => Text("${i.maxKm?.toString() ?? "Neograničeno"} km"),
-        (i) => Text("${i.discount}%"),
-      ],
+    return Expanded(
+      child:
+          PaginatedTable<
+            DriversDiscountResponse,
+            DriversDiscountProvider,
+            DriversDiscountSearchObject
+          >(
+            pageSize: _pageSize,
+            onTap: _buildDiscountUpsertDialog,
+            onSecondaryOrLongPress: _buildDiscountDeleteDialog,
+            searchObject: DriversDiscountSearchObject(
+              page: 1,
+              pageSize: _pageSize,
+            ),
+            header: [
+              "Donja granica kilometara",
+              "Gornja granica kilometara",
+              "Popust",
+            ],
+            items: [
+              (i) => Text("${i.minKm} km"),
+              (i) => Text("${i.maxKm?.toString() ?? "Neograničeno"} km"),
+              (i) => Text("${i.discount}%"),
+            ],
+          ),
     );
   }
 

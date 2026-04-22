@@ -90,8 +90,8 @@ public abstract class
         return Task.CompletedTask;
     }
 
-    protected virtual void MapToUpdateEntity(TUpdateRequest request, TEntity entity) {
-        _mapper.Map(request, entity);
+    protected virtual TEntity MapToUpdateEntity(TUpdateRequest request, TEntity entity) {
+        return _mapper.Map(request, entity);
     }
 
     protected virtual Task BeforeDelete(int id, TEntity entity) {

@@ -22,6 +22,7 @@ public abstract class
     public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject) {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         queryable = await ApplyFilter(queryable, searchObject);
+        queryable = await ApplyOrdering(queryable, searchObject);
         var fullCount = await queryable.CountAsync();
         queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
         queryable = await IncludeAdditionalEntities(queryable);
@@ -32,6 +33,11 @@ public abstract class
             Count = queryable.Count(),
             HasMore = fullCount > searchObject.Page * searchObject.PageSize
         };
+    }
+
+    protected virtual Task<IQueryable<TEntity>> ApplyOrdering(IQueryable<TEntity> queryable, TSearchObject searchObject)
+    {
+        return Task.FromResult(queryable);
     }
 
     public async Task<TResponse> GetByIdAsync(int id) {

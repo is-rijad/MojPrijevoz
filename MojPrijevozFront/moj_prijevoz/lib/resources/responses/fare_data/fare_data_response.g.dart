@@ -23,9 +23,6 @@ FareDataResponse _$FareDataResponseFromJson(Map<String, dynamic> json) =>
       originCity: json['originCity'] == null
           ? null
           : CityResponse.fromJson(json['originCity'] as Map<String, dynamic>),
-      fareOffers: (json['fareOffers'] as List<dynamic>?)
-          ?.map((e) => FareOfferResponse.fromJson(e as Map<String, dynamic>))
-          .toList(),
     );
 
 Map<String, dynamic> _$FareDataResponseToJson(FareDataResponse instance) =>
@@ -41,5 +38,4 @@ Map<String, dynamic> _$FareDataResponseToJson(FareDataResponse instance) =>
       'destinationName': instance.destinationName,
       'originCity': instance.originCity,
       'stopPoints': instance.stopPoints,
-      'fareOffers': instance.fareOffers,
     };

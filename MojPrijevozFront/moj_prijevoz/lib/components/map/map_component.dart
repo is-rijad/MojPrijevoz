@@ -4,19 +4,21 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
-import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
-import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
+import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
+import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
 import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
 
 class MapComponent extends StatefulWidget {
-  final CityResponse? from;
-  final NominatimResponse? to;
-  final List<NominatimResponse>? stopPoints;
+  final NominatimCityDto? from;
+  final NominatimCityDto? to;
+  final List<NominatimCityDto>? stopPoints;
+  final MapsRouteResponse? route;
   const MapComponent({
     super.key,
-    required this.from,
-    required this.to,
+    this.from,
+    this.to,
     this.stopPoints,
+    this.route,
   });
 
   @override
@@ -25,6 +27,8 @@ class MapComponent extends StatefulWidget {
 
 class _MapComponentState extends State<MapComponent> {
   List<LatLng> _routePoints = [];
+  NominatimCityDto? startLocation;
+  NominatimCityDto? finalLocation;
 
   final _mapProvider = GetIt.I<MapProvider>();
   final _mapController = MapController();
@@ -34,7 +38,12 @@ class _MapComponentState extends State<MapComponent> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _findRoute();
+    assert(widget.route != null || (widget.from != null && widget.to != null));
+    if (widget.route == null) {
+      _findRoute();
+    } else {
+      _routePoints = widget.route!.routePoints;
+    }
   }
 
   Future<void> _findRoute() async {
@@ -53,7 +62,6 @@ class _MapComponentState extends State<MapComponent> {
       _isLoading = false;
       _routePoints = response.routePoints;
     });
-    _fitBounds();
   }
 
   void _fitBounds() {
@@ -65,12 +73,17 @@ class _MapComponentState extends State<MapComponent> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) return AppOverlay.buildLoadingContainer(context);
+    for (var r in _routePoints) {
+      print(r);
+    }
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
+        onMapReady: _fitBounds,
         initialCenter: LatLng(
-          double.parse(widget.to!.lat),
-          double.parse(widget.to!.lon),
+          _routePoints.last.latitude,
+          _routePoints.last.longitude,
         ),
         initialZoom: 10,
       ),
@@ -79,14 +92,13 @@ class _MapComponentState extends State<MapComponent> {
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.example.mapapp',
         ),
-        if (_isLoading) AppOverlay.buildLoadingContainer(context),
-        if (widget.from != null)
+        if (widget.from != null || widget.route != null)
           MarkerLayer(
             markers: [
               Marker(
                 point: LatLng(
-                  double.parse(widget.from!.lat),
-                  double.parse(widget.from!.long),
+                  _routePoints.first.latitude,
+                  _routePoints.first.longitude,
                 ),
                 width: 40,
                 height: 40,
@@ -94,13 +106,13 @@ class _MapComponentState extends State<MapComponent> {
               ),
             ],
           ),
-        if (widget.to != null)
+        if (widget.to != null || widget.route != null)
           MarkerLayer(
             markers: [
               Marker(
                 point: LatLng(
-                  double.parse(widget.to!.lat),
-                  double.parse(widget.to!.lon),
+                  _routePoints.last.latitude,
+                  _routePoints.last.longitude,
                 ),
                 width: 40,
                 height: 40,
@@ -118,8 +130,8 @@ class _MapComponentState extends State<MapComponent> {
               markers: [
                 Marker(
                   point: LatLng(
-                    double.parse(widget.stopPoints![i].lat),
-                    double.parse(widget.stopPoints![i].lon),
+                    double.parse(widget.stopPoints![i].destinationLat),
+                    double.parse(widget.stopPoints![i].destinationLong),
                   ),
                   width: 40,
                   height: 40,

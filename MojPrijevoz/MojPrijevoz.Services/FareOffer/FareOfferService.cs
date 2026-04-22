@@ -8,6 +8,7 @@ using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Requests.FareData;
 using MojPrijevoz.Model.Requests.FareOffer;
 using MojPrijevoz.Model.Requests.StopPoint;
+using MojPrijevoz.Model.Responses.Fare;
 using MojPrijevoz.Model.Responses.FareOffer;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
@@ -19,7 +20,7 @@ using MojPrijevoz.Services.StopPoint;
 
 namespace MojPrijevoz.Services.FareOffer;
 
-public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferInsertRequest, FareOfferUpdateRequest, FareOfferResponse, FareOfferSearchObject>, IFareOfferService {
+public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferInsertRequest, FareOfferUpdateRequest, FareResponse, FareOfferSearchObject>, IFareOfferService {
     private readonly IFareService _fareService;
     private readonly IFareDataService _fareDataService;
     private readonly IStopPointService _stopPointService;
@@ -41,7 +42,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         await base.BeforeInsert(request);
     }
 
-    public override async Task<FareOfferResponse> InsertWithTransactionAsync(FareOfferInsertRequest request) {
+    public override async Task<FareResponse> InsertWithTransactionAsync(FareOfferInsertRequest request) {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         var passengerId = (await _authorizationService.GetProfileId(ProfileType.Passenger))!.Value;
         await BeforeInsert(request);
@@ -68,6 +69,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             request.AdditionalPrice = driversPrice.AdditionalPrice;
             request.UserVehicleId = driversPrice.UserVehicleId;
             request.FareDataId = fareData.Id;
+            request.FareId = fare.Id;
 
             entityEntry ??= await _dbContext.FareOffers.AddAsync(MapToInsertEntity(request));
             var baseStateMachine = _baseFareOfferState.GetState(null);
@@ -76,41 +78,48 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
 
         await _dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
-        return MapToResponseModel<FareOfferResponse>(entityEntry!.Entity, _mapper);
+        return await _fareService.GetByIdAsync(entityEntry!.Entity!.Fare!.Id);
     }
 
-    public override async Task<FareOfferResponse> UpdateAsync(int id, FareOfferUpdateRequest request) {
-        var entity = await _dbContext.FareOffers.AsNoTracking().FirstAsync(it => it.Id == id);
+    public override async Task<FareResponse> UpdateAsync(int id, FareOfferUpdateRequest request) {
+        var entity = await _dbContext.FareOffers
+            .Include(it => it!.Fare)
+            .FirstAsync(it => it.Id == id); 
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
-        var state = _baseFareOfferState.GetState(null);
+        var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Expire(entity);
         await BeforeUpdate(id, request, entity);
-        MapToUpdateEntity(request, entity);
-        state = _baseFareOfferState.GetState(null);
-        state.Create(entity);
-        await _dbContext.FareOffers.AddAsync(entity);
+        var newEntity = MapToUpdateEntity(request, entity);
+        await _dbContext.FareOffers.AddAsync(newEntity);
+        state = _baseFareOfferState.GetState((short)FareOfferStatus.WaitingForResponse);
+        state.Update(id, newEntity);
         await _dbContext.SaveChangesAsync();
-        return MapToResponseModel<FareOfferResponse>(entity, _mapper);
+        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
-    protected override void MapToUpdateEntity(FareOfferUpdateRequest request, Database.FareOffer entity)
+    protected override Database.FareOffer MapToUpdateEntity(FareOfferUpdateRequest request, Database.FareOffer entity)
     {
-        base.MapToUpdateEntity(request, entity);
-        if (entity.Side == ProfileType.Passenger) {
-            entity.Side = ProfileType.Driver;
-        }
-        else
+        var side = entity.Side == ProfileType.Passenger ? ProfileType.Driver : ProfileType.Passenger;
+
+        return new Database.FareOffer()
         {
-            entity.Side = ProfileType.Passenger;
-        }
+            FareId = entity.FareId,
+            LastOfferId = entity.Id,
+            Price = request.Price,
+            AdditionalPrice = request.AdditionalPrice,
+            Side = side,
+        };
     }
 
     private FareInsertRequest MapToFareInsertRequest(int passengerId, int fareDataId, FareOfferDriverPriceDto driverPrice, FareOfferInsertRequest fareOfferRequest) {
         var fareInsertRequest = _mapper.Map<FareInsertRequest>(fareOfferRequest);
+
         fareInsertRequest.DriverId = driverPrice.DriverId;
+        fareInsertRequest.UserVehicleId = driverPrice.UserVehicleId;
         fareInsertRequest.PassengerId = passengerId;
         fareInsertRequest.FareDataId = fareDataId;
+        
         return fareInsertRequest;
     }
 
@@ -119,45 +128,68 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         return new Database.FareOffer()
         {
             Side = ProfileType.Passenger,
-            FareDataId = request.FareDataId,
+            FareId = request.FareId,
             Price = request.Price,
             AdditionalPrice = request.AdditionalPrice,
-            UserVehicleId = request.UserVehicleId,
             LastOfferId = request.LastOfferId
         };
     }
 
-    public async Task<FareOfferResponse> AcceptOfferAsync(int id)
+    public async Task<FareResponse> AcceptOfferAsync(int id)
     {
-        var entity = await _dbContext.FareOffers.FindAsync(id);
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        var entity = await _dbContext.FareOffers
+            .Include(it => it.Fare)
+            .FirstAsync(it => it.Id == id);
         if (entity == null)
         {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
+
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Accept(entity);
-        return MapToResponseModel<FareOfferResponse>(entity, _mapper);
+        await _fareService.AcceptAsync(entity!.Fare!.Id);
+        await _dbContext.SaveChangesAsync();
+
+        await transaction.CommitAsync();
+
+        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
+
     }
 
-    public async Task<FareOfferResponse> RejectOfferAsync(int id) {
-        var entity = await _dbContext.FareOffers.FindAsync(id);
+    public async Task<FareResponse> RejectOfferAsync(int id) {
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        var entity = await _dbContext.FareOffers
+            .Include(it => it.Fare)
+            .FirstAsync(it => it.Id == id);
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Reject(entity);
-        return MapToResponseModel<FareOfferResponse>(entity, _mapper);
+        await _fareService.RejectAsync(entity!.Fare!.Id);
+        await _dbContext.SaveChangesAsync();
+
+        await transaction.CommitAsync();
+
+        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
-    public async Task<FareOfferResponse> ExpireOfferAsync(int id)
+    public async Task<FareResponse> ExpireOfferAsync(int id)
     {
-        var entity = await _dbContext.FareOffers.FindAsync(id);
+        var entity = await _dbContext.FareOffers
+            .Include(it => it.Fare)
+            .FirstAsync(it => it.Id == id); 
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Expire(entity);
-        return MapToResponseModel<FareOfferResponse>(entity, _mapper);
+        await _dbContext.SaveChangesAsync();
+
+        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
 

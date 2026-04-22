@@ -24,7 +24,7 @@ public class OpenRouteService : IOpenRouteService {
 
     public async Task<GetDistanceResponse> GetDistance(GetDistanceRequest request) {
         if (request.CityFrom == request.CityTo) {
-            return new GetDistanceResponse() { Distance = 0, Duration = 0 };
+            return new GetDistanceResponse() { DistanceInKm = 0, DurationInMinutes = 0 };
         }
         var cityFrom = await _cityService.GetByIdAsync(request.CityFrom);
         var cityTo = await _cityService.GetByIdAsync(request.CityTo);
@@ -50,8 +50,8 @@ public class OpenRouteService : IOpenRouteService {
         var responseObject = await JsonSerializer.DeserializeAsync<JsonElement>(await response.Content.ReadAsStreamAsync());
         return new GetDistanceResponse()
         {
-            Distance = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("distance").GetDouble(),
-            Duration = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("duration").GetDouble(),
+            DistanceInKm = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("distance").GetDouble(),
+            DurationInMinutes = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("duration").GetDouble(),
         };
     }
 }

@@ -20,7 +20,6 @@ public class FareDataResponse {
 
     public DateTime FareDateTime { get; set; }
     public DateTime CreatedAt { get; set; }
-    public ICollection<FareOfferResponse> FareOffers { get; set; } = null!;
-    public ICollection<StopPointResponse> StopPoints { get; set; } = null!;
+    public ICollection<StopPointResponse>? StopPoints { get; set; }
     public CityResponse? OriginCity { get; set; }
 }

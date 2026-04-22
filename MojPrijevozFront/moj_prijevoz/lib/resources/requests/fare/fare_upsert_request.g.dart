@@ -33,10 +33,11 @@ Map<String, dynamic> _$FareUpsertRequestToJson(FareUpsertRequest instance) =>
     };
 
 const _$FareStatusEnumMap = {
-  FareStatus.waitingForNegotiation: 0,
-  FareStatus.pending: 1,
-  FareStatus.accepted: 2,
-  FareStatus.rejected: 3,
-  FareStatus.cancelled: 4,
-  FareStatus.completed: 5,
+  FareStatus.inNegotiation: 0,
+  FareStatus.accepted: 1,
+  FareStatus.rejected: 2,
+  FareStatus.cancelled: 3,
+  FareStatus.completed: 4,
+  FareStatus.expired: 5,
+  FareStatus.inProgress: 6,
 };

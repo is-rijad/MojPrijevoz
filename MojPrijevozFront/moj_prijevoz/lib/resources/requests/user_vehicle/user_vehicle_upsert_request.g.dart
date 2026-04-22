@@ -11,7 +11,7 @@ UserVehicleUpsertRequest _$UserVehicleUpsertRequestFromJson(
 ) => UserVehicleUpsertRequest(
   vehicleId: (json['vehicleId'] as num?)?.toInt(),
   modelYear: (json['modelYear'] as num?)?.toInt(),
-  fuelConsumption: (json['fuelConsumption'] as num?)?.toDouble(),
+  licensePlate: json['licensePlate'] as String?,
   pricePerKm: (json['pricePerKm'] as num?)?.toDouble(),
   picture: json['picture'] as String?,
 );
@@ -21,7 +21,7 @@ Map<String, dynamic> _$UserVehicleUpsertRequestToJson(
 ) => <String, dynamic>{
   'vehicleId': instance.vehicleId,
   'modelYear': instance.modelYear,
-  'fuelConsumption': instance.fuelConsumption,
+  'licensePlate': instance.licensePlate,
   'pricePerKm': instance.pricePerKm,
   'picture': instance.picture,
 };

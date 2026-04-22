@@ -712,9 +712,24 @@ class _SearchFarePageState extends State<SearchFarePage> {
             maxHeight: 200,
           ),
           child: MapComponent(
-            from: _request.startLocation,
-            to: _nominatimPlaceSelectorForFinalLocation.locationBound,
-            stopPoints: _request.stopPlaces,
+            from: NominatimCityDto(
+              destinationLong: _request.startLocation!.long,
+              destinationLat: _request.startLocation!.lat,
+            ),
+            to: NominatimCityDto(
+              destinationLong:
+                  _nominatimPlaceSelectorForFinalLocation.locationBound!.lon,
+              destinationLat:
+                  _nominatimPlaceSelectorForFinalLocation.locationBound!.lat,
+            ),
+            stopPoints: _request.stopPlaces!
+                .map(
+                  (it) => NominatimCityDto(
+                    destinationLong: it.lon,
+                    destinationLat: it.lat,
+                  ),
+                )
+                .toList(),
           ),
         ),
         Column(
@@ -866,9 +881,22 @@ class _SearchFarePageState extends State<SearchFarePage> {
       context.read<SearchFareProvider>().clearFareDrivers();
       context.read<SearchFareProvider>().clearData(_searchFareSearchObject);
       var route = await GetIt.I<MapProvider>().getRoute(
-        _request.startLocation!,
-        _request.finalLocation!,
-        stopPlaces: _request.stopPlaces,
+        NominatimCityDto(
+          destinationLong: _request.startLocation!.long,
+          destinationLat: _request.startLocation!.lat,
+        ),
+        NominatimCityDto(
+          destinationLong: _request.finalLocation!.lon,
+          destinationLat: _request.finalLocation!.lat,
+        ),
+        stopPlaces: _request.stopPlaces!
+            .map(
+              (it) => NominatimCityDto(
+                destinationLong: it.lon,
+                destinationLat: it.lat,
+              ),
+            )
+            .toList(),
       );
       _searchFareSearchObject.originCityId = _request.startLocation!.id;
       _searchFareSearchObject.duration = route.duration;

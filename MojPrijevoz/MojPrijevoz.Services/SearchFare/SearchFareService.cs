@@ -28,10 +28,11 @@ public class SearchFareService : ISearchFareService {
         var newStart = searchObject.FareDateTime;
         var newEnd = searchObject.FareDateTime.AddMinutes(searchObject.Duration);
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
-        var unAvailableDrivers = await _dbContext.Fares.Where(it => it.Status == FareStatus.Accepted)
+        var unAvailableDrivers = await _dbContext.Fares
             .Where(f =>
-                f.FareData!.FareDateTime.AddMinutes(f.FareData.Duration) <= newStart
-                || f.FareData!.FareDateTime >= newEnd
+                f.Status == FareStatus.Accepted &&
+                f.FareData!.FareDateTime < newEnd &&
+                f.FareData!.FareDateTime.AddMinutes(f.FareData.Duration) > newStart
             ).Select(it => it.DriverId).ToListAsync();
         var profilesQuery = _dbContext.UserProfiles.Where(it => it.ProfileType == ProfileType.Driver && it.Id != profileId && !unAvailableDrivers.Contains(it.Id)).AsQueryable();
 
@@ -63,7 +64,7 @@ public class SearchFareService : ISearchFareService {
             .FirstAsync();
         var distance = searchObject.Distance;
         var additionalDistance = (await _openRouteService.GetDistance(new GetDistanceRequest()
-        { CityFrom = driversCityId, CityTo = searchObject.OriginCityId })).Distance;
+        { CityFrom = driversCityId, CityTo = searchObject.OriginCityId })).DistanceInKm;
         var finalDistance = distance + additionalDistance;
 
         var driversDiscount = await _dbContext.DriversDiscounts.Where(it =>

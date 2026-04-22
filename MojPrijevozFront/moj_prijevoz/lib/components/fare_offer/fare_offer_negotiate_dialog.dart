@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/main.dart';
 import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:moj_prijevoz/resources/requests/fare_offer/fare_offer_update_request.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
@@ -264,8 +263,8 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
         return ConfirmationDialog(
           content: const Text("Da li ste sigurni da želite odbiti ponudu?"),
           onSubmit: () async {
-            await context.read<FareOfferProvider>().reject(
-              widget.fare.fareData!.fareOffers!.last.id,
+            await context.read<FareOfferProvider>().rejectWithEvent(
+              widget.fare.lastFareOffer!.id,
             );
           },
           successMessage: 'Odbili ste ponudu!',
@@ -277,8 +276,8 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
   Future _onNewOfferRequest() async {
     setState(() {
       _isEditable = true;
-      _request.price = 0;
-      _request.additionalPrice = null;
+      _request.price = widget.fare.lastFareOffer!.price;
+      _request.additionalPrice = widget.fare.lastFareOffer!.additionalPrice;
       _priceTextEditingController.text = _request.price!.toString();
       _additionalPriceTextEditingController.text =
           _request.additionalPrice?.toString() ?? "0.0";
@@ -293,8 +292,8 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
           return ConfirmationDialog(
             content: const Text("Da li ste sigurni da želite poslati ponudu?"),
             onSubmit: () async {
-              await context.read<FareOfferProvider>().update(
-                widget.fare.fareData!.fareOffers!.last.id,
+              await context.read<FareOfferProvider>().updateWithEvent(
+                widget.fare.lastFareOffer!.id,
                 _request,
               );
             },
@@ -310,8 +309,8 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
               "Da li ste sigurni da želite prihvatiti ponudu?",
             ),
             onSubmit: () async {
-              await context.read<FareOfferProvider>().accept(
-                widget.fare.fareData!.fareOffers!.last.id,
+              await context.read<FareOfferProvider>().acceptWithEvent(
+                widget.fare.lastFareOffer!.id,
               );
             },
           );

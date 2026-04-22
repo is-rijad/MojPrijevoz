@@ -177,17 +177,16 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
                       IconFieldWithText(
                         width: 100,
                         iconData: Icons.calendar_month,
-                        text: "${userVehicle.modelYear.toString()}.",
+                        text: userVehicle.modelYear.toString(),
                         iconHint: "Godina proizvodnje",
                       ),
                       SizedBox(height: 10),
                       IconFieldWithText(
                         width: 100,
 
-                        iconData: Icons.local_gas_station,
-                        text:
-                            "${userVehicle.fuelConsumption.toString()} l/100km",
-                        iconHint: "Prosječna potrošnja goriva",
+                        iconData: Icons.numbers,
+                        text: userVehicle.licensePlate,
+                        iconHint: "Registarske tablice",
                       ),
                       SizedBox(height: 10),
                       IconFieldWithText(

@@ -64,28 +64,21 @@ class UserVehicleUpsertDialog
         initialValue: selectedItem?.modelYear.toString(),
       ),
       TextFormField(
-        keyboardType: TextInputType.numberWithOptions(
-          signed: true,
-          decimal: true,
-        ),
         decoration: InputDecorationWithIcon(
-          iconData: Icons.local_gas_station,
-          iconHint: "Prosječna potrošnja goriva",
+          iconData: Icons.numbers,
+          iconHint: "Registarske tablice",
         ),
-        onSaved: (value) => request.fuelConsumption = double.parse(value!),
+        onSaved: (value) => request.licensePlate = value!,
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return "Prosječna potrošnja goriva je obavezna!";
+            return "Registarske tablice su obavezne!";
           }
-          if (double.tryParse(value) == null) {
-            return "Prosječna potrošnja goriva mora biti broj!";
-          }
-          if (double.parse(value) < 0 || double.parse(value) > 50) {
-            return "Prosječna potrošnja goriva ne smije biti manja od 0, ni veća od 50!";
+          if (value.length > 9) {
+            return "Registarske tablice nisu validne!";
           }
           return null;
         },
-        initialValue: selectedItem?.fuelConsumption.toString(),
+        initialValue: selectedItem?.licensePlate,
       ),
       TextFormField(
         keyboardType: TextInputType.numberWithOptions(

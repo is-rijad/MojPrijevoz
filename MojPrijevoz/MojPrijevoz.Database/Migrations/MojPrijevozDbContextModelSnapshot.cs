@@ -748,11 +748,17 @@ namespace MojPrijevoz.Database.Migrations
                     b.Property<int>("FareDataId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("FareStartAfter")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("PassengerId")
                         .HasColumnType("int");
 
                     b.Property<short>("Status")
                         .HasColumnType("smallint");
+
+                    b.Property<int?>("UserVehicleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -762,6 +768,8 @@ namespace MojPrijevoz.Database.Migrations
                         .IsUnique();
 
                     b.HasIndex("PassengerId");
+
+                    b.HasIndex("UserVehicleId");
 
                     b.ToTable("Fare", (string)null);
                 });
@@ -779,14 +787,20 @@ namespace MojPrijevoz.Database.Migrations
 
                     b.Property<string>("DestinationLat")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(16)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(16)");
 
                     b.Property<string>("DestinationLong")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(16)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(16)");
 
                     b.Property<string>("DestinationName")
                         .IsRequired()
+                        .HasMaxLength(2147483647)
+                        .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Duration")
@@ -805,7 +819,7 @@ namespace MojPrijevoz.Database.Migrations
 
                     b.HasIndex("OriginCityId");
 
-                    b.ToTable("FareData");
+                    b.ToTable("FareData", (string)null);
                 });
 
             modelBuilder.Entity("MojPrijevoz.Database.FareOffer", b =>
@@ -822,7 +836,7 @@ namespace MojPrijevoz.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FareDataId")
+                    b.Property<int>("FareId")
                         .HasColumnType("int");
 
                     b.Property<int?>("LastOfferId")
@@ -837,16 +851,11 @@ namespace MojPrijevoz.Database.Migrations
                     b.Property<short>("Status")
                         .HasColumnType("smallint");
 
-                    b.Property<int>("UserVehicleId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("FareDataId");
+                    b.HasIndex("FareId");
 
                     b.HasIndex("LastOfferId");
-
-                    b.HasIndex("UserVehicleId");
 
                     b.ToTable("FareOffer", (string)null);
                 });
@@ -1022,8 +1031,11 @@ namespace MojPrijevoz.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<float>("FuelConsumption")
-                        .HasColumnType("real");
+                    b.Property<string>("LicensePlate")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(9)");
 
                     b.Property<int>("ModelYear")
                         .HasColumnType("int");
@@ -1147,11 +1159,17 @@ namespace MojPrijevoz.Database.Migrations
                         .HasForeignKey("PassengerId")
                         .IsRequired();
 
+                    b.HasOne("MojPrijevoz.Database.UserVehicle", "UserVehicle")
+                        .WithMany("Fares")
+                        .HasForeignKey("UserVehicleId");
+
                     b.Navigation("Driver");
 
                     b.Navigation("FareData");
 
                     b.Navigation("Passenger");
+
+                    b.Navigation("UserVehicle");
                 });
 
             modelBuilder.Entity("MojPrijevoz.Database.FareData", b =>
@@ -1159,7 +1177,6 @@ namespace MojPrijevoz.Database.Migrations
                     b.HasOne("MojPrijevoz.Database.City", "OriginCity")
                         .WithMany("FareDataOriginCities")
                         .HasForeignKey("OriginCityId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("OriginCity");
@@ -1167,9 +1184,9 @@ namespace MojPrijevoz.Database.Migrations
 
             modelBuilder.Entity("MojPrijevoz.Database.FareOffer", b =>
                 {
-                    b.HasOne("MojPrijevoz.Database.FareData", "FareData")
+                    b.HasOne("MojPrijevoz.Database.Fare", "Fare")
                         .WithMany("FareOffers")
-                        .HasForeignKey("FareDataId")
+                        .HasForeignKey("FareId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1177,17 +1194,9 @@ namespace MojPrijevoz.Database.Migrations
                         .WithMany()
                         .HasForeignKey("LastOfferId");
 
-                    b.HasOne("MojPrijevoz.Database.UserVehicle", "UserVehicle")
-                        .WithMany("FareOffers")
-                        .HasForeignKey("UserVehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FareData");
+                    b.Navigation("Fare");
 
                     b.Navigation("LastOffer");
-
-                    b.Navigation("UserVehicle");
                 });
 
             modelBuilder.Entity("MojPrijevoz.Database.Rating", b =>
@@ -1295,6 +1304,8 @@ namespace MojPrijevoz.Database.Migrations
 
             modelBuilder.Entity("MojPrijevoz.Database.Fare", b =>
                 {
+                    b.Navigation("FareOffers");
+
                     b.Navigation("Ratings");
 
                     b.Navigation("Transactions");
@@ -1303,8 +1314,6 @@ namespace MojPrijevoz.Database.Migrations
             modelBuilder.Entity("MojPrijevoz.Database.FareData", b =>
                 {
                     b.Navigation("Fare");
-
-                    b.Navigation("FareOffers");
 
                     b.Navigation("StopPoints");
                 });
@@ -1326,7 +1335,7 @@ namespace MojPrijevoz.Database.Migrations
 
             modelBuilder.Entity("MojPrijevoz.Database.UserVehicle", b =>
                 {
-                    b.Navigation("FareOffers");
+                    b.Navigation("Fares");
                 });
 
             modelBuilder.Entity("MojPrijevoz.Database.Vehicle", b =>

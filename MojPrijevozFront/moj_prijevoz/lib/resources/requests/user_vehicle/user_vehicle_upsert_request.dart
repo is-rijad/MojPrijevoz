@@ -7,14 +7,14 @@ part 'user_vehicle_upsert_request.g.dart';
 class UserVehicleUpsertRequest extends JsonRequest {
   int? vehicleId;
   int? modelYear;
-  double? fuelConsumption;
+  String? licensePlate;
   double? pricePerKm;
   String? picture;
 
   UserVehicleUpsertRequest({
     this.vehicleId,
     this.modelYear,
-    this.fuelConsumption,
+    this.licensePlate,
     this.pricePerKm,
     this.picture,
   });
