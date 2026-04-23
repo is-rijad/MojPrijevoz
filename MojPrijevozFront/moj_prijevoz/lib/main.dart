@@ -7,8 +7,10 @@ import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
+import 'package:moj_prijevoz/providers/fare_location_provider.dart';
 import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
+import 'package:moj_prijevoz/providers/location_provider.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/search_fare_provider.dart';
@@ -30,6 +32,7 @@ void registerServices() {
 
   getIt.registerFactory<HttpProvider>(() => HttpProvider());
   getIt.registerFactory<MapProvider>(() => MapProvider());
+  getIt.registerFactory(() => LocationProvider());
 }
 
 List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
@@ -47,6 +50,7 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
       create: (context) =>
           FareOfferProvider(fareProvider: context.read<FareProvider>()),
     ),
+    ChangeNotifierProvider(create: (_) => FareLocationProvider(), lazy: false),
   ];
 }
 

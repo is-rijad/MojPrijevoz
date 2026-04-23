@@ -10,25 +10,25 @@ import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
 class MapProvider {
   final _dio = Dio();
   final _openRouteApiUrl = Environment.openRouteApiUrl;
+  final _openReverseApiUrl = Environment.openReverseApiUrl;
+  final _openRouteKey = Environment.openRouteKey;
 
   Future<MapsRouteResponse> getRoute(
     NominatimCityDto cityFrom,
     NominatimCityDto cityTo, {
     List<NominatimCityDto>? stopPlaces,
+    required bool includeLocationNames,
   }) async {
     try {
       final stopPlaceCoordinates = List.empty(growable: true);
       for (var i = 0; i < (stopPlaces?.length ?? 0); i++) {
-        stopPlaceCoordinates.add([
-          stopPlaces![i].destinationLat,
-          stopPlaces[i].destinationLat,
-        ]);
+        stopPlaceCoordinates.add([stopPlaces![i].long, stopPlaces[i].lat]);
       }
       final body = MapsRouteRequest(
         coordinates: [
-          [cityFrom.destinationLong, cityFrom.destinationLat],
+          [cityFrom.long, cityFrom.lat],
           ...stopPlaceCoordinates,
-          [cityTo.destinationLong, cityTo.destinationLat],
+          [cityTo.long, cityTo.lat],
         ],
         radiuses: [-1],
         units: "km",
@@ -38,14 +38,29 @@ class MapProvider {
         data: body.toJson(),
         options: _setRequestOptions(),
       );
+      final startLocationName = includeLocationNames
+          ? await _getLocationName(cityFrom.lat, cityFrom.long)
+          : null;
+      final finalLocationName = includeLocationNames
+          ? await _getLocationName(cityTo.lat, cityTo.long)
+          : null;
       return MapsRouteResponse(
         routePoints: _decodePolyline(response.data["routes"][0]["geometry"]),
         distance: response.data["routes"][0]["summary"]["distance"],
         duration: response.data["routes"][0]["summary"]["duration"] / 60,
+        startLocationName: startLocationName,
+        finalLocationName: finalLocationName,
       );
     } on DioException catch (e) {
       throw UserException("Greška prilikom preuzimanja rute!");
     }
+  }
+
+  Future<String> _getLocationName(String lat, String long) async {
+    final response = await _dio.get(
+      "$_openReverseApiUrl?api_key=$_openRouteKey&point.lat=$lat&point.lon=$long&layers=street",
+    );
+    return response.data["features"][0]["properties"]["name"];
   }
 
   List<LatLng> _decodePolyline(String encoded) {
@@ -61,7 +76,7 @@ class MapProvider {
     var headersMap = <String, dynamic>{};
     try {
       headersMap.addEntries(
-        <String, dynamic>{"Authorization": Environment.openRouteKey}.entries,
+        <String, dynamic>{"Authorization": _openRouteKey}.entries,
       );
     } on Exception {}
     options.headers = headersMap;

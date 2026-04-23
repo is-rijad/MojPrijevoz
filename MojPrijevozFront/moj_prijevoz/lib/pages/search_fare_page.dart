@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/map/map_component.dart';
@@ -210,9 +211,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
         ),
         const Text(">"),
         TextButton(
-          onPressed:
-              (_request.isValid &&
-                  (currentBreadCrumbIndex != 1 || _selectedDrivers.isNotEmpty))
+          onPressed: (_request.isValid && (_selectedDrivers.isNotEmpty))
               ? () => setState(() {
                   currentBreadCrumbIndex = 2;
                 })
@@ -601,7 +600,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
                         IconFieldWithText(
                           iconData: Icons.attach_money_rounded,
                           text:
-                              "${fareDriver.price + (fareDriver.additionalPrice ?? 0)}KM",
+                              "${round(fareDriver.price + (fareDriver.additionalPrice ?? 0), decimals: 2)}KM",
                         ),
                       ],
                     );
@@ -713,22 +712,15 @@ class _SearchFarePageState extends State<SearchFarePage> {
           ),
           child: MapComponent(
             from: NominatimCityDto(
-              destinationLong: _request.startLocation!.long,
-              destinationLat: _request.startLocation!.lat,
+              long: _request.startLocation!.long,
+              lat: _request.startLocation!.lat,
             ),
             to: NominatimCityDto(
-              destinationLong:
-                  _nominatimPlaceSelectorForFinalLocation.locationBound!.lon,
-              destinationLat:
-                  _nominatimPlaceSelectorForFinalLocation.locationBound!.lat,
+              long: _nominatimPlaceSelectorForFinalLocation.locationBound!.lon,
+              lat: _nominatimPlaceSelectorForFinalLocation.locationBound!.lat,
             ),
             stopPoints: _request.stopPlaces!
-                .map(
-                  (it) => NominatimCityDto(
-                    destinationLong: it.lon,
-                    destinationLat: it.lat,
-                  ),
-                )
+                .map((it) => NominatimCityDto(long: it.lon, lat: it.lat))
                 .toList(),
           ),
         ),
@@ -882,21 +874,17 @@ class _SearchFarePageState extends State<SearchFarePage> {
       context.read<SearchFareProvider>().clearData(_searchFareSearchObject);
       var route = await GetIt.I<MapProvider>().getRoute(
         NominatimCityDto(
-          destinationLong: _request.startLocation!.long,
-          destinationLat: _request.startLocation!.lat,
+          long: _request.startLocation!.long,
+          lat: _request.startLocation!.lat,
         ),
         NominatimCityDto(
-          destinationLong: _request.finalLocation!.lon,
-          destinationLat: _request.finalLocation!.lat,
+          long: _request.finalLocation!.lon,
+          lat: _request.finalLocation!.lat,
         ),
         stopPlaces: _request.stopPlaces!
-            .map(
-              (it) => NominatimCityDto(
-                destinationLong: it.lon,
-                destinationLat: it.lat,
-              ),
-            )
+            .map((it) => NominatimCityDto(long: it.lon, lat: it.lat))
             .toList(),
+        includeLocationNames: false,
       );
       _searchFareSearchObject.originCityId = _request.startLocation!.id;
       _searchFareSearchObject.duration = route.duration;

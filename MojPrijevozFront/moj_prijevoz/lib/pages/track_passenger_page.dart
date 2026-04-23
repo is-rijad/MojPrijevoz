@@ -16,22 +16,22 @@ import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
 
-class TrackDriverPage extends StatefulWidget {
+class TrackPassengerPage extends StatefulWidget {
   final FareResponse fare;
-  const TrackDriverPage({super.key, required this.fare});
+  const TrackPassengerPage({super.key, required this.fare});
 
   @override
-  State<StatefulWidget> createState() => _TrackDriverPageState();
+  State<StatefulWidget> createState() => _TrackPassengerPageState();
 }
 
-class _TrackDriverPageState extends State<TrackDriverPage> {
-  late Position passengersLocation;
+class _TrackPassengerPageState extends State<TrackPassengerPage> {
+  late Position driversLocation;
   late MapsRouteResponse routeData;
 
   @override
   Widget build(BuildContext context) {
     return PageWrapper(
-      appBarTitle: const Text("Lokacija vozača"),
+      appBarTitle: const Text("Lokacija putnika"),
       body: LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init),
     );
   }
@@ -43,7 +43,7 @@ class _TrackDriverPageState extends State<TrackDriverPage> {
             ? AppOverlay.buildLoadingContainer(context)
             : Column(
                 children: [
-                  _buildDriverData(),
+                  _buildPassengerData(),
                   _buildMap(provider.location!),
                   _buildFareData(provider.location!),
                 ],
@@ -54,41 +54,33 @@ class _TrackDriverPageState extends State<TrackDriverPage> {
 
   Future<bool> _init() async {
     await context.read<FareLocationProvider>().getLastLocation(
-      widget.fare.driver!.userId,
+      widget.fare.passenger!.userId,
     );
-    final tempPassengerLocation = await GetIt.I<LocationProvider>()
+    final tempDriverLocation = await GetIt.I<LocationProvider>()
         .getLocationData();
-    if (tempPassengerLocation == null) {
+    if (tempDriverLocation == null) {
       throw UserException("Morate dozvoliti lokaciju!");
     }
-    passengersLocation = tempPassengerLocation;
+    driversLocation = tempDriverLocation;
     if (!mounted) return false;
     await _refreshRoute(context.read<FareLocationProvider>().location!);
     return true;
   }
 
-  Widget _buildDriverData() {
+  Widget _buildPassengerData() {
     return Column(
       spacing: 10,
       children: [
-        Avatar(user: widget.fare.driver!.user!),
+        Avatar(user: widget.fare.passenger!.user!),
         IconFieldWithText(
           iconData: Icons.person,
-          text: widget.fare.driver!.user!.fullName,
-        ),
-        IconFieldWithText(
-          iconData: Icons.time_to_leave,
-          text: widget.fare.userVehicle!.vehicle.toString(),
-        ),
-        IconFieldWithText(
-          iconData: Icons.numbers,
-          text: widget.fare.userVehicle!.licensePlate,
+          text: widget.fare.passenger!.user!.fullName,
         ),
       ],
     );
   }
 
-  Widget _buildMap(NominatimCityDto driversLocation) {
+  Widget _buildMap(NominatimCityDto passengerLocation) {
     return Column(
       spacing: 10,
       children: [
@@ -97,12 +89,12 @@ class _TrackDriverPageState extends State<TrackDriverPage> {
           height: 200,
           child: MapComponent(
             from: NominatimCityDto(
-              long: driversLocation.long,
-              lat: driversLocation.lat,
+              long: driversLocation.longitude.toString(),
+              lat: driversLocation.latitude.toString(),
             ),
             to: NominatimCityDto(
-              long: passengersLocation.longitude.toString(),
-              lat: passengersLocation.latitude.toString(),
+              long: passengerLocation.long,
+              lat: passengerLocation.lat,
             ),
           ),
         ),
@@ -114,7 +106,7 @@ class _TrackDriverPageState extends State<TrackDriverPage> {
     );
   }
 
-  Widget _buildFareData(NominatimCityDto driversLocation) {
+  Widget _buildFareData(NominatimCityDto passengerLocation) {
     return Row(
       spacing: 30,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -159,16 +151,19 @@ class _TrackDriverPageState extends State<TrackDriverPage> {
 
   void _refreshLocation() {
     context.read<FareLocationProvider>().requestNewLocation(
-      widget.fare.driver!.userId,
+      widget.fare.passenger!.userId,
     );
   }
 
-  Future<void> _refreshRoute(NominatimCityDto driversLocation) async {
+  Future<void> _refreshRoute(NominatimCityDto passengerLocation) async {
     routeData = await GetIt.I<MapProvider>().getRoute(
-      NominatimCityDto(long: driversLocation.long, lat: driversLocation.lat),
       NominatimCityDto(
-        long: passengersLocation.longitude.toString(),
-        lat: passengersLocation.latitude.toString(),
+        long: driversLocation.longitude.toString(),
+        lat: driversLocation.latitude.toString(),
+      ),
+      NominatimCityDto(
+        long: passengerLocation.long,
+        lat: passengerLocation.lat,
       ),
       includeLocationNames: true,
     );

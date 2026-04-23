@@ -6,21 +6,15 @@ part 'nominatim_city_dto.g.dart';
 
 @JsonSerializable()
 class NominatimCityDto extends JsonRequest {
-  final String destinationLong;
-  final String destinationLat;
+  final String long;
+  final String lat;
 
-  NominatimCityDto({
-    required this.destinationLong,
-    required this.destinationLat,
-  });
+  NominatimCityDto({required this.long, required this.lat});
 
   @override
   Map<String, dynamic> toJson() => _$NominatimCityDtoToJson(this);
   factory NominatimCityDto.fromJson(Map<String, dynamic> json) =>
       _$NominatimCityDtoFromJson(json);
   factory NominatimCityDto.fromNominatimResponse(NominatimResponse response) =>
-      NominatimCityDto(
-        destinationLong: response.lon,
-        destinationLat: response.lat,
-      );
+      NominatimCityDto(long: response.lon, lat: response.lat);
 }

@@ -26,8 +26,8 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
             it.FareData!.FareDateTime.Date == request.FareDateTime.Date
         );
         queryable = queryable.Where(it => it.FareData!.OriginCityId == request.OriginCityId);
-        queryable = queryable.Where(it => it.FareData!.DestinationLat == request.DestinationCity.DestinationLat &&
-                                          it.FareData!.DestinationLong == request.DestinationCity.DestinationLong);
+        queryable = queryable.Where(it => it.FareData!.DestinationLat == request.DestinationCity.Lat &&
+                                          it.FareData!.DestinationLong == request.DestinationCity.Long);
         queryable = queryable.Where(it => it.PassengerId == passengerId);
         
         
@@ -51,7 +51,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
             throw new NotFoundException("Vožnja nije pronađena!");
         }
         var state = _baseFareState.GetState((short)entity.Status);
-        state.Accept(entity);
+        await state.Accept(entity);
         await _dbContext.SaveChangesAsync();
 
         return MapToResponseModel<FareResponse>(entity, _mapper);
@@ -155,7 +155,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         queryable = queryable.Include(it => it.FareData)
             .ThenInclude(it => it!.OriginCity)
             .Include(it => it.UserVehicle)
-            .ThenInclude(uv => uv.Vehicle)
+            .ThenInclude(uv => uv!.Vehicle)
             .Include(it => it.Driver)
             .ThenInclude(it => it!.User)
             .Include(it => it.Passenger)

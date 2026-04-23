@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/pages/track_driver_page.dart';
+import 'package:moj_prijevoz/pages/track_passenger_page.dart';
+import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
@@ -22,6 +24,7 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
   final PageController _pageController = PageController(viewportFraction: 0.7);
   int _currentPage = 0;
   final _pageSize = 4;
+  late final int _userPassengerProfileId;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +43,10 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
       page: 1,
       fareRole: ProfileType.passenger,
     );
-
+    _userPassengerProfileId = (await context.read<AuthProvider>().getProfileId(
+      ProfileType.passenger,
+    ))!;
+    if (!mounted) return false;
     await context.read<FareProvider>().fetchNextFares(_fareSearchObject);
     return true;
   }
@@ -115,7 +121,7 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
 
   Widget _buildFareCard(BuildContext context, FareResponse fare) {
     return GestureDetector(
-      onTap: () => _trackDriver(fare),
+      onTap: () => _trackUser(fare),
       child: Card(
         borderOnForeground: true,
         elevation: 4,
@@ -157,10 +163,14 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
     );
   }
 
-  Future _trackDriver(FareResponse fare) async {
+  Future _trackUser(FareResponse fare) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => TrackDriverPage(fare: fare)),
+      MaterialPageRoute(
+        builder: (context) => fare.passengerId == _userPassengerProfileId
+            ? TrackDriverPage(fare: fare)
+            : TrackPassengerPage(fare: fare),
+      ),
     );
   }
 }

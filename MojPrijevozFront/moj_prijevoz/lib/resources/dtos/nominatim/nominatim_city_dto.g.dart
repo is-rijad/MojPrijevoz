@@ -7,13 +7,7 @@ part of 'nominatim_city_dto.dart';
 // **************************************************************************
 
 NominatimCityDto _$NominatimCityDtoFromJson(Map<String, dynamic> json) =>
-    NominatimCityDto(
-      destinationLong: json['destinationLong'] as String,
-      destinationLat: json['destinationLat'] as String,
-    );
+    NominatimCityDto(long: json['long'] as String, lat: json['lat'] as String);
 
 Map<String, dynamic> _$NominatimCityDtoToJson(NominatimCityDto instance) =>
-    <String, dynamic>{
-      'destinationLong': instance.destinationLong,
-      'destinationLat': instance.destinationLat,
-    };
+    <String, dynamic>{'long': instance.long, 'lat': instance.lat};

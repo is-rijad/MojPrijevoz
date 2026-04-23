@@ -5,21 +5,13 @@ import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
-import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
 import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
 
 class MapComponent extends StatefulWidget {
   final NominatimCityDto? from;
   final NominatimCityDto? to;
   final List<NominatimCityDto>? stopPoints;
-  final MapsRouteResponse? route;
-  const MapComponent({
-    super.key,
-    this.from,
-    this.to,
-    this.stopPoints,
-    this.route,
-  });
+  const MapComponent({super.key, this.from, this.to, this.stopPoints});
 
   @override
   State<MapComponent> createState() => _MapComponentState();
@@ -38,12 +30,7 @@ class _MapComponentState extends State<MapComponent> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    assert(widget.route != null || (widget.from != null && widget.to != null));
-    if (widget.route == null) {
-      _findRoute();
-    } else {
-      _routePoints = widget.route!.routePoints;
-    }
+    _findRoute();
   }
 
   Future<void> _findRoute() async {
@@ -56,8 +43,10 @@ class _MapComponentState extends State<MapComponent> {
       widget.from!,
       widget.to!,
       stopPlaces: widget.stopPoints,
+      includeLocationNames: false,
     );
-
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = false;
       _routePoints = response.routePoints;
@@ -74,9 +63,6 @@ class _MapComponentState extends State<MapComponent> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) return AppOverlay.buildLoadingContainer(context);
-    for (var r in _routePoints) {
-      print(r);
-    }
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
@@ -92,7 +78,7 @@ class _MapComponentState extends State<MapComponent> {
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.example.mapapp',
         ),
-        if (widget.from != null || widget.route != null)
+        if (widget.from != null)
           MarkerLayer(
             markers: [
               Marker(
@@ -106,7 +92,7 @@ class _MapComponentState extends State<MapComponent> {
               ),
             ],
           ),
-        if (widget.to != null || widget.route != null)
+        if (widget.to != null)
           MarkerLayer(
             markers: [
               Marker(
@@ -130,8 +116,8 @@ class _MapComponentState extends State<MapComponent> {
               markers: [
                 Marker(
                   point: LatLng(
-                    double.parse(widget.stopPoints![i].destinationLat),
-                    double.parse(widget.stopPoints![i].destinationLong),
+                    double.parse(widget.stopPoints![i].lat),
+                    double.parse(widget.stopPoints![i].long),
                   ),
                   width: 40,
                   height: 40,

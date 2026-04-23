@@ -8,8 +8,10 @@ using MojPrijevoz.Services.Fare.StateMachine;
 using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer;
 using MojPrijevoz.Services.FareOffer.StateMachine;
+using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.OpenRoute;
 using MojPrijevoz.Services.SearchFare;
+using MojPrijevoz.Services.SignalR.Hubs;
 using MojPrijevoz.Services.StopPoint;
 using MojPrijevoz.Services.User;
 using MojPrijevoz.Services.UserVehicle;
@@ -40,6 +42,9 @@ builder.Services.AddDatabaseServices(connectionString);
 builder.Services.AddMapster();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
+builder.Services.AddSignalR(it => it.EnableDetailedErrors = true);
+builder.Services.AddMemoryCache();
+
 
 
 builder.Services.AddTransient<TokenManager>();
@@ -69,6 +74,10 @@ builder.Services.AddTransient<InNegotiationFareState>();
 builder.Services.AddTransient<AcceptedFareState>();
 
 
+builder.Services.AddSingleton<ConnectionTracker>();
+builder.Services.AddSingleton<PendingLocationRequests>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -77,6 +86,7 @@ if (app.Environment.IsDevelopment()) {
     app.UseSwaggerUI();
 }
 
+app.MapHub<FareLocationsHub>("/hubs/fareLocations");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

@@ -48,8 +48,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         await BeforeInsert(request);
 
         var fareDataRequest = _mapper.Map<FareDataInsertRequest>(request);
-        fareDataRequest.DestinationLat = request.DestinationCity.DestinationLat;
-        fareDataRequest.DestinationLong = request.DestinationCity.DestinationLong;
+        fareDataRequest.DestinationLat = request.DestinationCity.Lat;
+        fareDataRequest.DestinationLong = request.DestinationCity.Long;
         var fareData = await _fareDataService.InsertAsync(fareDataRequest);
 
         for (int i = 0; i < request.StopPoints.Count; i++) {
