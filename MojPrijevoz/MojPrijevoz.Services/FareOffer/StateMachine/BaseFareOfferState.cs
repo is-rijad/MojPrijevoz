@@ -21,6 +21,9 @@ public class BaseFareOfferState : BaseState<Database.FareOffer, BaseFareOfferSta
             case (short)Database.FareOfferStatus.WaitingForResponse:
                 return ServiceProvider.GetRequiredService<InNegotiationFareOfferState>();
                 break;
+            case (short)Database.FareOfferStatus.Accepted:
+                return ServiceProvider.GetRequiredService<AcceptedFareOfferState>();
+                break;
             default:
                 throw new Exception(MethodNotAllowed);
         }
@@ -39,6 +42,9 @@ public class BaseFareOfferState : BaseState<Database.FareOffer, BaseFareOfferSta
         throw new Exception(MethodNotAllowed);
     }
 
+    public virtual Database.FareOffer Pay(Database.FareOffer entity) {
+        throw new Exception(MethodNotAllowed);
+    }
 
     public override async Task<List<string>> AllowedActions(int id)
     {

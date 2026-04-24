@@ -8,7 +8,8 @@ public enum FareOfferStatus : short {
     Rejected = 0,
     Accepted = 1,
     WaitingForResponse = 2,
-    Expired = 3
+    Expired = 3,
+    Payed = 4
 }
 
 public class FareOffer : IHasCreatedAtTimestamp {
@@ -28,6 +29,7 @@ public class FareOffer : IHasCreatedAtTimestamp {
 
     public virtual Fare? Fare { get; set; }
     public virtual FareOffer? LastOffer { get; set; }
+    public float TotalPrice => Price + (AdditionalPrice ?? 0);
 }
 
 public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer> {

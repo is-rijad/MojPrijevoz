@@ -24,6 +24,9 @@ public class BaseFareState : BaseState<Database.Fare, BaseFareState> {
             case (short)Database.FareStatus.Accepted:
                 return ServiceProvider.GetRequiredService<AcceptedFareState>();
                 break;
+            case (short)Database.FareStatus.Payed:
+                return ServiceProvider.GetRequiredService<PayedFareState>();
+                break;
             default:
                 throw new Exception(MethodNotAllowed);
         }
@@ -42,6 +45,9 @@ public class BaseFareState : BaseState<Database.Fare, BaseFareState> {
     }
 
     public virtual Database.Fare Start(Database.Fare entity) {
+        throw new Exception(MethodNotAllowed);
+    }
+    public virtual Database.Fare Pay(Database.Fare entity) {
         throw new Exception(MethodNotAllowed);
     }
 

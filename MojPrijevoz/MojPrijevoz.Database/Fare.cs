@@ -12,7 +12,8 @@ public enum FareStatus : short {
     Cancelled = 3,
     Completed = 4,
     Expired = 5,
-    InProgress = 6
+    InProgress = 6,
+    Payed = 7
 }
 
 public class Fare : IHasCreatedAtTimestamp {

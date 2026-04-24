@@ -10,6 +10,7 @@ import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.da
 import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_driver_response.dart';
 import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_response.dart';
 import 'package:moj_prijevoz/resources/responses/stop_points/stop_point_response.dart';
+import 'package:moj_prijevoz/resources/responses/stripe/stripe_create_intent_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/access_token_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
@@ -32,6 +33,8 @@ final Map<Type, _FromJson> _jsonFactories = {
   FareResponse: (json) => FareResponse.fromJson(json),
   FareDataResponse: (json) => FareDataResponse.fromJson(json),
   StopPointResponse: (json) => StopPointResponse.fromJson(json),
+  StripeCreateIntentResponse: (json) =>
+      StripeCreateIntentResponse.fromJson(json),
 };
 
 T parseJson<T>(Map<String, dynamic> json) {

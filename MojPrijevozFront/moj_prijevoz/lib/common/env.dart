@@ -6,4 +6,5 @@ abstract class Environment {
   );
   static const openRouteApiUrl = String.fromEnvironment('OPENROUTE_API_URL');
   static const nominatimApiUrl = String.fromEnvironment('NOMINATIM_API_URL');
+  static const stripeKey = String.fromEnvironment('STRIPE_KEY');
 }

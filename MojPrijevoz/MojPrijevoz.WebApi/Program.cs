@@ -18,6 +18,11 @@ using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
 using System.Text.Json.Serialization;
+using MojPrijevoz.Model.Requests.Stripe;
+using MojPrijevoz.Model.Responses.Stripe;
+using MojPrijevoz.Services;
+using MojPrijevoz.Services.BaseServices;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json").AddUserSecrets<Program>();
@@ -38,6 +43,8 @@ builder.Services.AddSwaggerGen(c => c.ConfigureSwaggerAuthorization());
 
 var connectionString = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDatabaseServices(connectionString);
+
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.AddMapster();
 builder.Services.AddHttpContextAccessor();
@@ -61,17 +68,21 @@ builder.Services.AddTransient<IFareDataService, FareDataService>();
 builder.Services.AddTransient<IStopPointService, StopPointService>();
 builder.Services.AddTransient<ISearchFareService, SearchFareService>();
 builder.Services.AddTransient<IOpenRouteService, OpenRouteService>();
+builder.Services.AddTransient<IOpenRouteService, OpenRouteService>();
+builder.Services.AddTransient<IPaymentService<StripeHandleRequest, StripeHandleResponse>, StripeService>();
 
 
 builder.Services.AddTransient<BaseFareOfferState>();
 builder.Services.AddTransient<InitialFareOfferState>(); 
 builder.Services.AddTransient<InNegotiationFareOfferState>(); 
+builder.Services.AddTransient<AcceptedFareOfferState>();
 
 
 builder.Services.AddTransient<BaseFareState>();
 builder.Services.AddTransient<InitialFareState>();
 builder.Services.AddTransient<InNegotiationFareState>();
 builder.Services.AddTransient<AcceptedFareState>();
+builder.Services.AddTransient<PayedFareState>();
 
 
 builder.Services.AddSingleton<ConnectionTracker>();

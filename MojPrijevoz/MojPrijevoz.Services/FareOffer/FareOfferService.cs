@@ -193,6 +193,28 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
     }
 
 
+    public async Task<FareResponse> PayOfferAsync(int id) {
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        var entity = await _dbContext.FareOffers
+            .Include(it => it.Fare)
+            .FirstAsync(it => it.Id == id);
+        if (entity == null) {
+            throw new NotFoundException("Ponuda nije pronađena!");
+        }
+        var state = _baseFareOfferState.GetState((short)entity.Status);
+        state.Pay(entity);
+        await _fareService.PayAsync(entity!.Fare!.Id);
+
+        await _dbContext.SaveChangesAsync();
+
+        await transaction.CommitAsync();
+
+
+        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
+    }
+
+
     public async Task<List<string>> AllowedActions(int id)
     {
         return await _baseFareOfferState.AllowedActions(id);
