@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MojPrijevoz.Database.Interfaces;
 
@@ -23,6 +24,12 @@ public class FareData : IHasCreatedAtTimestamp
     public virtual ICollection<StopPoint>? StopPoints { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    //TODO: temp
+    [NotMapped]
+    public string _originLat { get; set; } = null!;
+    [NotMapped]
+    public string _originLong { get; set; } = null!;
 }
 
 public class FareDataEntityConfiguration : IEntityTypeConfiguration<FareData> {

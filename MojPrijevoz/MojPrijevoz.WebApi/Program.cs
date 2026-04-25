@@ -18,10 +18,12 @@ using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Model.Requests.Stripe;
 using MojPrijevoz.Model.Responses.Stripe;
 using MojPrijevoz.Services;
 using MojPrijevoz.Services.BaseServices;
+using MojPrijevoz.Services.DbSeeder;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,7 +54,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddSignalR(it => it.EnableDetailedErrors = true);
 builder.Services.AddMemoryCache();
 
-
+builder.Services.AddScoped<DbSeeder>();
 
 builder.Services.AddTransient<TokenManager>();
 builder.Services.AddTransient<AuthorizationService>();
@@ -96,6 +98,12 @@ if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+using var scope = app.Services.CreateScope();
+var database = scope.ServiceProvider.GetRequiredService<MojPrijevozDbContext>();
+await database.Database.MigrateAsync();
+
+// var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
+// await dbSeeder.SeedAsync();
 
 app.MapHub<FareLocationsHub>("/hubs/fareLocations");
 app.UseHttpsRedirection();

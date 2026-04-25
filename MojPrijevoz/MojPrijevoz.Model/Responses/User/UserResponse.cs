@@ -9,5 +9,4 @@ public class UserResponse {
     public string Email { get; set; } = null!;
     public string Username { get; set; } = null!;
     public int CityId { get; set; }
-    public Gender? Gender { get; set; }
 }

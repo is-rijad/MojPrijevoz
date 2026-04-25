@@ -6,14 +6,14 @@ using MojPrijevoz.Database.Interfaces;
 namespace MojPrijevoz.Database;
 
 public enum FareStatus : short {
-    InNegotiation = 0,
-    Accepted = 1,
-    Rejected = 2,
+    Rejected = 0,
+    InNegotiation = 1,
+    Accepted = 2,
     Cancelled = 3,
-    Completed = 4,
-    Expired = 5,
+    Expired = 4,
+    Payed = 5,
     InProgress = 6,
-    Payed = 7
+    Completed = 7
 }
 
 public class Fare : IHasCreatedAtTimestamp {
@@ -42,7 +42,6 @@ public class Fare : IHasCreatedAtTimestamp {
 public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
     public void Configure(EntityTypeBuilder<Fare> entity) {
         entity.HasKey(e => e.Id);
-
         entity.ToTable("Fare");
 
         entity.Property(e => e.Status).IsRequired(true);

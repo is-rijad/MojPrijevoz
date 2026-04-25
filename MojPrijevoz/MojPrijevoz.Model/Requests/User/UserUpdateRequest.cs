@@ -18,7 +18,5 @@ public class UserUpdateRequest {
     public string? Password { get; set; }
     public string? PasswordAgain { get; set; }
 
-    [EnumDataType(typeof(Gender))] public Gender? Gender { get; set; }
-
     public int? CityId { get; set; }
 }

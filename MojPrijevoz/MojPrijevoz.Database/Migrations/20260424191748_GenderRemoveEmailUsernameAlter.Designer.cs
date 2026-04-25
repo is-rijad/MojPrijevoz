@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojPrijevoz.Database;
 
@@ -11,9 +12,11 @@ using MojPrijevoz.Database;
 namespace MojPrijevoz.Database.Migrations
 {
     [DbContext(typeof(MojPrijevozDbContext))]
-    partial class MojPrijevozDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260424191748_GenderRemoveEmailUsernameAlter")]
+    partial class GenderRemoveEmailUsernameAlter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1041,9 +1044,9 @@ namespace MojPrijevoz.Database.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Picture")
-                        .HasMaxLength(256)
+                        .HasMaxLength(64)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(256)");
+                        .HasColumnType("varchar(64)");
 
                     b.Property<float>("PricePerKm")
                         .HasColumnType("real");
@@ -1119,9 +1122,9 @@ namespace MojPrijevoz.Database.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Picture")
-                        .HasMaxLength(256)
+                        .HasMaxLength(64)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(256)");
+                        .HasColumnType("varchar(64)");
 
                     b.HasIndex("CityId");
 

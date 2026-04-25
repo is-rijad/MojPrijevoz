@@ -40,7 +40,7 @@ public class AccountEntityConfiguration : IEntityTypeConfiguration<Account> {
         entity.HasIndex(e => e.Email).IsUnique();
 
         entity.Property(e => e.Email)
-            .HasMaxLength(32)
+            .HasMaxLength(96)
             .IsUnicode(false);
         entity.Property(e => e.FirstName)
             .HasMaxLength(32)
@@ -57,7 +57,7 @@ public class AccountEntityConfiguration : IEntityTypeConfiguration<Account> {
             .IsUnicode(false)
             .IsFixedLength();
         entity.Property(e => e.Username)
-            .HasMaxLength(32)
+            .HasMaxLength(96)
             .IsUnicode(false);
         entity.Property(e => e.RegisteredAt).ValueGeneratedOnAdd()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");

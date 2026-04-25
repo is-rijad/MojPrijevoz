@@ -41,7 +41,7 @@ public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehic
         entity.ToTable("UserVehicle");
 
         entity.Property(e => e.Picture)
-            .HasMaxLength(64)
+            .HasMaxLength(256)
             .IsUnicode(false);
 
         entity.Property(e => e.LicensePlate)
