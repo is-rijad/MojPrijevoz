@@ -55,7 +55,12 @@ class _PageWrapperState extends State<PageWrapper> {
           child: GestureDetector(
             key: _avatarKey,
             onTap: () => _showDropdown(context),
-            child: Avatar(radius: 20, user: value.accessTokenPayload),
+            child: Avatar(
+              radius: 30,
+              fontSize: 8,
+              user: value.accessTokenPayload,
+              showAccountStatus: true,
+            ),
           ),
         );
       },
@@ -125,6 +130,9 @@ class _PageWrapperState extends State<PageWrapper> {
         );
         break;
       case ProfileDropdownAction.logout:
+        setState(() {
+          _uiProvider.profileDropdownAction = null;
+        });
         if (!context.mounted) return;
         await context.read<AuthProvider>().logout();
         if (!context.mounted) return;

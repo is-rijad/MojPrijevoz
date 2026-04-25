@@ -1,12 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/login.dart';
-import 'package:moj_prijevoz/pages/stripe_payment_page.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
@@ -18,6 +15,7 @@ import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/search_fare_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
+import 'package:moj_prijevoz/providers/user_profile_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
@@ -51,6 +49,7 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
     ChangeNotifierProvider(create: (_) => NominatimProvider()),
     ChangeNotifierProvider(create: (_) => SearchFareProvider()),
     ChangeNotifierProvider(create: (_) => FareProvider()),
+    ChangeNotifierProvider(create: (_) => UserProfileProvider()),
     ChangeNotifierProvider(
       create: (context) =>
           FareOfferProvider(fareProvider: context.read<FareProvider>()),

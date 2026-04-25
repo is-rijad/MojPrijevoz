@@ -96,18 +96,18 @@ public class DbSeeder
 
     private async Task SeedUserProfilesAsync()
     {
-        var userProfiles = new List<UserProfile>();
+        var userProfiles = new List<Database.UserProfile>();
         while (_userIds!.Any())
         {
             var userId = _userIds!.Dequeue();
-            userProfiles.Add(new UserProfile
+            userProfiles.Add(new Database.UserProfile
             {
                 UserId = userId,
                 ProfileType = ProfileType.Passenger,
             });
             if (_randomizer.Bool(0.3f))
             {
-                var userProfile = new UserProfile
+                var userProfile = new Database.UserProfile
                 {
                     UserId = userId,
                     ProfileType = ProfileType.Driver,

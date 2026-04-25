@@ -23,9 +23,11 @@ public class AuthorizationService {
 
     public async Task<AccessTokenResponse> Login(UserLoginRequest request) {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u =>
-            u.Username == request.Username || u.Email == request.Username);
+            u.Username == request.UsernameOrEmail || u.Email == request.UsernameOrEmail);
         if (user == null || !VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
             throw new BadRequestException("Uneseni podaci nisu ispravni");
+        if (user.Status == AccountStatus.Banned)
+            throw new BadRequestException("Vaš račun je blokiran. Kontaktirajte podršku za više informacija.");
 
         var token = await _tokenManager.GenerateToken(user);
 
@@ -79,7 +81,7 @@ public class AuthorizationService {
         return (await GetUserProfile(profileType))?.Id;
     }
 
-    public async Task<UserProfile?> GetUserProfile(ProfileType profileType) {
+    public async Task<Database.UserProfile?> GetUserProfile(ProfileType profileType) {
         return await _dbContext.UserProfiles
             .Where(up => up.UserId == GetUserId() && up.ProfileType == profileType)
             .FirstOrDefaultAsync();

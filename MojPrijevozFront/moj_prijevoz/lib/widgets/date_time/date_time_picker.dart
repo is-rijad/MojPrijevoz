@@ -7,12 +7,12 @@ class DateTimePicker extends StatefulWidget {
   DateTime? initialValue;
   String? defaultLabel;
   DateTimePicker({
-    Key? key,
+    super.key,
     this.decoration,
     this.onDateTimeChanged,
     this.initialValue,
     this.defaultLabel,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _DateTimePickerState();

@@ -1,5 +1,5 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moj_prijevoz/resources/common/enums/statuses/account_status.dart';
 import 'package:moj_prijevoz/resources/common/user_for_circle_avatar_interface.dart';
 
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
@@ -19,6 +19,8 @@ class SearchFareResponse extends JsonResponse
   String lastName;
   @override
   String? picture;
+  @override
+  AccountStatus status;
   double averageReview;
   int numberOfReviews;
   List<UserVehicleResponse>? vehicles;
@@ -28,6 +30,7 @@ class SearchFareResponse extends JsonResponse
     required this.profileId,
     required this.firstName,
     required this.lastName,
+    required this.status,
     this.picture,
     required this.averageReview,
     required this.numberOfReviews,

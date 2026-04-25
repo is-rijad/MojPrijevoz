@@ -65,7 +65,7 @@ class LoginPage extends StatelessWidget {
           }
           return null;
         },
-        onSaved: (value) => _loginRequest.username = value!,
+        onSaved: (value) => _loginRequest.usernameOrEmail = value!,
       ),
       PasswordFormField(
         onSaved: (value) => _loginRequest.password = value!,

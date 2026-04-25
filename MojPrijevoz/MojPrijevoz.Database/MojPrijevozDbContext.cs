@@ -41,6 +41,9 @@ public class MojPrijevozDbContext : DbContext {
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
+
+        ApplyDefaultQueries(modelBuilder);
+
         modelBuilder.ApplyConfiguration(new AccountEntityConfiguration());
         modelBuilder.ApplyConfiguration(new AdministratorEntityConfiguration());
         modelBuilder.ApplyConfiguration(new CityEntityConfiguration());
@@ -56,6 +59,11 @@ public class MojPrijevozDbContext : DbContext {
         modelBuilder.ApplyConfiguration(new UserVehicleEntityConfiguration());
         modelBuilder.ApplyConfiguration(new VehicleEntityConfiguration());
         modelBuilder.ApplyConfiguration(new FareDataEntityConfiguration());
+    }
+
+    private void ApplyDefaultQueries(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserVehicle>().HasQueryFilter(it => it.Status != UserVehicleStatus.Deleted);
     }
 
     private void UpdateTimestamps() {

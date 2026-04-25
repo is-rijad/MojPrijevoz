@@ -36,8 +36,8 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
     protected override async Task AfterInsert(Database.User entity, MojPrijevozDbContext dbContext) {
         await base.AfterInsert(entity, dbContext);
         if (entity.UserProfiles == null)
-            entity.UserProfiles = new List<UserProfile>();
-        entity.UserProfiles.Add(new UserProfile
+            entity.UserProfiles = new List<Database.UserProfile>();
+        entity.UserProfiles.Add(new Database.UserProfile
         {
             ProfileType = ProfileType.Passenger,
             User = entity

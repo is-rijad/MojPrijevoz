@@ -51,7 +51,7 @@ class MapProvider {
         startLocationName: startLocationName,
         finalLocationName: finalLocationName,
       );
-    } on DioException catch (e) {
+    } on DioException {
       throw UserException("Greška prilikom preuzimanja rute!");
     }
   }

@@ -47,7 +47,7 @@ public class SearchFareService : ISearchFareService {
             Picture = it.User!.Picture,
             AverageReview = it.RatingTos!.Count != 0 ? it.RatingTos!.Sum(r => r.Grade) / (double)(it.RatingTos!.Count) : 0,
             NumberOfReviews = it.RatingTos!.Count,
-            Vehicles = it.UserVehicles!.AsQueryable().Include(i => i.Vehicle).Select(i => _mapper.Map<UserVehicleResponse>(i)).ToList()
+            Vehicles = it.UserVehicles!.AsQueryable().Where(uv => uv.Status == UserVehicleStatus.Active).Include(i => i.Vehicle).Select(i => _mapper.Map<UserVehicleResponse>(i)).ToList()
         }).ToListAsync();
         var count = await profilesQuery.CountAsync();
 

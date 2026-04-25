@@ -111,7 +111,14 @@ class _MyProfilState extends State<MyProfile> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
-            children: [Avatar(user: _userData, maxRadius: 60)],
+            children: [
+              Avatar(
+                user: _userData,
+                maxRadius: 60,
+                fontSize: 10,
+                showAccountStatus: true,
+              ),
+            ],
           ),
           SizedBox(width: 50),
           Flexible(

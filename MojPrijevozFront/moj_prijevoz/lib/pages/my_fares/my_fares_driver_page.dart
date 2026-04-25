@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/components/fare_offer/fare_offer_negotiate_dialog.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/common/enums/fare_offer_side.dart';
-import 'package:moj_prijevoz/resources/common/enums/statuses/fare_offer_status.dart';
 import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';

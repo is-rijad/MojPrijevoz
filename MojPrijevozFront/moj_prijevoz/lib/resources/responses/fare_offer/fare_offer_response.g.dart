@@ -44,4 +44,5 @@ const _$FareOfferStatusEnumMap = {
   FareOfferStatus.accepted: 1,
   FareOfferStatus.waitingForResponse: 2,
   FareOfferStatus.expired: 3,
+  FareOfferStatus.payed: 4,
 };

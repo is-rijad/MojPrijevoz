@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/components/profile/show_profile_dialog.dart';
 import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:moj_prijevoz/resources/requests/fare_offer/fare_offer_update_request.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
@@ -93,6 +94,7 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
                     double.parse(value) < 0) {
                   return "Unos nije validan!";
                 }
+                return null;
               },
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: (value) => setState(() {
@@ -115,6 +117,7 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
                     double.parse(value) < 0) {
                   return "Unos nije validan!";
                 }
+                return null;
               },
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: (value) => setState(() {
@@ -229,18 +232,30 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
     UserProfileResponse person,
   ) {
     return [
-      Column(
-        spacing: 10,
-        children: [
-          Avatar(user: person.user!),
-          IconFieldWithText(
-            iconData: Icons.person,
-            text: person.user!.fullName,
-          ),
-          Text("0/0"),
-        ],
+      GestureDetector(
+        onTap: () async => await _showUserProfile(person),
+        child: Column(
+          spacing: 10,
+          children: [
+            Avatar(user: person.user!),
+            IconFieldWithText(
+              iconData: Icons.person,
+              text: person.user!.fullName,
+            ),
+            Text("0/0"),
+          ],
+        ),
       ),
     ];
+  }
+
+  Future<void> _showUserProfile(UserProfileResponse userProfile) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return ShowProfileDialog(profileId: userProfile.id);
+      },
+    );
   }
 
   List<Widget> _buildNegotiateDialogButtons() {

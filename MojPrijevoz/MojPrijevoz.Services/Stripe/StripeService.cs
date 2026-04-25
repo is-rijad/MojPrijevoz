@@ -11,7 +11,7 @@ using MojPrijevoz.Services.FareOffer;
 using Stripe;
 using System.Data;
 
-namespace MojPrijevoz.Services;
+namespace MojPrijevoz.Services.Stripe;
 
 public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleResponse> {
     private readonly MojPrijevozDbContext _dbContext;

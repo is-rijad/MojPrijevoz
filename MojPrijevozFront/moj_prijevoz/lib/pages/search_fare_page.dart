@@ -660,6 +660,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
                     double.parse(value) < 0) {
                   return "Unos nije validan!";
                 }
+                return null;
               },
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: (value) => setState(() {
@@ -684,6 +685,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
                     double.parse(value) < 0) {
                   return "Unos nije validan!";
                 }
+                return null;
               },
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: (value) => setState(() {

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moj_prijevoz/resources/common/enums/statuses/account_status.dart';
 import 'package:moj_prijevoz/resources/common/gender.dart';
 import 'package:moj_prijevoz/resources/common/user_for_circle_avatar_interface.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
@@ -20,6 +21,8 @@ class UserResponse extends JsonResponse
   Gender? gender;
   @override
   String? picture;
+  @override
+  AccountStatus status;
   String get fullName => "$firstName $lastName";
   UserResponse({
     required this.id,
@@ -28,6 +31,7 @@ class UserResponse extends JsonResponse
     required this.email,
     required this.username,
     required this.cityId,
+    required this.status,
     this.gender,
   });
 

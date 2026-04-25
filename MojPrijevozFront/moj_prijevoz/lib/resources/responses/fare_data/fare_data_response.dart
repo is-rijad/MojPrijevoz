@@ -1,6 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
-import 'package:moj_prijevoz/resources/responses/fare_offer/fare_offer_response.dart';
 import 'package:moj_prijevoz/resources/responses/stop_points/stop_point_response.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 

@@ -1,3 +1,4 @@
+import 'package:moj_prijevoz/resources/common/enums/statuses/account_status.dart';
 import 'package:moj_prijevoz/resources/common/user_for_circle_avatar_interface.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
@@ -10,6 +11,8 @@ class AccessTokenPayload implements UserForCircleAvatarInterface, JsonParsable {
 
   @override
   String? picture;
+  @override
+  AccountStatus status;
   int id;
   int passengerProfileId;
   int? driverProfileId;
@@ -19,6 +22,7 @@ class AccessTokenPayload implements UserForCircleAvatarInterface, JsonParsable {
     required this.lastName,
     required this.id,
     required this.passengerProfileId,
+    required this.status,
     this.driverProfileId,
     this.picture,
   });
@@ -43,5 +47,8 @@ class AccessTokenPayload implements UserForCircleAvatarInterface, JsonParsable {
         driverProfileId: json["driver_profile_id"] != null
             ? int.parse(json["driver_profile_id"])
             : null,
+        status: AccountStatus.values
+            .where((it) => it.index == int.parse(json["account_status"]))
+            .first,
       );
 }

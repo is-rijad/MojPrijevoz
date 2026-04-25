@@ -38,7 +38,7 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         var userId = _authorizationService.GetUserId();
         var profile = await _authorizationService.GetUserProfile(ProfileType.Driver);
         if (profile is null) {
-            profile = (await _dbContext.UserProfiles.AddAsync(new UserProfile
+            profile = (await _dbContext.UserProfiles.AddAsync(new Database.UserProfile
             {
                 UserId = userId,
                 ProfileType = ProfileType.Driver

@@ -15,6 +15,7 @@ public class TokenManager {
     private const string PictureClaimType = "picture";
     private const string PassengerProfileIdClaimType = "passenger_profile_id";
     private const string DriverProfileIdClaimType = "driver_profile_id";
+    private const string AccountStatusClaimType = "account_status";
     private readonly IConfiguration _configuration;
     private readonly MojPrijevozDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -48,12 +49,13 @@ public class TokenManager {
             new(JwtRegisteredClaimNames.Name, tokenDto.FirstName),
             new(JwtRegisteredClaimNames.FamilyName, tokenDto.LastName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(PassengerProfileIdClaimType, tokenDto.PassengerProfileId.ToString())
+            new(PassengerProfileIdClaimType, tokenDto.PassengerProfileId.ToString()),
+            new(AccountStatusClaimType, tokenDto.Status.ToString())
         };
         if (tokenDto.Role.HasValue) claims.Add(new Claim(ClaimTypes.Role, tokenDto.Role.Value.ToString()));
         if (tokenDto.Picture != null) claims.Add(new Claim(PictureClaimType, tokenDto.Picture));
         if (tokenDto.DriverProfileId.HasValue)
-            claims.Add(new Claim(DriverProfileIdClaimType, tokenDto.DriverProfileId.ToString()));
+            claims.Add(new Claim(DriverProfileIdClaimType, tokenDto.DriverProfileId!.Value.ToString()));
 
         var token = new JwtSecurityToken(
             JwtIssuer,
@@ -80,6 +82,7 @@ public class TokenManager {
         var picture = pictureClaim?.Value;
         var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
         int? role = roleClaim != null ? int.Parse(roleClaim.Value) : null;
+        var accountStatus = jwtToken.Claims.FirstOrDefault(c => c.Type == AccountStatusClaimType)!.Value;
 
 
         return new UserInfoTokenDto
@@ -90,7 +93,8 @@ public class TokenManager {
             PassengerProfileId = passengerProfileId,
             DriverProfileId = driverProfileId,
             Picture = picture,
-            Role = role
+            Role = role,
+            Status = Int16.Parse(accountStatus)
         };
     }
 
