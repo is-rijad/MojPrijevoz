@@ -14,6 +14,7 @@ class UserProfileResponse extends JsonResponse {
   final int userId;
   final int numberOfFares;
   final ProfileType profileType;
+  final double averageReview;
   final UserResponse? user;
 
   UserProfileResponse({
@@ -22,6 +23,7 @@ class UserProfileResponse extends JsonResponse {
     required this.numberOfFares,
     required this.profileType,
     this.user,
+    required this.averageReview,
   });
 
   factory UserProfileResponse.fromJson(Map<String, dynamic> json) =>

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
+using MojPrijevoz.Model.Dtos.BaseService;
 using MojPrijevoz.Model.Exceptions;
 
 namespace MojPrijevoz.Services.BaseServices;
@@ -23,16 +24,22 @@ public abstract class
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         queryable = await ApplyFilter(queryable, searchObject);
         queryable = await ApplyOrdering(queryable, searchObject);
-        var fullCount = await queryable.CountAsync();
-        queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
+        var paginatedQueryable = await Paginate(queryable, searchObject);
+        queryable = paginatedQueryable.Queryable;
         queryable = await IncludeAdditionalEntities(queryable);
         var list = await queryable.Select(e => MapToResponseModel<TResponse>(e, _mapper)).ToListAsync();
         return new PagedResult<TResponse>
         {
             Items = list,
-            Count = queryable.Count(),
-            HasMore = fullCount > searchObject.Page * searchObject.PageSize
+            Count = paginatedQueryable.PaginatedCount,
+            HasMore = paginatedQueryable.FullCount > searchObject.Page * searchObject.PageSize
         };
+    }
+
+    protected async Task<PaginatedQueryable<TEntity>> Paginate(IQueryable<TEntity> queryable, TSearchObject searchObject) {
+        var fullCount = await queryable.CountAsync();
+        queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
+        return new PaginatedQueryable<TEntity>(queryable, fullCount, await queryable.CountAsync());
     }
 
     protected virtual Task<IQueryable<TEntity>> ApplyOrdering(IQueryable<TEntity> queryable, TSearchObject searchObject)

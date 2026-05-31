@@ -30,7 +30,7 @@ class _MyFaresPageState extends State<MyFaresPage> {
       return Padding(
         padding: const EdgeInsets.all(20),
         child: SizedBox(
-          height: context.screenHeight * 0.5,
+          height: context.screenHeight * 0.7,
           child: MyFaresPassengerPage(),
         ),
       );

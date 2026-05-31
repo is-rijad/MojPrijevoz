@@ -15,6 +15,7 @@ UserProfileResponse _$UserProfileResponseFromJson(Map<String, dynamic> json) =>
       user: json['user'] == null
           ? null
           : UserResponse.fromJson(json['user'] as Map<String, dynamic>),
+      averageReview: (json['averageReview'] as num).toDouble(),
     );
 
 Map<String, dynamic> _$UserProfileResponseToJson(
@@ -24,6 +25,7 @@ Map<String, dynamic> _$UserProfileResponseToJson(
   'userId': instance.userId,
   'numberOfFares': instance.numberOfFares,
   'profileType': _$ProfileTypeEnumMap[instance.profileType]!,
+  'averageReview': instance.averageReview,
   'user': instance.user,
 };
 

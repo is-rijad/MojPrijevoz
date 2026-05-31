@@ -127,16 +127,16 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
     {
         var userId = _authorizationService.GetUserId();
         var queryable = _dbContext.Fares.Where(it => (it.Passenger!.UserId == userId || it.Driver!.UserId == userId) && it.Status == FareStatus.Accepted && it.FareData!.FareDateTime > DateTime.UtcNow);
-        var fullCount = await queryable.CountAsync();
-        queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
+        var paginatedQueryable = await Paginate(queryable, searchObject);
+        queryable = paginatedQueryable.Queryable;
         queryable = queryable.OrderBy(it => it.FareData!.FareDateTime);
         queryable = await IncludeAdditionalEntities(queryable);
         var list = await queryable.Select(e => MapToResponseModel<FareResponse>(e, _mapper)).ToListAsync();
         return new PagedResult<FareResponse>
         {
             Items = list,
-            Count = queryable.Count(),
-            HasMore = fullCount > searchObject.Page * searchObject.PageSize
+            Count = paginatedQueryable.PaginatedCount,
+            HasMore = paginatedQueryable.FullCount > searchObject.Page * searchObject.PageSize
         };
     }
 
@@ -170,8 +170,12 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
             .ThenInclude(uv => uv!.Vehicle)
             .Include(it => it.Driver)
             .ThenInclude(it => it!.User)
+            .Include(it => it.Driver)
+            .ThenInclude(it => it!.RatingTos)
             .Include(it => it.Passenger)
             .ThenInclude(it => it!.User)
+            .Include(it => it.Passenger)
+            .ThenInclude(it => it!.RatingTos)
             .Include(it => it.FareOffers!.OrderBy(fo => fo.CreatedAt))
             .Include(it => it.FareData)
             .ThenInclude(it => it!.StopPoints);

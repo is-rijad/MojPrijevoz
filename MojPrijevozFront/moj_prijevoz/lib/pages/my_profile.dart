@@ -3,10 +3,13 @@ import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
+import 'package:moj_prijevoz/providers/user_profile_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/common/gender.dart';
+import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/requests/user/update_user_request.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
+import 'package:moj_prijevoz/resources/responses/user/user_profile_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/city_paged_dropdown.dart';
@@ -17,6 +20,7 @@ import 'package:moj_prijevoz/widgets/common_form_fields/username_form_field.dart
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
@@ -42,6 +46,12 @@ class _MyProfilState extends State<MyProfile> {
   final _passwordController = TextEditingController();
   final _passwordAgainController = TextEditingController();
 
+  late final int _userProfileId;
+
+  late final UserProfileProvider _userProfileProvider;
+
+  late final UserProfileResponse _userProfile;
+
   @override
   void initState() {
     super.initState();
@@ -51,13 +61,18 @@ class _MyProfilState extends State<MyProfile> {
   void didChangeDependencies() {
     _userProvider = context.read<UserProvider>();
     _cityProvider = context.read<CityProvider>();
+    _userProfileProvider = context.read<UserProfileProvider>();
     super.didChangeDependencies();
   }
 
   Future<bool> _getUserInfo() async {
     _userId = context.read<AuthProvider>().accessTokenPayload.id;
+    _userProfileId = (await context.read<AuthProvider>().getProfileId(
+      ProfileType.passenger,
+    ))!;
     _userData = await _userProvider.getById(_userId);
     _userCity = await _cityProvider.getById(_userData.cityId);
+    _userProfile = await _userProfileProvider.getById(_userProfileId);
     return true;
   }
 
@@ -94,6 +109,24 @@ class _MyProfilState extends State<MyProfile> {
         mainAxisAlignment: MainAxisAlignment.center,
         formKey: _formKey,
         children: [
+          Padding(
+            padding: EdgeInsetsGeometry.symmetric(vertical: 10),
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+              decoration: BoxDecoration(
+                color: context.primaryColor,
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+              ),
+              width: context.screenWidth * 0.7,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const TextLabelLarge("Broj vožnji"),
+                  TextLabelLarge(_userProfile.numberOfFares.toString()),
+                ],
+              ),
+            ),
+          ),
           _buildProfilePicture(context),
           ..._buildPersonalData(context),
           SizedBox(height: 24),

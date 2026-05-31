@@ -1,4 +1,5 @@
 ﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Responses.User;
@@ -16,5 +17,6 @@ public class UserProfileService : BaseService<UserProfileResponse, Database.User
     {
         await base.PrepareForResponse(entity, dbContext);
         entity.User = await dbContext.Users.FindAsync(entity.UserId);
+        entity.RatingTos = await dbContext.Ratings.Where(it => it.ToId == entity.Id).ToListAsync();
     }
 }

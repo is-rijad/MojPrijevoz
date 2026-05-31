@@ -534,6 +534,8 @@ class _SearchFarePageState extends State<SearchFarePage> {
           mainAxisSize: MainAxisSize.max,
           children: [
             EasyStarsDisplay(
+              emptyColor: context.primaryColor,
+
               initialRating: driver.averageReview,
               readOnly: true,
               allowHalfRating: true,

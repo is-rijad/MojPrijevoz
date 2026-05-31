@@ -101,7 +101,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
       Row(
         spacing: 20,
         children: [
-          Icon(Icons.attach_money),
+          Tooltip(message: "Cijena", child: Icon(Icons.attach_money)),
           Expanded(
             child: TextFormField(
               controller: _priceTextEditingController,
@@ -157,7 +157,10 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 20,
         children: [
-          Icon(Icons.attach_money_rounded),
+          Tooltip(
+            message: "Ukupna cijena",
+            child: Icon(Icons.attach_money_rounded),
+          ),
           Text(
             "${round(_request.price! + (_request.additionalPrice ?? 0))}KM",
             style: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
@@ -173,13 +176,14 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
   ) {
     return [
       Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Column(
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconFieldWithText(
+                iconHint: "Početna lokacija",
                 iconData: Icons.home,
                 text: entity.fareData!.originCity!.name,
               ),
@@ -211,6 +215,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
                           children: entity.fareData!.stopPoints!
                               .map(
                                 (i) => IconFieldWithText(
+                                  iconHint: "Zaustavno mjesto",
                                   iconData: Icons.add_location,
                                   text: i.trimmedName,
                                 ),
@@ -222,6 +227,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
                   ),
                 ),
               IconFieldWithText(
+                iconHint: "Destinacija",
                 iconData: Icons.location_city,
                 text: entity.fareData!.trimmedDestinationName,
               ),
@@ -231,6 +237,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
             spacing: 10,
             children: [
               IconFieldWithText(
+                iconHint: "Planirano vrijeme dolaska",
                 iconData: Icons.access_time,
                 text: context.getLocalizedTime(
                   entity.fareData!.fareDateTime.add(
@@ -239,10 +246,12 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
                 ),
               ),
               IconFieldWithText(
+                iconHint: "Vrijeme vožnje",
                 iconData: Icons.timer,
                 text: "${entity.fareData!.duration.toString()}min",
               ),
               IconFieldWithText(
+                iconHint: "Udaljenost",
                 iconData: Icons.social_distance,
                 text: "${entity.fareData!.length.toString()}km",
               ),
@@ -255,10 +264,13 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           IconFieldWithText(
+            iconHint: "Zakazani datum vožnje",
             iconData: Icons.calendar_month,
             text: context.getLocalizedDate(entity.fareData!.fareDateTime),
           ),
           IconFieldWithText(
+            iconHint: "Zakazano vrijeme vožnje",
+
             iconData: Icons.access_alarm,
             text: context.getLocalizedTime(entity.fareData!.fareDateTime),
           ),
@@ -288,9 +300,8 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 EasyStarsDisplay(
-                  initialRating: 4.2,
-                  //TODO send average from BE
-                  // initialRating: person.user!.averageReview,
+                  emptyColor: context.primaryColor,
+                  initialRating: person.averageReview,
                   readOnly: true,
                   allowHalfRating: true,
                   filledColor: context.primaryColor,
