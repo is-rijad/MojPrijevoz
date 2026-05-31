@@ -56,7 +56,8 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
             var stripeEvent = EventUtility.ConstructEvent(
                 json,
                 _httpContextAccessor.HttpContext!.Request.Headers["Stripe-Signature"],
-                webhookSecret
+                webhookSecret,
+                throwOnApiVersionMismatch: false
             );
 
             if (stripeEvent.Type == "payment_intent.succeeded") {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MojPrijevoz.Model.Requests.Stripe;
 using MojPrijevoz.Model.Responses.Stripe;
 using MojPrijevoz.Services.BaseServices;
@@ -20,6 +21,7 @@ public class StripeController : ControllerBase {
     }
 
     [HttpPost("Webhook")]
+    [AllowAnonymous]
     public async Task<IActionResult> Webhook()
     {
         await _stripePaymentService.Webhook();

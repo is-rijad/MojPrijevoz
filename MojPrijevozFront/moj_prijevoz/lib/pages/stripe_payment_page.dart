@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
 import 'package:moj_prijevoz/resources/requests/stripe/stripe_create_intent_request.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 
 class StripePaymentPage extends StatefulWidget {
@@ -14,6 +17,7 @@ class StripePaymentPage extends StatefulWidget {
 }
 
 class _StripePaymentPageState extends State<StripePaymentPage> {
+  bool _isSucceded = false;
   @override
   void initState() {
     super.initState();
@@ -22,36 +26,70 @@ class _StripePaymentPageState extends State<StripePaymentPage> {
       payForFare(widget.fareOfferId);
     } on StripeException catch (e) {
       if (e.error.code == FailureCode.Canceled) {
-      } else {
-      }
+      } else {}
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return PageWrapper(body: SizedBox.shrink());
+    return PageWrapper(
+      body: _isSucceded ? _buildSuccess(context) : SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildSuccess(BuildContext context) {
+    return Center(
+      child: Column(
+        spacing: 10,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.check, size: context.screenWidth * 0.5),
+          const TextDisplayLarge("Uspješno plaćanje."),
+          const TextLabelMedium("Hvala Vam što koristite Moj Prijevoz."),
+        ],
+      ),
+    );
   }
 
   Future<void> payForFare(int fareOfferId) async {
-    // 1. Dohvati client_secret s backenda
-
     final response = await GetIt.I<StripeProvider>().createIntent(
       StripeCreateIntentRequest(fareOfferId: fareOfferId),
     );
     final clientSecret = response.clientSecret;
 
-    // 2. Init payment sheet
     await Stripe.instance.initPaymentSheet(
       paymentSheetParameters: SetupPaymentSheetParameters(
         paymentIntentClientSecret: clientSecret,
         merchantDisplayName: 'MojPrijevoz',
+        billingDetails: BillingDetails(
+          address: Address(
+            country: 'BA',
+            city: null,
+            line1: null,
+            line2: null,
+            postalCode: null,
+            state: null,
+          ),
+        ),
+        billingDetailsCollectionConfiguration:
+            BillingDetailsCollectionConfiguration(
+              address: AddressCollectionMode.automatic,
+            ),
       ),
     );
 
-    // 3. Prikaži sheet
-    await Stripe.instance.presentPaymentSheet();
+    try {
+      await Stripe.instance.presentPaymentSheet();
+    } on StripeException catch (e) {
+      if (mounted && e.error.code == FailureCode.Canceled) {
+        Navigator.pop(context);
+      }
+    }
 
-    // Ovo se izvrši tek nakon uspješne uplate
-    // Webhook će ažurirati Fare.Status na backendu
+    if (mounted) {
+      setState(() {
+        _isSucceded = true;
+      });
+    }
   }
 }
