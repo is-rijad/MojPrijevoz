@@ -1,11 +1,14 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/common_form_fields/password_form_field.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 import 'package:provider/provider.dart';
@@ -31,17 +34,24 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FormWrapper(
+        paddingFactor: 0,
+        screenWidthFactor: 0.8,
         mainAxisAlignment: MainAxisAlignment.center,
         formKey: _formKey,
         children: [
-          Image.asset(
-            "images/mojPrijevoz.png",
-            fit: BoxFit.fitWidth,
-            width: 200,
-            height: 200,
+          Image.asset("images/mojPrijevoz.png", height: 100, width: 100),
+          Text(
+            "Moj Prijevoz",
+            style: TextStyle(
+              fontFamily: "Inter",
+              color: context.primaryColor,
+              fontWeight: FontWeight(900),
+              fontSize: 32,
+            ),
           ),
+          SizedBox(height: 36),
           ..._buildInputs(context),
-          SizedBox(height: 12),
+          SizedBox(height: 36),
           ..._buildButtons(context),
         ],
       ),
@@ -54,6 +64,7 @@ class LoginPage extends StatelessWidget {
         decoration: InputDecorationWithIcon(
           iconData: Icons.person,
           iconHint: "Korisničko ime ili email",
+          hintText: "mujo.mujic",
         ),
         keyboardType: TextInputType.text,
         validator: (value) {
@@ -72,6 +83,7 @@ class LoginPage extends StatelessWidget {
         decoration: InputDecorationWithIcon(
           iconData: Icons.password,
           iconHint: "Lozinka",
+          hintText: "••••••••",
         ),
       ),
     ];
@@ -81,10 +93,10 @@ class LoginPage extends StatelessWidget {
     return <Widget>[
       Center(
         child: FractionallySizedBox(
-          widthFactor: 0.5,
-          child: ElevatedButton(
+          widthFactor: 0.7,
+          child: PrimaryButton(
             onPressed: () => submitForm(context),
-            child: const Text("Uloguj se"),
+            text: "Prijavi se",
           ),
         ),
       ),
@@ -101,20 +113,14 @@ class LoginPage extends StatelessWidget {
                 context,
               ).push(MaterialPageRoute(builder: (context) => RegisterPage()));
             },
-            child: const Text(
-              "Nemate račun? Registrujte se.",
-              style: TextStyle(fontSize: 12),
-            ),
+            child: const TextBodySmall("Nemate račun? Registrujte se."),
           ),
           TextButton(
             style: ButtonStyle(
               padding: WidgetStatePropertyAll(EdgeInsets.zero),
             ),
             onPressed: () {},
-            child: const Text(
-              "Zaboravili ste lozinku?",
-              style: TextStyle(fontSize: 12),
-            ),
+            child: const TextBodySmall("Zaboravili ste lozinku?"),
           ),
         ],
       ),

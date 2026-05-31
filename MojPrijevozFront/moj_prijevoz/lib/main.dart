@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/login.dart';
@@ -68,6 +70,8 @@ Future<void> main() async {
       payload = await AuthProvider.getPayload();
     } on Exception {}
     final child = payload != null ? HomePage() : LoginPage();
+
+    Stripe.publishableKey = Environment.stripeKey;
 
     runApp(
       MultiProvider(

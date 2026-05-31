@@ -3,6 +3,7 @@ import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/resources/requests/drivers_discount/drivers_discount_upsert_request.dart';
 import 'package:moj_prijevoz/resources/responses/drivers_discount/drivers_discount_response.dart';
 import 'package:moj_prijevoz/widgets/dialogs/upsert_dialog.dart';
+import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 
 class DriversDiscountUpsertDialog
     extends
@@ -22,7 +23,11 @@ class DriversDiscountUpsertDialog
           signed: true,
           decimal: true,
         ),
-        decoration: InputDecoration(hintText: "Minimum kilometara"),
+        decoration: InputDecorationWithIcon(
+          hintText: "10",
+          iconData: Icons.keyboard_arrow_down,
+          iconHint: "Donja granica kilometara",
+        ).copyWith(suffixText: "km"),
         onSaved: (value) => request.minKm = double.parse(value!),
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -43,7 +48,11 @@ class DriversDiscountUpsertDialog
           signed: true,
           decimal: true,
         ),
-        decoration: InputDecoration(hintText: "Maksimum kilometara"),
+        decoration: InputDecorationWithIcon(
+          hintText: "50",
+          iconData: Icons.keyboard_arrow_up,
+          iconHint: "Gornja granica kilometara",
+        ).copyWith(suffixText: "km"),
         onSaved: (value) => request.maxKm = double.tryParse(value!),
         validator: (value) {
           if (value != null &&
@@ -60,7 +69,11 @@ class DriversDiscountUpsertDialog
           signed: true,
           decimal: true,
         ),
-        decoration: InputDecoration(hintText: "Popust u procentima"),
+        decoration: InputDecorationWithIcon(
+          hintText: "20",
+          iconData: Icons.percent,
+          iconHint: "Popust u procentima",
+        ),
         onSaved: (value) => request.discount = double.parse(value!),
         validator: (value) {
           if (value == null || value.isEmpty) {

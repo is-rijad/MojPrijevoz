@@ -5,7 +5,9 @@ import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:provider/provider.dart';
 
 abstract class DeleteDialog<
@@ -46,7 +48,7 @@ class _DeleteDialogState<
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
-            Text(
+            TextBodyMedium(
               "Da li ste sigurni da želite obrisati ${widget.entityName} ${widget.itemToString.call(widget.selectedItem)}",
             ),
             SizedBox(height: 20),
@@ -66,10 +68,7 @@ class _DeleteDialogState<
           onPressed: () => Navigator.pop(context),
           child: const Text("Otkaži"),
         ),
-        ElevatedButton(
-          onPressed: () => _submitForm(),
-          child: const Text("Obriši"),
-        ),
+        PrimaryButton(onPressed: () => _submitForm(), text: "Obriši"),
       ],
     );
   }

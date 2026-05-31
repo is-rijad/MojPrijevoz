@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
 
@@ -17,10 +19,7 @@ class BecomeDriverPage extends StatefulWidget {
 class _BecomeDriverPageState extends State<BecomeDriverPage> {
   @override
   Widget build(BuildContext context) {
-    return PageWrapper(
-      body: _build(context),
-      appBarTitle: const Text("Postani vozač"),
-    );
+    return PageWrapper(body: _build(context), appBarTitle: "Postani vozač");
   }
 
   Widget _build(BuildContext context) {
@@ -28,11 +27,18 @@ class _BecomeDriverPageState extends State<BecomeDriverPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("Još niste vozač?"),
+          FractionallySizedBox(
+            widthFactor: 1.2,
+            child: Image.asset("images/vehiclePlaceholder.png"),
+          ),
+          const TextTitleMedium("Još niste vozač?"),
           const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () => _buildVehicleInsertDialog(context),
-            child: const Text("Postanite vozač"),
+          FractionallySizedBox(
+            widthFactor: 0.5,
+            child: PrimaryButton(
+              onPressed: () => _buildVehicleInsertDialog(context),
+              text: "Postanite vozač",
+            ),
           ),
         ],
       ),

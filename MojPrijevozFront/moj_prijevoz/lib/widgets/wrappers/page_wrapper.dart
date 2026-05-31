@@ -10,12 +10,13 @@ import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/profile_dropdown/profile_dropdown_item.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
 import 'package:provider/provider.dart';
 
 class PageWrapper extends StatefulWidget {
   final Widget body;
-  final Widget? appBarTitle;
+  final String? appBarTitle;
 
   const PageWrapper({super.key, required this.body, this.appBarTitle});
 
@@ -37,13 +38,23 @@ class _PageWrapperState extends State<PageWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: _buildAppBar(context), body: widget.body);
+    return SafeArea(
+      child: Scaffold(appBar: _buildAppBar(context), body: widget.body),
+    );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: widget.appBarTitle,
+      leading: Navigator.canPop(context)
+          ? IconButton(
+              icon: Icon(Icons.arrow_back_ios_new_rounded),
+              onPressed: () => Navigator.pop(context),
+            )
+          : null,
+      automaticallyImplyLeading: false,
+      title: TextTitleSmall(widget.appBarTitle ?? ""),
       actions: [_buildProfileIcon(context)],
+      actionsPadding: EdgeInsets.all(8),
     );
   }
 

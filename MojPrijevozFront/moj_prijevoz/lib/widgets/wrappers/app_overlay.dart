@@ -9,8 +9,8 @@ class AppOverlay extends StatelessWidget {
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
   final Widget child;
 
-  static const primaryColor = Color(0xFF3F8ED4);
-  static const secondaryColor = Color(0xFFF1F5FE);
+  static const primaryColor = Color(0xFF4A91D1);
+  static const secondaryColor = Color(0xFFD1E9FE);
 
   AppOverlay({super.key, required this.child});
 
@@ -18,7 +18,12 @@ class AppOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       alignment: AlignmentGeometry.topCenter,
-      children: [_buildApp(context), _buildLoadingOverlay(context)],
+      fit: StackFit.expand,
+      children: [
+        RepaintBoundary(child: _buildBackgroundImage(context)),
+        _buildApp(context),
+        _buildLoadingOverlay(context),
+      ],
     );
   }
 
@@ -33,14 +38,25 @@ class AppOverlay extends StatelessWidget {
           secondary: secondaryColor,
         ),
         useMaterial3: true,
+        pageTransitionsTheme: PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          },
+        ),
         appBarTheme: AppBarTheme(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(150)),
+          ),
+          toolbarHeight: 60,
           backgroundColor: primaryColor,
           foregroundColor: secondaryColor,
           iconTheme: const IconThemeData(color: secondaryColor),
           titleTextStyle: const TextStyle(color: secondaryColor, fontSize: 24),
         ),
+        scaffoldBackgroundColor: Colors.transparent,
         iconTheme: const IconThemeData(color: primaryColor),
-        fontFamily: "Roboto",
+        fontFamily: "Inter",
         textTheme: textTheme,
       ),
       home: child,
@@ -63,6 +79,20 @@ class AppOverlay extends StatelessWidget {
       color: context.secondaryColor.withAlpha(125),
       child: const Center(
         child: CircularProgressIndicator(color: AppOverlay.primaryColor),
+      ),
+    );
+  }
+
+  Widget _buildBackgroundImage(BuildContext context) {
+    return Container(
+      width: context.screenWidth,
+      decoration: BoxDecoration(
+        color: const Color(0xFFACD8FF),
+        image: DecorationImage(
+          image: AssetImage("images/background.png"),
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.low,
+        ),
       ),
     );
   }

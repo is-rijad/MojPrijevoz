@@ -1,9 +1,11 @@
+import 'package:easy_stars/easy_stars.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
+import 'package:moj_prijevoz/components/fare_offer_negotiation/search_fare_negotiate_fialog.dart';
 import 'package:moj_prijevoz/components/map/map_component.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
@@ -31,9 +33,10 @@ import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search
 import 'package:moj_prijevoz/resources/search_objects/search_fare/search_fare_driver_search_object.dart';
 import 'package:moj_prijevoz/resources/search_objects/search_fare/search_fare_search_object.dart';
 import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/widgets/cards/mp_card.dart';
 import 'package:moj_prijevoz/widgets/date_time/date_time_picker_form_field.dart';
 import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
-import 'package:moj_prijevoz/widgets/dialogs/general_dialog.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
@@ -41,6 +44,7 @@ import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input.dart';
 import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input_form_field.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
@@ -82,7 +86,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
   @override
   Widget build(BuildContext context) {
     return PageWrapper(
-      appBarTitle: const Text("Potražite vožnju"),
+      appBarTitle: "Potražite vožnju",
       body: LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init),
     );
   }
@@ -125,8 +129,10 @@ class _SearchFarePageState extends State<SearchFarePage> {
     int value,
     SearchResult<SearchFareResponse> searchResult,
   ) async {
-    if (value ==
-            (_searchFareSearchObject.pageSize * _searchFareSearchObject.page) -
+    if (searchResult.items.isNotEmpty &&
+        value ==
+            _searchFareSearchObject.pageSize *
+                    (_searchFareSearchObject.page - 1) -
                 1 &&
         searchResult.hasMore) {
       await context.read<SearchFareProvider>().fetchData(
@@ -151,15 +157,15 @@ class _SearchFarePageState extends State<SearchFarePage> {
 
   Widget _build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(16),
       child: Form(
         key: _formKey,
         child: Column(
-          spacing: 10,
           children: [
             _buildBreadCrumbs(),
+            SizedBox(height: 10),
 
-            if (currentBreadCrumbIndex == 0) ..._buildInputs(),
+            if (currentBreadCrumbIndex == 0) _buildInputs(),
             if (currentBreadCrumbIndex == 1) _buildRecommendedDrivers(),
             if (currentBreadCrumbIndex == 2) _buildSummary(),
 
@@ -174,8 +180,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
   Widget _buildBreadCrumbs() {
     return Row(
       mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.start,
-      spacing: 10,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         TextButton(
           onPressed: () => setState(() {
@@ -229,14 +234,17 @@ class _SearchFarePageState extends State<SearchFarePage> {
     );
   }
 
-  List<Widget> _buildInputs() {
-    return [
-      _buildStartLocation(),
-      _buildStopPlaces(),
-      _buildFinalLocation(),
-      _buildDateTimePicker(),
-      _buildBudgetInput(),
-    ];
+  Widget _buildInputs() {
+    return Column(
+      spacing: 12,
+      children: [
+        _buildStartLocation(),
+        _buildStopPlaces(),
+        _buildFinalLocation(),
+        _buildDateTimePicker(),
+        _buildBudgetInput(),
+      ],
+    );
   }
 
   Widget _buildStartLocation() {
@@ -272,105 +280,100 @@ class _SearchFarePageState extends State<SearchFarePage> {
   }
 
   Widget _buildStopPlaces() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: Constants.autoCompleteTextInputElementHeight * 3 + 10,
-              maxWidth: context.screenWidth - 95,
-            ),
-            child: SingleChildScrollView(
-              child: Row(
-                children: [
-                  Container(
-                    width: 1,
-                    height:
-                        _nominatimSearchObjects.length *
-                        Constants.autoCompleteTextInputElementHeight,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: ReorderableListView(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      buildDefaultDragHandles: false,
-                      onReorder: (oldIndex, newIndex) {
-                        setState(() {
-                          if (newIndex > oldIndex) newIndex--;
-                          final obj = _nominatimSearchObjects.removeAt(
-                            oldIndex,
-                          );
-                          final sel = _nominatimPlaceSelectors.removeAt(
-                            oldIndex,
-                          );
-                          _nominatimSearchObjects.insert(newIndex, obj);
-                          _nominatimPlaceSelectors.insert(newIndex, sel);
-                          _request.isChanged = true;
-                        });
-                      },
-                      children: List.generate(_nominatimSearchObjects.length, (
-                        index,
-                      ) {
-                        final searchObject = _nominatimSearchObjects[index];
-                        final placeSelector = _nominatimPlaceSelectors[index];
+    return Row(
+      children: [
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: Constants.autoCompleteTextInputElementHeight * 3 + 10,
+            maxWidth: context.screenWidth - 80,
+          ),
+          child: SingleChildScrollView(
+            child: Row(
+              spacing: 10,
+              children: [
+                Container(
+                  width: 1,
+                  height:
+                      _nominatimSearchObjects.length *
+                      Constants.autoCompleteTextInputElementHeight,
+                  color: context.primaryColor,
+                ),
+                Expanded(
+                  child: ReorderableListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    buildDefaultDragHandles: false,
+                    onReorder: (oldIndex, newIndex) {
+                      setState(() {
+                        if (newIndex > oldIndex) newIndex--;
+                        final obj = _nominatimSearchObjects.removeAt(oldIndex);
+                        final sel = _nominatimPlaceSelectors.removeAt(oldIndex);
+                        _nominatimSearchObjects.insert(newIndex, obj);
+                        _nominatimPlaceSelectors.insert(newIndex, sel);
+                        _request.isChanged = true;
+                      });
+                    },
+                    children: List.generate(_nominatimSearchObjects.length, (
+                      index,
+                    ) {
+                      final searchObject = _nominatimSearchObjects[index];
+                      final placeSelector = _nominatimPlaceSelectors[index];
 
-                        return Row(
-                          key: ValueKey(searchObject),
-                          children: [
-                            ReorderableDragStartListener(
-                              index: index,
-                              child: const Icon(Icons.drag_handle),
-                            ),
-                            IconButton(
-                              onPressed: () => setState(() {
-                                _nominatimSearchObjects.removeAt(index);
-                                _nominatimPlaceSelectors.removeAt(index);
-                              }),
-                              icon: const Icon(Icons.remove),
-                            ),
-                            Expanded(
-                              child:
-                                  AutocompleteTextInput<
-                                    NominatimResponse,
-                                    int,
-                                    NominatimProvider,
-                                    NominatimSearchObject
-                                  >(
-                                    getLabel: (i) => i.displayName,
-                                    getValue: (i) => i.placeId,
-                                    searchObject: searchObject,
-                                    onTextChanged: (_) =>
-                                        placeSelector.resetSelection(),
-                                    decoration: const InputDecoration(
-                                      labelText: "Zaustavno mjesto",
-                                    ),
-                                    onSelectionChanged: (value) {
-                                      _request.isChanged = true;
-                                      setState(
-                                        () => placeSelector.selectPlace(value),
-                                      );
-                                    },
-                                    selectedItem: placeSelector.locationBound,
+                      return Row(
+                        key: ValueKey(searchObject),
+                        children: [
+                          ReorderableDragStartListener(
+                            index: index,
+                            child: const Icon(Icons.drag_handle),
+                          ),
+                          IconButton(
+                            onPressed: () => setState(() {
+                              _nominatimSearchObjects.removeAt(index);
+                              _nominatimPlaceSelectors.removeAt(index);
+                            }),
+                            icon: const Icon(Icons.remove),
+                            tooltip: "Ukloni",
+                          ),
+                          Expanded(
+                            child:
+                                AutocompleteTextInput<
+                                  NominatimResponse,
+                                  int,
+                                  NominatimProvider,
+                                  NominatimSearchObject
+                                >(
+                                  getLabel: (i) => i.displayName,
+                                  getValue: (i) => i.placeId,
+                                  searchObject: searchObject,
+                                  onTextChanged: (_) =>
+                                      placeSelector.resetSelection(),
+                                  decoration: const InputDecoration(
+                                    labelText: "Zaustavno mjesto",
                                   ),
-                            ),
-                          ],
-                        );
-                      }),
-                    ),
+                                  onSelectionChanged: (value) {
+                                    _request.isChanged = true;
+                                    setState(
+                                      () => placeSelector.selectPlace(value),
+                                    );
+                                  },
+                                  selectedItem: placeSelector.locationBound,
+                                ),
+                          ),
+                        ],
+                      );
+                    }),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          IconButton(
-            onPressed: () => setState(_addStopPlace),
-            icon: const Icon(Icons.add_location_rounded),
-          ),
-        ],
-      ),
+        ),
+        IconButton(
+          onPressed: () => setState(_addStopPlace),
+          icon: const Icon(Icons.add_location_rounded),
+          tooltip: "Dodaj",
+        ),
+      ],
     );
   }
 
@@ -411,8 +414,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
 
   Widget _buildDateTimePicker() {
     return DateTimePickerFormField(
-      initialValue: _request.fareDateTime,
-      defaultLabel: "Datum i vrijeme putovanja",
+      initialValue: _request.fareDateTime ?? DateTime.now(),
       decoration: InputDecorationWithIcon(
         iconData: Icons.calendar_month_outlined,
         iconHint: "Datum i vrijeme putovanja",
@@ -423,6 +425,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
           _request.fareDateTime = dateTime;
         });
       },
+      onSaved: (newValue) => _request.fareDateTime = newValue,
       validator: (value) {
         if (value == null) {
           return "Datum i vrijeme su obavezni!";
@@ -440,7 +443,8 @@ class _SearchFarePageState extends State<SearchFarePage> {
         decoration: InputDecorationWithIcon(
           iconData: Icons.attach_money_outlined,
           iconHint: "Budžet (KM)",
-        ).copyWith(suffixText: "KM", labelText: "Budžet (KM)"),
+          hintText: "Budžet",
+        ).copyWith(suffixText: "KM"),
         keyboardType: TextInputType.number,
         onChanged: (value) {
           _request.isChanged = true;
@@ -460,51 +464,53 @@ class _SearchFarePageState extends State<SearchFarePage> {
   }
 
   Widget _buildRecommendedDrivers() {
-    return SizedBox(
-      height: context.screenHeight - 200,
-      child: Consumer<SearchFareProvider>(
-        builder: (context, provider, _) {
-          if (provider.searchResult.items.isEmpty) {
-            return Expanded(
-              child: const Center(
-                child: Text("Nisu pronađeni vozači za ovu rutu!"),
-              ),
-            );
-          }
-          return Column(
-            children: [
-              Flexible(
-                child: PageView(
-                  controller: _pageController,
-                  onPageChanged: (index) =>
-                      _onPageChanged(index, provider.searchResult),
-                  children: provider.searchResult.items
-                      .map((i) => _buildSearchFareDriverCard(context, i))
-                      .toList(),
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: context.screenHeight * 0.65),
+      child: Center(
+        child: Consumer<SearchFareProvider>(
+          builder: (context, provider, _) {
+            if (provider.searchResult.items.isEmpty) {
+              return Expanded(
+                child: const Center(
+                  child: Text("Nisu pronađeni vozači za ovu rutu!"),
                 ),
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(provider.searchResult.items.length, (
-                  i,
-                ) {
-                  final isActive = i == _currentPage;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: isActive ? 12 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: isActive ? context.primaryColor : Colors.grey,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  );
-                }),
-              ),
-            ],
-          );
-        },
+              );
+            }
+            return Column(
+              children: [
+                Flexible(
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (index) =>
+                        _onPageChanged(index, provider.searchResult),
+                    children: provider.searchResult.items
+                        .map((i) => _buildSearchFareDriverCard(context, i))
+                        .toList(),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(provider.searchResult.items.length, (
+                    i,
+                  ) {
+                    final isActive = i == _currentPage;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: isActive ? 12 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isActive ? context.primaryColor : Colors.grey,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -513,204 +519,158 @@ class _SearchFarePageState extends State<SearchFarePage> {
     BuildContext context,
     SearchFareResponse driver,
   ) {
-    return GestureDetector(
+    return MpCard(
       onTap: () => _toggleSelectedDriver(driver),
-      child: Card(
-        surfaceTintColor: _selectedDrivers.containsKey(driver.profileId)
-            ? context.primaryColor
-            : null,
-        borderOnForeground: true,
-        elevation: 4,
-        child: Column(
+      borderColor: _selectedDrivers.containsKey(driver.profileId)
+          ? context.primaryColor
+          : null,
+      spacing: 12,
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      children: [
+        Avatar(user: driver, maxRadius: 50),
+        TextHeadlineSmall("${driver.firstName} ${driver.lastName}"),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Column(
-              spacing: 12,
-              children: [
-                SizedBox(height: 12),
-                Avatar(user: driver),
-                Text("${driver.firstName} ${driver.lastName}"),
-                Text("${driver.averageReview} / ${driver.numberOfReviews}"),
-                SizedBox(
-                  child: Center(
-                    child: Consumer<SearchFareProvider>(
-                      builder:
-                          (
-                            BuildContext context,
-                            SearchFareProvider provider,
-                            Widget? _,
-                          ) {
-                            return DropdownMenuFormField<UserVehicleResponse>(
-                              enableFilter: false,
-                              enableSearch: false,
-                              key: Key(driver.profileId.toString()),
-                              initialSelection:
-                                  driver.vehicles!.indexWhere(
-                                        (i) =>
-                                            i.vehicleId ==
-                                            provider
-                                                .fareDrivers[driver.profileId]
-                                                ?.vehicleId,
-                                      ) !=
-                                      -1
-                                  ? driver.vehicles!.firstWhere(
-                                      (i) =>
-                                          i.vehicleId ==
-                                          provider
-                                              .fareDrivers[driver.profileId]
-                                              ?.vehicleId,
-                                    )
-                                  : null,
-                              width: 300,
-                              onSelected: (value) =>
-                                  _onSelectedDriverVehicle(value),
-                              leadingIcon: Image.asset(
-                                "images/vehicleFallback.png",
-                                width: 15,
-                              ),
-                              hintText: "Izaberite vozilo",
-                              dropdownMenuEntries: driver.vehicles!.map((i) {
-                                return DropdownMenuEntry(
-                                  value: i,
-                                  label:
-                                      "${i.vehicle.manufacturer} ${i.vehicle.model} ${i.modelYear}",
-                                );
-                              }).toList(),
-                            );
-                          },
-                    ),
-                  ),
-                ),
-                Consumer<SearchFareProvider>(
-                  builder: (context, provider, _) {
-                    if (!provider.fareDrivers.containsKey(driver.profileId)) {
-                      return SizedBox.shrink();
-                    }
-                    final fareDriver = provider.fareDrivers[driver.profileId];
-                    return Column(
-                      spacing: 8,
-                      children: [
-                        IconFieldWithText(
-                          iconData: Icons.attach_money,
-                          text: fareDriver!.additionalPrice == null
-                              ? "${fareDriver.price}KM"
-                              : "${fareDriver.price}KM (+${fareDriver.additionalPrice}KM)*",
-                        ),
-                        IconFieldWithText(
-                          iconData: Icons.attach_money_rounded,
-                          text:
-                              "${round(fareDriver.price + (fareDriver.additionalPrice ?? 0), decimals: 2)}KM",
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () => _buildNegotiationDialog(driver.profileId),
-              child: const Text("Uredi ponudu"),
+            EasyStarsDisplay(
+              initialRating: driver.averageReview,
+              readOnly: true,
+              allowHalfRating: true,
+              filledColor: context.primaryColor,
             ),
           ],
         ),
-      ),
+        SizedBox(
+          child: Center(
+            child: Consumer<SearchFareProvider>(
+              builder:
+                  (
+                    BuildContext context,
+                    SearchFareProvider provider,
+                    Widget? _,
+                  ) {
+                    return DropdownMenuFormField<UserVehicleResponse>(
+                      inputDecorationTheme: InputDecorationTheme(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(color: context.primaryColor),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                      enableFilter: false,
+                      enableSearch: false,
+                      key: Key(driver.profileId.toString()),
+                      initialSelection:
+                          driver.vehicles!.indexWhere(
+                                (i) =>
+                                    i.vehicleId ==
+                                    provider
+                                        .fareDrivers[driver.profileId]
+                                        ?.vehicleId,
+                              ) !=
+                              -1
+                          ? driver.vehicles!.firstWhere(
+                              (i) =>
+                                  i.vehicleId ==
+                                  provider
+                                      .fareDrivers[driver.profileId]
+                                      ?.vehicleId,
+                            )
+                          : null,
+                      width: context.screenWidth * 0.5,
+                      onSelected: (value) => _onSelectedDriverVehicle(value),
+                      hintText: "Izaberite vozilo",
+                      dropdownMenuEntries: driver.vehicles!.map((i) {
+                        return DropdownMenuEntry(
+                          value: i,
+                          label:
+                              "${i.vehicle.manufacturer} ${i.vehicle.model} ${i.modelYear}",
+                        );
+                      }).toList(),
+                    );
+                  },
+            ),
+          ),
+        ),
+        Consumer<SearchFareProvider>(
+          builder: (context, provider, _) {
+            if (!provider.fareDrivers.containsKey(driver.profileId)) {
+              return SizedBox.shrink();
+            }
+            final fareDriver = provider.fareDrivers[driver.profileId];
+            return Column(
+              spacing: 8,
+              children: [
+                IconFieldWithText(
+                  iconData: Icons.attach_money,
+                  text: fareDriver!.additionalPrice == null
+                      ? "${round(fareDriver.price, decimals: 2)}KM"
+                      : "${round(fareDriver.price, decimals: 2)}KM (+${round(fareDriver.additionalPrice!, decimals: 2)}KM)*",
+                ),
+                IconFieldWithText(
+                  iconData: Icons.attach_money_rounded,
+                  text:
+                      "${round(fareDriver.price + (fareDriver.additionalPrice ?? 0), decimals: 2)}KM",
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight(900),
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        SizedBox(
+          width: context.screenWidth * 0.4,
+          child: PrimaryButton(
+            onPressed: () => _buildNegotiationDialog(driver.profileId),
+            text: "Uredi ponudu",
+          ),
+        ),
+        const Spacer(),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            TextLabelSmall(
+              "* doplata za dolazak na adresu.",
+              textAlign: TextAlign.start,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
   Future _buildNegotiationDialog(int profileId) async {
     var fareDriver = context.read<SearchFareProvider>().fareDrivers[profileId];
-    await showDialog(
+    return await showDialog(
       context: context,
       builder: (context) {
-        return GeneralDialog<SearchFareDriverResponse, dynamic>(
-          title: "Uređivanje ponude",
-          onSubmit: () async => true,
-          submitButtonTitle: "Nastavi",
-          entity: fareDriver,
-          buildContent: _buildNegotiationDialogContent,
+        return SearchFareNegotiateFialog(
+          fareDriver: fareDriver!,
+          onSavedPrice: (value) => setState(() {
+            fareDriver.price = double.parse(value!);
+          }),
+          onSavedAdditionalPrice: (value) => setState(() {
+            fareDriver.additionalPrice = double.tryParse(value ?? "");
+          }),
         );
       },
     );
   }
 
-  List<Widget> _buildNegotiationDialogContent(
-    BuildContext context,
-    SearchFareDriverResponse fareDriver,
-  ) {
-    var price = fareDriver.price;
-    var additionalPrice = fareDriver.additionalPrice;
-    return [
-      Row(
-        spacing: 20,
-        children: [
-          Icon(Icons.price_change),
-          Expanded(
-            child: TextFormField(
-              initialValue: price.toString(),
-              keyboardType: TextInputType.numberWithOptions(
-                signed: true,
-                decimal: true,
-              ),
-              validator: (value) {
-                if (value == null ||
-                    value.isEmpty ||
-                    double.tryParse(value) == null ||
-                    double.parse(value) < 0) {
-                  return "Unos nije validan!";
-                }
-                return null;
-              },
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onChanged: (value) => setState(() {
-                price = double.tryParse(value) ?? 0;
-              }),
-              onSaved: (value) => setState(() {
-                fareDriver.price = price;
-              }),
-            ),
-          ),
-          Icon(Icons.add),
-          Expanded(
-            child: TextFormField(
-              keyboardType: TextInputType.numberWithOptions(
-                signed: true,
-                decimal: true,
-              ),
-              validator: (value) {
-                if (value == null ||
-                    value.isEmpty ||
-                    double.tryParse(value) == null ||
-                    double.parse(value) < 0) {
-                  return "Unos nije validan!";
-                }
-                return null;
-              },
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onChanged: (value) => setState(() {
-                additionalPrice = double.tryParse(value);
-              }),
-              initialValue: additionalPrice?.toString() ?? "0.0",
-              onSaved: (value) => setState(() {
-                fareDriver.additionalPrice = additionalPrice;
-              }),
-            ),
-          ),
-          Text("KM*"),
-        ],
-      ),
-    ];
-  }
-
   Widget _buildSummary() {
-    return Row(
+    return Column(
       spacing: 20,
       children: [
         ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: context.screenWidth * 0.4,
-            maxHeight: 200,
+            maxWidth: context.screenWidth * 0.7,
+            maxHeight: context.screenHeight * 0.4,
           ),
           child: MapComponent(
             from: NominatimCityDto(
@@ -752,8 +712,13 @@ class _SearchFarePageState extends State<SearchFarePage> {
             IconFieldWithText(
               iconHint: "Cijene",
               iconData: Icons.attach_money,
-              text:
-                  "${_selectedDrivers.entries.map((i) => "${i.value.price + (i.value.additionalPrice ?? 0)}KM").join(", ")}*",
+              text: _selectedDrivers.entries
+                  .map(
+                    (i) =>
+                        "${i.value.price + (i.value.additionalPrice ?? 0)}KM",
+                  )
+                  .join(", "),
+              textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
             ),
           ],
         ),
@@ -772,14 +737,14 @@ class _SearchFarePageState extends State<SearchFarePage> {
               : () => setState(() {
                   currentBreadCrumbIndex--;
                 }),
-          child: Text("Nazad"),
+          child: const Text("Nazad"),
         ),
-        ElevatedButton(
+        PrimaryButton(
           onPressed: (currentBreadCrumbIndex == 1 && _selectedDrivers.isEmpty)
               ? null
               : _onClickButtonOrBreadCrumb,
 
-          child: Text("Dalje"),
+          text: "Dalje",
         ),
       ],
     );
@@ -804,9 +769,8 @@ class _SearchFarePageState extends State<SearchFarePage> {
 
   Widget _buildConfirmationDialog(BuildContext context) {
     return ConfirmationDialog(
-      content: const Text(
-        "Da li ste sigurni da želite poslati zahtjeve izabranim vozačima?",
-      ),
+      content:
+          "Da li ste sigurni da želite poslati zahtjeve izabranim vozačima?",
       onSubmit: () => _sendFareOffers(),
     );
   }

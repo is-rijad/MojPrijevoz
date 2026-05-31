@@ -1,13 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/components/fare_offer/fare_offer_negotiate_dialog.dart';
+import 'package:intl/intl.dart';
+import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
+import 'package:moj_prijevoz/components/profile/show_profile_dialog.dart';
+import 'package:moj_prijevoz/pages/my_fares/fare_offer_negotiate_page.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/common/enums/fare_offer_side.dart';
 import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
+import 'package:moj_prijevoz/resources/responses/user/user_profile_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/fare/fare_search_object.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/widgets/cards/paginated_cards.dart';
 import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
-import 'package:moj_prijevoz/widgets/tables/paginated_table.dart';
+import 'package:moj_prijevoz/widgets/icons/avatar.dart';
+import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
+import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:provider/provider.dart';
 
 class MyFaresDriverPage extends StatefulWidget {
@@ -18,57 +29,138 @@ class MyFaresDriverPage extends StatefulWidget {
 }
 
 class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
-  final _searchObject = FareSearchObject(
-    page: 1,
-    pageSize: 10,
-    fareRole: ProfileType.driver,
-  );
   @override
   Widget build(BuildContext context) {
-    return PaginatedTable<FareResponse, FareProvider, FareSearchObject>(
-      searchObject: _searchObject,
-      header: [
-        "Početna lokacija",
-        "Krajnja lokacija",
-        "Broj zaustavnih mijesta",
-        "Cijena",
-        "Putnik",
-        "Vrijeme",
-        "Status",
-        "",
-      ],
-      items: [
-        (i) => Text(i.fareData!.originCity!.name),
-        (i) => Text(i.fareData!.trimmedDestinationName),
-        (i) => Text(i.fareData!.stopPoints?.length.toString() ?? "0"),
-        (i) => Text("${i.lastFareOffer!.totalPrice.toString()}KM"),
-        (i) => Text(i.driver!.user!.fullName),
-        (i) => Text(i.fareData!.fareDateTime.toString()),
-        (i) =>
-            (i.lastFareOffer!.side == FareOfferSide.passenger &&
+    return PaginatedCards<FareSearchObject, FareResponse, FareProvider>(
+      spacing: 8,
+      searchObject: FareSearchObject(
+        page: 1,
+        pageSize: 5,
+        fareRole: ProfileType.driver,
+      ),
+      mainAxisAlignment: MainAxisAlignment.center,
+
+      children: (i) => [
+        (i.lastFareOffer!.side == FareOfferSide.passenger &&
                 i.status == FareStatus.inNegotiation)
-            ? Badge(child: Text(fareStatusMap[i.status].toString()))
-            : Text(fareStatusMap[i.status].toString()),
-        (i) => (i.status == FareStatus.accepted && i.isStartAvailable)
-            ? ElevatedButton(
-                onPressed: () async => await _buildStartFareDialog(i),
-                child: const Text("Pokrenite vožnju"),
+            ? Badge(
+                child: IconFieldWithText(
+                  iconData: Icons.info,
+                  iconHint: "Status vožnje",
+                  text: fareStatusMap[i.status].toString(),
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight(900),
+                    fontSize: 16,
+                  ),
+                ),
+              )
+            : IconFieldWithText(
+                iconData: Icons.info,
+                iconHint: "Status vožnje",
+                text: fareStatusMap[i.status].toString(),
+                textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
+              ),
+        IconFieldWithText(
+          iconData: Icons.home,
+          iconHint: "Početna lokacija",
+          text: i.fareData!.originCity!.name,
+        ),
+        if ((i.fareData!.stopPoints?.length ?? 0) != 0)
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight:
+                  clampDouble(
+                    double.parse(i.fareData!.stopPoints!.length.toString()),
+                    1,
+                    3,
+                  ) *
+                  25,
+              maxWidth: context.screenWidth - 80,
+            ),
+            child: SingleChildScrollView(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 1,
+                    height: i.fareData!.stopPoints!.length * 25,
+                    color: context.primaryColor,
+                  ),
+                  const SizedBox(width: 20),
+                  Column(
+                    children: i.fareData!.stopPoints!
+                        .map(
+                          (i) => IconFieldWithText(
+                            iconHint: "Zaustavno mjesto",
+                            iconData: Icons.add_location,
+                            text: i.trimmedName,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        IconFieldWithText(
+          iconData: Icons.location_city,
+          iconHint: "Destinacija",
+          text: i.fareData!.trimmedDestinationName,
+        ),
+
+        IconFieldWithText(
+          iconData: Icons.calendar_month,
+          iconHint: "Zakazani datum vožnje",
+          text: context.getLocalizedDate(i.fareData!.fareDateTime),
+        ),
+        IconFieldWithText(
+          iconData: Icons.watch_later,
+          iconHint: "Zakazano vrijeme vožnje",
+          text: context.getLocalizedTime(i.fareData!.fareDateTime),
+        ),
+        GestureDetector(
+          onTap: () async => await _showUserProfile(i.passenger!),
+          child: Column(
+            spacing: 8,
+            children: [
+              Avatar(user: i.passenger!.user!),
+              TextBodyLarge(i.passenger!.user!.fullName),
+            ],
+          ),
+        ),
+
+        IconFieldWithText(
+          iconData: Icons.attach_money,
+          iconHint: "Cijena",
+          text: "${i.lastFareOffer!.totalPrice.toString()}KM",
+          textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
+        ),
+        (i.status == FareStatus.payed && i.isStartAvailable)
+            ? FractionallySizedBox(
+                widthFactor: 0.7,
+                child: PrimaryButton(
+                  onPressed: () async => await _buildStartFareDialog(i),
+                  text: "Pokrenite vožnju",
+                ),
               )
             : SizedBox.shrink(),
       ],
       onTap: (i) async =>
           (i!.lastFareOffer!.side == FareOfferSide.passenger &&
               i.status == FareStatus.inNegotiation)
-          ? await _buildNegotiateDialog(i)
+          ? await _navigateToNegotiatePage(i)
           : null,
+      fallbackText: "Nemate vožnji kao vozač",
     );
   }
 
-  Future<void> _buildNegotiateDialog(FareResponse? fare) async {
-    await showDialog(
-      context: context,
-      builder: (context) =>
-          FareOfferNegotiateDialog(fare: fare!, person: fare.passenger!),
+  Future<void> _navigateToNegotiatePage(FareResponse fare) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            FareOfferNegotiatePage(fare: fare, person: fare.passenger!),
+      ),
     );
   }
 
@@ -76,16 +168,28 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
     await showDialog(
       context: context,
       builder: (context) => ConfirmationDialog(
-        content: const Text(
-          "Ukoliko započnete vožnju, putnik će dobiti obavijest da ste krenuli sa svoje lokacije.\nDa li ste sigurni da želite započeti vožnju?",
-          textAlign: TextAlign.center,
-        ),
+        content:
+            "Ukoliko započnete vožnju, putnik će dobiti obavijest da ste krenuli sa svoje lokacije.\nDa li ste sigurni da želite započeti vožnju?",
+
         onSubmit: () async {
           await context.read<FareProvider>().start(fare!.id);
+          Constants.messengerKey.currentState?.showSnackBar(
+            SuccessSnackBar(
+              message:
+                  "Započeli ste vožnju. Sada možete krenuti prema putnikovoj lokaciji.",
+            ),
+          );
         },
-        successMessage:
-            "Započeli ste vožnju. Sada možete krenuti prema putnikovoj lokaciji.",
       ),
+    );
+  }
+
+  Future<void> _showUserProfile(UserProfileResponse userProfile) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return ShowProfileDialog(profileId: userProfile.id);
+      },
     );
   }
 }

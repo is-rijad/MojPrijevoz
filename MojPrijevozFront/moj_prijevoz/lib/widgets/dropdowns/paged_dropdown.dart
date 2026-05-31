@@ -74,6 +74,8 @@ class _PagedDropdownState<
 
   @override
   Widget buildArrowOnTextInput() {
-    return !isOpen ? Icon(Icons.arrow_drop_down) : Icon(Icons.arrow_drop_up);
+    return !isOpen
+        ? Icon(Icons.keyboard_arrow_down)
+        : Icon(Icons.keyboard_arrow_up);
   }
 }

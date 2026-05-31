@@ -5,7 +5,9 @@ import 'package:moj_prijevoz/components/drivers_discount/drivers_discount_upsert
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/resources/responses/drivers_discount/drivers_discount_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/drivers_discount/drivers_discount_search_object.dart';
-import 'package:moj_prijevoz/widgets/tables/paginated_table.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/widgets/cards/paginated_cards.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 
 class DriversDiscountComponent extends StatefulWidget {
   final int profileId;
@@ -17,59 +19,58 @@ class DriversDiscountComponent extends StatefulWidget {
 }
 
 class _DriversDiscountComponent extends State<DriversDiscountComponent> {
-  final double _itemExtent = 50;
-  final int _pageSize = 5;
-
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints.loose(
-        Size(context.screenWidth, _itemExtent * (_pageSize - 1)),
-      ),
+      constraints: BoxConstraints.loose(Size(double.infinity, 320)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Moji popusti"),
-              ElevatedButton(
+              const TextHeadlineSmall("Moji popusti"),
+              PrimaryButton(
                 onPressed: () => _buildDiscountUpsertDialog(null),
-                child: const Text("Dodaj popust"),
+                text: "Dodaj popust",
               ),
             ],
           ),
-          SizedBox(height: 20),
-          _buildList(context),
+          SizedBox(height: 12),
+          _buildDiscounts(context),
         ],
       ),
     );
   }
 
-  Widget _buildList(BuildContext context) {
+  Widget _buildDiscounts(BuildContext context) {
     return Expanded(
       child:
-          PaginatedTable<
+          PaginatedCards<
+            DriversDiscountSearchObject,
             DriversDiscountResponse,
-            DriversDiscountProvider,
-            DriversDiscountSearchObject
+            DriversDiscountProvider
           >(
-            pageSize: _pageSize,
-            onTap: _buildDiscountUpsertDialog,
-            onSecondaryOrLongPress: _buildDiscountDeleteDialog,
-            searchObject: DriversDiscountSearchObject(
-              page: 1,
-              pageSize: _pageSize,
-            ),
-            header: [
-              "Donja granica kilometara",
-              "Gornja granica kilometara",
-              "Popust",
-            ],
-            items: [
-              (i) => Text("${i.minKm} km"),
-              (i) => Text("${i.maxKm?.toString() ?? "Neograničeno"} km"),
-              (i) => Text("${i.discount}%"),
+            searchObject: DriversDiscountSearchObject(page: 1, pageSize: 5),
+            onTap: (i) => _buildDiscountUpsertDialog(i),
+            onLongPress: (i) => _buildDiscountDeleteDialog(i),
+            onSecondaryTap: (i) => _buildDiscountDeleteDialog(i),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            fallbackText: "Nemate popusta",
+
+            children: (i) => [
+              const TextTitleMedium("Donja granica kilometara"),
+              Divider(color: context.primaryColor),
+              TextBodyMedium("${i.minKm} km"),
+              SizedBox(height: 12),
+              const TextTitleMedium("Gornja granica kilometara"),
+              Divider(color: context.primaryColor),
+              TextBodyMedium("${i.maxKm ?? "Neograničeno"} km"),
+
+              SizedBox(height: 12),
+              const TextTitleMedium("Popust"),
+              Divider(color: context.primaryColor),
+              TextBodyMedium("${i.discount}%"),
             ],
           ),
     );

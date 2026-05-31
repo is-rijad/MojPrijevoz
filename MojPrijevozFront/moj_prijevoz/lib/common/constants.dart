@@ -6,4 +6,7 @@ abstract class Constants {
       GlobalKey<ScaffoldMessengerState>();
   static const userAgent = "MojPrijevoz (rijad.isirlija@edu.fit.ba)";
   static const double autoCompleteTextInputElementHeight = 50;
+  static const Color secondaryTextColor = Color(0xFF284F73);
+  static const Color primaryButtonTextColor = Color(0xFFD1E9FE);
+  static const Color placeholderTextColor = Color(0xFF747474);
 }

@@ -1,35 +1,48 @@
+import 'dart:ui';
+
+import 'package:easy_stars/easy_stars.dart';
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/error_handler.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/profile/show_profile_dialog.dart';
 import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:moj_prijevoz/resources/requests/fare_offer/fare_offer_update_request.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_profile_response.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
-import 'package:moj_prijevoz/widgets/dialogs/general_dialog.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
+import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
+import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
 
-class FareOfferNegotiateDialog extends StatefulWidget {
+class FareOfferNegotiatePage extends StatefulWidget {
   final FareResponse fare;
   final UserProfileResponse person;
 
-  const FareOfferNegotiateDialog({
+  const FareOfferNegotiatePage({
     super.key,
     required this.fare,
     required this.person,
   });
 
   @override
-  State<StatefulWidget> createState() => _FareOfferNegotiateDialogState();
+  State<StatefulWidget> createState() => _FareOfferNegotiatePageState();
 }
 
-class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
+class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
   final _request = FareOfferUpdateRequest();
   late final UserProfileResponse _person;
   bool _isEditable = false;
   late final TextEditingController _priceTextEditingController;
   late final TextEditingController _additionalPriceTextEditingController;
+  final _errorMessage = ValueNotifier<String?>(null);
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -47,23 +60,32 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return GeneralDialog<FareResponse, FareOfferUpdateRequest>(
-      entity: widget.fare,
-      title: 'Ponuda za vožnju',
-      onSubmit: _onAcceptOffer,
-      successMessage: _isEditable
-          ? 'Poslali ste ponudu!'
-          : 'Prihvatili ste ponudu!',
-      buildContent: _buildNegotiateDialogContent,
-      buildButtons: _buildNegotiateDialogButtons,
-      submitButtonTitle: _isEditable ? 'Pošalji ponudu' : 'Prihvati ponudu',
+    return PageWrapper(
+      appBarTitle: "Ponuda za vožnju",
+      body: FormWrapper(
+        screenWidthFactor: 1,
+        formKey: _formKey,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ..._buildContent(context, widget.fare),
+          SizedBox(height: 20),
+          ..._buildButtons(context),
+          SizedBox(height: 10),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              TextLabelSmall(
+                "* doplata za dolazak na adresu.",
+                textAlign: TextAlign.start,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  List<Widget> _buildNegotiateDialogContent(
-    BuildContext context,
-    FareResponse entity,
-  ) {
+  List<Widget> _buildContent(BuildContext context, FareResponse entity) {
     return [
       ..._buildPriceSection(context, entity),
       SizedBox(height: 30),
@@ -79,7 +101,7 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
       Row(
         spacing: 20,
         children: [
-          Icon(Icons.price_change),
+          Icon(Icons.attach_money),
           Expanded(
             child: TextFormField(
               controller: _priceTextEditingController,
@@ -127,7 +149,7 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
               enabled: _isEditable,
             ),
           ),
-          Text("KM*"),
+          const TextLabelLarge("KM*"),
         ],
       ),
       SizedBox(height: 20),
@@ -135,8 +157,11 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 20,
         children: [
-          Icon(Icons.price_change),
-          Text("${_request.price! + (_request.additionalPrice ?? 0)}KM"),
+          Icon(Icons.attach_money_rounded),
+          Text(
+            "${round(_request.price! + (_request.additionalPrice ?? 0))}KM",
+            style: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
+          ),
         ],
       ),
     ];
@@ -160,27 +185,41 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
               ),
               if (entity.fareData!.stopPoints != null &&
                   entity.fareData!.stopPoints!.isNotEmpty)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      width: 1,
-                      height: entity.fareData!.stopPoints!.length * 30,
-                      color: Colors.black,
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight:
+                        clampDouble(
+                          double.parse(
+                            entity.fareData!.stopPoints!.length.toString(),
+                          ),
+                          1,
+                          3,
+                        ) *
+                        25,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 1,
+                          height: entity.fareData!.stopPoints!.length * 25,
+                          color: context.primaryColor,
+                        ),
+                        const SizedBox(width: 20),
+                        Column(
+                          children: entity.fareData!.stopPoints!
+                              .map(
+                                (i) => IconFieldWithText(
+                                  iconData: Icons.add_location,
+                                  text: i.trimmedName,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
                     ),
-                    Column(
-                      children: entity.fareData!.stopPoints!
-                          .map(
-                            (it) => IconFieldWithText(
-                              width: 100,
-                              iconData: Icons.location_pin,
-                              text: it.trimmedName,
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ],
+                  ),
                 ),
               IconFieldWithText(
                 iconData: Icons.location_city,
@@ -193,9 +232,11 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
             children: [
               IconFieldWithText(
                 iconData: Icons.access_time,
-                text: entity.fareData!.fareDateTime
-                    .add(Duration(minutes: entity.fareData!.duration))
-                    .toString(),
+                text: context.getLocalizedTime(
+                  entity.fareData!.fareDateTime.add(
+                    Duration(minutes: entity.fareData!.duration),
+                  ),
+                ),
               ),
               IconFieldWithText(
                 iconData: Icons.timer,
@@ -214,12 +255,12 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           IconFieldWithText(
-            iconData: Icons.calendar_today,
-            text: entity.fareData!.fareDateTime.toString(),
+            iconData: Icons.calendar_month,
+            text: context.getLocalizedDate(entity.fareData!.fareDateTime),
           ),
           IconFieldWithText(
             iconData: Icons.access_alarm,
-            text: entity.fareData!.fareDateTime.toString(),
+            text: context.getLocalizedTime(entity.fareData!.fareDateTime),
           ),
         ],
       ),
@@ -242,7 +283,20 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
               iconData: Icons.person,
               text: person.user!.fullName,
             ),
-            Text("0/0"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                EasyStarsDisplay(
+                  initialRating: 4.2,
+                  //TODO send average from BE
+                  // initialRating: person.user!.averageReview,
+                  readOnly: true,
+                  allowHalfRating: true,
+                  filledColor: context.primaryColor,
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -258,17 +312,44 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
     );
   }
 
-  List<Widget> _buildNegotiateDialogButtons() {
+  List<Widget> _buildButtons(BuildContext context) {
     return [
-      ElevatedButton(
-        onPressed: _onRejectOffer,
-        child: const Text("Odbij ponudu"),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: _isEditable ? null : _onNewOfferRequest,
+            child: const Text("Nova ponuda"),
+          ),
+        ],
       ),
-      ElevatedButton(
-        onPressed: _onNewOfferRequest,
-        child: const Text("Nova ponuda"),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+        children: [
+          ElevatedButton(onPressed: _onRejectOffer, child: const Text("Odbij")),
+          PrimaryButton(
+            text: _isEditable ? "Pošalji" : "Prihvati",
+            onPressed: _submitForm,
+          ),
+        ],
       ),
     ];
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      try {
+        bool? isDone = await _onAcceptOffer();
+        if (!mounted) return;
+        if (isDone ?? false) {
+          Navigator.pop(context);
+        }
+      } on Exception catch (ex, stack) {
+        _errorMessage.value = ErrorHandler.handle(ex, stack);
+      }
+    }
   }
 
   Future _onRejectOffer() async {
@@ -276,13 +357,18 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
       context: context,
       builder: (context) {
         return ConfirmationDialog(
-          content: const Text("Da li ste sigurni da želite odbiti ponudu?"),
+          content: "Da li ste sigurni da želite odbiti ponudu?",
           onSubmit: () async {
             await context.read<FareOfferProvider>().rejectWithEvent(
               widget.fare.lastFareOffer!.id,
             );
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
+            Constants.messengerKey.currentState?.showSnackBar(
+              SuccessSnackBar(message: "Odbili ste ponudu!"),
+            );
           },
-          successMessage: 'Odbili ste ponudu!',
         );
       },
     );
@@ -305,11 +391,17 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
         context: context,
         builder: (context) {
           return ConfirmationDialog(
-            content: const Text("Da li ste sigurni da želite poslati ponudu?"),
+            content: "Da li ste sigurni da želite poslati ponudu?",
             onSubmit: () async {
               await context.read<FareOfferProvider>().updateWithEvent(
                 widget.fare.lastFareOffer!.id,
                 _request,
+              );
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+              Constants.messengerKey.currentState?.showSnackBar(
+                SuccessSnackBar(message: "Poslali ste novu ponudu!"),
               );
             },
           );
@@ -320,12 +412,17 @@ class _FareOfferNegotiateDialogState extends State<FareOfferNegotiateDialog> {
         context: context,
         builder: (context) {
           return ConfirmationDialog(
-            content: const Text(
-              "Da li ste sigurni da želite prihvatiti ponudu?",
-            ),
+            content: "Da li ste sigurni da želite prihvatiti ponudu?",
+
             onSubmit: () async {
               await context.read<FareOfferProvider>().acceptWithEvent(
                 widget.fare.lastFareOffer!.id,
+              );
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+              Constants.messengerKey.currentState?.showSnackBar(
+                SuccessSnackBar(message: "Prihvatili ste ponudu!"),
               );
             },
           );

@@ -6,9 +6,11 @@ import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search_object.dart';
 import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/dialogs/modal_bottom_sheet.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,20 +34,28 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return PageWrapper(body: _buildHomePage(context));
+    return PageWrapper(
+      body: _buildHomePage(context),
+      appBarTitle: "Moj prijevoz",
+    );
   }
 
   Widget _buildHomePage(BuildContext context) {
-    return Center(
-      child: FractionallySizedBox(
-        widthFactor: 0.8,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ..._buildHeadingAndSearch(context),
-            _buildNextFares(context),
-            _buildSuggestedDrivers(context),
-          ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsetsGeometry.directional(top: 10),
+        child: Center(
+          child: FractionallySizedBox(
+            widthFactor: 0.9,
+            child: Column(
+              spacing: 10,
+              children: [
+                ..._buildHeadingAndSearch(context),
+                _buildNextFares(context),
+                _buildSuggestedDrivers(context),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -53,13 +63,7 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> _buildHeadingAndSearch(BuildContext context) {
     return [
-      Column(
-        children: [
-          const Text("Moj prijevoz"),
-          const Text("Vožnja koja stiže kada Vama odgovara."),
-        ],
-      ),
-
+      const TextTitleMedium("Vožnja koja stiže kada Vama odgovara."),
       Form(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -75,7 +79,9 @@ class _HomePageState extends State<HomePage> {
                   >(
                     decoration: InputDecorationWithIcon(
                       iconData: Icons.location_on,
-                    ).copyWith(hintText: "Gdje želite putovati?"),
+                      hintText: "Gdje želite putovati?",
+                      iconHint: "Željena destinacija",
+                    ),
                     searchObject: _searchObject,
                     getLabel: (i) => i.displayName,
                     getValue: (i) => i.placeId,
@@ -89,13 +95,14 @@ class _HomePageState extends State<HomePage> {
                     },
                     onSelectionChanged: (value) {
                       _nominatimPlaceSelector.selectPlace(value);
+                      searchLocation();
                     },
                   ),
             ),
-            SizedBox(width: 20),
-            ElevatedButton(
+            IconButton(
               onPressed: _searchObject.contains != null ? searchLocation : null,
-              child: const Text("Započni"),
+              icon: Icon(Icons.start),
+              tooltip: "Započnite",
             ),
           ],
         ),
@@ -107,8 +114,11 @@ class _HomePageState extends State<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Vaše zakazane vožnje"),
-        SizedBox(height: 200, child: NextFaresComponent()),
+        const TextTitleMedium("Vaše zakazane vožnje"),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 250),
+          child: NextFaresComponent(),
+        ),
       ],
     );
   }
@@ -117,7 +127,7 @@ class _HomePageState extends State<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Preporučeni vozači"),
+        const TextTitleMedium("Preporučeni vozači"),
         Container(color: Colors.deepOrange, height: 200),
       ],
     );

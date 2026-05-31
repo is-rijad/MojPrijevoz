@@ -4,13 +4,13 @@ using System.Text.Json.Serialization;
 namespace MojPrijevoz.Model.Requests.UserVehicle;
 
 public class UserVehicleUpsertRequest : IValidatableObject {
-    public int VehicleId { get; set; }
+    [Required] public int VehicleId { get; set; }
 
-    public int ModelYear { get; set; }
+    [Required] public int ModelYear { get; set; }
 
-    [Range(0, 50)] public float FuelConsumption { get; set; }
+    [MaxLength(9)] [Required] public string LicensePlate { get; set; } = null!;
 
-    [Range(0, 10)] public float PricePerKm { get; set; }
+    [Required] [Range(0, 10)] public float PricePerKm { get; set; }
 
     public string? Picture { get; set; }
 

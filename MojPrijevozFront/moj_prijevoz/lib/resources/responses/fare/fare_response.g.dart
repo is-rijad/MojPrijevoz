@@ -54,11 +54,12 @@ Map<String, dynamic> _$FareResponseToJson(FareResponse instance) =>
     };
 
 const _$FareStatusEnumMap = {
-  FareStatus.inNegotiation: 0,
-  FareStatus.accepted: 1,
-  FareStatus.rejected: 2,
+  FareStatus.rejected: 0,
+  FareStatus.inNegotiation: 1,
+  FareStatus.accepted: 2,
   FareStatus.cancelled: 3,
-  FareStatus.completed: 4,
-  FareStatus.expired: 5,
+  FareStatus.expired: 4,
+  FareStatus.payed: 5,
   FareStatus.inProgress: 6,
+  FareStatus.completed: 7,
 };

@@ -16,7 +16,8 @@ class AlertDialogContent extends StatelessWidget {
       children: [
         child,
         ValueListenableBuilder<String?>(
-          valueListenable: errorMessageValueNotifier ?? ValueNotifier<String?>(null),
+          valueListenable:
+              errorMessageValueNotifier ?? ValueNotifier<String?>(null),
           builder: (context, value, _) {
             if (value != null) {
               Future.delayed(

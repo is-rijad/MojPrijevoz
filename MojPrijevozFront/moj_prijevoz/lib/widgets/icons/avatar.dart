@@ -39,6 +39,10 @@ class Avatar extends CircleAvatar {
   static Widget _getUserPicture(UserForCircleAvatarInterface user) {
     return user.picture == null
         ? Text(user.firstName[0] + user.lastName[0])
-        : Image.network(user.picture!); // TODO: fix image
+        : Image.network(
+            user.picture!,
+            errorBuilder: (context, error, stackTrace) =>
+                Text(user.firstName[0] + user.lastName[0]),
+          ); // TODO: fix image
   }
 }

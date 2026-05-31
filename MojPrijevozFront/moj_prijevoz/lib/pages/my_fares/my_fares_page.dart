@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/pages/my_fares/my_fares_driver_page.dart';
 import 'package:moj_prijevoz/pages/my_fares/my_fares_passenger_page.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
@@ -19,7 +20,7 @@ class _MyFaresPageState extends State<MyFaresPage> {
   @override
   Widget build(BuildContext context) {
     return PageWrapper(
-      appBarTitle: const Text("Moje vožnje"),
+      appBarTitle: "Moje vožnje",
       body: LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init),
     );
   }
@@ -28,7 +29,10 @@ class _MyFaresPageState extends State<MyFaresPage> {
     if (driverProfileId == null) {
       return Padding(
         padding: const EdgeInsets.all(20),
-        child: MyFaresPassengerPage(),
+        child: SizedBox(
+          height: context.screenHeight * 0.5,
+          child: MyFaresPassengerPage(),
+        ),
       );
     }
     return DefaultTabController(
@@ -44,7 +48,8 @@ class _MyFaresPageState extends State<MyFaresPage> {
               ],
             ),
             const SizedBox(height: 20),
-            const Expanded(
+            SizedBox(
+              height: context.screenHeight * 0.7,
               child: TabBarView(
                 children: [MyFaresPassengerPage(), MyFaresDriverPage()],
               ),

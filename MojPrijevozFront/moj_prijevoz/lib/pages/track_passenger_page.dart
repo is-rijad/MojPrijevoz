@@ -31,7 +31,7 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
   @override
   Widget build(BuildContext context) {
     return PageWrapper(
-      appBarTitle: const Text("Lokacija putnika"),
+      appBarTitle: "Lokacija putnika",
       body: LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init),
     );
   }

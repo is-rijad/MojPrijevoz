@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
+import 'package:moj_prijevoz/pages/stripe_payment_page.dart';
 import 'package:moj_prijevoz/pages/track_driver_page.dart';
 import 'package:moj_prijevoz/pages/track_passenger_page.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
+import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/fare/fare_search_object.dart';
+import 'package:moj_prijevoz/widgets/cards/mp_card.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +60,8 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
     SearchResult<FareResponse> searchResult,
   ) async {
     if (searchResult.items.isNotEmpty &&
-        value == (_fareSearchObject.pageSize * _fareSearchObject.page) - 1 &&
+        value ==
+            _fareSearchObject.pageSize * (_fareSearchObject.page - 1) - 1 &&
         searchResult.hasMore) {
       await context.read<FareProvider>().fetchNextFares(_fareSearchObject);
     }
@@ -68,14 +73,9 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
 
   Widget _build(BuildContext context) {
     final searchResult = context.watch<FareProvider>().nextFares;
-    return ConstrainedBox(
-      constraints: BoxConstraints.loose(
-        Size(double.infinity, context.screenHeight * 0.5),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [..._buildFares(context, searchResult)],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [..._buildFares(context, searchResult)],
     );
   }
 
@@ -89,8 +89,7 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
       ];
     }
     return [
-      Flexible(
-        fit: FlexFit.loose,
+      Expanded(
         child: PageView(
           controller: _pageController,
           onPageChanged: (index) => _onPageChanged(index, searchResult),
@@ -99,7 +98,7 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
               .toList(),
         ),
       ),
-      SizedBox(height: 10),
+      SizedBox(height: 4),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(searchResult.items.length, (i) {
@@ -120,45 +119,59 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
   }
 
   Widget _buildFareCard(BuildContext context, FareResponse fare) {
-    return GestureDetector(
-      onTap: () => _trackUser(fare),
-      child: Card(
-        borderOnForeground: true,
-        elevation: 4,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            IconFieldWithText(
-              iconData: Icons.location_pin,
-              text: fare.fareData!.originCity!.name,
-            ),
-            IconFieldWithText(
-              iconData: Icons.location_city,
-              text: fare.fareData!.trimmedDestinationName,
-            ),
-            IconFieldWithText(
-              iconData: Icons.calendar_month,
-              text: fare.fareData!.fareDateTime.toString(),
-            ),
-            IconFieldWithText(
-              iconData: Icons.watch_later,
-              text: fare.fareData!.fareDateTime.toString(),
-            ),
-            IconFieldWithText(
-              iconData: Icons.attach_money,
-              text: "${fare.lastFareOffer!.totalPrice}KM",
-            ),
-            IconFieldWithText(
-              iconData: Icons.time_to_leave,
-              text: fare.userVehicle!.vehicle.toString(),
-            ),
-            IconFieldWithText(
-              iconData: Icons.numbers,
-              text: fare.userVehicle!.licensePlate,
-            ),
-          ],
-        ),
+    return Banner(
+      color: context.primaryColor,
+      message: fare.passengerId == _userPassengerProfileId
+          ? "Vi ste putnik"
+          : "Vi ste vozač",
+      location: BannerLocation.topEnd,
+      child: MpCard(
+        onTap: () async => fare.status == FareStatus.accepted
+            ? await _buildPayementDialog(fare)
+            : await _trackUser(fare),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        children: [
+          IconFieldWithText(
+            iconData: Icons.home,
+            text: fare.fareData!.originCity!.name,
+            iconHint: "Početna lokacija",
+          ),
+          IconFieldWithText(
+            iconData: Icons.location_city,
+            text: fare.fareData!.trimmedDestinationName,
+            iconHint: "Destinacija",
+          ),
+          SizedBox(height: 12),
+          IconFieldWithText(
+            iconData: Icons.calendar_month,
+            text: context.getLocalizedDate(fare.fareData!.fareDateTime),
+            iconHint: "Zakazani datum vožnje",
+          ),
+          IconFieldWithText(
+            iconData: Icons.watch_later,
+            text: context.getLocalizedTime(fare.fareData!.fareDateTime),
+            iconHint: "Zakazano vrijeme vožnje",
+          ),
+          SizedBox(height: 12),
+
+          IconFieldWithText(
+            iconData: Icons.time_to_leave,
+            text: fare.userVehicle!.vehicle.toString(),
+            iconHint: "Vozilo",
+          ),
+          IconFieldWithText(
+            iconData: Icons.numbers,
+            text: fare.userVehicle!.licensePlate,
+            iconHint: "Registarske tablice",
+          ),
+          SizedBox(height: 12),
+          IconFieldWithText(
+            iconHint: "Ukupna cijena",
+            iconData: Icons.attach_money,
+            text: "${fare.lastFareOffer!.totalPrice}KM",
+            textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
+          ),
+        ],
       ),
     );
   }
@@ -170,6 +183,16 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
         builder: (context) => fare.passengerId == _userPassengerProfileId
             ? TrackDriverPage(fare: fare)
             : TrackPassengerPage(fare: fare),
+      ),
+    );
+  }
+
+  Future _buildPayementDialog(FareResponse i) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            StripePaymentPage(fareOfferId: i.lastFareOffer!.id),
       ),
     );
   }

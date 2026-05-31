@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
@@ -7,12 +8,14 @@ import 'package:moj_prijevoz/resources/common/gender.dart';
 import 'package:moj_prijevoz/resources/requests/user/update_user_request.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/city_paged_dropdown.dart';
 import 'package:moj_prijevoz/widgets/common_form_fields/email_form_field.dart';
 import 'package:moj_prijevoz/widgets/common_form_fields/name_form_field.dart';
 import 'package:moj_prijevoz/widgets/common_form_fields/password_form_field.dart';
 import 'package:moj_prijevoz/widgets/common_form_fields/username_form_field.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
+import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
@@ -86,145 +89,160 @@ class _MyProfilState extends State<MyProfile> {
   Widget _build(BuildContext context) {
     return PageWrapper(
       body: FormWrapper(
-        mainAxisAlignment: MainAxisAlignment.start,
+        paddingFactor: 0,
+        screenWidthFactor: 0.8,
+        mainAxisAlignment: MainAxisAlignment.center,
         formKey: _formKey,
         children: [
+          _buildProfilePicture(context),
           ..._buildPersonalData(context),
-          _buildPasswords(context),
-          SizedBox(height: 12),
+          SizedBox(height: 24),
+          ..._buildPasswords(context),
+          SizedBox(height: 36),
           _buildSubmitButton(context),
         ],
       ),
-      appBarTitle: const Text("Moj profil"),
+      appBarTitle: "Moj profil",
     );
   }
 
-  List<Widget> _buildPersonalData(BuildContext context) {
-    return [
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [const Text("Lični podaci")],
-      ),
-      Divider(),
-      Row(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Avatar(
-                user: _userData,
-                maxRadius: 60,
-                fontSize: 10,
-                showAccountStatus: true,
-              ),
-            ],
-          ),
-          SizedBox(width: 50),
-          Flexible(
-            child: Column(
-              children: [
-                NameFormField(
-                  initialValue: _userData.firstName,
-                  errorMessage: "Ime nije validno!",
-                  onSaved: (value) => _userUpdateRequest.firstName = value,
-                ),
-                NameFormField(
-                  initialValue: _userData.lastName,
-                  errorMessage: "Prezime nije validno!",
-                  onSaved: (value) => _userUpdateRequest.lastName = value,
-                ),
-                UsernameFormField(
-                  initialValue: _userData.username,
-                  onSaved: (value) => _userUpdateRequest.username = value,
-                ),
-                EmailFormField(
-                  initialValue: _userData.email,
-                  onSaved: (value) => _userUpdateRequest.email = value,
-                ),
-                SizedBox(height: 12),
-                CityPagedDropdown(
-                  onSaved: (value) => _userUpdateRequest.cityId = value!.id,
-                  initialValue: _userCity,
-                  validator: (value) {
-                    if (value == null) {
-                      return "Grad je obavezan!";
-                    }
-                    return null;
-                  },
-                ),
-                DropdownButtonFormField<Gender>(
-                  initialValue: _userData.gender,
-                  hint: const Text("Spol"),
-                  items: Gender.values
-                      .map(
-                        (i) => DropdownMenuItem(
-                          value: i,
-                          child: Text(
-                            translatedGenders[i]!,
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) => _userUpdateRequest.gender = value,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ];
-  }
-
-  Widget _buildPasswords(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+  Widget _buildProfilePicture(BuildContext context) {
+    return Stack(
       children: [
-        const Text("Lozinka"),
-        Divider(),
-        Flexible(
-          child: PasswordFormField(
-            controller: _oldPasswordController,
-            required: false,
-            onSaved: (value) {
-              _userUpdateRequest.oldPassword = (value?.isNotEmpty ?? false
-                  ? value
-                  : null);
-            },
-          ),
+        Avatar(
+          user: _userData,
+          maxRadius: 50,
+          fontSize: 10,
+          showAccountStatus: true,
         ),
-        Flexible(
-          child: PasswordFormField(
-            controller: _passwordController,
-            required: false,
-            onSaved: (value) {
-              _userUpdateRequest.password = (value?.isNotEmpty ?? false
-                  ? value
-                  : null);
-            },
-          ),
-        ),
-        Flexible(
-          child: PasswordFormField(
-            controller: _passwordAgainController,
-            required: false,
-            onSaved: (value) {
-              _userUpdateRequest.passwordAgain = (value?.isNotEmpty ?? false
-                  ? value
-                  : null);
-            },
-          ),
+        Positioned(
+          width: 25,
+          right: 0,
+          top: 0,
+          child: Image.asset("images/editImage.png"),
         ),
       ],
     );
   }
 
+  List<Widget> _buildPersonalData(BuildContext context) {
+    return [
+      Flexible(
+        child: NameFormField(
+          decoration: InputDecorationWithIcon(
+            iconData: Icons.person,
+            iconHint: "Ime",
+          ),
+          initialValue: _userData.firstName,
+          errorMessage: "Ime nije validno!",
+          onSaved: (value) => _userUpdateRequest.firstName = value,
+        ),
+      ),
+      Flexible(
+        child: NameFormField(
+          decoration: InputDecorationWithIcon(
+            iconData: Icons.person,
+            iconHint: "Prezime",
+          ),
+          initialValue: _userData.lastName,
+          errorMessage: "Prezime nije validno!",
+          onSaved: (value) => _userUpdateRequest.lastName = value,
+        ),
+      ),
+      Flexible(
+        child: EmailFormField(
+          decoration: InputDecorationWithIcon(
+            iconData: Icons.email,
+            iconHint: "Email",
+          ),
+          initialValue: _userData.email,
+          onSaved: (value) => _userUpdateRequest.email = value,
+        ),
+      ),
+      Flexible(
+        child: UsernameFormField(
+          decoration: InputDecorationWithIcon(
+            iconData: Icons.person,
+            iconHint: "Korisničko ime",
+          ),
+          initialValue: _userData.username,
+          onSaved: (value) => _userUpdateRequest.username = value,
+        ),
+      ),
+
+      SizedBox(height: 12),
+      Flexible(
+        child: CityPagedDropdown(
+          onSaved: (value) => _userUpdateRequest.cityId = value!.id,
+          initialValue: _userCity,
+          validator: (value) {
+            if (value == null) {
+              return "Grad je obavezan!";
+            }
+            return null;
+          },
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildPasswords(BuildContext context) {
+    return [
+      Flexible(
+        child: PasswordFormField(
+          decoration: InputDecorationWithIcon(
+            iconData: Icons.password,
+            iconHint: "Stara lozinka",
+            hintText: "Stara lozinka",
+          ),
+          controller: _oldPasswordController,
+          required: false,
+          onSaved: (value) {
+            _userUpdateRequest.oldPassword = (value?.isNotEmpty ?? false
+                ? value
+                : null);
+          },
+        ),
+      ),
+      Flexible(
+        child: PasswordFormField(
+          decoration: InputDecorationWithIcon(
+            iconData: Icons.password,
+            iconHint: "Nova lozinka",
+            hintText: "Nova lozinka",
+          ),
+          controller: _passwordController,
+          required: false,
+          onSaved: (value) {
+            _userUpdateRequest.password = (value?.isNotEmpty ?? false
+                ? value
+                : null);
+          },
+        ),
+      ),
+      Flexible(
+        child: PasswordFormField(
+          decoration: InputDecorationWithIcon(
+            iconData: Icons.password,
+            iconHint: "Potvrda lozinke",
+            hintText: "Potvrda lozinke",
+          ),
+          controller: _passwordAgainController,
+          required: false,
+          onSaved: (value) {
+            _userUpdateRequest.passwordAgain = (value?.isNotEmpty ?? false
+                ? value
+                : null);
+          },
+        ),
+      ),
+    ];
+  }
+
   Widget _buildSubmitButton(BuildContext context) {
     return FractionallySizedBox(
-      widthFactor: 0.5,
-      child: ElevatedButton(onPressed: _submitForm, child: const Text("Snimi")),
+      widthFactor: 0.7,
+      child: PrimaryButton(onPressed: _submitForm, text: "Snimi"),
     );
   }
 }

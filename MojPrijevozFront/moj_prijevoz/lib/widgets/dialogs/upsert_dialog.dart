@@ -5,6 +5,7 @@ import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:provider/provider.dart';
@@ -51,6 +52,8 @@ class _UpsertDialogState<
       content: AlertDialogContent(
         errorMessageValueNotifier: _errorMessage,
         child: FormWrapper(
+          paddingFactor: 0.02,
+          screenWidthFactor: 0.9,
           formKey: _formKey,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -66,17 +69,15 @@ class _UpsertDialogState<
   Widget _buildButtons(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         ElevatedButton(
           onPressed: () => Navigator.pop(context),
           child: const Text("Otkaži"),
         ),
-        ElevatedButton(
+        PrimaryButton(
           onPressed: () => _submitForm(),
-          child: widget.selectedItem != null
-              ? const Text("Spremi")
-              : const Text("Dodaj"),
+          text: widget.selectedItem != null ? "Spremi" : "Dodaj",
         ),
       ],
     );

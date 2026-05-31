@@ -5,6 +5,7 @@ class IconFieldWithText extends StatelessWidget {
   final String text;
   final String? iconHint;
   final double? width;
+  final TextStyle? textStyle;
 
   const IconFieldWithText({
     super.key,
@@ -12,6 +13,7 @@ class IconFieldWithText extends StatelessWidget {
     required this.text,
     this.iconHint,
     this.width,
+    this.textStyle,
   });
 
   @override
@@ -29,7 +31,10 @@ class IconFieldWithText extends StatelessWidget {
                   ? Tooltip(message: iconHint, child: icon)
                   : icon,
             ),
-            TextSpan(text: ' $text', style: TextStyle(fontSize: 14)),
+            TextSpan(
+              text: ' $text',
+              style: textStyle ?? TextStyle(fontSize: 14),
+            ),
           ],
         ),
       ),

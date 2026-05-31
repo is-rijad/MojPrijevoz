@@ -2,11 +2,11 @@
 import 'package:flutter/material.dart';
 
 class DateTimePicker extends StatefulWidget {
-  InputDecoration? decoration;
-  Function(DateTime)? onDateTimeChanged;
-  DateTime? initialValue;
-  String? defaultLabel;
-  DateTimePicker({
+  final InputDecoration? decoration;
+  final Function(DateTime)? onDateTimeChanged;
+  final DateTime? initialValue;
+  final String? defaultLabel;
+  const DateTimePicker({
     super.key,
     this.decoration,
     this.onDateTimeChanged,
@@ -64,8 +64,8 @@ class _DateTimePickerState extends State<DateTimePicker> {
         }
       },
       decoration:
-          widget.decoration?.copyWith(border: OutlineInputBorder()) ??
-          InputDecoration(border: OutlineInputBorder()),
+          widget.decoration?.copyWith(border: UnderlineInputBorder()) ??
+          InputDecoration(border: UnderlineInputBorder()),
     );
   }
 

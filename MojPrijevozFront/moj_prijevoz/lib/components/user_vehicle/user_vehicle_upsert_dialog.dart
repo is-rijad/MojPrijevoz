@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user_vehicle/user_vehicle_upsert_request.dart';
@@ -22,6 +24,31 @@ class UserVehicleUpsertDialog
   @override
   List<Widget> buildContent(BuildContext context, request) {
     return [
+      Stack(
+        children: [
+          Container(
+            width: context.screenWidth * 0.5,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Constants.placeholderTextColor,
+                width: 2,
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: request.picture != null
+                ? Image.network(request.picture!)
+                : Image.asset("images/vehiclePlaceholder.png"),
+          ),
+          Positioned(
+            width: 50,
+            right: 10,
+            top: 0,
+            child: Image.asset("images/editImage.png"),
+          ),
+        ],
+      ),
+
+      SizedBox(height: 12),
       PagedDropdownFormField<
         VehicleResponse,
         int,
@@ -34,6 +61,7 @@ class UserVehicleUpsertDialog
         decoration: InputDecorationWithIcon(
           iconData: Icons.directions_car_filled,
           iconHint: "Vozilo",
+          hintText: "Audi Q3",
         ),
         onSaved: (value) => request.vehicleId = value!.id,
         validator: (value) {
@@ -50,6 +78,7 @@ class UserVehicleUpsertDialog
         decoration: InputDecorationWithIcon(
           iconData: Icons.calendar_month,
           iconHint: "Godina proizvodnje",
+          hintText: "2022",
         ),
         onSaved: (value) => request.modelYear = int.parse(value!),
         validator: (value) {
@@ -67,6 +96,7 @@ class UserVehicleUpsertDialog
         decoration: InputDecorationWithIcon(
           iconData: Icons.numbers,
           iconHint: "Registarske tablice",
+          hintText: "A12-E-345",
         ),
         onSaved: (value) => request.licensePlate = value!,
         validator: (value) {
@@ -86,9 +116,10 @@ class UserVehicleUpsertDialog
           decimal: true,
         ),
         decoration: InputDecorationWithIcon(
-          iconData: Icons.money,
+          iconData: Icons.attach_money,
           iconHint: "Cijena po kilometru",
-        ),
+          hintText: "0.5",
+        ).copyWith(suffixText: "KM"),
         onSaved: (value) => request.pricePerKm = double.parse(value!),
         validator: (value) {
           if (value == null || value.isEmpty) {

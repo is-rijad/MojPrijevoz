@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
-import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 
 class ConfirmationDialog extends StatefulWidget {
-  final Widget content;
+  final String content;
   final Future Function() onSubmit;
-  final String? successMessage;
 
   const ConfirmationDialog({
     super.key,
     required this.content,
     required this.onSubmit,
-    this.successMessage,
   });
 
   @override
@@ -30,7 +28,7 @@ class _ConfirmationDialogState extends State<ConfirmationDialog> {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
-            widget.content,
+            TextTitleMedium(widget.content, textAlign: TextAlign.center),
             SizedBox(height: 20),
             _buildButtons(context),
           ],
@@ -48,17 +46,12 @@ class _ConfirmationDialogState extends State<ConfirmationDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text("Ne"),
         ),
-        ElevatedButton(
+        PrimaryButton(
           onPressed: () async {
             Navigator.pop(context);
             await widget.onSubmit.call();
-            if (widget.successMessage != null) {
-              Constants.messengerKey.currentState!.showSnackBar(
-                SuccessSnackBar(message: widget.successMessage!),
-              );
-            }
           },
-          child: const Text("Da"),
+          text: "Da",
         ),
       ],
     );

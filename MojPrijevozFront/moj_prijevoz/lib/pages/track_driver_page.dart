@@ -31,7 +31,7 @@ class _TrackDriverPageState extends State<TrackDriverPage> {
   @override
   Widget build(BuildContext context) {
     return PageWrapper(
-      appBarTitle: const Text("Lokacija vozača"),
+      appBarTitle: "Lokacija vozača",
       body: LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init),
     );
   }

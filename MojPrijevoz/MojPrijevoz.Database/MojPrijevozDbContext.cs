@@ -63,7 +63,7 @@ public class MojPrijevozDbContext : DbContext {
 
     private void ApplyDefaultQueries(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<UserVehicle>().HasQueryFilter(it => it.Status != UserVehicleStatus.Deleted);
+        //modelBuilder.Entity<UserVehicle>().HasQueryFilter(it => it.Status != UserVehicleStatus.Deleted);
     }
 
     private void UpdateTimestamps() {
