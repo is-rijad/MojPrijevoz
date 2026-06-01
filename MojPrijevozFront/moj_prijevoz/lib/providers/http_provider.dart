@@ -65,15 +65,22 @@ class HttpProvider {
     String url,
     TRequest? request, {
     Map<String, dynamic>? queryParameters,
+    FormData? formData,
   }) async {
     try {
+      assert(formData == null || request == null);
+
       _uiProvider.startLoading();
 
       var options = await _setRequestOptions();
 
+      if (formData != null) {
+        options = options.copyWith(contentType: 'multipart/form-data');
+      }
+
       var response = await _dio.post(
         "$_apiUrl$url",
-        data: request?.toJson(),
+        data: formData ?? request?.toJson(),
         options: options,
         queryParameters: queryParameters,
       );
@@ -86,16 +93,22 @@ class HttpProvider {
   Future<TResponse> put<TRequest extends JsonParsable, TResponse>(
     String url,
     int id,
-    TRequest request, {
+    TRequest? request, {
     Map<String, dynamic>? queryParameters,
+    FormData? formData,
   }) async {
     try {
+      assert(formData == null || request == null);
+
       _uiProvider.startLoading();
 
       var options = await _setRequestOptions();
+      if (formData != null) {
+        options = options.copyWith(contentType: 'multipart/form-data');
+      }
       var response = await _dio.put(
         "$_apiUrl$url/$id",
-        data: request.toJson(),
+        data: formData ?? request?.toJson(),
         options: options,
         queryParameters: queryParameters,
       );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_delete_dialog.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
@@ -118,9 +119,13 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
         border: Border.all(color: Constants.placeholderTextColor, width: 2),
         shape: BoxShape.circle,
       ),
+      clipBehavior: Clip.hardEdge,
       child: userVehicle.picture != null
-          ? Image.network(userVehicle.picture!)
-          : Image.asset("images/vehiclePlaceholder.png"),
+          ? Image.network(
+              "${Environment.apiUrl.split("api")[0]}uploads/${userVehicle.picture!}",
+              fit: BoxFit.fill,
+            )
+          : Image.asset("images/vehiclePlaceholder.png", fit: BoxFit.fill),
     );
   }
 

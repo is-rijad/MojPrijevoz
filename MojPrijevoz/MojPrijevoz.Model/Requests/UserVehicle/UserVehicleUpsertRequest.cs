@@ -10,9 +10,7 @@ public class UserVehicleUpsertRequest : IValidatableObject {
 
     [MaxLength(9)] [Required] public string LicensePlate { get; set; } = null!;
 
-    [Required] [Range(0, 10)] public float PricePerKm { get; set; }
-
-    public string? Picture { get; set; }
+    [Required] [Range(0, 100)] public float PricePerKm { get; set; }
 
     [JsonIgnore] public int? ProfileId { get; set; }
 

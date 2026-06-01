@@ -19,6 +19,8 @@ abstract class UpsertDialog<
   final TResponse? selectedItem;
   final TRequest request;
   final String entityName;
+  final Future Function(BuildContext context, GlobalKey<FormState> formKey)?
+  submitForm;
 
   List<Widget> buildContent(BuildContext context, TRequest request);
 
@@ -27,6 +29,7 @@ abstract class UpsertDialog<
     required this.selectedItem,
     required this.request,
     required this.entityName,
+    this.submitForm,
   });
 
   @override
@@ -84,6 +87,9 @@ class _UpsertDialogState<
   }
 
   Future<void> _submitForm() async {
+    if (widget.submitForm != null) {
+      return await widget.submitForm!.call(context, _formKey);
+    }
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       try {

@@ -15,7 +15,6 @@ UpdateUserRequest _$UpdateUserRequestFromJson(Map<String, dynamic> json) =>
       oldPassword: json['oldPassword'] as String?,
       password: json['password'] as String?,
       passwordAgain: json['passwordAgain'] as String?,
-      gender: $enumDecodeNullable(_$GenderEnumMap, json['gender']),
       cityId: (json['cityId'] as num?)?.toInt(),
     );
 
@@ -28,8 +27,5 @@ Map<String, dynamic> _$UpdateUserRequestToJson(UpdateUserRequest instance) =>
       'oldPassword': instance.oldPassword,
       'password': instance.password,
       'passwordAgain': instance.passwordAgain,
-      'gender': _$GenderEnumMap[instance.gender],
       'cityId': instance.cityId,
     };
-
-const _$GenderEnumMap = {Gender.female: 0, Gender.male: 1};

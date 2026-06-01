@@ -23,6 +23,7 @@ using MojPrijevoz.Model.Requests.Stripe;
 using MojPrijevoz.Model.Responses.Stripe;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.DbSeeder;
+using MojPrijevoz.Services.FileStorage;
 using Stripe;
 using MojPrijevoz.Services.Stripe;
 using MojPrijevoz.Services.UserProfile;
@@ -49,6 +50,7 @@ builder.Services.AddDatabaseServices(connectionString);
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
+TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
 builder.Services.AddMapster();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
@@ -56,10 +58,12 @@ builder.Services.AddSignalR(it => it.EnableDetailedErrors = true);
 builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<DbSeeder>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+
 
 builder.Services.AddTransient<TokenManager>();
 builder.Services.AddTransient<AuthorizationService>();
-builder.Services.AddScoped<UserService>();
 builder.Services.AddTransient<CityService>();
 builder.Services.AddTransient<AdminCityService>();
 builder.Services.AddTransient<UserVehicleService>();
@@ -109,6 +113,7 @@ await database.Database.MigrateAsync();
 
 app.MapHub<FareLocationsHub>("/hubs/fareLocations");
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

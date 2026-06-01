@@ -13,7 +13,6 @@ UserVehicleUpsertRequest _$UserVehicleUpsertRequestFromJson(
   modelYear: (json['modelYear'] as num?)?.toInt(),
   licensePlate: json['licensePlate'] as String?,
   pricePerKm: (json['pricePerKm'] as num?)?.toDouble(),
-  picture: json['picture'] as String?,
 );
 
 Map<String, dynamic> _$UserVehicleUpsertRequestToJson(
@@ -23,5 +22,4 @@ Map<String, dynamic> _$UserVehicleUpsertRequestToJson(
   'modelYear': instance.modelYear,
   'licensePlate': instance.licensePlate,
   'pricePerKm': instance.pricePerKm,
-  'picture': instance.picture,
 };

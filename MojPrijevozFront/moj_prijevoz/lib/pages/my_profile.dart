@@ -1,8 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
+import 'package:moj_prijevoz/providers/image_picker_provider.dart';
 import 'package:moj_prijevoz/providers/user_profile_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/common/gender.dart';
@@ -79,7 +82,13 @@ class _MyProfilState extends State<MyProfile> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      await _userProvider.update(_userId, _userUpdateRequest);
+      FormData formData = FormData.fromMap({
+        ..._userUpdateRequest.toJson(),
+        "picture": _userUpdateRequest.picture,
+      });
+      await _userProvider.update(_userId, null, formData: formData);
+      if (!mounted) return;
+      await context.read<AuthProvider>().getNewToken();
       _resetForm();
       Constants.messengerKey.currentState?.showSnackBar(
         SuccessSnackBar(message: "Promjene su spremljene!"),
@@ -91,6 +100,7 @@ class _MyProfilState extends State<MyProfile> {
     _oldPasswordController.text = "";
     _passwordController.text = "";
     _passwordAgainController.text = "";
+    _userUpdateRequest.picture = null;
   }
 
   @override
@@ -140,22 +150,35 @@ class _MyProfilState extends State<MyProfile> {
   }
 
   Widget _buildProfilePicture(BuildContext context) {
-    return Stack(
-      children: [
-        Avatar(
-          user: _userData,
-          maxRadius: 50,
-          fontSize: 10,
-          showAccountStatus: true,
-        ),
-        Positioned(
-          width: 25,
-          right: 0,
-          top: 0,
-          child: Image.asset("images/editImage.png"),
-        ),
-      ],
+    return GestureDetector(
+      onTap: () async => await _onPickImage(),
+      child: Stack(
+        children: [
+          Avatar(
+            user: _userData,
+            maxRadius: 50,
+            fontSize: 10,
+            showAccountStatus: true,
+          ),
+          Positioned(
+            width: 25,
+            right: 0,
+            top: 0,
+            child: Image.asset("images/editImage.png"),
+          ),
+        ],
+      ),
     );
+  }
+
+  Future<void> _onPickImage() async {
+    final file = await GetIt.I<ImagePickerProvider>().pickImage();
+    if (file != null) {
+      _userUpdateRequest.picture = file["picture"];
+      setState(() {
+        _userData.imagePreview = file["file"];
+      });
+    }
   }
 
   List<Widget> _buildPersonalData(BuildContext context) {

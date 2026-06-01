@@ -1,11 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moj_prijevoz/resources/common/gender.dart';
+import 'package:moj_prijevoz/resources/requests/has_picture_interface.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 part 'update_user_request.g.dart';
 
 @JsonSerializable()
-class UpdateUserRequest extends JsonRequest {
+class UpdateUserRequest extends JsonRequest implements HasPictureInterface {
   String? firstName;
   String? lastName;
   String? email;
@@ -13,8 +18,11 @@ class UpdateUserRequest extends JsonRequest {
   String? oldPassword;
   String? password;
   String? passwordAgain;
-  Gender? gender;
   int? cityId;
+
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  MultipartFile? picture;
 
   UpdateUserRequest({
     this.firstName,
@@ -24,7 +32,6 @@ class UpdateUserRequest extends JsonRequest {
     this.oldPassword,
     this.password,
     this.passwordAgain,
-    this.gender,
     this.cityId,
   });
 

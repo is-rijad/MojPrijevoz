@@ -12,6 +12,7 @@ import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/providers/fare_location_provider.dart';
 import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
+import 'package:moj_prijevoz/providers/image_picker_provider.dart';
 import 'package:moj_prijevoz/providers/location_provider.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
@@ -38,6 +39,7 @@ void registerServices() {
   getIt.registerFactory<MapProvider>(() => MapProvider());
   getIt.registerFactory<LocationProvider>(() => LocationProvider());
   getIt.registerFactory<StripeProvider>(() => StripeProvider());
+  getIt.registerFactory<ImagePickerProvider>(() => ImagePickerProvider());
 }
 
 List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {

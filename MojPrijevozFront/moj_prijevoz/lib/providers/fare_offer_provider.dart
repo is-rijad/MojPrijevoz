@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/requests/fare_offer/fare_offer_insert_request.dart';
@@ -21,8 +22,9 @@ class FareOfferProvider
   @override
   Future<FareResponse> updateWithEvent(
     int id,
-    FareOfferUpdateRequest request,
-  ) async {
+    FareOfferUpdateRequest? request, {
+    FormData? formData,
+  }) async {
     final updatedItem = await super.update(id, request);
     fareProvider.updateLocally(updatedItem);
     return updatedItem;

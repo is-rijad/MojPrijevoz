@@ -1,8 +1,11 @@
 ﻿using MapsterMapper;
 using MojPrijevoz.Database;
+using MojPrijevoz.Database.Interfaces;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Services.Authorization;
+using MojPrijevoz.Services.FileStorage;
+using MojPrijevoz.Services.FormRequests;
 
 namespace MojPrijevoz.Services.BaseServices;
 
@@ -16,10 +19,12 @@ public abstract class
     where TResponse : class
     where TSearchObject : BaseSearchObject {
     protected readonly AuthorizationService _authorizationService;
+    private readonly IFileStorageService? _fileStorageService;
 
-    public BaseCrudService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) :
+    public BaseCrudService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService, IFileStorageService? fileStorageService = null) :
         base(context, mapper) {
         _authorizationService = authorizationService;
+        _fileStorageService = fileStorageService;
     }
 
     public virtual async Task<TResponse> InsertWithTransactionAsync(TInsertRequest request) {
@@ -32,6 +37,8 @@ public abstract class
     public virtual async Task<TResponse> InsertAsync(TInsertRequest request) {
         await BeforeInsert(request);
         var entityEntry = await _dbContext.Set<TEntity>().AddAsync(MapToInsertEntity(request));
+        await SetNewAndDeleteOldImageIfNeeded(request, entityEntry.Entity);
+
         await _dbContext.SaveChangesAsync();
         await AfterInsert(entityEntry.Entity, _dbContext);
         await PrepareForResponse(entityEntry.Entity, _dbContext);
@@ -50,11 +57,34 @@ public abstract class
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
         await BeforeUpdate(id, request, entity);
+
+
+        await SetNewAndDeleteOldImageIfNeeded(request, entity);
         MapToUpdateEntity(request, entity);
+
         await _dbContext.SaveChangesAsync();
         await AfterUpdate(entity, _dbContext);
         await PrepareForResponse(entity, _dbContext);
         return MapToResponseModel<TResponse>(entity, _mapper);
+    }
+
+    private async Task SetNewAndDeleteOldImageIfNeeded<T>(T request, TEntity entity)
+    {
+        if (request is not IFormHasPicture imageRequest 
+            || imageRequest.Picture is null 
+            || _fileStorageService is null) 
+            return;
+        if (entity is not IEntityHasPicture entityWithPicture)
+            throw new Exception("Entity is not IEntityHasPicture!");
+
+        var imagePath = await _fileStorageService.SaveAsync(imageRequest.Picture);
+
+        var value = entityWithPicture.Picture;
+
+        if (!string.IsNullOrEmpty(value))
+            await _fileStorageService.DeleteAsync(value);
+
+        entityWithPicture.Picture = imagePath;
     }
 
     public async Task DeleteAsync(int id) {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MojPrijevoz.Model.Requests.UserVehicle;
 using MojPrijevoz.Model.SearchObjects;
+using MojPrijevoz.Services.FormRequests.UserVehicle;
 using MojPrijevoz.Services.UserVehicle;
 
 [ApiController]
@@ -13,7 +14,8 @@ public class UserVehicleController : ControllerBase {
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] UserVehicleUpsertRequest request) {
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Post([FromForm] UserVehicleUpsertFormRequest request) {
         return Ok(await _userVehicleService.InsertWithTransactionAsync(request));
     }
 
@@ -24,7 +26,8 @@ public class UserVehicleController : ControllerBase {
 
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id, [FromBody] UserVehicleUpsertRequest request) {
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Put(int id, [FromForm] UserVehicleUpsertFormRequest request) {
         return Ok(await _userVehicleService.UpdateAsync(id, request));
     }
 

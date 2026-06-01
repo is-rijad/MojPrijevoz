@@ -1,5 +1,6 @@
 ﻿using MojPrijevoz.Database;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MojPrijevoz.Model.Requests.User;
 
@@ -18,5 +19,6 @@ public class UserUpdateRequest {
     public string? Password { get; set; }
     public string? PasswordAgain { get; set; }
 
+    [Required]
     public int? CityId { get; set; }
 }

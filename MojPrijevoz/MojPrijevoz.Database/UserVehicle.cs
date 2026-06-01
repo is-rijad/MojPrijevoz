@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
@@ -10,7 +11,7 @@ public enum UserVehicleStatus : short {
     WaitingForReview = 3
 }
 
-public class UserVehicle {
+public class UserVehicle : IEntityHasPicture {
     public int Id { get; set; }
 
     public int ProfileId { get; set; }

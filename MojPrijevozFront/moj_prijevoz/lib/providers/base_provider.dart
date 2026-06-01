@@ -1,4 +1,4 @@
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
@@ -75,15 +75,22 @@ abstract class BaseProvider<
     extends BaseGetProvider<TResponse, TSearchObject> {
   BaseProvider({required super.providerName});
 
-  Future<TResponse> insert(TInsertRequest request) async {
+  Future<TResponse> insert(
+    TInsertRequest? request, {
+    FormData? formData,
+  }) async {
     return await httpProvider.post<TInsertRequest, TResponse>(
       providerName,
       request,
+      formData: formData,
     );
   }
 
-  Future<TResponse> insertWithEvent(TInsertRequest request) async {
-    final newItem = await insert(request);
+  Future<TResponse> insertWithEvent(
+    TInsertRequest? request, {
+    FormData? formData,
+  }) async {
+    final newItem = await insert(request, formData: formData);
     insertLocally(newItem);
     return newItem;
   }
@@ -93,16 +100,25 @@ abstract class BaseProvider<
     notifyListeners();
   }
 
-  Future<TResponse> update(int id, TUpdateRequest request) async {
+  Future<TResponse> update(
+    int id,
+    TUpdateRequest? request, {
+    FormData? formData,
+  }) async {
     return await httpProvider.put<TUpdateRequest, TResponse>(
       providerName,
       id,
       request,
+      formData: formData,
     );
   }
 
-  Future<TResponse> updateWithEvent(int id, TUpdateRequest request) async {
-    final updatedItem = await update(id, request);
+  Future<TResponse> updateWithEvent(
+    int id,
+    TUpdateRequest? request, {
+    FormData? formData,
+  }) async {
+    final updatedItem = await update(id, request, formData: formData);
     updateLocally(updatedItem);
     return updatedItem;
   }

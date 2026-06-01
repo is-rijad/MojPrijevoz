@@ -11,7 +11,7 @@ public class UserVehicleResponse {
 
     public int ModelYear { get; set; }
 
-    public string LicensePlate { get; set; }
+    public string LicensePlate { get; set; } = null!;
 
     public float PricePerKm { get; set; }
 

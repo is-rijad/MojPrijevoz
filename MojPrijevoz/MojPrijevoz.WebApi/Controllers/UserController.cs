@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Services.Authorization;
+using MojPrijevoz.Services.FormRequests.User;
 using MojPrijevoz.Services.User;
+using MojPrijevoz.WebApi.Filters;
 
 namespace MojPrijevoz.WebApi.Controllers;
 
@@ -31,7 +33,8 @@ public class UserController : ControllerBase {
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id, [FromBody] UserUpdateRequest request) {
+    [ImageSizeFilter]
+    public async Task<IActionResult> Put(int id, [FromForm] UserUpdateFormRequest request) {
         return Ok(await _userService.UpdateAsync(id, request));
     }
 }

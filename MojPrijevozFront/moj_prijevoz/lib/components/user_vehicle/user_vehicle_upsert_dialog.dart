@@ -1,15 +1,25 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
+import 'package:moj_prijevoz/providers/image_picker_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user_vehicle/user_vehicle_upsert_request.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
 import 'package:moj_prijevoz/resources/responses/vehicle/vehicle_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/vehicle/vehicle_search_object.dart';
+import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/widgets/dialogs/upsert_dialog.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:provider/provider.dart';
 
 class UserVehicleUpsertDialog
     extends
@@ -21,31 +31,72 @@ class UserVehicleUpsertDialog
   UserVehicleUpsertDialog({super.key, required super.selectedItem})
     : super(request: UserVehicleUpsertRequest(), entityName: "vozilo");
 
+  final previewImage = ValueNotifier<File?>(null);
+
+  @override
+  Future Function(BuildContext, GlobalKey<FormState>) get submitForm =>
+      (BuildContext context, GlobalKey<FormState> formKey) async {
+        if (formKey.currentState!.validate()) {
+          formKey.currentState!.save();
+          JsonResponse? resultItem;
+
+          FormData formData = FormData.fromMap({
+            ...super.request.toJson(),
+            "picture": super.request.picture,
+          });
+          if (super.selectedItem != null) {
+            resultItem = await context
+                .read<UserVehicleProvider>()
+                .updateWithEvent(
+                  super.selectedItem!.id,
+                  null,
+                  formData: formData,
+                );
+          } else {
+            resultItem = await context
+                .read<UserVehicleProvider>()
+                .insertWithEvent(null, formData: formData);
+          }
+          if (!context.mounted) return;
+          previewImage.value = null;
+          Navigator.pop(context, resultItem);
+          Constants.messengerKey.currentState?.showSnackBar(
+            SuccessSnackBar(message: "Uspješno spremljeno!"),
+          );
+        }
+      };
   @override
   List<Widget> buildContent(BuildContext context, request) {
     return [
-      Stack(
-        children: [
-          Container(
-            width: context.screenWidth * 0.5,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Constants.placeholderTextColor,
-                width: 2,
+      GestureDetector(
+        onTap: () async => await _onPickImage(context),
+        child: Stack(
+          children: [
+            Container(
+              clipBehavior: Clip.hardEdge,
+              width: context.screenWidth * 0.4,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Constants.placeholderTextColor,
+                  width: 2,
+                ),
+                shape: BoxShape.circle,
               ),
-              shape: BoxShape.circle,
+              child: ValueListenableBuilder(
+                valueListenable: previewImage,
+                builder: (context, value, child) {
+                  return _getVehiclePicture(context);
+                },
+              ),
             ),
-            child: request.picture != null
-                ? Image.network(request.picture!)
-                : Image.asset("images/vehiclePlaceholder.png"),
-          ),
-          Positioned(
-            width: 50,
-            right: 10,
-            top: 0,
-            child: Image.asset("images/editImage.png"),
-          ),
-        ],
+            Positioned(
+              width: 50,
+              right: 10,
+              top: 0,
+              child: Image.asset("images/editImage.png"),
+            ),
+          ],
+        ),
       ),
 
       SizedBox(height: 12),
@@ -136,5 +187,37 @@ class UserVehicleUpsertDialog
         initialValue: selectedItem?.pricePerKm.toString(),
       ),
     ];
+  }
+
+  Future<void> _onPickImage(BuildContext context) async {
+    final file = await GetIt.I<ImagePickerProvider>().pickImage();
+    if (file != null) {
+      request.picture = file["picture"];
+      previewImage.value = file["file"];
+    }
+  }
+
+  Image _getVehiclePicture(BuildContext context) {
+    if (previewImage.value != null) {
+      return Image.file(
+        previewImage.value!,
+        width: context.screenWidth * 0.3,
+        height: context.screenWidth * 0.3,
+        fit: BoxFit.fill,
+      );
+    } else if (selectedItem?.picture != null) {
+      return Image.network(
+        "${Environment.apiUrl.split("api")[0]}uploads/${selectedItem!.picture!}",
+        width: context.screenWidth * 0.3,
+        height: context.screenWidth * 0.3,
+        fit: BoxFit.fill,
+      );
+    }
+    return Image.asset(
+      "images/vehiclePlaceholder.png",
+      width: context.screenWidth * 0.3,
+      height: context.screenWidth * 0.3,
+      fit: BoxFit.fill,
+    );
   }
 }
