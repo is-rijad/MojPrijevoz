@@ -4,6 +4,7 @@ import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/register.dart';
+import 'package:moj_prijevoz/pages/reset_password_page.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
@@ -119,7 +120,12 @@ class LoginPage extends StatelessWidget {
             style: ButtonStyle(
               padding: WidgetStatePropertyAll(EdgeInsets.zero),
             ),
-            onPressed: () {},
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+              );
+            },
             child: const TextBodySmall("Zaboravili ste lozinku?"),
           ),
         ],

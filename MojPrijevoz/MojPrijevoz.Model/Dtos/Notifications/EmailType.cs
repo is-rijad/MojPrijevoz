@@ -4,4 +4,5 @@ public enum EmailType
 {
     WelcomeEmail,
     BecomeDriverEmail,
+    ResetPasswordEmail
 }

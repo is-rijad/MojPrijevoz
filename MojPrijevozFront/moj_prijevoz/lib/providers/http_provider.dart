@@ -84,7 +84,10 @@ class HttpProvider {
         options: options,
         queryParameters: queryParameters,
       );
-      return parseJson<TResponse>(response.data);
+      if (response.data != "") {
+        return parseJson<TResponse>(response.data);
+      }
+      return response.data;
     } finally {
       _uiProvider.stopLoading();
     }

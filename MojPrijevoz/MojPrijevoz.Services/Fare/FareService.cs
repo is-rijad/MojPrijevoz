@@ -40,7 +40,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         var entityEntry = await _dbContext.Fares.AddAsync(MapToInsertEntity(request));
         _baseFareState.GetState(null).Create(entityEntry.Entity);
         await _dbContext.SaveChangesAsync();
-        await AfterInsert(entityEntry.Entity, _dbContext);
+        await AfterInsert(entityEntry.Entity, request, _dbContext);
         await PrepareForResponse(entityEntry.Entity, _dbContext);
         return MapToResponseModel<FareResponse>(entityEntry.Entity, _mapper);
     }

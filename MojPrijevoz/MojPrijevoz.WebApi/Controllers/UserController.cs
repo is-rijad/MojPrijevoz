@@ -26,6 +26,19 @@ public class UserController : ControllerBase {
         return Ok(await _userService.InsertWithTransactionAsync(request));
     }
 
+    [HttpPost("reset-password/code")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RequestResetPassword([FromBody] RequestResetPasswordRequest request) {
+        return Ok(await _userService.RequestResetPasswordCode(request));
+    }
+
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request) {
+        await _userService.ResetPassword(request);
+        return Ok();
+    }
+
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id) {

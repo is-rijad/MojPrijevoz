@@ -26,6 +26,9 @@ public abstract class Account {
 
     public DateTime RegisteredAt { get; set; }
 
+    public string? ResetPasswordCode { get; set; }
+    public DateTime? ResetPasswordCodeExpiration { get; set; }
+
     public AccountStatus Status { get; set; } = AccountStatus.Active;
 }
 
@@ -58,6 +61,9 @@ public class AccountEntityConfiguration : IEntityTypeConfiguration<Account> {
             .IsFixedLength();
         entity.Property(e => e.Username)
             .HasMaxLength(96)
+            .IsUnicode(false);
+        entity.Property(e => e.ResetPasswordCode)
+            .HasMaxLength(64)
             .IsUnicode(false);
         entity.Property(e => e.RegisteredAt).ValueGeneratedOnAdd()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");

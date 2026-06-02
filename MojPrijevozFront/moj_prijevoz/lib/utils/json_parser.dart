@@ -12,6 +12,7 @@ import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_respons
 import 'package:moj_prijevoz/resources/responses/stop_points/stop_point_response.dart';
 import 'package:moj_prijevoz/resources/responses/stripe/stripe_create_intent_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/access_token_response.dart';
+import 'package:moj_prijevoz/resources/responses/user/request_reset_password_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_profile_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
@@ -37,6 +38,8 @@ final Map<Type, _FromJson> _jsonFactories = {
   StripeCreateIntentResponse: (json) =>
       StripeCreateIntentResponse.fromJson(json),
   UserProfileResponse: (json) => UserProfileResponse.fromJson(json),
+  RequestResetPasswordResponse: (json) =>
+      RequestResetPasswordResponse.fromJson(json),
 };
 
 T parseJson<T>(Map<String, dynamic> json) {

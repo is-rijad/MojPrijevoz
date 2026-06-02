@@ -42,6 +42,7 @@ public class EmailService : IEmailService {
         {
             EmailType.WelcomeEmail => "Dobrodošli u Moj Prijevoz!",
             EmailType.BecomeDriverEmail => "Postali ste vozač!",
+            EmailType.ResetPasswordEmail => "Reset lozinke.",
             _ => throw new ArgumentOutOfRangeException(nameof(email.Type), $"Undefined email type: {email.Type}")
         };
     }

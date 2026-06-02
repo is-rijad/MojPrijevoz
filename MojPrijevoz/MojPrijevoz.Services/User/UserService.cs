@@ -42,8 +42,8 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         return userInsertRequest;
     }
 
-    protected override async Task AfterInsert(Database.User entity, MojPrijevozDbContext dbContext) {
-        await base.AfterInsert(entity, dbContext);
+    protected override async Task AfterInsert(Database.User entity, UserInsertRequest request, MojPrijevozDbContext dbContext) {
+        await base.AfterInsert(entity, request, dbContext);
         if (entity.UserProfiles == null)
             entity.UserProfiles = new List<Database.UserProfile>();
         entity.UserProfiles.Add(new Database.UserProfile
@@ -78,5 +78,44 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         }
 
         return Task.CompletedTask;
+    }
+
+    public async Task<RequestResetPasswordResponse> RequestResetPasswordCode(RequestResetPasswordRequest request) {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        if (user == null)
+            throw new BadRequestException("Korisnik s unesenim emailom ne postoji.");
+        var hash = _authorizationService.CreateResetPasswordCode(out var code, out var expiration);
+        user.ResetPasswordCode = hash;
+        user.ResetPasswordCodeExpiration = expiration;
+
+        await _dbContext.SaveChangesAsync();
+        await _notificationService.SendEmailAsync(new EmailDto()
+        {
+            To = user.Email,
+            Type = EmailType.ResetPasswordEmail,
+            Data = new Dictionary<string, dynamic>()
+            {
+                ["Name"] = user.FirstName,
+                ["Code"] = code
+            }
+        });
+        return new RequestResetPasswordResponse() { Code = code };
+    }
+
+    public async Task ResetPassword(ResetPasswordRequest request) {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        if (user == null)
+            throw new BadRequestException("Korisnik s unesenim emailom ne postoji.");
+
+        _authorizationService.VerifyResetPasswordCode(request.Code, user.ResetPasswordCode!, user.ResetPasswordCodeExpiration!.Value);
+        user.ResetPasswordCode = null;
+        user.ResetPasswordCodeExpiration = null;
+        if (request.Password != request.PasswordAgain)
+            throw new BadRequestException("Lozinke se ne podudaraju.");
+        _authorizationService.CreatePassword(request.Password, request.PasswordAgain, out var passwordHash,
+            out var passwordSalt);
+        (user.PasswordHash, user.PasswordSalt) = (passwordHash, passwordSalt);
+
+        await _dbContext.SaveChangesAsync();
     }
 }

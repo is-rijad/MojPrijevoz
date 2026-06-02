@@ -3,7 +3,9 @@ using MojPrijevoz.Database;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
+using System.Data.SqlTypes;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace MojPrijevoz.Services.Authorization;
 
@@ -62,6 +64,28 @@ public class AuthorizationService {
         using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, Iterations, _hashAlgorithm);
         var hashBytes = pbkdf2.GetBytes(HashByteSize);
         hash = Convert.ToBase64String(hashBytes);
+    }
+
+    public string CreateResetPasswordCode(out string code, out DateTime expiration) {
+
+        code = RandomNumberGenerator.GetInt32(10_000_000, 100_000_000).ToString();
+        var bytes = Encoding.UTF8.GetBytes(code);
+        var hash = SHA256.HashData(bytes);
+        var hashString = Convert.ToBase64String(hash);
+        expiration = DateTime.UtcNow.AddMinutes(15);
+
+        return hashString;
+    }
+
+    public void VerifyResetPasswordCode(string code, string realHash, DateTime expiration) {
+        if (expiration < DateTime.UtcNow)
+            throw new BadRequestException("Reset kod je istekao. Molimo zatražite novi kod.");
+
+        var bytes = Encoding.UTF8.GetBytes(code);
+        var hash = SHA256.HashData(bytes);
+        var hashString = Convert.ToBase64String(hash);
+        if (hashString != realHash)
+            throw new BadRequestException("Kod nije ispravan.");
     }
 
 
