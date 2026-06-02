@@ -13,6 +13,7 @@ public class UserVehicleUpsertRequest : IValidatableObject {
     [Required] [Range(0, 100)] public float PricePerKm { get; set; }
 
     [JsonIgnore] public int? ProfileId { get; set; }
+    [JsonIgnore] public bool IsFirstVehicle { get; set; } = false;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
         if (ModelYear < 1900)

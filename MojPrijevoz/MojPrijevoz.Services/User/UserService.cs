@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
+using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
@@ -10,16 +11,21 @@ using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.FileStorage;
 using MojPrijevoz.Services.FormRequests.User;
+using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.User;
 
 public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateFormRequest, UserResponse,
     BaseSearchObject> {
+    private readonly INotificationService _notificationService;
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,
         IHttpContextAccessor httpContextAccessor,
         AuthorizationService authorizationService,
-        IFileStorageService fileStorageService) : base(context, mapper, authorizationService, fileStorageService) {
+        IFileStorageService fileStorageService,
+        INotificationService notificationService) : base(context, mapper, authorizationService, fileStorageService)
+    {
+        _notificationService = notificationService;
     }
 
     protected override async Task BeforeInsert(UserInsertRequest request) {
@@ -46,6 +52,15 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
             User = entity
         });
         await dbContext.SaveChangesAsync();
+        await _notificationService.SendEmailAsync(new EmailDto()
+        {
+            To = entity.Email,
+            Type = EmailType.WelcomeEmail,
+            Data = new Dictionary<string, dynamic>()
+            {
+                ["Name"] = entity.FirstName
+            }
+        });
     }
 
     protected override Task BeforeUpdate(int id, UserUpdateFormRequest request, Database.User entity) {

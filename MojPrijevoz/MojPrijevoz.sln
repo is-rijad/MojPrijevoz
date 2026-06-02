@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MojPrijevoz.Model", "MojPri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MojPrijevoz.Database", "MojPrijevoz.Database\MojPrijevoz.Database.csproj", "{D4E449B6-F33C-420E-BFDF-50E2FA667241}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MojPrijevoz.Notifications", "MojPrijevoz.Notifications\MojPrijevoz.Notifications.csproj", "{B4FE742E-3C26-4673-BCE3-D2C4E9A9A4BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D4E449B6-F33C-420E-BFDF-50E2FA667241}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4E449B6-F33C-420E-BFDF-50E2FA667241}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4E449B6-F33C-420E-BFDF-50E2FA667241}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4FE742E-3C26-4673-BCE3-D2C4E9A9A4BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4FE742E-3C26-4673-BCE3-D2C4E9A9A4BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4FE742E-3C26-4673-BCE3-D2C4E9A9A4BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4FE742E-3C26-4673-BCE3-D2C4E9A9A4BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

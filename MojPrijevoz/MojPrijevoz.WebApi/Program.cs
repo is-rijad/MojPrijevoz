@@ -1,32 +1,34 @@
+using EasyNetQ;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
+using MojPrijevoz.Model.Requests.Stripe;
+using MojPrijevoz.Model.Responses.Stripe;
 using MojPrijevoz.Services.Authorization;
+using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.City;
+using MojPrijevoz.Services.DbSeeder;
 using MojPrijevoz.Services.DriversDiscount;
 using MojPrijevoz.Services.Fare;
 using MojPrijevoz.Services.Fare.StateMachine;
 using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer;
 using MojPrijevoz.Services.FareOffer.StateMachine;
+using MojPrijevoz.Services.FileStorage;
 using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.OpenRoute;
 using MojPrijevoz.Services.SearchFare;
 using MojPrijevoz.Services.SignalR.Hubs;
 using MojPrijevoz.Services.StopPoint;
+using MojPrijevoz.Services.Stripe;
 using MojPrijevoz.Services.User;
+using MojPrijevoz.Services.UserProfile;
 using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
-using System.Text.Json.Serialization;
-using Microsoft.EntityFrameworkCore;
-using MojPrijevoz.Model.Requests.Stripe;
-using MojPrijevoz.Model.Responses.Stripe;
-using MojPrijevoz.Services.BaseServices;
-using MojPrijevoz.Services.DbSeeder;
-using MojPrijevoz.Services.FileStorage;
 using Stripe;
-using MojPrijevoz.Services.Stripe;
-using MojPrijevoz.Services.UserProfile;
+using System.Text.Json.Serialization;
+using MojPrijevoz.Services.NotificationService;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json").AddUserSecrets<Program>();
@@ -56,6 +58,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.AddSignalR(it => it.EnableDetailedErrors = true);
 builder.Services.AddMemoryCache();
+
+var rabbitMqSection = builder.Configuration.GetSection("RabbitMQ");
+builder.Services.AddEasyNetQ($"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["Username"]};password={rabbitMqSection["Password"]}").UseSystemTextJson();
 
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddScoped<UserService>();
@@ -95,6 +100,7 @@ builder.Services.AddTransient<PayedFareState>();
 
 builder.Services.AddSingleton<ConnectionTracker>();
 builder.Services.AddSingleton<PendingLocationRequests>();
+builder.Services.AddSingleton<INotificationService, NotificationService>();
 
 
 var app = builder.Build();

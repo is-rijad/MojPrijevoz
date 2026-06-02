@@ -1,6 +1,7 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
+using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.UserVehicle;
 using MojPrijevoz.Model.Responses.UserVehicle;
@@ -9,13 +10,19 @@ using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.FileStorage;
 using MojPrijevoz.Services.FormRequests.UserVehicle;
+using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.UserVehicle;
 
 public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehicleUpsertFormRequest,
     UserVehicleUpsertFormRequest, UserVehicleResponse, UserVehicleSearchObject> {
-    public UserVehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService, IFileStorageService fileStorageService) :
-        base(context, mapper, authorizationService, fileStorageService) {
+    private readonly INotificationService _notificationService;
+
+    public UserVehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
+        IFileStorageService fileStorageService, INotificationService notificationService) :
+        base(context, mapper, authorizationService, fileStorageService)
+    {
+        _notificationService = notificationService;
     }
 
     public override Task<IQueryable<Database.UserVehicle>> ApplyFilter(IQueryable<Database.UserVehicle> queryable,
@@ -45,6 +52,7 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
                 UserId = userId,
                 ProfileType = ProfileType.Driver
             })).Entity;
+            request.IsFirstVehicle = true;
         }
         else {
             if (await _dbContext.UserVehicles.AnyAsync(uv =>
@@ -54,6 +62,22 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
 
         await _dbContext.SaveChangesAsync();
         request.ProfileId = profile.Id;
+    }
+
+    protected override async Task AfterInsert(Database.UserVehicle entity, UserVehicleUpsertFormRequest request, MojPrijevozDbContext dbContext)
+    {
+        await base.AfterInsert(entity, request, dbContext);
+        var email = await dbContext.Users.Where(u => u.UserProfiles!.Any(up => up.Id == entity.ProfileId)).Select(u => u.Email).FirstAsync();
+        var vehicle = await dbContext.Vehicles.FirstAsync(v => v.Id == entity.VehicleId);
+        await _notificationService.SendEmailAsync(new EmailDto()
+        {
+            To = email,
+            Type = EmailType.BecomeDriverEmail,
+            Data = new Dictionary<string, dynamic>()
+            {
+                ["Vehicle"] = vehicle.Manufacturer + " " + vehicle.Model + " (" + entity.ModelYear + ")"
+            }
+        });
     }
 
     protected override async Task BeforeUpdate(int id, UserVehicleUpsertFormRequest request, Database.UserVehicle entity)

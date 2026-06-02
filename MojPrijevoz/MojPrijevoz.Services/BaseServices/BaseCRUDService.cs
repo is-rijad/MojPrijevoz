@@ -40,7 +40,7 @@ public abstract class
         await SetNewAndDeleteOldImageIfNeeded(request, entityEntry.Entity);
 
         await _dbContext.SaveChangesAsync();
-        await AfterInsert(entityEntry.Entity, _dbContext);
+        await AfterInsert(entityEntry.Entity, request, _dbContext);
         await PrepareForResponse(entityEntry.Entity, _dbContext);
         return MapToResponseModel<TResponse>(entityEntry.Entity, _mapper);
     }
@@ -104,7 +104,7 @@ public abstract class
         return Task.CompletedTask;
     }
 
-    protected virtual Task AfterInsert(TEntity entity, MojPrijevozDbContext dbContext) {
+    protected virtual Task AfterInsert(TEntity entity, TInsertRequest request, MojPrijevozDbContext dbContext) {
         return Task.CompletedTask;
     }
 
