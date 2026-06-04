@@ -21,6 +21,11 @@ public class EmailService : IEmailService {
     }
     public async Task SendEmailAsync(EmailDto email)
     {
+        Console.WriteLine("EMAIL-------------");
+        Console.WriteLine(email.To);
+        Console.WriteLine(email.Data.Keys);
+        Console.WriteLine(email.Data.Values);
+        Console.WriteLine(email.Type);
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress("Moj Prijevoz", "noreply@mojprijevoz.ba"));
         message.To.Add(new MailboxAddress(null, email.To));
@@ -43,12 +48,20 @@ public class EmailService : IEmailService {
             EmailType.WelcomeEmail => "Dobrodošli u Moj Prijevoz!",
             EmailType.BecomeDriverEmail => "Postali ste vozač!",
             EmailType.ResetPasswordEmail => "Reset lozinke.",
+            EmailType.PasswordChangedEmail => "Lozinka promijenjena!",
+            EmailType.NewFareOfferEmail => "Nova ponuda za vožnju!",
+            EmailType.AcceptFareOfferEmail => "Vaša ponuda za vožnju je prihvaćena!",
+            EmailType.ExpiredFareOfferEmail => "Ponuda za vožnju je istekla!",
+            EmailType.RejectFareOfferEmail => "Vaša ponuda za vožnju je odbijena!",
+            EmailType.SentFareOfferEmail => "Ponuda za vožnju poslana!",
+            EmailType.PayedFareOfferEmail => "Ponuda za vožnju plaćena!",
             _ => throw new ArgumentOutOfRangeException(nameof(email.Type), $"Undefined email type: {email.Type}")
         };
     }
 
     private string RenderEmailBody(EmailDto email)
     {
+        email.Data.Add("MojPrijevozEmail", Environment.GetEnvironmentVariable("MOJ_PRIJEVOZ_EMAIL") ?? throw new ArgumentNullException("MOJ_PRIJEVOZ_EMAIL nije postavljen!"));
         var template = Template.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Templates", $"{email.Type.ToString()}.html")));
         var result = template.Render(email.Data);
         return result;

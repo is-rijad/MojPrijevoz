@@ -1,4 +1,4 @@
-package com.example.moj_prijevoz
+package com.fit.mojprijevoz
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterFragmentActivity

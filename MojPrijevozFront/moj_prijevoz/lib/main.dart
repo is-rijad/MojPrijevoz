@@ -70,7 +70,7 @@ Future<void> main() async {
     AccessTokenPayload? payload;
     try {
       payload = await AuthProvider.getPayload();
-    } on Exception {}
+    } on Exception catch (e) {}
     final child = payload != null ? HomePage() : LoginPage();
 
     Stripe.publishableKey = Environment.stripeKey;

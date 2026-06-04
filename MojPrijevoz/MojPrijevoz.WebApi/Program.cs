@@ -16,6 +16,7 @@ using MojPrijevoz.Services.FareOffer;
 using MojPrijevoz.Services.FareOffer.StateMachine;
 using MojPrijevoz.Services.FileStorage;
 using MojPrijevoz.Services.InMemoryDatabase;
+using MojPrijevoz.Services.NotificationService;
 using MojPrijevoz.Services.OpenRoute;
 using MojPrijevoz.Services.SearchFare;
 using MojPrijevoz.Services.SignalR.Hubs;
@@ -27,8 +28,8 @@ using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
 using Stripe;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using MojPrijevoz.Services.NotificationService;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json").AddUserSecrets<Program>();

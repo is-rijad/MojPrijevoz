@@ -67,15 +67,16 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
     protected override async Task AfterInsert(Database.UserVehicle entity, UserVehicleUpsertFormRequest request, MojPrijevozDbContext dbContext)
     {
         await base.AfterInsert(entity, request, dbContext);
-        var email = await dbContext.Users.Where(u => u.UserProfiles!.Any(up => up.Id == entity.ProfileId)).Select(u => u.Email).FirstAsync();
+        var user = await dbContext.Users.Where(u => u.UserProfiles!.Any(up => up.Id == entity.ProfileId)).FirstAsync();
         var vehicle = await dbContext.Vehicles.FirstAsync(v => v.Id == entity.VehicleId);
         await _notificationService.SendEmailAsync(new EmailDto()
         {
-            To = email,
+            To = user.Email,
             Type = EmailType.BecomeDriverEmail,
             Data = new Dictionary<string, dynamic>()
             {
-                ["Vehicle"] = vehicle.Manufacturer + " " + vehicle.Model + " (" + entity.ModelYear + ")"
+                ["Name"] = user.FirstName,
+                ["Vehicle"] = vehicle.ToString() + " (" + entity.ModelYear + ")"
             }
         });
     }

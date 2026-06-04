@@ -1,4 +1,5 @@
-﻿using MapsterMapper;
+﻿using Bogus.DataSets;
+using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
@@ -63,8 +64,8 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         });
     }
 
-    protected override Task BeforeUpdate(int id, UserUpdateFormRequest request, Database.User entity) {
-        base.BeforeUpdate(id, request, entity);
+    protected async override Task BeforeUpdate(int id, UserUpdateFormRequest request, Database.User entity) {
+        await base.BeforeUpdate(id, request, entity);
         if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null) {
             if (!_authorizationService.VerifyPassword(request.OldPassword ?? string.Empty, entity.PasswordHash,
                     entity.PasswordSalt))
@@ -75,9 +76,17 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
                 out var passwordSalt);
             (entity.PasswordHash, entity.PasswordSalt) = (passwordHash, passwordSalt);
             (request.Password, request.PasswordAgain, request.OldPassword) = (null, null, null);
+            await _notificationService.SendEmailAsync(new EmailDto()
+            {
+                To = entity.Email,
+                Type = EmailType.PasswordChangedEmail,
+                Data = new Dictionary<string, dynamic>()
+                {
+                    ["Name"] = entity.FirstName,
+                    ["Username"] = entity.Username,
+                }
+            });
         }
-
-        return Task.CompletedTask;
     }
 
     public async Task<RequestResetPasswordResponse> RequestResetPasswordCode(RequestResetPasswordRequest request) {
@@ -115,6 +124,17 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         _authorizationService.CreatePassword(request.Password, request.PasswordAgain, out var passwordHash,
             out var passwordSalt);
         (user.PasswordHash, user.PasswordSalt) = (passwordHash, passwordSalt);
+
+        await _notificationService.SendEmailAsync(new EmailDto()
+        {
+            To = user.Email,
+            Type = EmailType.PasswordChangedEmail,
+            Data = new Dictionary<string, dynamic>()
+            {
+                ["Name"] = user.FirstName,
+                ["Username"] = user.Username,
+            }
+        });
 
         await _dbContext.SaveChangesAsync();
     }

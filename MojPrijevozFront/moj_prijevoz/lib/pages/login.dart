@@ -67,7 +67,7 @@ class LoginPage extends StatelessWidget {
           iconHint: "Korisničko ime ili email",
           hintText: "mujo.mujic",
         ),
-        keyboardType: TextInputType.text,
+        keyboardType: TextInputType.emailAddress,
         validator: (value) {
           if (value == null ||
               !value.isNotEmpty ||

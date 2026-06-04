@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+
+<html lang="bs">
+
+<head>
+    <meta charset="utf-8" />
+</head>
+
+<body style="background-color: #D1E9FE;">
+    <div style="width: 80vw; margin-left: auto; margin-right: auto;">
+        <h3>Poštovani {{ ReceipantName }},</h3>
+        <p>Korisnik {{ SenderName }} je poslao ponudu za vožnju.</p>
+        {{ if LastPrice }}
+        <h3>Stara cijena : {{ LastPrice }}</h3>
+        <h3>Nova cijena : {{ NewPrice }}</h3>
+        {{ else }}
+        <h3>Cijena : {{ NewPrice }}</h3>
+        {{ end }}
+        <h3>Detalji vožnje:</h3>
+        <ul>
+            <li>
+                <h4>Vozilo: {{ Vehicle }}</h4>
+            </li>
+            <li>
+                <h4>Datum i vrijeme: {{ FareDateTime }}</h4>
+            </li>
+            <li>
+                <h4>Početna lokacija: {{ StartLocation }}</h4>
+            </li>
+            <li>
+                <h4>Krajnja lokacija: {{ EndLocation }}</h4>
+            </li>
+        </ul>
+    </div>
+<div style="width: 80vw; margin-left: auto; margin-right: auto;">
+    <p>S poštovanjem,<br>Moj Prijevoz Team.</p>
+</div>
+</body>
+</html>

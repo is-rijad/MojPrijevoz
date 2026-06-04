@@ -11,8 +11,8 @@ public class UserProfileResponse
     public short ProfileType { get; set; }
     public int UserId { get; set; }
     public UserResponse? User { get; set; }
-    [JsonIgnore] public ICollection<Rating> RatingTos { get; set; } = null!;
+    [JsonIgnore] public ICollection<Rating>? RatingTos { get; set; }
 
-    public float AverageReview => RatingTos.Count != 0 ? RatingTos.Sum(r => r.Grade) / (float)(RatingTos.Count) : 0;
+    public double AverageReview => (RatingTos?.Count ?? 0) != 0 ? RatingTos!.Average((it) => it.Grade) : 0;
     
 }

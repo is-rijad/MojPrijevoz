@@ -17,13 +17,10 @@ public class BaseFareOfferState : BaseState<Database.FareOffer, BaseFareOfferSta
         {
             case null:
                 return ServiceProvider.GetRequiredService<InitialFareOfferState>();
-                break;
             case (short)Database.FareOfferStatus.WaitingForResponse:
                 return ServiceProvider.GetRequiredService<InNegotiationFareOfferState>();
-                break;
             case (short)Database.FareOfferStatus.Accepted:
                 return ServiceProvider.GetRequiredService<AcceptedFareOfferState>();
-                break;
             default:
                 throw new Exception(MethodNotAllowed);
         }

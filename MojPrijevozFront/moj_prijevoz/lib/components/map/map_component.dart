@@ -76,7 +76,7 @@ class _MapComponentState extends State<MapComponent> {
       children: [
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.example.mapapp',
+          userAgentPackageName: 'com.fit.mojprijevoz',
         ),
         if (widget.from != null)
           MarkerLayer(

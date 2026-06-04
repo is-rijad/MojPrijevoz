@@ -28,7 +28,7 @@ public class UserVehicleController : ControllerBase {
     [HttpPut("{id}")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> Put(int id, [FromForm] UserVehicleUpsertFormRequest request) {
-        return Ok(await _userVehicleService.UpdateAsync(id, request));
+        return Ok(await _userVehicleService.UpdateWithTransactionAsync(id, request));
     }
 
     [HttpDelete("{id}")]

@@ -4,5 +4,12 @@ public enum EmailType
 {
     WelcomeEmail,
     BecomeDriverEmail,
-    ResetPasswordEmail
+    ResetPasswordEmail,
+    PasswordChangedEmail,
+    NewFareOfferEmail,
+    AcceptFareOfferEmail,
+    ExpiredFareOfferEmail,
+    RejectFareOfferEmail,
+    SentFareOfferEmail,
+    PayedFareOfferEmail
 }
