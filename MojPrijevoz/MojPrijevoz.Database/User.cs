@@ -14,6 +14,7 @@ public class User : Account, IEntityHasPicture {
 
 
     public virtual ICollection<UserProfile>? UserProfiles { get; set; }
+    public virtual ICollection<UserFcmToken>? UserFcmTokens { get; set; }
 }
 
 public class UserEntityConfiguration : IEntityTypeConfiguration<User> {

@@ -24,4 +24,6 @@ class UIProvider {
       (_) => isLoading.value = false,
     );
   }
+
+  Future handleNavigationFromNotification(Map<String, dynamic> data) async {}
 }

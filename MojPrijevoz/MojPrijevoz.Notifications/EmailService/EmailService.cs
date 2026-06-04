@@ -21,11 +21,6 @@ public class EmailService : IEmailService {
     }
     public async Task SendEmailAsync(EmailDto email)
     {
-        Console.WriteLine("EMAIL-------------");
-        Console.WriteLine(email.To);
-        Console.WriteLine(email.Data.Keys);
-        Console.WriteLine(email.Data.Values);
-        Console.WriteLine(email.Type);
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress("Moj Prijevoz", "noreply@mojprijevoz.ba"));
         message.To.Add(new MailboxAddress(null, email.To));
@@ -55,6 +50,7 @@ public class EmailService : IEmailService {
             EmailType.RejectFareOfferEmail => "Vaša ponuda za vožnju je odbijena!",
             EmailType.SentFareOfferEmail => "Ponuda za vožnju poslana!",
             EmailType.PayedFareOfferEmail => "Ponuda za vožnju plaćena!",
+            EmailType.ReceiptFareOfferEmail => "Račun za vašu vožnju!",
             _ => throw new ArgumentOutOfRangeException(nameof(email.Type), $"Undefined email type: {email.Type}")
         };
     }

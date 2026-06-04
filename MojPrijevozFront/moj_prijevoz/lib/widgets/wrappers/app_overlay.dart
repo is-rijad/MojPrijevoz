@@ -61,6 +61,7 @@ class AppOverlay extends StatelessWidget {
       ),
       home: child,
       scaffoldMessengerKey: Constants.messengerKey,
+      navigatorKey: Constants.navigatorKey,
     );
   }
 

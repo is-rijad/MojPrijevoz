@@ -19,14 +19,11 @@ public class OkController : ControllerBase {
     [HttpGet]
     public async Task<IActionResult> OkEndpoint()
     {
-        await _notificationService.SendEmailAsync(new EmailDto()
+        await _notificationService.SendToUserAsync(new SendToUserDto()
         {
-            To = "isrijad@gmail.com",
-            Data = new Dictionary<string, dynamic>()
-            {
-                {"VehicleName", "Alfa Romeo 147"}
-            },
-            Type = EmailType.BecomeDriverEmail
+            Body = "Testna notifikacija",
+            Title = "Test",
+            UserId = 51
         });
         return Ok();
     }

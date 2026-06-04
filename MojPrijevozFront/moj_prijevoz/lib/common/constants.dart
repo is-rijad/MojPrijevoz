@@ -4,6 +4,8 @@ abstract class Constants {
   static final usernameRegex = RegExp(r'^\S+$');
   static final GlobalKey<ScaffoldMessengerState> messengerKey =
       GlobalKey<ScaffoldMessengerState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
   static const userAgent = "MojPrijevoz (rijad.isirlija@edu.fit.ba)";
   static const double autoCompleteTextInputElementHeight = 50;
   static const Color secondaryTextColor = Color(0xFF284F73);

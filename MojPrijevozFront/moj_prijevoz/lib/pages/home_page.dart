@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/components/next_fares/next_fares_component.dart';
 import 'package:moj_prijevoz/pages/search_fare_page.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
+import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search_object.dart';
 import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
@@ -11,6 +13,7 @@ import 'package:moj_prijevoz/widgets/dialogs/modal_bottom_sheet.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 
 class HomePage extends StatefulWidget {
@@ -34,10 +37,18 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return PageWrapper(
-      body: _buildHomePage(context),
-      appBarTitle: "Moj prijevoz",
+    return LoadUntilReadyWrapper(
+      buildFunction: (context) => PageWrapper(
+        body: _buildHomePage(context),
+        appBarTitle: "Moj prijevoz",
+      ),
+      futureFunction: _init,
     );
+  }
+
+  Future<bool> _init() async {
+    await GetIt.I<NotificationProvider>().initialize();
+    return true;
   }
 
   Widget _buildHomePage(BuildContext context) {

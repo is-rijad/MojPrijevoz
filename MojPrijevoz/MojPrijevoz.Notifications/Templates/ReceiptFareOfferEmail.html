@@ -9,8 +9,9 @@
 <body style="background-color: #D1E9FE;">
     <div style="width: 80vw; margin-left: auto; margin-right: auto;">
         <h3>Poštovani {{ ReceipantName }},</h3>
-        <p>Korisnik {{ SenderName }} platio ponudu za vožnju.</p>
+        <p>Uspješno ste izvršili plaćanje za vožnju.</p>
         <h3>Cijena : {{ Price }}</h3>
+        <h3>Datum i vrijeme plaćanja : {{ TransactionDateTime }}</h3>
         <h3>Detalji vožnje:</h3>
         <ul>
             <li>
@@ -26,7 +27,6 @@
                 <h4>Krajnja lokacija: {{ EndLocation }}</h4>
             </li>
         </ul>
-        <p><strong>Napomena:</strong> vožnju možete započeti nakon {{ FareStartAfter }}</p>
     </div>
 <div style="width: 80vw; margin-left: auto; margin-right: auto;">
     <p>S poštovanjem,<br>Moj Prijevoz Team.</p>

@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
+import 'package:moj_prijevoz/firebase_options.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
@@ -16,6 +19,7 @@ import 'package:moj_prijevoz/providers/image_picker_provider.dart';
 import 'package:moj_prijevoz/providers/location_provider.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
+import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/providers/search_fare_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
 import 'package:moj_prijevoz/providers/user_profile_provider.dart';
@@ -40,6 +44,8 @@ void registerServices() {
   getIt.registerFactory<LocationProvider>(() => LocationProvider());
   getIt.registerFactory<StripeProvider>(() => StripeProvider());
   getIt.registerFactory<ImagePickerProvider>(() => ImagePickerProvider());
+
+  getIt.registerSingleton(NotificationProvider());
 }
 
 List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
@@ -62,9 +68,24 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
   ];
 }
 
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  print('Background message: ${message.data}');
+}
+
+Future<void> initializeFirebase() async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+}
+
 Future<void> main() async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await initializeFirebase();
+
     registerServices();
 
     AccessTokenPayload? payload;

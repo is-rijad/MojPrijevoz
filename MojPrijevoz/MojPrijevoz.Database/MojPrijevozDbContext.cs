@@ -30,6 +30,7 @@ public class MojPrijevozDbContext : DbContext {
     public virtual DbSet<StopPoint> StopPoints { get; set; }
 
     public virtual DbSet<Transaction> Transactions { get; set; }
+    public virtual DbSet<UserFcmToken> UserFcmTokens { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -59,6 +60,7 @@ public class MojPrijevozDbContext : DbContext {
         modelBuilder.ApplyConfiguration(new UserVehicleEntityConfiguration());
         modelBuilder.ApplyConfiguration(new VehicleEntityConfiguration());
         modelBuilder.ApplyConfiguration(new FareDataEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new UserFcmTokenEntityConfiguration());
     }
 
     private void ApplyDefaultQueries(ModelBuilder modelBuilder)

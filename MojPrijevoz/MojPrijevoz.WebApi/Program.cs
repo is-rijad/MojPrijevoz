@@ -66,10 +66,11 @@ builder.Services.AddEasyNetQ($"host={rabbitMqSection["Host"]};port={rabbitMqSect
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<AuthorizationService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
 builder.Services.AddTransient<TokenManager>();
-builder.Services.AddTransient<AuthorizationService>();
 builder.Services.AddTransient<CityService>();
 builder.Services.AddTransient<AdminCityService>();
 builder.Services.AddTransient<UserVehicleService>();
@@ -101,7 +102,6 @@ builder.Services.AddTransient<PayedFareState>();
 
 builder.Services.AddSingleton<ConnectionTracker>();
 builder.Services.AddSingleton<PendingLocationRequests>();
-builder.Services.AddSingleton<INotificationService, NotificationService>();
 
 
 var app = builder.Build();
@@ -115,8 +115,8 @@ using var scope = app.Services.CreateScope();
 var database = scope.ServiceProvider.GetRequiredService<MojPrijevozDbContext>();
 await database.Database.MigrateAsync();
 
-// var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
-// await dbSeeder.SeedAsync();
+var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
+await dbSeeder.SeedAsync();
 
 app.MapHub<FareLocationsHub>("/hubs/fareLocations");
 app.UseHttpsRedirection();

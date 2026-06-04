@@ -11,5 +11,6 @@ public enum EmailType
     ExpiredFareOfferEmail,
     RejectFareOfferEmail,
     SentFareOfferEmail,
-    PayedFareOfferEmail
+    PayedFareOfferEmail,
+    ReceiptFareOfferEmail
 }

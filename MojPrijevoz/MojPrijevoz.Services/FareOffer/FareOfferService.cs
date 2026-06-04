@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MojPrijevoz.Database;
+using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Requests.FareData;
@@ -11,11 +12,13 @@ using MojPrijevoz.Model.Responses.Fare;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
+using MojPrijevoz.Services.Driver;
 using MojPrijevoz.Services.Fare;
 using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer.StateMachine;
 using MojPrijevoz.Services.NotificationService;
 using MojPrijevoz.Services.StopPoint;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MojPrijevoz.Services.FareOffer;
 
@@ -80,20 +83,15 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             var baseStateMachine = _baseFareOfferState.GetState(null);
             baseStateMachine.Create(entityEntry.Entity);
 
-            var vehicle = await _dbContext.UserVehicles.Where(uv => uv.Id == driversPrice.UserVehicleId).Include(it => it.Vehicle).FirstAsync();
 
-            await _notificationService.SendEmailAsync(new Model.Dtos.Notifications.EmailDto {
-                To = drivers.First((it) => it.Id == driversPrice.DriverId).User!.Email,
-                Type = Model.Dtos.Notifications.EmailType.NewFareOfferEmail,
-                Data = new Dictionary<string, dynamic>()
+            await _notificationService.SendToUserAsync(new SendToUserDto() {
+                UserId = drivers.First((it) => it.Id == driversPrice.DriverId).UserId,
+                Title = "Nova ponuda vožnje",
+                Body = $"Korisnik {passenger.User!.FirstName} je poslao ponudu za vožnju",
+                Data = new Dictionary<string, string>()
                 {
-                    ["ReceipantName"] = drivers.First((it) => it.Id == driversPrice.DriverId).User!.FirstName,
-                    ["SenderName"] = passenger.User!.FirstName,
-                    ["Vehicle"] = vehicle!.Vehicle!.ToString(),
-                    ["FareDateTime"] = request.FareDateTime.ToString("dd/MM/yyyy HH:mm"),
-                    ["StartLocation"] = startLocation.Name,
-                    ["EndLocation"] = request.DestinationName.Split(",").First(),
-                    ["NewPrice"] = driversPrice.Price + (driversPrice.AdditionalPrice ?? 0)
+                    ["FareId"] = fare.Id.ToString(),
+                    ["Type"] = SendToUserDto.NewFareOfferType
                 }
             });
         }
@@ -101,10 +99,10 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         await _dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        await _notificationService.SendEmailAsync(new Model.Dtos.Notifications.EmailDto
+        await _notificationService.SendEmailAsync(new EmailDto
         {
             To = passenger.User!.Email,
-            Type = Model.Dtos.Notifications.EmailType.SentFareOfferEmail,
+            Type = EmailType.SentFareOfferEmail,
             Data = new Dictionary<string, dynamic>()
             {
                 ["ReceipantName"] = passenger.User!.FirstName,
@@ -138,102 +136,92 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         state = _baseFareOfferState.GetState((short)FareOfferStatus.WaitingForResponse);
         state.Update(id, newEntity);
         await _dbContext.SaveChangesAsync();
-        await SendUpdateEmail(newEntity, entity);
+        await SendUpdateNotification(newEntity, entity);
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
-    private async Task SendUpdateEmail(Database.FareOffer entity, Database.FareOffer? oldEntity) {
+    private async Task SendUpdateNotification(Database.FareOffer entity, Database.FareOffer? oldEntity) {
         var driver = await _dbContext.UserProfiles.Where(up => up.Id == entity.Fare!.DriverId).Include(it => it.User).FirstAsync();
         var passenger = await _dbContext.UserProfiles.Where(up => up.Id == entity.Fare!.PassengerId).Include(it => it.User).FirstAsync();
         var userVehicle = await _dbContext.UserVehicles.Where(uv => uv.Id == entity.Fare!.UserVehicleId).Include(it => it.Vehicle).FirstAsync();
 
         switch (entity.Status) {
             case FareOfferStatus.Accepted:
-                await _notificationService.SendEmailAsync(new Model.Dtos.Notifications.EmailDto
+                await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
-                    To = entity.Side == ProfileType.Passenger ? driver.User!.Email : passenger.User!.Email,
-                    Type = Model.Dtos.Notifications.EmailType.AcceptFareOfferEmail,
-                    Data = new Dictionary<string, dynamic>()
+                    UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
+                    Title = "Prihvaćena ponuda",
+                    Body = $"Korisnik {(entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName)} je prihvatio Vašu ponudu",
+                    Data = new Dictionary<string, string>()
                     {
-                        ["ReceipantName"] = entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName,
-                        ["SenderName"] = entity.Side == ProfileType.Driver ? driver.User!.FirstName : passenger.User!.FirstName,
-                        ["Vehicle"] = userVehicle!.Vehicle!.ToString(),
-                        ["FareDateTime"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
-                        ["StartLocation"] = entity.Fare!.FareData!.OriginCity!.Name,
-                        ["EndLocation"] = entity.Fare!.FareData!.DestinationName.Split(",").First(),
-                        ["Price"] = entity.Price + (entity.AdditionalPrice ?? 0),
+                        ["FareId"] = entity.FareId.ToString(),
+                        ["Type"] = SendToUserDto.AcceptedFareOfferType
                     }
                 });
                 break;
             case FareOfferStatus.WaitingForResponse:
-                if (oldEntity == null)
-                    throw new ArgumentNullException(nameof(oldEntity), "Stara ponuda ne može biti null prilikom slanja emaila o novoj ponudi!");
-                await _notificationService.SendEmailAsync(new Model.Dtos.Notifications.EmailDto
+                await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
-                    To = entity.Side == ProfileType.Passenger ? driver.User!.Email : passenger.User!.Email,
-                    Type = Model.Dtos.Notifications.EmailType.NewFareOfferEmail,
-                    Data = new Dictionary<string, dynamic>()
+                    UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
+                    Title = "Nova ponuda",
+                    Body = $"Korisnik {(entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName)} je poslao novu ponudu u iznosu od {entity.TotalPrice}KM",
+                    Data = new Dictionary<string, string>()
                     {
-                        ["ReceipantName"] = entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName,
-                        ["SenderName"] = entity.Side == ProfileType.Driver ? driver.User!.FirstName : passenger.User!.FirstName,
-                        ["Vehicle"] = userVehicle!.Vehicle!.ToString(),
-                        ["FareDateTime"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
-                        ["StartLocation"] = entity.Fare!.FareData!.OriginCity!.Name,
-                        ["EndLocation"] = entity.Fare!.FareData!.DestinationName.Split(",").First(),
-                        ["LastPrice"] = oldEntity.Price + (oldEntity.AdditionalPrice ?? 0),
-                        ["NewPrice"] = entity.Price + (entity.AdditionalPrice ?? 0),
+                        ["FareId"] = entity.FareId.ToString(),
+                        ["Type"] = SendToUserDto.NewFareOfferType
                     }
                 });
                 break;
         case FareOfferStatus.Rejected:
-                //TODO: fix FareData null
-                await _notificationService.SendEmailAsync(new Model.Dtos.Notifications.EmailDto
+                await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
-                    To = entity.Side == ProfileType.Passenger ? driver.User!.Email : passenger.User!.Email,
-                    Type = Model.Dtos.Notifications.EmailType.RejectFareOfferEmail,
-                    Data = new Dictionary<string, dynamic>()
+                    UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
+                    Title = "Odbijena ponuda",
+                    Body = $"Korisnik {(entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName)} je odbio ponudu u iznosu od {entity.TotalPrice}KM",
+                    Data = new Dictionary<string, string>()
                     {
-                        ["ReceipantName"] = entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName,
-                        ["SenderName"] = entity.Side == ProfileType.Driver ? driver.User!.FirstName : passenger.User!.FirstName,
-                        ["Vehicle"] = userVehicle!.Vehicle!.ToString(),
-                        ["FareDateTime"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
-                        ["StartLocation"] = entity.Fare!.FareData!.OriginCity!.Name,
-                        ["EndLocation"] = entity.Fare!.FareData!.DestinationName.Split(",").First(),
-                        ["Price"] = entity.Price + (entity.AdditionalPrice ?? 0),
+                        ["FareId"] = entity.FareId.ToString(),
+                        ["Type"] = SendToUserDto.RejectedFareOfferType
                     }
                 });
                 break;
         case FareOfferStatus.Expired:
-                await _notificationService.SendEmailAsync(new Model.Dtos.Notifications.EmailDto
+                await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
-                    To = driver.User!.Email,
-                    Type = Model.Dtos.Notifications.EmailType.ExpiredFareOfferEmail,
-                    Data = new Dictionary<string, dynamic>()
+                    UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
+                    Title = "Ponuda istekla",
+                    Body = $"Ponuda u iznosu od {entity.TotalPrice}KM ({entity.Fare!.FareData!.OriginCity!.Name} - {entity.Fare!.FareData!.DestinationName.Split(" ").First()}) je istekla",
+                    Data = new Dictionary<string, string>()
                     {
-                        ["ReceipantName"] = driver.User!.FirstName,
-                        ["Vehicle"] = userVehicle!.Vehicle!.ToString(),
-                        ["FareDateTime"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
-                        ["StartLocation"] = entity.Fare!.FareData!.OriginCity!.Name,
-                        ["EndLocation"] = entity.Fare!.FareData!.DestinationName.Split(",").First(),
-                        ["Price"] = entity.Price + (entity.AdditionalPrice ?? 0)
+                        ["FareId"] = entity.FareId.ToString(),
+                        ["Type"] = SendToUserDto.ExpiredFareOfferType
                     }
                 });
                 break;
         case FareOfferStatus.Payed:
-                await _notificationService.SendEmailAsync(new Model.Dtos.Notifications.EmailDto
+                await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
-                    To = entity.Side == ProfileType.Passenger ? driver.User!.Email : passenger.User!.Email,
-                    Type = Model.Dtos.Notifications.EmailType.PayedFareOfferEmail,
+                    UserId = driver.UserId,
+                    Title = "Ponuda plaćena",
+                    Body = $"Ponuda u iznosu od {entity.TotalPrice}KM ({entity.Fare!.FareData!.OriginCity!.Name} - {entity.Fare!.FareData!.DestinationName.Split(" ").First()}) je plaćena",
+                    Data = new Dictionary<string, string>()
+                    {
+                        ["FareId"] = entity.FareId.ToString(),
+                        ["Type"] = SendToUserDto.PayedFareOfferType
+                    }
+                });
+                await _notificationService.SendEmailAsync(new EmailDto()
+                {
+                    To = passenger.User!.Email,
+                    Type = EmailType.ReceiptFareOfferEmail,
                     Data = new Dictionary<string, dynamic>()
                     {
-                        ["ReceipantName"] = driver.User!.FirstName,
-                        ["SenderName"] = passenger.User!.FirstName,
-                        ["Vehicle"] = userVehicle!.Vehicle!.ToString(),
-                        ["FareDateTime"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                        ["ReceipantName"] = passenger.User!.FirstName,
+                        ["TransactionDateTime"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                         ["StartLocation"] = entity.Fare!.FareData!.OriginCity!.Name,
                         ["EndLocation"] = entity.Fare!.FareData!.DestinationName.Split(",").First(),
-                        ["Price"] = entity.Price + (entity.AdditionalPrice ?? 0),
-                        ["FareStartAfter"] = entity.Fare!.FareStartAfter!.Value.ToString("dd/MM/yyyy HH:mm")
+                        ["Price"] = entity.Price,
+                        ["Vehicle"] = userVehicle!.Vehicle!.ToString()
                     }
                 });
                 break;
@@ -299,7 +287,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
 
         await transaction.CommitAsync();
 
-        await SendUpdateEmail(entity, null);
+        await SendUpdateNotification(entity, null);
 
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
 
@@ -323,7 +311,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
 
         await transaction.CommitAsync();
 
-        await SendUpdateEmail(entity, null);
+        await SendUpdateNotification(entity, null);
 
 
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
@@ -343,7 +331,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         state.Expire(entity);
         await _dbContext.SaveChangesAsync();
 
-        await SendUpdateEmail(entity, null);
+        await SendUpdateNotification(entity, null);
 
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
@@ -368,7 +356,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
 
         await transaction.CommitAsync();
 
-        await SendUpdateEmail(entity, null);
+        await SendUpdateNotification(entity, null);
 
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }

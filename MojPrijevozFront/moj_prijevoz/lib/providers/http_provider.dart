@@ -123,15 +123,19 @@ class HttpProvider {
 
   Future<void> delete(
     String url,
-    int id, {
+    int? id, {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
       _uiProvider.startLoading();
 
       var options = await _setRequestOptions();
+      var requestUrl = url.endsWith("/") ? "$_apiUrl$url" : "$_apiUrl$url/";
+      if (id != null) {
+        requestUrl += id.toString();
+      }
       await _dio.delete(
-        "$_apiUrl$url/$id",
+        requestUrl,
         options: options,
         queryParameters: queryParameters,
       );

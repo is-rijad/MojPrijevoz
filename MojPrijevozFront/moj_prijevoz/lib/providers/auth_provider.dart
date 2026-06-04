@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:moj_prijevoz/providers/hive_provider.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
+import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
@@ -14,6 +15,8 @@ class AuthProvider with ChangeNotifier {
   AccessTokenPayload get accessTokenPayload => _accessTokenPayload;
 
   final HttpProvider _httpProvider = GetIt.I<HttpProvider>();
+  final NotificationProvider _notificationProvider =
+      GetIt.I<NotificationProvider>();
   static final _accessTokenKey = "access_token";
   final _providerName = "auth";
 
@@ -40,6 +43,8 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
+    await _notificationProvider.logout();
+
     var hive = await HiveProvider.getInstance();
     await hive.delete(_accessTokenKey);
   }
