@@ -17,6 +17,8 @@ public class UserProfileService : BaseService<UserProfileResponse, Database.User
     {
         await base.PrepareForResponse(entity, dbContext);
         entity.User = await dbContext.Users.FindAsync(entity.UserId);
-        entity.RatingTos = await dbContext.Ratings.Where(it => it.ToId == entity.Id).ToListAsync();
+        entity.RatingTos = await dbContext.Ratings.Include(it => it.From)
+            .ThenInclude(it => it!.User)
+            .Where(it => it.ToId == entity.Id).ToListAsync();
     }
 }

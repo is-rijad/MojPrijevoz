@@ -338,7 +338,7 @@ public class DbSeeder
 
     private async Task SeedRatingsAsync()
     {
-        var allRatings = new List<Rating>();
+        var allRatings = new List<Database.Rating>();
         foreach (var fare in _fares!.Where(it => it.Status == FareStatus.Completed))
         {
             var ratingFaker = new Faker<Database.Rating>(FakerLocale)
