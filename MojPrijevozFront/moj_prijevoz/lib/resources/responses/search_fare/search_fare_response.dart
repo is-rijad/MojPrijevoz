@@ -24,6 +24,8 @@ class SearchFareResponse extends JsonResponse
   double averageReview;
   int numberOfReviews;
   List<UserVehicleResponse>? vehicles;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool inBudget = false;
 
   SearchFareResponse({
     required this.id,

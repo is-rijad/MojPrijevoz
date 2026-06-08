@@ -1,4 +1,6 @@
 import 'package:easy_stars/easy_stars.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -35,6 +37,7 @@ import 'package:moj_prijevoz/resources/search_objects/search_fare/search_fare_se
 import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/cards/mp_card.dart';
+import 'package:moj_prijevoz/widgets/cards/paginated_cards.dart';
 import 'package:moj_prijevoz/widgets/date_time/date_time_picker_form_field.dart';
 import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
@@ -420,9 +423,9 @@ class _SearchFarePageState extends State<SearchFarePage> {
         iconHint: "Datum i vrijeme putovanja",
       ),
       onDateTimeChanged: (dateTime) {
-        _request.isChanged = true;
         setState(() {
           _request.fareDateTime = dateTime;
+          _request.isChanged = true;
         });
       },
       onSaved: (newValue) => _request.fareDateTime = newValue,
@@ -451,10 +454,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
         },
         onSaved: (newValue) => _request.budget = double.parse(newValue!),
         validator: (value) {
-          if (value == null) {
-            return "Budžet je obavezan!";
-          }
-          if (double.tryParse(value) == null) {
+          if (value != null && double.tryParse(value) == null) {
             return "Budžet mora biti broj!";
           }
           return null;
@@ -470,10 +470,8 @@ class _SearchFarePageState extends State<SearchFarePage> {
         child: Consumer<SearchFareProvider>(
           builder: (context, provider, _) {
             if (provider.searchResult.items.isEmpty) {
-              return Expanded(
-                child: const Center(
-                  child: Text("Nisu pronađeni vozači za ovu rutu!"),
-                ),
+              return const Center(
+                child: Text("Nisu pronađeni vozači za ovu rutu!"),
               );
             }
             return Column(
@@ -483,29 +481,43 @@ class _SearchFarePageState extends State<SearchFarePage> {
                     controller: _pageController,
                     onPageChanged: (index) =>
                         _onPageChanged(index, provider.searchResult),
-                    children: provider.searchResult.items
-                        .map((i) => _buildSearchFareDriverCard(context, i))
-                        .toList(),
+                    children: provider.searchResult.items.map((i) {
+                      final child = _buildSearchFareDriverCard(context, i);
+                      if (i.inBudget) {
+                        return Banner(
+                          message: "Unutar budžeta",
+                          location: BannerLocation.topEnd,
+                          child: child,
+                        );
+                      }
+                      return child;
+                    }).toList(),
                   ),
                 ),
                 SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(provider.searchResult.items.length, (
-                    i,
-                  ) {
-                    final isActive = i == _currentPage;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      width: isActive ? 12 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: isActive ? context.primaryColor : Colors.grey,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    );
-                  }),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      provider.searchResult.items.length,
+                      (i) {
+                        final isActive = i == _currentPage;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: isActive ? 12 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? context.primaryColor
+                                : Colors.grey,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ],
             );
@@ -622,16 +634,16 @@ class _SearchFarePageState extends State<SearchFarePage> {
                     fontSize: 16,
                   ),
                 ),
+                SizedBox(
+                  width: context.screenWidth * 0.4,
+                  child: PrimaryButton(
+                    onPressed: () => _buildNegotiationDialog(driver.profileId),
+                    text: "Uredi ponudu",
+                  ),
+                ),
               ],
             );
           },
-        ),
-        SizedBox(
-          width: context.screenWidth * 0.4,
-          child: PrimaryButton(
-            onPressed: () => _buildNegotiationDialog(driver.profileId),
-            text: "Uredi ponudu",
-          ),
         ),
         const Spacer(),
         const Row(
@@ -717,7 +729,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
               text: _selectedDrivers.entries
                   .map(
                     (i) =>
-                        "${i.value.price + (i.value.additionalPrice ?? 0)}KM",
+                        "${round(i.value.price + (i.value.additionalPrice ?? 0), decimals: 2)}KM",
                   )
                   .join(", "),
               textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),

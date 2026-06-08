@@ -43,6 +43,9 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         if (await _fareService.HasActiveFareForRoute(request.PassengerId, _mapper.Map<HasActiveFareRequest>(request))) {
             throw new BadRequestException("Već imate zakazanu vožnju za istu rutu, na isti dan!");
         }
+        if (request.FareDateTime < DateTime.Now) {
+            throw new BadRequestException("Vrijeme vožnje ne može biti u prošlosti!");
+        }
 
         await base.BeforeInsert(request);
     }

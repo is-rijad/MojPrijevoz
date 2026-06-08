@@ -25,7 +25,7 @@ public class FareData : IHasCreatedAtTimestamp
 
     public DateTime CreatedAt { get; set; }
 
-    //TODO: temp
+    //Has to be there because of seeder
     [NotMapped]
     public string _originLat { get; set; } = null!;
     [NotMapped]

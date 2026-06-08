@@ -87,4 +87,4 @@ public class MojPrijevozDbContext : DbContext {
         UpdateTimestamps();
         return await base.SaveChangesAsync(cancellationToken);
     }
-}
+    }

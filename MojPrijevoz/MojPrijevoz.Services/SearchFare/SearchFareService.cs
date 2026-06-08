@@ -28,16 +28,25 @@ public class SearchFareService : ISearchFareService {
         var newStart = searchObject.FareDateTime;
         var newEnd = searchObject.FareDateTime.AddMinutes(searchObject.Duration);
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
+        var userId = _authorizationService.GetUserId();
+        var passengerCity = (await _dbContext.Users.Include(it => it.City).FirstAsync(it => it.Id == userId)).City!;
         var unAvailableDrivers = await _dbContext.Fares
             .Where(f =>
                 f.Status == FareStatus.Accepted &&
                 f.FareData!.FareDateTime < newEnd &&
                 f.FareData!.FareDateTime.AddMinutes(f.FareData.Duration) > newStart
             ).Select(it => it.DriverId).ToListAsync();
-        var profilesQuery = _dbContext.UserProfiles.Where(it => it.ProfileType == ProfileType.Driver && it.Id != profileId && !unAvailableDrivers.Contains(it.Id)).AsQueryable();
+        var profilesQuery = _dbContext.UserProfiles
+            .Where(it => it.ProfileType == ProfileType.Driver && it.Id != profileId && !unAvailableDrivers.Contains(it.Id)).AsQueryable();
 
         var fullCount = await profilesQuery.CountAsync();
-        profilesQuery = profilesQuery.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
+        double passLat = Convert.ToDouble(passengerCity.Lat, System.Globalization.CultureInfo.InvariantCulture);
+        double passLon = Convert.ToDouble(passengerCity.Long, System.Globalization.CultureInfo.InvariantCulture);
+
+        double passLatRad = passLat * Math.PI / 180;
+        double passLonRad = passLon * Math.PI / 180;
+        double toRad = Math.PI / 180;
+
         var items = await profilesQuery.Select(it => new SearchFareResponse()
         {
             Id = it.UserId,
@@ -45,10 +54,28 @@ public class SearchFareService : ISearchFareService {
             FirstName = it.User!.FirstName,
             LastName = it.User!.LastName,
             Picture = it.User!.Picture,
-            AverageReview = it.RatingTos!.Count != 0 ? it.RatingTos!.Sum(r => r.Grade) / (double)(it.RatingTos!.Count) : 0,
+
+            AverageReview = it.RatingTos!.Any()
+                ? it.RatingTos!.Average(r => r.Grade)
+                : 0,
+
             NumberOfReviews = it.RatingTos!.Count,
-            Vehicles = it.UserVehicles!.AsQueryable().Include(i => i.Vehicle).Select(i => _mapper.Map<UserVehicleResponse>(i)).ToList()
-        }).ToListAsync();
+
+            Vehicles = it.UserVehicles!.AsQueryable().OrderBy(uv => uv.PricePerKm).Include(uv => uv.Vehicle)
+                .Select(i => _mapper.Map<UserVehicleResponse>(i))
+                .ToList(),
+
+            Distance = Math.Asin(Math.Sqrt(
+                (Math.Sin(((Convert.ToDouble(it.User!.City!.Lat) - passLat) * toRad) / 2) * Math.Sin(((Convert.ToDouble(it.User!.City!.Lat) - passLat) * toRad) / 2)) +
+                Math.Cos(passLatRad) *
+                Math.Cos(Convert.ToDouble(it.User!.City!.Lat) * toRad) *
+                (Math.Sin(((Convert.ToDouble(it.User!.City!.Long) - passLon) * toRad) / 2) * Math.Sin(((Convert.ToDouble(it.User!.City!.Long) - passLon) * toRad) / 2))
+            )) * 2 * 6371
+        }).OrderBy(it => it.Distance)
+        .Skip((searchObject.Page - 1) * searchObject.PageSize)
+        .Take(searchObject.PageSize)
+        .ToListAsync();
+
         var count = await profilesQuery.CountAsync();
 
         return new PagedResult<SearchFareResponse>()

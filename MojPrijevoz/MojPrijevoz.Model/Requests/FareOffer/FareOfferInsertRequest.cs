@@ -1,11 +1,12 @@
 ﻿using MojPrijevoz.Model.Dtos.Nominatim;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.StopPoint;
 
 namespace MojPrijevoz.Model.Requests.FareOffer;
 
-public class FareOfferInsertRequest : IValidatableObject {
+public class FareOfferInsertRequest {
     [Required] public int OriginCityId { get; set; }
     [Required] public NominatimCityDto DestinationCity { get; set; } = null!;
     [Required] public string DestinationName { get; set; } = null!;
@@ -25,9 +26,4 @@ public class FareOfferInsertRequest : IValidatableObject {
 
     [Required] public DateTime FareDateTime { get; set; }
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
-        if (FareDateTime < DateTime.Now) {
-            yield return new ValidationResult("Vrijeme vožnje ne može biti u prošlosti!", [nameof(FareDateTime)]);
-        }
-    }
 }

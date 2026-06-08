@@ -18,6 +18,18 @@ class SearchFareProvider
     notifyListeners();
   }
 
+  @override
+  Future<void> fetchData(SearchFareSearchObject searchObject) async {
+    await super.fetchData(searchObject);
+    if (searchObject.budget != null) {
+      for (var item in searchResult.items) {
+        item.inBudget =
+            (item.vehicles!.first.pricePerKm * searchObject.distance!) <=
+            searchObject.budget!;
+      }
+    }
+  }
+
   Future<void> fetchFareDriver(
     int id, {
     Map<String, dynamic>? queryParameters,

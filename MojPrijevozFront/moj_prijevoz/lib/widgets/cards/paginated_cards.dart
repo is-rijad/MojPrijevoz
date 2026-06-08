@@ -108,21 +108,24 @@ class _PaginatedCardsState<
             ),
           ),
           SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(searchResult.items.length, (i) {
-              final isActive = i == _currentPage;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: isActive ? 12 : 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: isActive ? context.primaryColor : Colors.grey,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              );
-            }),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(searchResult.items.length, (i) {
+                final isActive = i == _currentPage;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: isActive ? 12 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: isActive ? context.primaryColor : Colors.grey,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                );
+              }),
+            ),
           ),
         ],
       );
