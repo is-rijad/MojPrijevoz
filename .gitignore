@@ -542,3 +542,4 @@ app.*.symbols
 
 /MojPrijevoz/MojPrijevoz.WebApi/appsettings.Development.json
 /MojPrijevoz/MojPrijevoz.Notifications/firebase_credentials.json
+/MojPrijevoz/MojPrijevoz.WebApi/firebase_credentials.json
