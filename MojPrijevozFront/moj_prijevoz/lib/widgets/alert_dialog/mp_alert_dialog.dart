@@ -12,24 +12,44 @@ class MPAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      elevation: 6,
+    return Dialog(
       shape: RoundedRectangleBorder(
         side: BorderSide(color: Colors.black, width: 1.0),
         borderRadius: BorderRadius.all(Radius.circular(30)),
       ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          TextTitleMedium(title ?? ""),
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Image.asset("images/iconClose.png"),
+      elevation: 6,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(30)),
+          gradient: LinearGradient(
+            colors: [
+              const Color.fromARGB(255, 108, 182, 252),
+              Constants.primaryButtonTextColor,
+            ],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            stops: [0.02, 0.95],
           ),
-        ],
+        ),
+        child: AlertDialog(
+          insetPadding: EdgeInsets.zero,
+          clipBehavior: Clip.hardEdge,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextTitleMedium(title ?? ""),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Image.asset("images/iconClose.png"),
+              ),
+            ],
+          ),
+          content: content,
+        ),
       ),
-      content: content,
     );
   }
 }
