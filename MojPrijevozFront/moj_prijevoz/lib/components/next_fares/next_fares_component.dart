@@ -121,9 +121,7 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
   Widget _buildFareCard(BuildContext context, FareResponse fare) {
     return Banner(
       color: context.primaryColor,
-      message: fare.passengerId == _userPassengerProfileId
-          ? "Vi ste putnik"
-          : "Vi ste vozač",
+      message: _getBannerMessage(fare),
       location: BannerLocation.topEnd,
       child: MpCard(
         onTap: () async => fare.status == FareStatus.accepted
@@ -195,5 +193,18 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
             StripePaymentPage(fareOfferId: i.lastFareOffer!.id),
       ),
     );
+  }
+
+  String _getBannerMessage(FareResponse fare) {
+    if (fare.passengerId == _userPassengerProfileId) {
+      if (fare.status == FareStatus.accepted) {
+        return "Potrebno platiti";
+      } else if (fare.status == FareStatus.inProgress) {
+        return "U toku";
+      }
+      return "Vi ste putnik";
+    } else {
+      return "Vi ste vozač";
+    }
   }
 }

@@ -3,10 +3,14 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
+import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
+import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
+import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';
 import 'package:moj_prijevoz/resources/requests/stripe/stripe_create_intent_request.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class StripePaymentPage extends StatefulWidget {
   final int fareOfferId;
@@ -83,13 +87,19 @@ class _StripePaymentPageState extends State<StripePaymentPage> {
     } on StripeException catch (e) {
       if (mounted && e.error.code == FailureCode.Canceled) {
         Navigator.pop(context);
+        return;
       }
+      rethrow;
     }
 
     if (mounted) {
       setState(() {
         _isSucceded = true;
       });
+      context.read<FareProvider>().updateNextFareLocally(
+        fareOfferId,
+        FareStatus.payed,
+      );
     }
   }
 }

@@ -19,6 +19,8 @@ using MojPrijevoz.Services.FareOffer.StateMachine;
 using MojPrijevoz.Services.NotificationService;
 using MojPrijevoz.Services.StopPoint;
 using System.Security.Cryptography.X509Certificates;
+using MojPrijevoz.Model.Requests.Transaction;
+using MojPrijevoz.Services.Transactions;
 
 namespace MojPrijevoz.Services.FareOffer;
 
@@ -28,15 +30,18 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
     private readonly IStopPointService _stopPointService;
     private readonly BaseFareOfferState _baseFareOfferState;
     private readonly INotificationService _notificationService;
+    private readonly ITransactionService _transactionService;
 
     public FareOfferService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
         IFareService fareService, IFareDataService fareDataService, IStopPointService stopPointService, BaseFareOfferState baseFareOfferState,
-        INotificationService notificationService) : base(context, mapper, authorizationService) {
+        INotificationService notificationService,
+        ITransactionService transactionService) : base(context, mapper, authorizationService) {
         _fareService = fareService;
         _fareDataService = fareDataService;
         _stopPointService = stopPointService;
         _baseFareOfferState = baseFareOfferState;
         _notificationService = notificationService;
+        _transactionService = transactionService;
     }
 
     protected override async Task BeforeInsert(FareOfferInsertRequest request) {
@@ -354,6 +359,12 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Pay(entity);
         await _fareService.PayAsync(entity!.Fare!.Id);
+        await _transactionService.InsertAsync(new TransactionInsertRequest()
+        {
+            Amount = entity.TotalPrice,
+            FareId = entity.FareId,
+            Side = TransactionSide.Debit
+        });
 
         await _dbContext.SaveChangesAsync();
 

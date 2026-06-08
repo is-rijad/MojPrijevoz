@@ -409,7 +409,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
                 _request,
               );
               if (context.mounted) {
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               }
               Constants.messengerKey.currentState?.showSnackBar(
                 SuccessSnackBar(message: "Poslali ste novu ponudu!"),
@@ -430,7 +430,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
                 widget.fare.lastFareOffer!.id,
               );
               if (context.mounted) {
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               }
               Constants.messengerKey.currentState?.showSnackBar(
                 SuccessSnackBar(message: "Prihvatili ste ponudu!"),

@@ -14,7 +14,7 @@ part 'fare_response.g.dart';
 class FareResponse extends JsonResponse {
   @override
   final int id;
-  final FareStatus status;
+  FareStatus status;
   final int driverId;
   final int passengerId;
   final int fareDataId;

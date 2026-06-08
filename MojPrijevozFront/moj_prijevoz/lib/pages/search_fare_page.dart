@@ -452,9 +452,14 @@ class _SearchFarePageState extends State<SearchFarePage> {
         onChanged: (value) {
           _request.isChanged = true;
         },
-        onSaved: (newValue) => _request.budget = double.parse(newValue!),
+        onSaved: (newValue) =>
+            _request.budget = (newValue != null && newValue.isNotEmpty)
+            ? double.parse(newValue)
+            : null,
         validator: (value) {
-          if (value != null && double.tryParse(value) == null) {
+          if (value != null &&
+              value.isNotEmpty &&
+              double.tryParse(value) == null) {
             return "Budžet mora biti broj!";
           }
           return null;
@@ -835,7 +840,8 @@ class _SearchFarePageState extends State<SearchFarePage> {
   }
 
   Future<void> _onClickRecommendedDriver() async {
-    if (_request.isChanged && (_formKey.currentState?.validate() ?? false)) {
+    if (context.read<SearchFareProvider>().fareDrivers.isEmpty ||
+        (_request.isChanged && (_formKey.currentState?.validate() ?? false))) {
       setState(() {
         _uiProvider.startLoading();
       });

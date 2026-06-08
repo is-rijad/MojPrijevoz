@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:moj_prijevoz/providers/base_provider.dart';
+import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/helpers/tplaceholder.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
@@ -69,6 +70,12 @@ class FareProvider
     );
     newItems.copyTo(nextFares);
     searchObject.page++;
+    notifyListeners();
+  }
+
+  void updateNextFareLocally(int id, FareStatus status) {
+    nextFares.items.where((it) => it.lastFareOffer!.id == id).first.status =
+        status;
     notifyListeners();
   }
 }

@@ -4,15 +4,15 @@ enum FareStatus {
   @JsonValue(0)
   rejected,
   @JsonValue(1)
-  inNegotiation,
-  @JsonValue(2)
   accepted,
+  @JsonValue(2)
+  inNegotiation,
   @JsonValue(3)
-  cancelled,
-  @JsonValue(4)
   expired,
-  @JsonValue(5)
+  @JsonValue(4)
   payed,
+  @JsonValue(5)
+  cancelled,
   @JsonValue(6)
   inProgress,
   @JsonValue(7)

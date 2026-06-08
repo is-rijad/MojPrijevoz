@@ -7,11 +7,11 @@ namespace MojPrijevoz.Database;
 
 public enum FareStatus : short {
     Rejected = 0,
-    InNegotiation = 1,
-    Accepted = 2,
-    Cancelled = 3,
-    Expired = 4,
-    Payed = 5,
+    Accepted = 1,
+    InNegotiation = 2,
+    Expired = 3,
+    Payed = 4,
+    Cancelled = 5,
     InProgress = 6,
     Completed = 7
 }
