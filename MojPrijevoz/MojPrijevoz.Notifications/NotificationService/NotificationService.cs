@@ -44,7 +44,7 @@ public class NotificationService : INotificationService
                 Title = dto.Title,
                 Body = dto.Body
             },
-            Data = dto.Data ?? new Dictionary<string, string>(),
+            Data = dto.Data,
             Android = new AndroidConfig
             {
                 Priority = Priority.High,
@@ -53,6 +53,7 @@ public class NotificationService : INotificationService
 
         try {
             await FirebaseMessaging.DefaultInstance.SendAsync(message);
+            Console.WriteLine($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
         }
         catch (FirebaseMessagingException ex) {
             await HandleFirebaseException(ex, token);

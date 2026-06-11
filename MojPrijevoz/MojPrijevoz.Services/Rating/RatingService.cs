@@ -2,20 +2,30 @@
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
+using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Rating;
 using MojPrijevoz.Model.Responses.Rating;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
+using MojPrijevoz.Services.Driver;
 using MojPrijevoz.Services.FileStorage;
+using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.Rating;
 
 public class RatingService : BaseCrudService<Database.Rating, RatingInsertRequest, RatingInsertRequest, RatingResponse, RatingSearchObject>, IRatingService
 {
-    public RatingService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService, IFileStorageService? fileStorageService = null) : base(context, mapper, authorizationService, fileStorageService)
+    private readonly INotificationService _notificationService;
+
+    public RatingService(MojPrijevozDbContext context, 
+        IMapper mapper, 
+        AuthorizationService authorizationService, 
+        INotificationService notificationService,
+        IFileStorageService? fileStorageService = null) : base(context, mapper, authorizationService, fileStorageService)
     {
+        _notificationService = notificationService;
     }
 
     public override async Task<IQueryable<Database.Rating>> ApplyFilter(IQueryable<Database.Rating> queryable, RatingSearchObject searchObject)
@@ -56,5 +66,22 @@ public class RatingService : BaseCrudService<Database.Rating, RatingInsertReques
             request.ToId = fare.PassengerId;
             request.FromId = fare.DriverId;
         }
+    }
+
+    protected override async Task AfterInsert(Database.Rating entity, RatingInsertRequest request, MojPrijevozDbContext dbContext)
+    {
+        await base.AfterInsert(entity, request, dbContext);
+        var fromUser = await _dbContext.Users.FindAsync(entity.FromId);
+        await _notificationService.SendToUserAsync(new SendToUserDto()
+        {
+            UserId = entity.ToId,
+            Title = "Nova ocjena",
+            Body = $"Korisnik {fromUser!.FirstName} Vam je ostavio ocjenu {entity.Grade}",
+            Data = new Dictionary<string, string>()
+            {
+                ["FareId"] = entity.FareId.ToString(),
+                ["Type"] = SendToUserDto.NewRatingType
+            }
+        });
     }
 }
