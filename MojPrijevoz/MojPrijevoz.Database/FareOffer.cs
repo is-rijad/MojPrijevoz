@@ -27,8 +27,8 @@ public class FareOffer : IHasCreatedAtTimestamp {
 
     public int? LastOfferId { get; set; }
 
-    public virtual Fare? Fare { get; set; }
-    public virtual FareOffer? LastOffer { get; set; }
+    public Fare? Fare { get; set; }
+    public FareOffer? LastOffer { get; set; }
     public float TotalPrice => Price + (AdditionalPrice ?? 0);
 }
 

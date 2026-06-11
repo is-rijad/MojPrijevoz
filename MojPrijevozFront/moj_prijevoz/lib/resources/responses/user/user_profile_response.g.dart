@@ -15,7 +15,7 @@ UserProfileResponse _$UserProfileResponseFromJson(Map<String, dynamic> json) =>
       user: json['user'] == null
           ? null
           : UserResponse.fromJson(json['user'] as Map<String, dynamic>),
-      averageReview: (json['averageReview'] as num).toDouble(),
+      averageReview: (json['averageReview'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$UserProfileResponseToJson(

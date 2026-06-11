@@ -15,7 +15,7 @@ public class RatingResponse
 
     public int FareId { get; set; }
 
-    public virtual UserProfile? From { get; set; }
+    public UserProfile? From { get; set; }
 
 
     public DateTime CreatedAt { get; set; }

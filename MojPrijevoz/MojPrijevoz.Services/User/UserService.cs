@@ -45,13 +45,14 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
 
     protected override async Task AfterInsert(Database.User entity, UserInsertRequest request, MojPrijevozDbContext dbContext) {
         await base.AfterInsert(entity, request, dbContext);
-        if (entity.UserProfiles == null)
-            entity.UserProfiles = new List<Database.UserProfile>();
-        entity.UserProfiles.Add(new Database.UserProfile
+        if (!(await _dbContext.UserProfiles.Where(it => it.UserId == entity.Id).AnyAsync()))
         {
-            ProfileType = ProfileType.Passenger,
-            User = entity
-        });
+            await _dbContext.UserProfiles.AddAsync(new Database.UserProfile
+            {
+                ProfileType = ProfileType.Passenger,
+                UserId = entity.Id
+            });
+        }
         await dbContext.SaveChangesAsync();
         await _notificationService.SendEmailAsync(new EmailDto()
         {
@@ -64,7 +65,7 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         });
     }
 
-    protected async override Task BeforeUpdate(int id, UserUpdateFormRequest request, Database.User entity) {
+    protected override async Task BeforeUpdate(int id, UserUpdateFormRequest request, Database.User entity) {
         await base.BeforeUpdate(id, request, entity);
         if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null) {
             if (!_authorizationService.VerifyPassword(request.OldPassword ?? string.Empty, entity.PasswordHash,

@@ -13,7 +13,7 @@ public class Vehicle : IHasTimestamps {
 
     public int NumberOfSeats { get; set; }
 
-    public virtual ICollection<UserVehicle>? UserVehicles { get; set; }
+    public ICollection<UserVehicle>? UserVehicles { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

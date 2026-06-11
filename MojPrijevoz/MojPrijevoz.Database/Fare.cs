@@ -27,15 +27,14 @@ public class Fare : IHasCreatedAtTimestamp {
 
     public int PassengerId { get; set; }
     public DateTime? FareStartAfter { get; set; }
-    public virtual ICollection<Rating>? Ratings { get; set; }
 
-    public virtual ICollection<Transaction>? Transactions { get; set; }
-    public virtual FareData? FareData { get; set; }
-    public virtual UserProfile? Driver { get; set; }
-    public virtual ICollection<FareOffer>? FareOffers { get; set; }
-    public virtual UserVehicle? UserVehicle { get; set; }
+    public ICollection<Transaction>? Transactions { get; set; }
+    public FareData? FareData { get; set; }
+    public UserProfile? Driver { get; set; }
+    public ICollection<FareOffer>? FareOffers { get; set; }
+    public UserVehicle? UserVehicle { get; set; }
 
-    public virtual UserProfile? Passenger { get; set; }
+    public UserProfile? Passenger { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 
@@ -52,12 +51,12 @@ public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
             .OnDelete(DeleteBehavior.ClientSetNull);
 
         entity.HasOne(d => d.Driver)
-            .WithMany(p => p.FareDrivers)
+            .WithMany()
             .HasForeignKey(d => d.DriverId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 
         entity.HasOne(d => d.Passenger)
-            .WithMany(p => p.FarePassengers)
+            .WithMany()
             .HasForeignKey(d => d.PassengerId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 

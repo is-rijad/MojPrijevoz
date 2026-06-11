@@ -15,7 +15,7 @@ public class StopPoint {
     public string Lat { get; set; } = null!;
     public string Name { get; set; } = null!;
 
-    public virtual FareData? FareData { get; set; }
+    public FareData? FareData { get; set; }
 }
 
 public class StopPointEntityConfiguration : IEntityTypeConfiguration<StopPoint> {

@@ -30,6 +30,7 @@ using MojPrijevoz.WebApi.Filters;
 using Stripe;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MojPrijevoz.Services.Rating;
 using MojPrijevoz.Services.Transactions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -86,6 +87,7 @@ builder.Services.AddTransient<ISearchFareService, SearchFareService>();
 builder.Services.AddTransient<IOpenRouteService, OpenRouteService>();
 builder.Services.AddTransient<IOpenRouteService, OpenRouteService>();
 builder.Services.AddTransient<ITransactionService, TransactionService>();
+builder.Services.AddTransient<IRatingService, RatingService>();
 builder.Services.AddTransient<IPaymentService<StripeHandleRequest, StripeHandleResponse>, StripeService>();
 
 

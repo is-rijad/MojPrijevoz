@@ -17,16 +17,12 @@ public class UserProfile {
 
     public int NumberOfFares { get; set; }
 
-    public virtual User? User { get; set; }
+    public User? User { get; set; }
 
-    public virtual ICollection<UserVehicle>? UserVehicles { get; set; }
-    public virtual ICollection<DriversDiscount>? DriversDiscounts { get; set; }
-    public virtual ICollection<Fare>? FareDrivers { get; set; }
-    public virtual ICollection<Fare>? FarePassengers { get; set; }
+    public ICollection<UserVehicle>? UserVehicles { get; set; }
+    public ICollection<DriversDiscount>? DriversDiscounts { get; set; }
 
-    public virtual ICollection<Rating>? RatingFroms { get; set; }
-
-    public virtual ICollection<Rating>? RatingTos { get; set; }
+    public ICollection<Rating>? RatingTos { get; set; }
 }
 
 public class UserProfileEntityConfiguration : IEntityTypeConfiguration<UserProfile> {
@@ -39,7 +35,7 @@ public class UserProfileEntityConfiguration : IEntityTypeConfiguration<UserProfi
 
         entity.HasIndex(e => new { e.UserId, e.ProfileType }).IsUnique();
 
-        entity.HasOne(d => d.User).WithMany(p => p.UserProfiles)
+        entity.HasOne(d => d.User).WithMany()
             .HasForeignKey(d => d.UserId)
             .OnDelete(DeleteBehavior.ClientSetNull);
     }

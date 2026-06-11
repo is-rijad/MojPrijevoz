@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
@@ -21,12 +22,19 @@ public abstract class Account {
 
     public string Username { get; set; } = null!;
 
+    [JsonIgnore]
     public string PasswordHash { get; set; } = null!;
+    [JsonIgnore]
+
     public string PasswordSalt { get; set; } = null!;
 
     public DateTime RegisteredAt { get; set; }
 
+    [JsonIgnore]
+
     public string? ResetPasswordCode { get; set; }
+    [JsonIgnore]
+
     public DateTime? ResetPasswordCodeExpiration { get; set; }
 
     public AccountStatus Status { get; set; } = AccountStatus.Active;

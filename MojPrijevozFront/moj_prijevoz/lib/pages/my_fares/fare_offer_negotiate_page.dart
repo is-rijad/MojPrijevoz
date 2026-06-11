@@ -301,7 +301,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
               children: [
                 EasyStarsDisplay(
                   emptyColor: context.primaryColor,
-                  initialRating: person.averageReview,
+                  initialRating: person.averageReview!,
                   readOnly: true,
                   allowHalfRating: true,
                   filledColor: context.primaryColor,

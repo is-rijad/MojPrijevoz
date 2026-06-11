@@ -28,11 +28,11 @@ public class UserVehicle : IEntityHasPicture {
 
     public UserVehicleStatus Status { get; set; } = UserVehicleStatus.WaitingForReview;
 
-    public virtual ICollection<Fare>? Fares { get; set; }
+    public ICollection<Fare>? Fares { get; set; }
 
-    public virtual UserProfile? Profile { get; set; }
+    public UserProfile? Profile { get; set; }
 
-    public virtual Vehicle? Vehicle { get; set; }
+    public Vehicle? Vehicle { get; set; }
 }
 
 public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehicle> {

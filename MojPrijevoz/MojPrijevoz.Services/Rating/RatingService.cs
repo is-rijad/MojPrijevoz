@@ -1,19 +1,35 @@
 ﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Rating;
 using MojPrijevoz.Model.Responses.Rating;
+using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.FileStorage;
 
 namespace MojPrijevoz.Services.Rating;
 
-public class RatingService : BaseCrudService<Database.Rating, RatingInsertRequest, RatingInsertRequest, RatingResponse, BaseSearchObject>, IRatingService
+public class RatingService : BaseCrudService<Database.Rating, RatingInsertRequest, RatingInsertRequest, RatingResponse, RatingSearchObject>, IRatingService
 {
     public RatingService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService, IFileStorageService? fileStorageService = null) : base(context, mapper, authorizationService, fileStorageService)
     {
+    }
+
+    public override async Task<IQueryable<Database.Rating>> ApplyFilter(IQueryable<Database.Rating> queryable, RatingSearchObject searchObject)
+    {
+        await base.ApplyFilter(queryable, searchObject);
+        queryable = queryable.Where(it => it.ToId == searchObject.ProfileId);
+        return queryable;
+    }
+
+    public override async Task<IQueryable<Database.Rating>> IncludeAdditionalEntities(IQueryable<Database.Rating> queryable)
+    {
+        await base.IncludeAdditionalEntities(queryable);
+        queryable = queryable.Include(it => it.From).ThenInclude(it => it!.User);
+        return queryable;
     }
 
     protected override async Task BeforeInsert(RatingInsertRequest request)

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MojPrijevoz.Database.Interfaces;
 
@@ -17,11 +18,11 @@ public class Rating : IHasCreatedAtTimestamp {
 
     public int FareId { get; set; }
 
-    public virtual Fare? Fare { get; set; }
+    public Fare? Fare { get; set; }
 
-    public virtual UserProfile? From { get; set; }
+    public UserProfile? From { get; set; }
 
-    public virtual UserProfile? To { get; set; }
+    public UserProfile? To { get; set; }
 
     public DateTime CreatedAt { get; set; }
 }
@@ -36,13 +37,13 @@ public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating> {
 
         entity.Property(e => e.Comment)
             .HasMaxLength(256)
-            .IsUnicode(false);
+            .IsUnicode(true);
 
-        entity.HasOne(d => d.Fare).WithMany(p => p.Ratings)
+        entity.HasOne(d => d.Fare).WithMany()
             .HasForeignKey(d => d.FareId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 
-        entity.HasOne(d => d.From).WithMany(p => p.RatingFroms)
+        entity.HasOne(d => d.From).WithMany()
             .HasForeignKey(d => d.FromId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 

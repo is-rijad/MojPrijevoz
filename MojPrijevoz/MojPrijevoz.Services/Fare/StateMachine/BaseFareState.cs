@@ -15,18 +15,14 @@ public class BaseFareState : BaseState<Database.Fare, BaseFareState> {
     {
         switch (state)
         {
-            case null:
-                return ServiceProvider.GetRequiredService<InitialFareState>();
-                break;
             case (short)Database.FareStatus.InNegotiation:
                 return ServiceProvider.GetRequiredService<InNegotiationFareState>();
-                break;
             case (short)Database.FareStatus.Accepted:
                 return ServiceProvider.GetRequiredService<AcceptedFareState>();
-                break;
             case (short)Database.FareStatus.Payed:
                 return ServiceProvider.GetRequiredService<PayedFareState>();
-                break;
+            case null:
+                return ServiceProvider.GetRequiredService<InitialFareState>();
             default:
                 throw new Exception(MethodNotAllowed);
         }

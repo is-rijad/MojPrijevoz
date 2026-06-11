@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/profile/show_profile_dialog.dart';
 import 'package:moj_prijevoz/pages/my_fares/fare_offer_negotiate_page.dart';
+import 'package:moj_prijevoz/pages/review_page.dart';
 import 'package:moj_prijevoz/pages/stripe_payment_page.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/common/enums/fare_offer_side.dart';
@@ -40,7 +41,9 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
       fallbackText: "Nemate vožnji kao putnik!",
       children: (i) => [
         (i.lastFareOffer!.side == FareOfferSide.driver &&
-                i.lastFareOffer!.status == FareOfferStatus.waitingForResponse)
+                (i.lastFareOffer!.status ==
+                        FareOfferStatus.waitingForResponse ||
+                    i.lastFareOffer!.status == FareOfferStatus.payed))
             ? Badge(
                 child: IconFieldWithText(
                   iconData: Icons.info,
@@ -148,12 +151,17 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
               )
             : SizedBox.shrink(),
       ],
-      onTap: (i) async =>
-          (i!.lastFareOffer!.side == FareOfferSide.driver &&
-              i.lastFareOffer!.status == FareOfferStatus.waitingForResponse)
-          ? await _navigateToNegotiatePage(i)
-          : null,
+      onTap: (i) => _onTapCard(i!),
     );
+  }
+
+  Future<void> _onTapCard(FareResponse fare) async {
+    if (fare.lastFareOffer!.side == FareOfferSide.driver &&
+        fare.lastFareOffer!.status == FareOfferStatus.waitingForResponse) {
+      await _navigateToNegotiatePage(fare);
+    } else if (fare.status == FareStatus.completed) {
+      await _navigateToReviewPage(fare);
+    }
   }
 
   Future<void> _navigateToNegotiatePage(FareResponse fare) async {
@@ -162,6 +170,16 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
       MaterialPageRoute(
         builder: (context) =>
             FareOfferNegotiatePage(fare: fare, person: fare.driver!),
+      ),
+    );
+  }
+
+  Future<void> _navigateToReviewPage(FareResponse fare) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ReviewPage(fare: fare, profileType: ProfileType.passenger),
       ),
     );
   }

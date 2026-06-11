@@ -6,10 +6,10 @@ part 'rating_insert_request.g.dart';
 
 @JsonSerializable()
 class RatingInsertRequest extends JsonRequest {
-  final int? fareId;
-  final String? comment;
-  final int? grade;
-  final ProfileType? profileType;
+  int? fareId;
+  String? comment;
+  int? grade;
+  ProfileType? profileType;
 
   RatingInsertRequest({
     this.fareId,
@@ -19,8 +19,8 @@ class RatingInsertRequest extends JsonRequest {
   });
 
   @override
-  Map<String, dynamic> toJson() => _$SearchFareRequestToJson(this);
+  Map<String, dynamic> toJson() => _$RatingInsertRequestToJson(this);
 
   factory RatingInsertRequest.fromJson(Map<String, dynamic> json) =>
-      _$SearchFareRequestFromJson(json);
+      _$RatingInsertRequestFromJson(json);
 }

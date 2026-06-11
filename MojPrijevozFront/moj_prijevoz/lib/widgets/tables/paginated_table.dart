@@ -16,6 +16,8 @@ class PaginatedTable<
   final TSearchObject searchObject;
   final List<String> header;
   final List<Widget Function(T)> items;
+  final double? headingRowHeight;
+  final double? dataRowMaxHeight;
 
   final Future<void> Function(T? selectedItem)? onTap;
   final Future<void> Function(T selectedItem)? onSecondaryOrLongPress;
@@ -28,6 +30,8 @@ class PaginatedTable<
     required this.items,
     this.onTap,
     this.onSecondaryOrLongPress,
+    this.dataRowMaxHeight,
+    this.headingRowHeight,
   });
 
   @override
@@ -95,54 +99,48 @@ class _PaginatedTableState<
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minWidth: constraints.maxWidth,
-              minHeight: constraints.maxHeight,
-            ),
-            child: SizedBox(
-              height: constraints.maxHeight,
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                scrollDirection: Axis.vertical,
-                child: DataTable(
-                  headingRowHeight: 56,
-                  dataRowMaxHeight: 56,
-                  columns: widget.header
-                      .map(
-                        (h) => DataColumn(
-                          label: Text(
-                            h,
-                            style: TextStyle(color: context.primaryColor),
-                          ),
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: constraints.maxWidth,
+            maxHeight: constraints.maxHeight,
+          ),
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            scrollDirection: Axis.vertical,
+            child: DataTable(
+              headingRowHeight: widget.headingRowHeight ?? 56,
+              dataRowMaxHeight: widget.dataRowMaxHeight ?? 56,
+              columns: widget.header
+                  .map(
+                    (h) => DataColumn(
+                      label: Text(
+                        h,
+                        style: TextStyle(color: context.primaryColor),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              rows: searchResult.items.map((item) {
+                return DataRow(
+                  cells: widget.items.map((method) {
+                    return DataCell(
+                      MouseRegion(
+                        cursor: _hasClick()
+                            ? SystemMouseCursors.click
+                            : SystemMouseCursors.basic,
+                        child: GestureDetector(
+                          onTap: () => widget.onTap?.call(item),
+                          onSecondaryTap: () =>
+                              widget.onSecondaryOrLongPress?.call(item),
+                          onLongPress: () =>
+                              widget.onSecondaryOrLongPress?.call(item),
+                          child: method(item as T),
                         ),
-                      )
-                      .toList(),
-                  rows: searchResult.items.map((item) {
-                    return DataRow(
-                      cells: widget.items.map((method) {
-                        return DataCell(
-                          MouseRegion(
-                            cursor: _hasClick()
-                                ? SystemMouseCursors.click
-                                : SystemMouseCursors.basic,
-                            child: GestureDetector(
-                              onTap: () => widget.onTap?.call(item),
-                              onSecondaryTap: () =>
-                                  widget.onSecondaryOrLongPress?.call(item),
-                              onLongPress: () =>
-                                  widget.onSecondaryOrLongPress?.call(item),
-                              child: method(item as T),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                      ),
                     );
                   }).toList(),
-                ),
-              ),
+                );
+              }).toList(),
             ),
           ),
         );

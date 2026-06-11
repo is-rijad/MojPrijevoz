@@ -9,6 +9,7 @@ import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/fare_offer_negotiation/search_fare_negotiate_fialog.dart';
 import 'package:moj_prijevoz/components/map/map_component.dart';
+import 'package:moj_prijevoz/components/profile/show_profile_dialog.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
@@ -544,8 +545,16 @@ class _SearchFarePageState extends State<SearchFarePage> {
       spacing: 12,
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       children: [
-        Avatar(user: driver, maxRadius: 50),
-        TextHeadlineSmall("${driver.firstName} ${driver.lastName}"),
+        GestureDetector(
+          onTap: () => _showUserProfile(driver.profileId),
+          child: Column(
+            children: [
+              Avatar(user: driver, maxRadius: 50),
+              TextHeadlineSmall("${driver.firstName} ${driver.lastName}"),
+            ],
+          ),
+        ),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
@@ -678,6 +687,15 @@ class _SearchFarePageState extends State<SearchFarePage> {
             fareDriver.additionalPrice = double.tryParse(value ?? "");
           }),
         );
+      },
+    );
+  }
+
+  Future<void> _showUserProfile(int profileId) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return ShowProfileDialog(profileId: profileId);
       },
     );
   }

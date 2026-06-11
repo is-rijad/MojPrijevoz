@@ -21,7 +21,7 @@ enum FareStatus {
 
 Map<FareStatus, String> fareStatusMap = {
   FareStatus.inNegotiation: "U pregovorima",
-  FareStatus.accepted: "Prihvaćena",
+  FareStatus.accepted: "Potrebno platiti",
   FareStatus.rejected: "Odbijena",
   FareStatus.cancelled: "Otkazana",
   FareStatus.completed: "Završena",

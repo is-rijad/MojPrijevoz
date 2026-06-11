@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MojPrijevoz.Model.Requests.Rating;
+using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Rating;
 
 namespace MojPrijevoz.WebApi.Controllers;
@@ -15,10 +16,10 @@ public class RatingController : ControllerBase
         _ratingService = ratingService;
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet]
+    public async Task<IActionResult> Get([FromQuery] RatingSearchObject searchObject)
     {
-        return Ok(await _ratingService.GetByIdAsync(id));
+        return Ok(await _ratingService.GetAsync(searchObject));
     }
 
     [HttpPost]

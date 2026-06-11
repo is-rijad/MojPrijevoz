@@ -171,11 +171,9 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
             .Include(it => it.Driver)
             .ThenInclude(it => it!.User)
             .Include(it => it.Driver)
-            .ThenInclude(it => it!.RatingTos)
             .Include(it => it.Passenger)
             .ThenInclude(it => it!.User)
             .Include(it => it.Passenger)
-            .ThenInclude(it => it!.RatingTos)
             .Include(it => it.FareOffers!.OrderBy(fo => fo.CreatedAt))
             .Include(it => it.FareData)
             .ThenInclude(it => it!.StopPoints);

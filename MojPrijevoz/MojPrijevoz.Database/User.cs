@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MojPrijevoz.Database.Interfaces;
 
@@ -13,8 +14,7 @@ public class User : Account, IEntityHasPicture {
     public virtual City? City { get; set; }
 
 
-    public virtual ICollection<UserProfile>? UserProfiles { get; set; }
-    public virtual ICollection<UserFcmToken>? UserFcmTokens { get; set; }
+    public ICollection<UserFcmToken>? UserFcmTokens { get; set; }
 }
 
 public class UserEntityConfiguration : IEntityTypeConfiguration<User> {

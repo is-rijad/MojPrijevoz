@@ -20,7 +20,7 @@ public class Transaction : IHasCreatedAtTimestamp {
 
     public DateTime? PostedAt { get; set; }
 
-    public virtual Fare? Fare { get; set; }
+    public Fare? Fare { get; set; }
 
     public DateTime CreatedAt { get; set; }
 }
