@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojPrijevoz.Database;
 
@@ -11,9 +12,11 @@ using MojPrijevoz.Database;
 namespace MojPrijevoz.Database.Migrations
 {
     [DbContext(typeof(MojPrijevozDbContext))]
-    partial class MojPrijevozDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260611193241_NotificationRatingIdAdd")]
+    partial class NotificationRatingIdAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -887,9 +890,9 @@ namespace MojPrijevoz.Database.Migrations
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasMaxLength(64)
+                        .HasMaxLength(32)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<int?>("RatingId")
                         .HasColumnType("int");

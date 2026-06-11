@@ -20,6 +20,11 @@ public class FareController : ControllerBase {
         return Ok(await _fareService.GetAsync(searchObject));
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id) {
+        return Ok(await _fareService.GetByIdAsync(id));
+    }
+
 
     [HttpPost("{id}/start")]
     public async Task<IActionResult> Start(int id) {

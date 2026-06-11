@@ -9,11 +9,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Remove="firebase_credentials.json" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="dotenv.net" Version="4.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.11" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.13">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,12 +24,6 @@
 
 	<ItemGroup>
 	  <Folder Include="wwwroot\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="firebase_credentials.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
 	</ItemGroup>
 
 	<ItemGroup>

@@ -21,7 +21,8 @@ import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 
 class MyFaresPassengerPage extends StatefulWidget {
-  const MyFaresPassengerPage({super.key});
+  final int? fareId;
+  const MyFaresPassengerPage({super.key, this.fareId});
 
   @override
   State<StatefulWidget> createState() => _MyFaresPassengerPageState();
@@ -36,6 +37,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
         page: 1,
         pageSize: 5,
         fareRole: ProfileType.passenger,
+        fareId: widget.fareId,
       ),
       mainAxisAlignment: MainAxisAlignment.center,
       fallbackText: "Nemate vožnji kao putnik!",
@@ -178,8 +180,11 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            ReviewPage(fare: fare, profileType: ProfileType.passenger),
+        builder: (context) => ReviewPage(
+          fare: fare,
+          profileType: ProfileType.passenger,
+          isReadOnly: false,
+        ),
       ),
     );
   }

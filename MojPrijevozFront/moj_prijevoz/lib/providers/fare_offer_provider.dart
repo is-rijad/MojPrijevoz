@@ -20,14 +20,17 @@ class FareOfferProvider
     : super(providerName: "fareoffer");
 
   @override
-  Future<FareResponse> updateWithEvent(
+  Future<FareResponse?> updateWithEvent(
     int id,
     FareOfferUpdateRequest? request, {
     FormData? formData,
   }) async {
     final updatedItem = await super.update(id, request);
-    fareProvider.updateLocally(updatedItem);
-    return updatedItem;
+    if (updatedItem != null) {
+      fareProvider.updateLocally(updatedItem);
+      return updatedItem;
+    }
+    return null;
   }
 
   Future<FareResponse> accept(int id) async {

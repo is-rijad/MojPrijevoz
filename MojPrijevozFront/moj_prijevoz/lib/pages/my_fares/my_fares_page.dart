@@ -4,12 +4,15 @@ import 'package:moj_prijevoz/pages/my_fares/my_fares_driver_page.dart';
 import 'package:moj_prijevoz/pages/my_fares/my_fares_passenger_page.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
+import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
 
 class MyFaresPage extends StatefulWidget {
-  const MyFaresPage({super.key});
+  final String? fareId;
+  final String? side;
+  const MyFaresPage({super.key, this.fareId, this.side});
 
   @override
   State<StatefulWidget> createState() => _MyFaresPageState();
@@ -17,6 +20,8 @@ class MyFaresPage extends StatefulWidget {
 
 class _MyFaresPageState extends State<MyFaresPage> {
   int? driverProfileId;
+  ProfileType? complementSide;
+  FareResponse? fareFromNotification;
   @override
   Widget build(BuildContext context) {
     return PageWrapper(
@@ -36,6 +41,7 @@ class _MyFaresPageState extends State<MyFaresPage> {
       );
     }
     return DefaultTabController(
+      initialIndex: complementSide?.index ?? 0,
       length: 2,
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -51,7 +57,12 @@ class _MyFaresPageState extends State<MyFaresPage> {
             SizedBox(
               height: context.screenHeight * 0.7,
               child: TabBarView(
-                children: [MyFaresPassengerPage(), MyFaresDriverPage()],
+                children: [
+                  MyFaresPassengerPage(
+                    fareId: int.tryParse(widget.fareId ?? ""),
+                  ),
+                  MyFaresDriverPage(fareId: int.tryParse(widget.fareId ?? "")),
+                ],
               ),
             ),
           ],
@@ -64,6 +75,11 @@ class _MyFaresPageState extends State<MyFaresPage> {
     driverProfileId = await context.read<AuthProvider>().getProfileId(
       ProfileType.driver,
     );
+    if (widget.fareId != null && widget.side != null && mounted) {
+      complementSide = widget.side == "0"
+          ? ProfileType.driver
+          : ProfileType.passenger;
+    }
     return true;
   }
 }

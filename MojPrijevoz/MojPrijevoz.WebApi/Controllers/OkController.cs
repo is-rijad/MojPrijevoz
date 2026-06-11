@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
+using MojPrijevoz.Services.Driver;
 using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.WebApi.Controllers;
@@ -21,9 +23,15 @@ public class OkController : ControllerBase {
     {
         await _notificationService.SendToUserAsync(new SendToUserDto()
         {
-            Body = "Testna notifikacija",
-            Title = "Test",
-            UserId = 51
+            UserId = 1002,
+            Title = "Nova ponuda vožnje",
+            Body = $"Korisnik Rijad je poslao ponudu za vožnju",
+            Data = new Dictionary<string, string>()
+            {
+                ["FareId"] = "1002",
+                ["Type"] = SendToUserDto.NewFareOfferType,
+                ["Side"] = "0"
+            }
         });
         return Ok();
     }

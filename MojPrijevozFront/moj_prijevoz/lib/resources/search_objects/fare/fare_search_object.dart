@@ -7,10 +7,12 @@ part 'fare_search_object.g.dart';
 @JsonSerializable()
 class FareSearchObject extends BaseSearchObject {
   ProfileType fareRole;
+  int? fareId;
   FareSearchObject({
     required this.fareRole,
     required super.page,
     required super.pageSize,
+    this.fareId,
   });
 
   @override

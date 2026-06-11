@@ -99,7 +99,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                 Data = new Dictionary<string, string>()
                 {
                     ["FareId"] = fare.Id.ToString(),
-                    ["Type"] = SendToUserDto.NewFareOfferType
+                    ["Type"] = SendToUserDto.NewFareOfferType,
+                    ["Side"] = ProfileType.Passenger.ToString()
                 }
             });
         }
@@ -163,7 +164,9 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     Data = new Dictionary<string, string>()
                     {
                         ["FareId"] = entity.FareId.ToString(),
-                        ["Type"] = SendToUserDto.AcceptedFareOfferType
+                        ["Type"] = SendToUserDto.AcceptedFareOfferType,
+                            ["Side"] = entity.Side.ToString()
+
                     }
                 });
                 break;
@@ -176,7 +179,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     Data = new Dictionary<string, string>()
                     {
                         ["FareId"] = entity.FareId.ToString(),
-                        ["Type"] = SendToUserDto.NewFareOfferType
+                        ["Type"] = SendToUserDto.NewFareOfferType,
+                        ["Side"] = entity.Side.ToString()
                     }
                 });
                 break;
@@ -189,7 +193,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     Data = new Dictionary<string, string>()
                     {
                         ["FareId"] = entity.FareId.ToString(),
-                        ["Type"] = SendToUserDto.RejectedFareOfferType
+                        ["Type"] = SendToUserDto.RejectedFareOfferType,
+                        ["Side"] = entity.Side.ToString()
                     }
                 });
                 break;
@@ -202,7 +207,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     Data = new Dictionary<string, string>()
                     {
                         ["FareId"] = entity.FareId.ToString(),
-                        ["Type"] = SendToUserDto.ExpiredFareOfferType
+                        ["Type"] = SendToUserDto.ExpiredFareOfferType,
+                        ["Side"] = entity.Side.ToString()
                     }
                 });
                 break;
@@ -215,7 +221,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     Data = new Dictionary<string, string>()
                     {
                         ["FareId"] = entity.FareId.ToString(),
-                        ["Type"] = SendToUserDto.PayedFareOfferType
+                        ["Type"] = SendToUserDto.PayedFareOfferType,
+                        ["Side"] = ProfileType.Passenger.ToString()
                     }
                 });
                 await _notificationService.SendEmailAsync(new EmailDto()

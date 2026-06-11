@@ -5,8 +5,10 @@ import 'package:moj_prijevoz/components/next_fares/next_fares_component.dart';
 import 'package:moj_prijevoz/pages/search_fare_page.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
+import 'package:moj_prijevoz/providers/signalr_provider.dart';
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search_object.dart';
+import 'package:moj_prijevoz/resources/search_objects/notification/notification_search_object.dart';
 import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/dialogs/modal_bottom_sheet.dart';
@@ -15,6 +17,7 @@ import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input.
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -48,6 +51,11 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> _init() async {
     await GetIt.I<NotificationProvider>().initialize();
+    GetIt.I<SignalrProvider>().initialize();
+    if (!mounted) return false;
+    await context.read<NotificationProvider>().fetchData(
+      NotificationSearchObject(page: 1, pageSize: 15),
+    );
     return true;
   }
 

@@ -1,6 +1,8 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/profile/show_profile_dialog.dart';
@@ -21,10 +23,10 @@ import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
-import 'package:provider/provider.dart';
 
 class MyFaresDriverPage extends StatefulWidget {
-  const MyFaresDriverPage({super.key});
+  final int? fareId;
+  const MyFaresDriverPage({super.key, this.fareId});
 
   @override
   State<StatefulWidget> createState() => _MyFaresDriverPageState();
@@ -39,6 +41,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
         page: 1,
         pageSize: 5,
         fareRole: ProfileType.driver,
+        fareId: widget.fareId,
       ),
       mainAxisAlignment: MainAxisAlignment.center,
 
@@ -167,8 +170,11 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            ReviewPage(fare: fare, profileType: ProfileType.driver),
+        builder: (context) => ReviewPage(
+          fare: fare,
+          profileType: ProfileType.driver,
+          isReadOnly: false,
+        ),
       ),
     );
   }

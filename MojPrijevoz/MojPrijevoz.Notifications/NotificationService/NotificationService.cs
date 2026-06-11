@@ -1,9 +1,10 @@
 ﻿using FirebaseAdmin.Messaging;
+using Mapster.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
-using System;
+using Notification = MojPrijevoz.Database.Notification;
 
 namespace MojPrijevoz.Notifications.NotificationService;
 
@@ -53,6 +54,21 @@ public class NotificationService : INotificationService
 
         try {
             await FirebaseMessaging.DefaultInstance.SendAsync(message);
+            dto.Data.TryGetValue("RatingId", out var ratingId);
+
+            await dbContext.Notifications.AddAsync(new Notification()
+            {
+                CreatedAt = DateTime.Now,
+                FareId = int.Parse(dto.Data["FareId"]),
+                Side = Enum<ProfileType>.Parse(dto.Data["Side"]),
+                Id = 0,
+                IsRead = false,
+                UserId = dto.UserId,
+                Message = dto.Body,
+                Type = dto.Data["Type"],
+                RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null,
+            });
+            await dbContext.SaveChangesAsync();
             Console.WriteLine($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
         }
         catch (FirebaseMessagingException ex) {

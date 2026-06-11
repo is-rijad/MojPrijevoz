@@ -157,6 +157,11 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         {
             queryable = queryable.Where(it => it.PassengerId == profileId);
         }
+
+        if (searchObject.FareId != null)
+        {
+            queryable = queryable.Where(it => it.Id == searchObject.FareId);
+        }
         return queryable;
     }
 

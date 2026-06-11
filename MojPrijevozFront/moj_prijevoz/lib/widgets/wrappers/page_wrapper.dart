@@ -1,13 +1,20 @@
+import 'package:easy_stars/easy_stars.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/pages/my_driver_profile/my_driver_profile.dart';
 import 'package:moj_prijevoz/pages/my_fares/my_fares_page.dart';
 import 'package:moj_prijevoz/pages/my_profile.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
+import 'package:moj_prijevoz/resources/responses/notification/notification_response.dart';
+import 'package:moj_prijevoz/resources/search_objects/notification/notification_search_object.dart';
+import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/profile_dropdown/profile_dropdown_item.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
@@ -27,7 +34,14 @@ class PageWrapper extends StatefulWidget {
 class _PageWrapperState extends State<PageWrapper> {
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
   final _avatarKey = GlobalKey();
-  // TODO: create event to refresh payload
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _notificationSearchObject = NotificationSearchObject(
+    page: 1,
+    pageSize: 15,
+  );
+  final _notificationScrollController = ScrollController();
+  bool _isLoading = false;
+
   late AccessTokenPayload _accessTokenPayload;
 
   @override
@@ -37,9 +51,50 @@ class _PageWrapperState extends State<PageWrapper> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _notificationScrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (_notificationScrollController.position.pixels >=
+        _notificationScrollController.position.maxScrollExtent - 100) {
+      _fetchData();
+    }
+  }
+
+  Future<void> _fetchData() async {
+    final provider = context.read<NotificationProvider>();
+    if (_isLoading || !provider.searchResult.hasMore) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    await provider.fetchData(_notificationSearchObject);
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _notificationScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(appBar: _buildAppBar(context), body: widget.body),
+      child: Scaffold(
+        appBar: _buildAppBar(context),
+        body: widget.body,
+        key: _scaffoldKey,
+        drawer: _buildDrawer(context),
+      ),
     );
   }
 
@@ -53,7 +108,7 @@ class _PageWrapperState extends State<PageWrapper> {
           : null,
       automaticallyImplyLeading: false,
       title: TextTitleSmall(widget.appBarTitle ?? ""),
-      actions: [_buildProfileIcon(context)],
+      actions: [_buildProfileIcon(context), _buildDrawerIcon(context)],
       actionsPadding: EdgeInsets.all(8),
     );
   }
@@ -160,5 +215,60 @@ class _PageWrapperState extends State<PageWrapper> {
         _uiProvider.profileDropdownAction = null;
       });
     }
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: Consumer<NotificationProvider>(
+        builder: (context, provider, _) {
+          return ListView.builder(
+            controller: _notificationScrollController,
+            padding: EdgeInsets.zero,
+            itemCount:
+                provider.searchResult.items.length + (_isLoading ? 1 : 0),
+            itemBuilder: (BuildContext context, int index) {
+              if (index == 0) {
+                return DrawerHeader(
+                  decoration: BoxDecoration(color: context.primaryColor),
+                  child: TextTitleLarge('Notifikacije'),
+                );
+              }
+              if (index == provider.searchResult.items.length && _isLoading) {
+                return CircularProgressIndicator();
+              }
+              var i = provider.searchResult.items[index];
+              return ListTile(
+                title: !i.isRead
+                    ? TextBodyMedium(i.message, fontWeight: FontWeight(900))
+                    : TextBodyMedium(i.message),
+                onTap: () async => await _onTap(i),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Future _onTap(NotificationResponse i) async {
+    _scaffoldKey.currentState?.closeDrawer();
+    await context.read<NotificationProvider>().update(i.id, null);
+    i.isRead = true;
+    if (!mounted) return;
+    context.read<NotificationProvider>().updateLocally(i);
+    await GetIt.I<UIProvider>().handleNavigationFromNotification({
+      "Type": i.type,
+      "FareId": i.fareId,
+      "Side": i.side,
+      "IsRead": i.isRead,
+      "RatingId": i.ratingId,
+    });
+  }
+
+  Widget _buildDrawerIcon(BuildContext context) {
+    return IconButton(
+      onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+      icon: Icon(Icons.notifications),
+    );
   }
 }

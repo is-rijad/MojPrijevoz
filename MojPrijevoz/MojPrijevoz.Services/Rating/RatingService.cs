@@ -42,6 +42,12 @@ public class RatingService : BaseCrudService<Database.Rating, RatingInsertReques
         return queryable;
     }
 
+    protected override async Task PrepareForResponse(Database.Rating entity, MojPrijevozDbContext dbContext)
+    {
+        await base.PrepareForResponse(entity, dbContext);
+        entity.From = await _dbContext.UserProfiles.Where(it => it.Id == entity.FromId).Include(it => it.User).FirstAsync();
+    }
+
     protected override async Task BeforeInsert(RatingInsertRequest request)
     {
         await base.BeforeInsert(request);
@@ -80,7 +86,9 @@ public class RatingService : BaseCrudService<Database.Rating, RatingInsertReques
             Data = new Dictionary<string, string>()
             {
                 ["FareId"] = entity.FareId.ToString(),
-                ["Type"] = SendToUserDto.NewRatingType
+                ["Type"] = SendToUserDto.NewRatingType,
+                ["RatingId"] = entity.Id.ToString(),
+                ["Side"] = request.ProfileType.ToString()
             }
         });
     }

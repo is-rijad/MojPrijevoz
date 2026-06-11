@@ -95,12 +95,17 @@ abstract class BaseProvider<
     return newItem;
   }
 
-  void insertLocally(TResponse entity) {
-    searchResult.items.add(entity);
+  void insertLocally(TResponse entity, {int? index}) {
+    if (index == null) {
+      searchResult.items.add(entity);
+    } else {
+      searchResult.items.insert(index, entity);
+    }
+
     notifyListeners();
   }
 
-  Future<TResponse> update(
+  Future<TResponse?> update(
     int id,
     TUpdateRequest? request, {
     FormData? formData,
@@ -113,14 +118,17 @@ abstract class BaseProvider<
     );
   }
 
-  Future<TResponse> updateWithEvent(
+  Future<TResponse?> updateWithEvent(
     int id,
     TUpdateRequest? request, {
     FormData? formData,
   }) async {
     final updatedItem = await update(id, request, formData: formData);
-    updateLocally(updatedItem);
-    return updatedItem;
+    if (updatedItem != null) {
+      updateLocally(updatedItem);
+      return updatedItem;
+    }
+    return null;
   }
 
   void updateLocally(TResponse entity) {

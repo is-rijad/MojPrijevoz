@@ -93,7 +93,7 @@ class HttpProvider {
     }
   }
 
-  Future<TResponse> put<TRequest extends JsonParsable, TResponse>(
+  Future<TResponse?> put<TRequest extends JsonParsable, TResponse>(
     String url,
     int id,
     TRequest? request, {
@@ -101,8 +101,6 @@ class HttpProvider {
     FormData? formData,
   }) async {
     try {
-      assert(formData == null || request == null);
-
       _uiProvider.startLoading();
 
       var options = await _setRequestOptions();
@@ -115,7 +113,10 @@ class HttpProvider {
         options: options,
         queryParameters: queryParameters,
       );
-      return parseJson<TResponse>(response.data);
+      if (response.data != "") {
+        return parseJson<TResponse>(response.data);
+      }
+      return null;
     } finally {
       _uiProvider.stopLoading();
     }

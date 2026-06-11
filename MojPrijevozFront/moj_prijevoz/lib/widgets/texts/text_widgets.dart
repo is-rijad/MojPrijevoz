@@ -138,14 +138,17 @@ class TextBodyLarge extends StatelessWidget {
 class TextBodyMedium extends StatelessWidget {
   final String text;
   final TextAlign? textAlign;
-  const TextBodyMedium(this.text, {super.key, this.textAlign});
+  final FontWeight? fontWeight;
+  const TextBodyMedium(this.text, {super.key, this.textAlign, this.fontWeight});
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
       textAlign: textAlign,
-      style: Theme.of(context).textTheme.bodyMedium,
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium!.copyWith(fontWeight: fontWeight),
     );
   }
 }

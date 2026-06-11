@@ -1,15 +1,30 @@
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
+import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/requests/notification/subscribe_to_fcm_request.dart';
+import 'package:moj_prijevoz/resources/responses/notification/notification_response.dart';
+import 'package:moj_prijevoz/resources/search_objects/notification/notification_search_object.dart';
+import 'package:moj_prijevoz/utils/json_parser.dart';
 
-class NotificationProvider {
+class NotificationProvider
+    extends
+        BaseProvider<
+          NotificationResponse,
+          NotificationSearchObject,
+          JsonRequest,
+          JsonRequest
+        > {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final HttpProvider _httpProvider = GetIt.I<HttpProvider>();
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
+
+  NotificationProvider() : super(providerName: "notification");
 
   Future<void> initialize() async {
     await _requestPermission();

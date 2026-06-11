@@ -122,7 +122,7 @@ await database.Database.MigrateAsync();
 var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
 await dbSeeder.SeedAsync();
 
-app.MapHub<FareLocationsHub>("/hubs/fareLocations");
+app.MapHub<NotificationsHub>("/hubs/notifications");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthorization();

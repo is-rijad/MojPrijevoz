@@ -22,6 +22,7 @@ import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/providers/rating_provider.dart';
 import 'package:moj_prijevoz/providers/search_fare_provider.dart';
+import 'package:moj_prijevoz/providers/signalr_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
 import 'package:moj_prijevoz/providers/user_profile_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
@@ -47,6 +48,7 @@ void registerServices() {
   getIt.registerFactory<ImagePickerProvider>(() => ImagePickerProvider());
 
   getIt.registerSingleton(NotificationProvider());
+  getIt.registerLazySingleton(() => SignalrProvider());
 }
 
 List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
@@ -66,7 +68,8 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
       create: (context) =>
           FareOfferProvider(fareProvider: context.read<FareProvider>()),
     ),
-    ChangeNotifierProvider(create: (_) => FareLocationProvider(), lazy: false),
+    //ChangeNotifierProvider(create: (_) => FareLocationProvider(), lazy: false),
+    ChangeNotifierProvider(create: (_) => NotificationProvider(), lazy: false),
   ];
 }
 

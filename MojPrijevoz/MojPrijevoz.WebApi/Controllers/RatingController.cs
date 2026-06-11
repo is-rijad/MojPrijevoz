@@ -22,6 +22,12 @@ public class RatingController : ControllerBase
         return Ok(await _ratingService.GetAsync(searchObject));
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id) {
+        return Ok(await _ratingService.GetByIdAsync(id));
+    }
+
+
     [HttpPost]
     public async Task<IActionResult> Post(RatingInsertRequest request) {
         return Ok(await _ratingService.InsertAsync(request));
