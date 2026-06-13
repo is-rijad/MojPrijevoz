@@ -15,5 +15,6 @@ public interface IFareService : IBaseCRUDService<FareInsertRequest, FareInsertRe
     public Task<FareResponse> CompleteAsync(int id);
     public Task<FareResponse> StartAsync(int id);
     public Task<FareResponse> PayAsync(int id);
+    public Task MarkAsCompleted();
     public Task<PagedResult<FareResponse>> GetNextAcceptedFaresAsync(FareSearchObject searchObject);
 }

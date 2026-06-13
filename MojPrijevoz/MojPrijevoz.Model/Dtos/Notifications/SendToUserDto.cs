@@ -11,6 +11,7 @@ public class SendToUserDto {
     public static readonly string RejectedFareOfferType = "REJECTED_FARE_OFFER";
     public static readonly string ExpiredFareOfferType = "EXPIRED_FARE_OFFER";
     public static readonly string PayedFareOfferType = "PAYED_FARE_OFFER";
-    public static readonly string CancelledFareOfferType = "Cancelled_FARE_OFFER";
+    public static readonly string CompletedFareType = "COMPLETED_FARE";
+    public static readonly string CancelledFareOfferType = "CANCELLED_FARE_OFFER";
     public static readonly string NewRatingType = "NEW_RATING";
 }

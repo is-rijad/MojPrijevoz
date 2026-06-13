@@ -409,6 +409,22 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
+    public async Task MarkAsExpired()
+    {
+        var fareOffersToExpire = await _dbContext.FareOffers
+            .Where(it =>
+                it.Status == FareOfferStatus.WaitingForResponse && it.CreatedAt.AddHours(48) <
+                DateTime.UtcNow)
+            .Include(it => it.Fare!.Driver)
+            .ThenInclude(it => it!.User)
+            .Include(it => it.Fare!.Passenger)
+            .ThenInclude(it => it!.User).ToListAsync();
+        foreach (var fare in fareOffersToExpire) {
+            await ExpireOfferAsync(fare.Id);
+        }
+        await _dbContext.SaveChangesAsync();
+    }
+
 
     public async Task<List<string>> AllowedActions(int id) {
         return await _baseFareOfferState.AllowedActions(id);

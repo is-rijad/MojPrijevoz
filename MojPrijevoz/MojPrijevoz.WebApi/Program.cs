@@ -60,6 +60,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.AddSignalR(it => it.EnableDetailedErrors = true);
 builder.Services.AddMemoryCache();
+builder.Services.AddHostedService<FareBackgroundService>();
 
 var rabbitMqSection = builder.Configuration.GetSection("RabbitMQ");
 builder.Services.AddEasyNetQ($"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["Username"]};password={rabbitMqSection["Password"]}").UseSystemTextJson();
@@ -101,6 +102,7 @@ builder.Services.AddTransient<InitialFareState>();
 builder.Services.AddTransient<InNegotiationFareState>();
 builder.Services.AddTransient<AcceptedFareState>();
 builder.Services.AddTransient<PayedFareState>();
+builder.Services.AddTransient<InProgressFareState>();
 
 
 builder.Services.AddSingleton<ConnectionTracker>();

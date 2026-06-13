@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
+using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Responses.Fare;
@@ -9,14 +10,17 @@ using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.Fare.StateMachine;
+using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.Fare;
 
 public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, FareInsertRequest, FareResponse, FareSearchObject>, IFareService {
     private readonly BaseFareState _baseFareState;
+    private readonly INotificationService _notificationService;
 
-    public FareService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService, BaseFareState baseFareState) : base(context, mapper, authorizationService) {
+    public FareService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService, BaseFareState baseFareState, INotificationService notificationService) : base(context, mapper, authorizationService) {
         _baseFareState = baseFareState;
+        _notificationService = notificationService;
     }
     public async Task<bool> HasActiveFareForRoute(int passengerId, HasActiveFareRequest request) {
         var queryable = _dbContext.Fares.Where(it =>
@@ -113,6 +117,54 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         await _dbContext.SaveChangesAsync();
 
         return MapToResponseModel<FareResponse>(entity, _mapper);
+    }
+
+    public async Task MarkAsCompleted()
+    {
+        var faresToComplete = await _dbContext.Fares
+            .Where(it =>
+                it.Status == FareStatus.InProgress && it.FareData!.FareDateTime.AddMinutes(it.FareData!.Duration + 60) <
+                DateTime.UtcNow)
+            .Include(it => it.Driver)
+            .ThenInclude(it => it!.User)
+            .Include(it => it.Passenger)
+            .ThenInclude(it => it!.User).ToListAsync();
+        foreach (var fare in faresToComplete)
+        {
+            await CompleteAsync(fare.Id);
+            await SendCompletedNotificationAsync(fare);
+        }
+        await _dbContext.SaveChangesAsync();
+    }
+
+    private async Task SendCompletedNotificationAsync(Database.Fare fare)
+    {
+        await _notificationService.SendToUserAsync(new SendToUserDto()
+        {
+            UserId = fare.Driver!.UserId,
+            Title = "Ostavite ocjenu",
+            Body = $"Ostavite ocjenu korisniku {fare.Passenger!.User!.FirstName}",
+            Data = new Dictionary<string, string>()
+            {
+                ["FareId"] = fare.Id.ToString(),
+                ["Type"] = SendToUserDto.CompletedFareType,
+                ["Side"] = ProfileType.Passenger.ToString()
+
+            }
+        });
+        await _notificationService.SendToUserAsync(new SendToUserDto()
+        {
+            UserId = fare.Passenger!.UserId,
+            Title = "Ostavite ocjenu",
+            Body = $"Ostavite ocjenu korisniku {fare.Driver!.User!.FirstName}",
+            Data = new Dictionary<string, string>()
+            {
+                ["FareId"] = fare.Id.ToString(),
+                ["Type"] = SendToUserDto.CompletedFareType,
+                ["Side"] = ProfileType.Driver.ToString()
+
+            }
+        });
     }
 
     public async Task<PagedResult<FareResponse>> GetNextAcceptedFaresAsync(FareSearchObject searchObject) {
