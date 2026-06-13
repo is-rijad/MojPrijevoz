@@ -306,6 +306,7 @@ public class DbSeeder {
             FareOfferStatus.Rejected => FareStatus.Rejected,
             FareOfferStatus.Accepted => _randomizer.Bool(0.5f) ? FareStatus.Accepted : FareStatus.Cancelled,
             FareOfferStatus.Payed => _randomizer.Bool(0.5f) ? FareStatus.Payed : FareStatus.Completed,
+            FareOfferStatus.Cancelled => FareStatus.Cancelled,
             _ => throw new ArgumentOutOfRangeException(nameof(offerStatus), offerStatus, null)
         };
     }

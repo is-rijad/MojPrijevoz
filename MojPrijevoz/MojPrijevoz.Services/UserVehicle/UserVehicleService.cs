@@ -42,6 +42,11 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
 
     protected override async Task BeforeInsert(UserVehicleUpsertFormRequest request) {
         await base.BeforeInsert(request);
+        if (request.ModelYear < 1900)
+            throw new BadRequestException("Godina proizvodnje ne može biti manja od 1900.");
+        if (request.ModelYear > DateTime.Now.Year)
+            throw new BadRequestException($"Godina proizvodnje ne može biti veća od {DateTime.Now.Year}.");
+
         var userId = _authorizationService.GetUserId();
         var profile = await _authorizationService.GetUserProfile(ProfileType.Driver);
         if (profile is null) {
@@ -80,6 +85,11 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
 
     protected override async Task BeforeUpdate(int id, UserVehicleUpsertFormRequest request, Database.UserVehicle entity) {
         await base.BeforeUpdate(id, request, entity);
+        if (request.ModelYear < 1900)
+            throw new BadRequestException("Godina proizvodnje ne može biti manja od 1900.");
+        if (request.ModelYear > DateTime.Now.Year)
+            throw new BadRequestException($"Godina proizvodnje ne može biti veća od {DateTime.Now.Year}.");
+
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
         var profile = await _dbContext.UserProfiles.FindAsync(profileId);
         if (await _dbContext.UserVehicles.AnyAsync(uv =>

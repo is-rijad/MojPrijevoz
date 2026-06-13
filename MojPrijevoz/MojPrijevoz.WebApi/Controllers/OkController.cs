@@ -19,7 +19,7 @@ public class OkController : ControllerBase {
     public async Task<IActionResult> OkEndpoint() {
         await _notificationService.SendToUserAsync(new SendToUserDto()
         {
-            UserId = 1002,
+            UserId = 51,
             Title = "Nova ponuda vožnje",
             Body = $"Korisnik Rijad je poslao ponudu za vožnju",
             Data = new Dictionary<string, string>()

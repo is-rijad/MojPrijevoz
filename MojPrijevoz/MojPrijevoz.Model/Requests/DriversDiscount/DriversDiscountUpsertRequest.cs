@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace MojPrijevoz.Model.Requests.DriversDiscount;
 
-public class DriversDiscountUpsertRequest : IValidatableObject {
+public class DriversDiscountUpsertRequest {
     [Required]
     [Range(0, float.MaxValue, ErrorMessage = "Donja granica ne smije biti manja od 0.")]
     public float MinKm { get; set; }
@@ -15,8 +15,4 @@ public class DriversDiscountUpsertRequest : IValidatableObject {
     [JsonIgnore]
     public int? ProfileId { get; set; }
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
-        if (MaxKm.HasValue && MinKm >= MaxKm.Value)
-            yield return new ValidationResult("Donja granica ne smije biti veća od gornje granice.", new[] { nameof(MinKm), nameof(MaxKm) });
-    }
 }

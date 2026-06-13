@@ -6,8 +6,9 @@
     env_file:
       - ../MojPrijevoz.WebApi/.env
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_PID=Developer
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - ACCEPT_EULA=${ACCEPT_EULA}
+      - MSSQL_PID=${MSSQL_PID}
     ports:
       - "1434:1433"
     expose:
@@ -15,7 +16,7 @@
     volumes:
       - database_data:/var/lib/database
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $$SA_PASSWORD -Q 'SELECT 1' -No"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q 'SELECT 1' -No"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -44,16 +45,15 @@
     build:
       context: ../
       dockerfile: ../../MojPrijevoz/MojPrijevoz/MojPrijevoz.Notifications/Dockerfile
-    secrets:
-      - firebase_credentials
     env_file:
         - ../MojPrijevoz.WebApi/.env
     environment:
-        - ASPNETCORE_ENVIRONMENT=Development
-        - RABBITMQ_HOST=rabbitmq 
-        - DB_CONNECTION_STRING=Server=moj-prijevoz-db,1433;Database=MojPrijevoz;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True; 
-        - FIREBASE_CREDENTIALS_PATH=/run/secrets/firebase_credentials
+        - RabbitMQ__Host=rabbitmq 
+        - ConnectionStrings__Default=Server=moj-prijevoz-db,1433;Database=MojPrijevoz;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True; 
+        - Firebase__CredentialPath=/run/secrets/firebase_credentials
     container_name: notifications_service
+    secrets:
+      - firebase_credentials
     restart: unless-stopped
     depends_on:
       moj-prijevoz-db:

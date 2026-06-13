@@ -1,6 +1,7 @@
 ﻿using EasyNetQ;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MojPrijevoz.Database;
@@ -12,21 +13,18 @@ using MojPrijevoz.Notifications.NotificationService;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? throw new InvalidOperationException("DB_CONNECTION_STRING environment variable is not set.");
+        var connectionString = context.Configuration.GetConnectionString("Default")!;
         services.AddDatabaseServices(connectionString);
 
-        var rabbitConnString =
-            $"host={Environment.GetEnvironmentVariable("RABBITMQ_HOST")};port={Environment.GetEnvironmentVariable("RABBITMQ_PORT")};username={Environment.GetEnvironmentVariable("RABBITMQ_DEFAULT_USER")};password={Environment.GetEnvironmentVariable("RABBITMQ_DEFAULT_PASS")}";
-        Console.WriteLine($"RabbitMQ Connection String: {rabbitConnString}");
-        services.AddEasyNetQ(rabbitConnString).UseSystemTextJson();
+        var rabbitMqSection = context.Configuration.GetSection("RabbitMQ");
+        services.AddEasyNetQ($"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["User"]};password={rabbitMqSection["Password"]}").UseSystemTextJson();
 
         services.AddSingleton<INotificationConsumer, NotificationConsumer>();
         services.AddSingleton<IEmailService, EmailService>();
         services.AddSingleton<INotificationService, NotificationService>();
-
         FirebaseApp.Create(new AppOptions
         {
-            Credential = CredentialFactory.FromFile<ServiceAccountCredential>(Environment.GetEnvironmentVariable("FIREBASE_CREDENTIALS_PATH") ?? throw new ArgumentException("FIREBASE_CREDENTIALS_PATH is not set")).ToGoogleCredential()
+            Credential = CredentialFactory.FromFile<ServiceAccountCredential>(context.Configuration["Firebase:CredentialPath"] ?? throw new ArgumentException("FIREBASE__CREDENTIAL_PATH is not set")).ToGoogleCredential()
         });
 
         services.AddHostedService<NotificationsHostedService>();

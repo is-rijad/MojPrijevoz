@@ -1,5 +1,6 @@
 ﻿using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MojPrijevoz.Model.Dtos.Notifications;
 using Scriban;
@@ -12,15 +13,17 @@ public class EmailService : IEmailService {
     private readonly string _smtpUser;
     private readonly string _smtpPassword;
 
-    public EmailService() {
-        _smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST") ?? throw new InvalidOperationException("SMTP_HOST environment variable is not set.");
-        _smtpPort = int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out var port) ? port : throw new InvalidOperationException("SMTP_PORT environment variable is not set or is not a valid integer.");
-        _smtpUser = Environment.GetEnvironmentVariable("SMTP_USER") ?? throw new InvalidOperationException("SMTP_USER environment variable is not set.");
-        _smtpPassword = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? throw new InvalidOperationException("SMTP_PASSWORD environment variable is not set.");
+    public EmailService(IConfiguration configuration)
+    {
+        var smtp = configuration.GetSection("Smtp");
+        _smtpHost = smtp["Host"] ?? throw new InvalidOperationException("SMTP__HOST environment variable is not set.");
+        _smtpPort = int.TryParse(smtp["Port"], out var port) ? port : throw new InvalidOperationException("SMTP__PORT environment variable is not set or is not a valid integer.");
+        _smtpUser = smtp["User"] ?? throw new InvalidOperationException("SMTP__USER environment variable is not set.");
+        _smtpPassword = smtp["Password"] ?? throw new InvalidOperationException("SMTP__PASSWORD environment variable is not set.");
     }
     public async Task SendEmailAsync(EmailDto email) {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("Moj Prijevoz", "noreply@mojprijevoz.ba"));
+        message.From.Add(new MailboxAddress("Moj Prijevoz", _smtpUser));
         message.To.Add(new MailboxAddress(null, email.To));
         message.Subject = GetSubject(email);
 

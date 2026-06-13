@@ -31,9 +31,10 @@ using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
 using Stripe;
 using System.Text.Json.Serialization;
+DotNetEnv.Env.Load("./.env");
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("appsettings.json").AddUserSecrets<Program>();
+builder.Configuration.AddJsonFile("appsettings.json", optional: false);
 
 // Add services to the container.
 builder.Services.ConfigureAuthorization(builder.Configuration);
@@ -63,7 +64,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddHostedService<FareBackgroundService>();
 
 var rabbitMqSection = builder.Configuration.GetSection("RabbitMQ");
-builder.Services.AddEasyNetQ($"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["Username"]};password={rabbitMqSection["Password"]}").UseSystemTextJson();
+builder.Services.AddEasyNetQ($"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["User"]};password={rabbitMqSection["Password"]}").UseSystemTextJson();
 
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddScoped<UserService>();

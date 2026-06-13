@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="dotenv.net" Version="4.0.2" />
+		<PackageReference Include="DotNetEnv" Version="3.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.11" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.13">
 		  <PrivateAssets>all</PrivateAssets>
@@ -24,12 +24,6 @@
 
 	<ItemGroup>
 	  <Folder Include="wwwroot\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Update=".env">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	  </None>
 	</ItemGroup>
 
 </Project>

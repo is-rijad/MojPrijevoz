@@ -33,6 +33,8 @@ public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, 
     }
     protected override async Task BeforeInsert(DriversDiscountUpsertRequest request) {
         await base.BeforeInsert(request);
+        if (request.MaxKm.HasValue && request.MinKm >= request.MaxKm.Value)
+            throw new BadRequestException("Donja granica ne smije biti veća od gornje granice.");
         var profileId = (await _authorizationService.GetProfileId(ProfileType.Driver));
         if (!profileId.HasValue)
             throw new BadRequestException("Niste vozač");
@@ -42,6 +44,9 @@ public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, 
     }
     protected override async Task BeforeUpdate(int id, DriversDiscountUpsertRequest request, Database.DriversDiscount entity) {
         await base.BeforeUpdate(id, request, entity);
+        if(request.MaxKm.HasValue && request.MinKm >= request.MaxKm.Value)
+            throw new BadRequestException("Donja granica ne smije biti veća od gornje granice.");
+
         var profileId = (await _authorizationService.GetProfileId(ProfileType.Driver));
         if (!profileId.HasValue)
             throw new BadRequestException("Niste vozač");
