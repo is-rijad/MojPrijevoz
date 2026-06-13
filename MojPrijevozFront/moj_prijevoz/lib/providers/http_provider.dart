@@ -8,7 +8,12 @@ import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 class HttpProvider {
-  final _dio = Dio();
+  static final dioBaseOptions = BaseOptions(
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 20),
+    sendTimeout: const Duration(seconds: 20),
+  );
+  final _dio = Dio(dioBaseOptions);
   final String _apiUrl = Environment.apiUrl;
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
 
@@ -153,7 +158,7 @@ class HttpProvider {
       headersMap.addEntries(
         <String, dynamic>{"Authorization": "Bearer $token"}.entries,
       );
-    // ignore: empty_catches
+      // ignore: empty_catches
     } on Exception {}
 
     options.headers = headersMap;

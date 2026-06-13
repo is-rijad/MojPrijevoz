@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/providers/http_provider.dart';
 import 'package:moj_prijevoz/providers/location_provider.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/dtos/fare_location/fare_location_dto.dart';
@@ -125,7 +126,7 @@ class FareLocationProvider extends ChangeNotifier {
     final permissions = await Geolocator.checkPermission();
     if (permissions == LocationPermission.always) {
       final pos = await Geolocator.getCurrentPosition();
-      final dio = Dio();
+      final dio = Dio(HttpProvider.dioBaseOptions);
       await dio.post(
         '${Environment.apiUrl}fare/location',
         options: Options(

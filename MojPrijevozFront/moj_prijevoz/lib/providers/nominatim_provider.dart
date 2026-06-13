@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
+import 'package:moj_prijevoz/providers/http_provider.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search_object.dart';
@@ -11,7 +12,7 @@ class NominatimProvider
     extends BaseGetProvider<NominatimResponse, NominatimSearchObject> {
   final _nominatimApiUrl = Environment.nominatimApiUrl;
   final _excludeIds = <int>[];
-  final _dio = Dio();
+  final _dio = Dio(HttpProvider.dioBaseOptions);
   final _limit = 5;
 
   NominatimProvider() : super(providerName: "nominatim");

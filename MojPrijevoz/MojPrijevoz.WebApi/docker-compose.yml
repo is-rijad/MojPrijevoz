@@ -62,6 +62,26 @@
         condition: service_healthy
     networks:
       - moj-prijevoz    
+  api:
+    build:
+      context: ../
+      dockerfile: ../../MojPrijevoz/MojPrijevoz/MojPrijevoz.WebApi/Dockerfile
+    env_file:
+        - ./.env
+    environment:
+        - RabbitMQ__Host=rabbitmq 
+        - ConnectionStrings__Default=Server=moj-prijevoz-db,1433;Database=MojPrijevoz;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+    container_name: api_service
+    ports:
+      - "5068:8080"
+    restart: unless-stopped
+    depends_on:
+      moj-prijevoz-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - moj-prijevoz    
 
 secrets:
   firebase_credentials:

@@ -3,12 +3,13 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
+import 'package:moj_prijevoz/providers/http_provider.dart';
 import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
 import 'package:moj_prijevoz/resources/requests/maps/maps_route_request.dart';
 import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
 
 class MapProvider {
-  final _dio = Dio();
+  final _dio = Dio(HttpProvider.dioBaseOptions);
   final _openRouteApiUrl = Environment.openRouteApiUrl;
   final _openReverseApiUrl = Environment.openReverseApiUrl;
   final _openRouteKey = Environment.openRouteKey;
@@ -78,7 +79,7 @@ class MapProvider {
       headersMap.addEntries(
         <String, dynamic>{"Authorization": _openRouteKey}.entries,
       );
-    // ignore: empty_catches
+      // ignore: empty_catches
     } on Exception {}
     options.headers = headersMap;
     return options;
