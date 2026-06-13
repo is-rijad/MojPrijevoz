@@ -33,7 +33,10 @@ public class FareOfferController : ControllerBase {
     public async Task<IActionResult> Reject(int id) {
         return Ok(await _fareOfferService.RejectOfferAsync(id));
     }
-
+    [HttpPost("{id}/cancel")]
+    public async Task<IActionResult> Cancel(int id) {
+        return Ok(await _fareOfferService.CancelOfferAsync(id));
+    }
     [HttpGet("{id}/allowed")]
     public async Task<IActionResult> Allowed(int id) {
         return Ok(await _fareOfferService.AllowedActions(id));

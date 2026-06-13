@@ -21,6 +21,8 @@ public class BaseFareOfferState : BaseState<Database.FareOffer, BaseFareOfferSta
                 return ServiceProvider.GetRequiredService<InNegotiationFareOfferState>();
             case (short)Database.FareOfferStatus.Accepted:
                 return ServiceProvider.GetRequiredService<AcceptedFareOfferState>();
+            case (short)Database.FareOfferStatus.Payed:
+                return ServiceProvider.GetRequiredService<PayedFareOfferState>();
             default:
                 throw new Exception(MethodNotAllowed);
         }
@@ -36,6 +38,9 @@ public class BaseFareOfferState : BaseState<Database.FareOffer, BaseFareOfferSta
     }
 
     public virtual Database.FareOffer Expire(Database.FareOffer entity) {
+        throw new Exception(MethodNotAllowed);
+    }
+    public virtual Database.FareOffer Cancel(Database.FareOffer entity) {
         throw new Exception(MethodNotAllowed);
     }
 

@@ -126,8 +126,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
     public async Task<PagedResult<FareResponse>> GetNextAcceptedFaresAsync(FareSearchObject searchObject)
     {
         var userId = _authorizationService.GetUserId();
-        // TODO: temp
-        var queryable = _dbContext.Fares.Where(it => (it.Passenger!.UserId == userId || it.Driver!.UserId == userId) && (it.Status == FareStatus.Accepted || it.Status == FareStatus.Payed || it.Status == FareStatus.InProgress));
+        var queryable = _dbContext.Fares.Where(it => (it.Passenger!.UserId == userId || it.Driver!.UserId == userId) && (((it.Status == FareStatus.Accepted || it.Status == FareStatus.Payed) && it.FareData!.FareDateTime >= DateTime.UtcNow)) || it.Status == FareStatus.InProgress);
         var paginatedQueryable = await Paginate(queryable, searchObject);
         queryable = paginatedQueryable.Queryable;
         queryable = queryable.OrderBy(it => it.FareData!.FareDateTime);

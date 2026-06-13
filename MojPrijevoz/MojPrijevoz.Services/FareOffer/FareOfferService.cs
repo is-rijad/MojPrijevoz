@@ -240,6 +240,20 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     }
                 });
                 break;
+        case FareOfferStatus.Cancelled:
+                await _notificationService.SendToUserAsync(new SendToUserDto()
+                {
+                    UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
+                    Title = "Ponuda otkazana",
+                    Body = $"Ponuda u iznosu od {entity.TotalPrice}KM ({entity.Fare!.FareData!.OriginCity!.Name} - {entity.Fare!.FareData!.DestinationName.Split(" ").First()}) je otkazana",
+                    Data = new Dictionary<string, string>()
+                    {
+                        ["FareId"] = entity.FareId.ToString(),
+                        ["Type"] = SendToUserDto.CancelledFareOfferType,
+                        ["Side"] = entity.Side.ToString()
+                    }
+                });
+                break;
         }
         
     }
@@ -344,6 +358,26 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         }
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Expire(entity);
+        await _dbContext.SaveChangesAsync();
+
+        await SendUpdateNotification(entity, null);
+
+        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
+    }
+
+    public async Task<FareResponse> CancelOfferAsync(int id)
+    {
+        var entity = await _dbContext.FareOffers
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.FareData)
+            .ThenInclude(it => it!.OriginCity)
+            .FirstAsync(it => it.Id == id);
+        if (entity == null) {
+            throw new NotFoundException("Ponuda nije pronađena!");
+        }
+        var state = _baseFareOfferState.GetState((short)entity.Status);
+        state.Cancel(entity);
+        await _fareService.CancelAsync(entity!.Fare!.Id);
         await _dbContext.SaveChangesAsync();
 
         await SendUpdateNotification(entity, null);

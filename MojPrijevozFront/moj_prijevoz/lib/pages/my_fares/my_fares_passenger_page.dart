@@ -1,11 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/profile/show_profile_dialog.dart';
 import 'package:moj_prijevoz/pages/my_fares/fare_offer_negotiate_page.dart';
 import 'package:moj_prijevoz/pages/review_page.dart';
 import 'package:moj_prijevoz/pages/stripe_payment_page.dart';
+import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/common/enums/fare_offer_side.dart';
 import 'package:moj_prijevoz/resources/common/enums/statuses/fare_offer_status.dart';
@@ -16,9 +18,12 @@ import 'package:moj_prijevoz/resources/responses/user/user_profile_response.dart
 import 'package:moj_prijevoz/resources/search_objects/fare/fare_search_object.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/cards/paginated_cards.dart';
+import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
+import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:provider/provider.dart';
 
 class MyFaresPassengerPage extends StatefulWidget {
   final int? fareId;
@@ -45,7 +50,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
         (i.lastFareOffer!.side == FareOfferSide.driver &&
                 (i.lastFareOffer!.status ==
                         FareOfferStatus.waitingForResponse ||
-                    i.lastFareOffer!.status == FareOfferStatus.payed))
+                    i.lastFareOffer!.status == FareOfferStatus.accepted))
             ? Badge(
                 child: IconFieldWithText(
                   iconData: Icons.info,
@@ -152,6 +157,15 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
                 ),
               )
             : SizedBox.shrink(),
+        (canCancel(i))
+            ? FractionallySizedBox(
+                widthFactor: 0.7,
+                child: ElevatedButton(
+                  onPressed: () async => await _buildCancelFareDialog(i),
+                  child: const Text("Otkažite vožnju"),
+                ),
+              )
+            : SizedBox.shrink(),
       ],
       onTap: (i) => _onTapCard(i!),
     );
@@ -189,6 +203,24 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
     );
   }
 
+  Future<void> _buildCancelFareDialog(FareResponse? fare) async {
+    await showDialog(
+      context: context,
+      builder: (context) => ConfirmationDialog(
+        content: "Da li ste sigurni da želite otkazati vožnju?",
+
+        onSubmit: () async {
+          await context.read<FareOfferProvider>().cancelWithEvent(
+            fare!.lastFareOffer!.id,
+          );
+          Constants.messengerKey.currentState?.showSnackBar(
+            SuccessSnackBar(message: "Otkazali ste vožnju."),
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _showUserProfile(UserProfileResponse userProfile) async {
     await showDialog(
       context: context,
@@ -196,6 +228,12 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
         return ShowProfileDialog(profileId: userProfile.id);
       },
     );
+  }
+
+  bool canCancel(FareResponse i) {
+    return i.status == FareStatus.inNegotiation ||
+        i.status == FareStatus.accepted ||
+        i.status == FareStatus.payed;
   }
 
   Future _buildPayementDialog(FareResponse i) async {

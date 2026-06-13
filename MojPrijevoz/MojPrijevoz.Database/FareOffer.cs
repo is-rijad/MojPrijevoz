@@ -9,7 +9,8 @@ public enum FareOfferStatus : short {
     Accepted = 1,
     WaitingForResponse = 2,
     Expired = 3,
-    Payed = 4
+    Payed = 4,
+    Cancelled = 5
 }
 
 public class FareOffer : IHasCreatedAtTimestamp {

@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:moj_prijevoz/common/constants.dart';
@@ -151,6 +152,15 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
                 ),
               )
             : SizedBox.shrink(),
+        (canCancel(i))
+            ? FractionallySizedBox(
+                widthFactor: 0.7,
+                child: ElevatedButton(
+                  onPressed: () async => await _buildCancelFareDialog(i),
+                  child: const Text("Otkažite vožnju"),
+                ),
+              )
+            : SizedBox.shrink(),
       ],
       onTap: (i) async => await _onTapCard(i!),
       fallbackText: "Nemate vožnji kao vozač",
@@ -209,6 +219,24 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
     );
   }
 
+  Future<void> _buildCancelFareDialog(FareResponse? fare) async {
+    await showDialog(
+      context: context,
+      builder: (context) => ConfirmationDialog(
+        content: "Da li ste sigurni da želite otkazati vožnju?",
+
+        onSubmit: () async {
+          await context.read<FareOfferProvider>().cancelWithEvent(
+            fare!.lastFareOffer!.id,
+          );
+          Constants.messengerKey.currentState?.showSnackBar(
+            SuccessSnackBar(message: "Otkazali ste vožnju."),
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _showUserProfile(UserProfileResponse userProfile) async {
     await showDialog(
       context: context,
@@ -216,5 +244,11 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
         return ShowProfileDialog(profileId: userProfile.id);
       },
     );
+  }
+
+  bool canCancel(FareResponse i) {
+    return i.status == FareStatus.inNegotiation ||
+        i.status == FareStatus.accepted ||
+        i.status == FareStatus.payed;
   }
 }

@@ -13,10 +13,14 @@ public class InitialFareOfferState : BaseFareOfferState
         entity.Status = Database.FareOfferStatus.WaitingForResponse;
         return entity;
     }
+    public override Database.FareOffer Cancel(Database.FareOffer entity) {
+        entity.Status = Database.FareOfferStatus.Cancelled;
+        return entity;
+    }
 
     public override Task<List<string>> AllowedActions(int id)
     {
-        var list = new List<string>() { nameof(Create)};
+        var list = new List<string>() { nameof(Create), nameof(Cancel)};
         return Task.FromResult(list);
     }
 }

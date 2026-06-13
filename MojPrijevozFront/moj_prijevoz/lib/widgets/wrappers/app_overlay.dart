@@ -4,6 +4,8 @@ import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/widgets/texts/text_theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 class AppOverlay extends StatelessWidget {
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
@@ -60,6 +62,16 @@ class AppOverlay extends StatelessWidget {
         textTheme: textTheme,
       ),
       home: child,
+        localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('hr'),
+        Locale('bs'),
+        Locale('sr'),
+      ],
       scaffoldMessengerKey: Constants.messengerKey,
       navigatorKey: Constants.navigatorKey,
     );

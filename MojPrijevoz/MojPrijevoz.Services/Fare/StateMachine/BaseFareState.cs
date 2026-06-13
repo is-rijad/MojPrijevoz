@@ -21,6 +21,8 @@ public class BaseFareState : BaseState<Database.Fare, BaseFareState> {
                 return ServiceProvider.GetRequiredService<AcceptedFareState>();
             case (short)Database.FareStatus.Payed:
                 return ServiceProvider.GetRequiredService<PayedFareState>();
+            case (short)Database.FareStatus.InProgress:
+                return ServiceProvider.GetRequiredService<InProgressFareState>();
             case null:
                 return ServiceProvider.GetRequiredService<InitialFareState>();
             default:

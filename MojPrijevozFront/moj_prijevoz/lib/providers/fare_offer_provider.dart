@@ -59,4 +59,18 @@ class FareOfferProvider
 
     return rejectedItem;
   }
+
+  Future<FareResponse> cancel(int id) async {
+    return await httpProvider.post<JsonParsable, FareResponse>(
+      "$providerName/$id/cancel",
+      null,
+    );
+  }
+
+  Future<FareResponse> cancelWithEvent(int id) async {
+    final cancelledItem = await cancel(id);
+    fareProvider.updateLocally(cancelledItem);
+
+    return cancelledItem;
+  }
 }

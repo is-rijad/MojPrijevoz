@@ -30,7 +30,7 @@ class NotificationProvider
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final HttpProvider _httpProvider = GetIt.I<HttpProvider>();
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
-  late final HubConnection _hubNotificationsConnection;
+  HubConnection? _hubNotificationsConnection;
 
   NotificationProvider() : super(providerName: "notification");
 
@@ -111,7 +111,7 @@ class NotificationProvider
           ),
         )
         .build();
-    _hubNotificationsConnection.on("new_notification", (args) {
+    _hubNotificationsConnection!.on("new_notification", (args) {
       try {
         final data = args![0] as Map<String, dynamic>;
 
@@ -127,16 +127,16 @@ class NotificationProvider
       } on Exception catch (e) {}
     });
 
-    _hubNotificationsConnection.on(
+    _hubNotificationsConnection!.on(
       'error',
       (args) => print('Hub $_hubNotificationsConnection error: $args'),
     );
-    _hubNotificationsConnection.start();
+    _hubNotificationsConnection!.start();
   }
 
   @override
   void dispose() {
-    _hubNotificationsConnection.stop();
+    _hubNotificationsConnection?.stop();
     super.dispose();
   }
 }

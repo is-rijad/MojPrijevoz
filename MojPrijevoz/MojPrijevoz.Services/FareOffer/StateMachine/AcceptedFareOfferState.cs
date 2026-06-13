@@ -11,10 +11,14 @@ public class AcceptedFareOfferState : BaseFareOfferState
         entity.Status = Database.FareOfferStatus.Payed;
         return entity;
     }
+    public override Database.FareOffer Cancel(Database.FareOffer entity) {
+        entity.Status = Database.FareOfferStatus.Cancelled;
+        return entity;
+    }
 
     public override Task<List<string>> AllowedActions(int id)
     {
-        var list = new List<string>() { nameof(Pay) };
+        var list = new List<string>() { nameof(Pay), nameof(Cancel) };
         return Task.FromResult(list);
     }
 }

@@ -12,13 +12,13 @@ public class PayedFareState : BaseFareState
         entity.Status = Database.FareStatus.Completed;
         return entity;
     }
-    public override Database.Fare Start(Database.Fare entity) {
-        entity.Status = Database.FareStatus.InProgress;
+    public override Database.Fare Cancel(Database.Fare entity) {
+        entity.Status = Database.FareStatus.Cancelled;
         return entity;
     }
     public override Task<List<string>> AllowedActions(int id)
     {
-        var list = new List<string>() { nameof(Complete), nameof(Start) };
+        var list = new List<string>() { nameof(Complete), nameof(Cancel) };
         return Task.FromResult(list);
     }
 }

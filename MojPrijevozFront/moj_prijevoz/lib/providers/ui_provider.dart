@@ -80,6 +80,16 @@ class UIProvider {
           ),
         );
         break;
+      case Constants.cancelledFareOfferType:
+        await Constants.navigatorKey.currentState!.push(
+          MaterialPageRoute(
+            builder: (context) => MyFaresPage(
+              fareId: data["FareId"]?.toString(),
+              side: data["Side"]?.toString(),
+            ),
+          ),
+        );
+        break;
       case Constants.newRatingType:
         await Constants.navigatorKey.currentState!.push(
           MaterialPageRoute(

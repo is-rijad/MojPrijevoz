@@ -11,11 +11,14 @@ enum FareOfferStatus {
   expired,
   @JsonValue(4)
   payed,
+  @JsonValue(5)
+  cancelled,
 }
 
 Map<FareOfferStatus, String> fareOfferStatusMap = {
   FareOfferStatus.rejected: "Odbijena",
   FareOfferStatus.accepted: "Prihvaćena",
+  FareOfferStatus.cancelled: "Otkazana",
   FareOfferStatus.waitingForResponse: "Čeka na odgovor",
   FareOfferStatus.expired: "Istekla",
   FareOfferStatus.payed: "Plaćena",

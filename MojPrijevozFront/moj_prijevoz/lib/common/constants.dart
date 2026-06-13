@@ -18,6 +18,7 @@ abstract class Constants {
   static const String rejectedFareOfferType = 'REJECTED_FARE_OFFER';
   static const String expiredFareOfferType = 'EXPIRED_FARE_OFFER';
   static const String payedFareOfferType = 'PAYED_FARE_OFFER';
+  static const String cancelledFareOfferType = 'CANCELLED_FARE_OFFER';
   static const String newRatingType = 'NEW_RATING';
   static const String locationRequestedSilentType = 'LOCATION_REQUESTED';
 }

@@ -11,6 +11,7 @@ public interface IFareOfferService : IBaseCRUDService<FareOfferInsertRequest, Fa
     public Task<FareResponse> AcceptOfferAsync(int id);
     public Task<FareResponse> RejectOfferAsync(int id);
     public Task<FareResponse> ExpireOfferAsync(int id);
+    public Task<FareResponse> CancelOfferAsync(int id);
     public Task<FareResponse> PayOfferAsync(int id);
 
 }
