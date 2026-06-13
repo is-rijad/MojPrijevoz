@@ -24,6 +24,7 @@ public class NotificationConsumer : INotificationConsumer
         await _bus.PubSub.SubscribeAsync<SubscribeToFcmDto>("subscribe-to-fcm-consumer", async request => await HandleSubscribeToFcmAsync(request));
         await _bus.PubSub.SubscribeAsync<UnSubscribeFromFcmDto>("unsubscribe-from-fcm-consumer", async request => await HandleUnSubscribeFromFcmAsync(request));
         await _bus.PubSub.SubscribeAsync<SendToUserDto>("send-to-user-consumer", async request => await HandleSendToUserAsync(request));
+        await _bus.PubSub.SubscribeAsync<SendSilentToUserDto>("send-silent-to-user-consumer", async request => await HandleSilentSendToUserAsync(request));
     }
 
     private async Task HandleEmailAsync(EmailDto email)
@@ -38,5 +39,8 @@ public class NotificationConsumer : INotificationConsumer
     }
     private async Task HandleSendToUserAsync(SendToUserDto dto) {
         await _notificationService.SendToUserAsync(dto);
+    }
+    private async Task HandleSilentSendToUserAsync(SendSilentToUserDto dto) {
+        await _notificationService.SendSilentToUserAsync(dto);
     }
 }

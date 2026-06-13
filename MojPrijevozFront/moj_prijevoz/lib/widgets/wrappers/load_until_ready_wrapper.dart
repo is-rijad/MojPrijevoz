@@ -40,7 +40,7 @@ class _LoadUntilReadyWrapperState extends State<LoadUntilReadyWrapper> {
         }
         if (snapshot.hasError) {
           log("ERROR IN FUTURE BUILDER => ${snapshot.error}");
-          throw Exception(snapshot.error);
+          throw Exception([snapshot.error, snapshot.stackTrace]);
         }
         return AppOverlay.buildLoadingContainer(context);
       },

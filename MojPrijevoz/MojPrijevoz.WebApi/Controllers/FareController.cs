@@ -1,8 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Memory;
 using MojPrijevoz.Database;
+using MojPrijevoz.Model.Dtos.FareLocation;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.SearchObjects;
+using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.Fare;
+using MojPrijevoz.Services.InMemoryDatabase;
+using MojPrijevoz.Services.SignalR.Hubs;
 
 namespace MojPrijevoz.WebApi.Controllers;
 
@@ -10,9 +16,21 @@ namespace MojPrijevoz.WebApi.Controllers;
 [Route("api/[controller]")]
 public class FareController : ControllerBase {
     private readonly IFareService _fareService;
+    private readonly IHubContext<FareLocationsHub> _fareLocationHubContext;
+    private readonly IMemoryCache _cache;
+    private readonly ConnectionTracker _tracker;
+    private readonly AuthorizationService _authorizationService;
 
-    public FareController(IFareService fareService) {
+    public FareController(IFareService fareService,
+        IHubContext<FareLocationsHub> fareLocationHubContext,
+        IMemoryCache cache,
+        ConnectionTracker tracker,
+        AuthorizationService authorizationService) {
         _fareService = fareService;
+        _fareLocationHubContext = fareLocationHubContext;
+        _cache = cache;
+        _tracker = tracker;
+        _authorizationService = authorizationService;
     }
 
     [HttpGet]
@@ -33,5 +51,17 @@ public class FareController : ControllerBase {
     [HttpGet("next")]
     public async Task<IActionResult> GetNextAcceptedFaresAsync([FromQuery] FareSearchObject searchObject) {
         return Ok(await _fareService.GetNextAcceptedFaresAsync(searchObject));
+    }
+    [HttpPost("location")]
+    public async Task<IActionResult> SendLocation(FareLocationDto dto) {
+        var senderId = _authorizationService.GetUserId();
+        var connectionId = _tracker.Get(dto.UserId.ToString());
+
+        if (connectionId != null) {
+            _cache.Set(FareLocationsHub.GetCacheKey(senderId.ToString()), dto, FareLocationsHub.CacheTtl);
+            await _fareLocationHubContext.Clients.Client(connectionId)
+                .SendAsync("ReceiveLocation", dto);
+        }
+        return Ok();
     }
 }

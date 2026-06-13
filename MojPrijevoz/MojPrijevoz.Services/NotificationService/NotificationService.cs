@@ -76,6 +76,11 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
         }
     }
 
+    public async Task SendSilentToUserAsync(SendSilentToUserDto request)
+    {
+        await _bus.PubSub.PublishAsync(request);
+    }
+
     public async Task<NotificationResponse?> MarkAsReadAsync(int id)
     {
         var notification = await _dbContext.Notifications.FindAsync(id);

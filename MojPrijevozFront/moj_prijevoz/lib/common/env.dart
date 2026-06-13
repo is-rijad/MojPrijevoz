@@ -1,5 +1,6 @@
 abstract class Environment {
   static const apiUrl = String.fromEnvironment('API_URL');
+  static final hubBaseUrl = "${apiUrl.split("api")[0]}hubs/";
   static const openRouteKey = String.fromEnvironment('OPENROUTE_KEY');
   static const openReverseApiUrl = String.fromEnvironment(
     'OPENROUTE_REVERSE_API_URL',

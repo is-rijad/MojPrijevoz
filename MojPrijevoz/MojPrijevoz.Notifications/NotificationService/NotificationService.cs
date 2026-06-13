@@ -76,6 +76,35 @@ public class NotificationService : INotificationService
         }
     }
 
+    public async Task SendSilentToUserAsync(SendSilentToUserDto dto)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var dbContext = scope.ServiceProvider
+            .GetRequiredService<MojPrijevozDbContext>();
+
+        var token = await dbContext.UserFcmTokens.FirstOrDefaultAsync(it => it.UserId == dto.UserId);
+        if (token == null) return;
+
+        var message = new Message
+        {
+            Token = token.Token,
+            Data = dto.Data,
+            Android = new AndroidConfig
+            {
+                Priority = Priority.High,
+            }
+        };
+
+        try {
+            await FirebaseMessaging.DefaultInstance.SendAsync(message);
+
+            Console.WriteLine($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
+        }
+        catch (FirebaseMessagingException ex) {
+            await HandleFirebaseException(ex, token);
+        }
+    }
+
     private async Task<UserFcmToken> UpsertUserFcmTokenAsync(SubscribeToFcmDto dto)
     {
         using var scope = _scopeFactory.CreateScope();

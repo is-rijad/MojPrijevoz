@@ -1,9 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:moj_prijevoz/providers/hive_provider.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
+import 'package:moj_prijevoz/providers/shared_prefs_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
@@ -15,9 +16,9 @@ class AuthProvider with ChangeNotifier {
   AccessTokenPayload get accessTokenPayload => _accessTokenPayload;
 
   final HttpProvider _httpProvider = GetIt.I<HttpProvider>();
+  final _sharedPrefsProvider = GetIt.I<SharedPrefsProvider>();
   final NotificationProvider _notificationProvider =
       GetIt.I<NotificationProvider>();
-  static final _accessTokenKey = "access_token";
   final _providerName = "auth";
 
   AuthProvider(AccessTokenPayload? payload) {
@@ -45,20 +46,19 @@ class AuthProvider with ChangeNotifier {
   Future<void> logout() async {
     await _notificationProvider.logout();
 
-    var hive = await HiveProvider.getInstance();
-    await hive.delete(_accessTokenKey);
+    await _sharedPrefsProvider.deleteString(Constants.accessTokenKey);
   }
 
   Future<void> _setAccessToken(String token) async {
-    var hive = await HiveProvider.getInstance();
-    await hive.put(_accessTokenKey, token);
+    await _sharedPrefsProvider.setString(Constants.accessTokenKey, token);
     _accessTokenPayload = await getPayload();
     notifyListeners();
   }
 
   static Future<String> getAccessToken() async {
-    var hive = await HiveProvider.getInstance();
-    var token = hive.get(_accessTokenKey);
+    final token = await GetIt.I<SharedPrefsProvider>().getString(
+      Constants.accessTokenKey,
+    );
     if (token == null) {
       throw Exception("User is not logged in!");
     }

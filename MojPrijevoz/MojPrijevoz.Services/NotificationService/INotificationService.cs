@@ -12,6 +12,7 @@ namespace MojPrijevoz.Services.NotificationService
         public Task SubscribeToFcm(SubscribeToFcmRequest request);
         public Task UnsubscribeFromFcm();
         public Task SendToUserAsync(SendToUserDto request);
+        public Task SendSilentToUserAsync(SendSilentToUserDto request);
         public Task<NotificationResponse?> MarkAsReadAsync(int id);
     }
 }

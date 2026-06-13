@@ -123,6 +123,7 @@ var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
 await dbSeeder.SeedAsync();
 
 app.MapHub<NotificationsHub>("/hubs/notifications");
+app.MapHub<FareLocationsHub>("/hubs/farelocations");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthorization();

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/firebase_options.dart';
@@ -22,7 +23,7 @@ import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/providers/rating_provider.dart';
 import 'package:moj_prijevoz/providers/search_fare_provider.dart';
-import 'package:moj_prijevoz/providers/signalr_provider.dart';
+import 'package:moj_prijevoz/providers/shared_prefs_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
 import 'package:moj_prijevoz/providers/user_profile_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
@@ -48,7 +49,7 @@ void registerServices() {
   getIt.registerFactory<ImagePickerProvider>(() => ImagePickerProvider());
 
   getIt.registerSingleton(NotificationProvider());
-  getIt.registerLazySingleton(() => SignalrProvider());
+  getIt.registerSingleton(SharedPrefsProvider());
 }
 
 List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
@@ -68,8 +69,8 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
       create: (context) =>
           FareOfferProvider(fareProvider: context.read<FareProvider>()),
     ),
-    //ChangeNotifierProvider(create: (_) => FareLocationProvider(), lazy: false),
-    ChangeNotifierProvider(create: (_) => NotificationProvider(), lazy: false),
+    ChangeNotifierProvider(create: (_) => FareLocationProvider()),
+    ChangeNotifierProvider(create: (_) => NotificationProvider()),
   ];
 }
 
@@ -78,6 +79,12 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   print('Background message: ${message.data}');
+  switch (message.data["Type"]) {
+    case Constants.locationRequestedSilentType:
+      await FareLocationProvider.handleRequestFromBackground(message.data);
+      break;
+    default:
+  }
 }
 
 Future<void> initializeFirebase() async {
