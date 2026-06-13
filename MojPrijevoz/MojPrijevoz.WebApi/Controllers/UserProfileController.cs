@@ -8,8 +8,7 @@ namespace MojPrijevoz.WebApi.Controllers;
 public class UserProfileController : ControllerBase {
     private readonly UserProfileService _userProfileService;
 
-    public UserProfileController(UserProfileService userProfileService)
-    {
+    public UserProfileController(UserProfileService userProfileService) {
         _userProfileService = userProfileService;
     }
 

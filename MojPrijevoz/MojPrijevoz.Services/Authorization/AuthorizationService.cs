@@ -3,7 +3,6 @@ using MojPrijevoz.Database;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
-using System.Data.SqlTypes;
 using System.Security.Cryptography;
 using System.Text;
 

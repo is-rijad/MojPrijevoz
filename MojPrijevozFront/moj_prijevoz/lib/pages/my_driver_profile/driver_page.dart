@@ -43,7 +43,6 @@ class _DriverPageState extends State<DriverPage> {
                 width: context.screenWidth * 0.7,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  // TODO: Change to actual number of fares
                   children: [
                     const TextLabelLarge("Broj vožnji"),
                     TextLabelLarge(_userProfile.numberOfFares.toString()),

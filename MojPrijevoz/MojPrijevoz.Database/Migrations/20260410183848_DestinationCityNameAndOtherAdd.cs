@@ -2,14 +2,11 @@
 
 #nullable disable
 
-namespace MojPrijevoz.Database.Migrations
-{
+namespace MojPrijevoz.Database.Migrations {
     /// <inheritdoc />
-    public partial class DestinationCityNameAndOtherAdd : Migration
-    {
+    public partial class DestinationCityNameAndOtherAdd : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.AddColumn<string>(
                 name: "Name",
                 table: "StopPoint",
@@ -27,8 +24,7 @@ namespace MojPrijevoz.Database.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropColumn(
                 name: "Name",
                 table: "StopPoint");

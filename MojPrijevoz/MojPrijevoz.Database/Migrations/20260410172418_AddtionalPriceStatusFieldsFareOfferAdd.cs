@@ -2,14 +2,11 @@
 
 #nullable disable
 
-namespace MojPrijevoz.Database.Migrations
-{
+namespace MojPrijevoz.Database.Migrations {
     /// <inheritdoc />
-    public partial class AddtionalPriceStatusFieldsFareOfferAdd : Migration
-    {
+    public partial class AddtionalPriceStatusFieldsFareOfferAdd : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.AddColumn<float>(
                 name: "AdditionalPrice",
                 table: "FareOffer",
@@ -25,8 +22,7 @@ namespace MojPrijevoz.Database.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropColumn(
                 name: "AdditionalPrice",
                 table: "FareOffer");

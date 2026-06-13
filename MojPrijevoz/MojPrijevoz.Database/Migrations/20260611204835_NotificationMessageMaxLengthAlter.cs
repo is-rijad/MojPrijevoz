@@ -2,14 +2,11 @@
 
 #nullable disable
 
-namespace MojPrijevoz.Database.Migrations
-{
+namespace MojPrijevoz.Database.Migrations {
     /// <inheritdoc />
-    public partial class NotificationMessageMaxLengthAlter : Migration
-    {
+    public partial class NotificationMessageMaxLengthAlter : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.AlterColumn<string>(
                 name: "Message",
                 table: "Notifications",
@@ -22,8 +19,7 @@ namespace MojPrijevoz.Database.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.AlterColumn<string>(
                 name: "Message",
                 table: "Notifications",

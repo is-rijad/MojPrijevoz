@@ -2,10 +2,8 @@
 
 namespace MojPrijevoz.Services.FareOffer.StateMachine;
 
-public class InNegotiationFareOfferState : BaseFareOfferState
-{
-    public InNegotiationFareOfferState(IServiceProvider serviceProvider, MojPrijevozDbContext dbContext) : base(serviceProvider, dbContext)
-    {
+public class InNegotiationFareOfferState : BaseFareOfferState {
+    public InNegotiationFareOfferState(IServiceProvider serviceProvider, MojPrijevozDbContext dbContext) : base(serviceProvider, dbContext) {
     }
     public override Database.FareOffer Update(int id, Database.FareOffer entity) {
         entity.Status = Database.FareOfferStatus.WaitingForResponse;
@@ -28,8 +26,7 @@ public class InNegotiationFareOfferState : BaseFareOfferState
         return entity;
     }
 
-    public override Task<List<string>> AllowedActions(int id)
-    {
+    public override Task<List<string>> AllowedActions(int id) {
         var list = new List<string>() { nameof(Update), nameof(Accept), nameof(Reject), nameof(Cancel) };
         return Task.FromResult(list);
     }

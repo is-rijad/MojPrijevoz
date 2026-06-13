@@ -1,8 +1,7 @@
 ﻿using MojPrijevoz.Model.Dtos.Nominatim;
+using MojPrijevoz.Model.Requests.StopPoint;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using MojPrijevoz.Model.Exceptions;
-using MojPrijevoz.Model.Requests.StopPoint;
 
 namespace MojPrijevoz.Model.Requests.FareOffer;
 

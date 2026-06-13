@@ -1,6 +1,4 @@
-﻿using MojPrijevoz.Model.Dtos.Nominatim;
-
-namespace MojPrijevoz.Model.Dtos.InMemoryDatabase;
+﻿namespace MojPrijevoz.Model.Dtos.InMemoryDatabase;
 
 public abstract class BaseInMemoryDatabaseDto {
     public DateTime Expiration {

@@ -1,12 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MojPrijevoz.Database.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MojPrijevoz.Database;
 
-public class FareData : IHasCreatedAtTimestamp
-{
+public class FareData : IHasCreatedAtTimestamp {
     public int Id { get; set; }
     public int OriginCityId { get; set; }
 

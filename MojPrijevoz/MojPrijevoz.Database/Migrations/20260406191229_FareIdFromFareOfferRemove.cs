@@ -2,14 +2,11 @@
 
 #nullable disable
 
-namespace MojPrijevoz.Database.Migrations
-{
+namespace MojPrijevoz.Database.Migrations {
     /// <inheritdoc />
-    public partial class FareIdFromFareOfferRemove : Migration
-    {
+    public partial class FareIdFromFareOfferRemove : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropForeignKey(
                 name: "FK_FareOffer_Fare_FareId",
                 table: "FareOffer");
@@ -24,8 +21,7 @@ namespace MojPrijevoz.Database.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.AddColumn<int>(
                 name: "FareId",
                 table: "FareOffer",

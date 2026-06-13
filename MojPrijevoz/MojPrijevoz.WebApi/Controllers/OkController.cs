@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
-using MojPrijevoz.Services.Driver;
 using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.WebApi.Controllers;
@@ -11,16 +9,14 @@ namespace MojPrijevoz.WebApi.Controllers;
 public class OkController : ControllerBase {
     private readonly INotificationService _notificationService;
 
-    public OkController(INotificationService notificationService)
-    {
+    public OkController(INotificationService notificationService) {
         _notificationService = notificationService;
     }
 
     [Route("api/ok")]
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> OkEndpoint()
-    {
+    public async Task<IActionResult> OkEndpoint() {
         await _notificationService.SendToUserAsync(new SendToUserDto()
         {
             UserId = 1002,

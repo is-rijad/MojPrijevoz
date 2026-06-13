@@ -2,7 +2,6 @@
 
 namespace MojPrijevoz.Model.SearchObjects;
 
-public class StopPointSearchObject : BaseSearchObject
-{
+public class StopPointSearchObject : BaseSearchObject {
 
 }

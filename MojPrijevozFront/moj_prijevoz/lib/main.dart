@@ -78,7 +78,6 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  print('Background message: ${message.data}');
   switch (message.data["Type"]) {
     case Constants.locationRequestedSilentType:
       await FareLocationProvider.handleRequestFromBackground(message.data);
@@ -103,7 +102,8 @@ Future<void> main() async {
     AccessTokenPayload? payload;
     try {
       payload = await AuthProvider.getPayload();
-    } on Exception catch (e) {}
+      // ignore: empty_catches
+    } on Exception {}
     final child = payload != null ? HomePage() : LoginPage();
 
     Stripe.publishableKey = Environment.stripeKey;

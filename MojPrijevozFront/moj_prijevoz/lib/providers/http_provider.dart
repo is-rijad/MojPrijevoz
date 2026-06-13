@@ -153,6 +153,7 @@ class HttpProvider {
       headersMap.addEntries(
         <String, dynamic>{"Authorization": "Bearer $token"}.entries,
       );
+    // ignore: empty_catches
     } on Exception {}
 
     options.headers = headersMap;

@@ -3,12 +3,10 @@ using MojPrijevoz.Notifications.Consumer;
 
 namespace MojPrijevoz.Notifications;
 
-public class NotificationsHostedService : IHostedService
-{
+public class NotificationsHostedService : IHostedService {
     private readonly INotificationConsumer _consumer;
 
-    public NotificationsHostedService(INotificationConsumer consumer)
-    {
+    public NotificationsHostedService(INotificationConsumer consumer) {
         _consumer = consumer;
     }
 

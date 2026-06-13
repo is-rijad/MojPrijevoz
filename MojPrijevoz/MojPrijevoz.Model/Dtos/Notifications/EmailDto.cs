@@ -1,7 +1,6 @@
 ﻿namespace MojPrijevoz.Model.Dtos.Notifications;
 
-public class EmailDto
-{
+public class EmailDto {
     public EmailType Type { get; set; }
     public string To { get; set; } = null!;
     public string? Subject { get; set; }

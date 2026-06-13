@@ -1,7 +1,4 @@
-﻿using MojPrijevoz.Database;
-using MojPrijevoz.Model.Responses.Fare;
-
-namespace MojPrijevoz.Model.Responses.FareOffer;
+﻿namespace MojPrijevoz.Model.Responses.FareOffer;
 
 public class FareOfferResponse {
     public int Id { get; set; }

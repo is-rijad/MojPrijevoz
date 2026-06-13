@@ -6,12 +6,10 @@ namespace MojPrijevoz.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FcmController : ControllerBase
-{
+public class FcmController : ControllerBase {
     private readonly INotificationService _notificationService;
 
-    public FcmController(INotificationService notificationService)
-    {
+    public FcmController(INotificationService notificationService) {
         _notificationService = notificationService;
     }
 

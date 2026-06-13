@@ -5,7 +5,6 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.Transactions;
 
-public interface ITransactionService : IBaseCRUDService<TransactionInsertRequest, TransactionInsertRequest, TransactionResponse, BaseSearchObject>
-{
-    
+public interface ITransactionService : IBaseCRUDService<TransactionInsertRequest, TransactionInsertRequest, TransactionResponse, BaseSearchObject> {
+
 }

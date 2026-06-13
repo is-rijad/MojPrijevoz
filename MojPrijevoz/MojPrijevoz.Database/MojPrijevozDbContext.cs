@@ -63,8 +63,7 @@ public class MojPrijevozDbContext : DbContext {
         modelBuilder.ApplyConfiguration(new UserFcmTokenEntityConfiguration());
     }
 
-    private void ApplyDefaultQueries(ModelBuilder modelBuilder)
-    {
+    private void ApplyDefaultQueries(ModelBuilder modelBuilder) {
         //modelBuilder.Entity<UserVehicle>().HasQueryFilter(it => it.Status != UserVehicleStatus.Deleted);
     }
 
@@ -87,4 +86,4 @@ public class MojPrijevozDbContext : DbContext {
         UpdateTimestamps();
         return await base.SaveChangesAsync(cancellationToken);
     }
-    }
+}

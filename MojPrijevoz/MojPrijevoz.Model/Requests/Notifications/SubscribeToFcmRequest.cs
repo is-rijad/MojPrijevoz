@@ -2,8 +2,7 @@
 
 namespace MojPrijevoz.Model.Requests.Notifications;
 
-public class SubscribeToFcmRequest
-{
+public class SubscribeToFcmRequest {
     [Required]
     public string Token { get; set; } = null!;
 

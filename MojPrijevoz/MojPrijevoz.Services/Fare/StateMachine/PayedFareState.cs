@@ -2,10 +2,8 @@
 
 namespace MojPrijevoz.Services.Fare.StateMachine;
 
-public class PayedFareState : BaseFareState
-{
-    public PayedFareState(IServiceProvider serviceProvider, MojPrijevozDbContext dbContext) : base(serviceProvider, dbContext)
-    {
+public class PayedFareState : BaseFareState {
+    public PayedFareState(IServiceProvider serviceProvider, MojPrijevozDbContext dbContext) : base(serviceProvider, dbContext) {
     }
 
     public override Database.Fare Complete(Database.Fare entity) {
@@ -16,8 +14,7 @@ public class PayedFareState : BaseFareState
         entity.Status = Database.FareStatus.Cancelled;
         return entity;
     }
-    public override Task<List<string>> AllowedActions(int id)
-    {
+    public override Task<List<string>> AllowedActions(int id) {
         var list = new List<string>() { nameof(Complete), nameof(Cancel) };
         return Task.FromResult(list);
     }

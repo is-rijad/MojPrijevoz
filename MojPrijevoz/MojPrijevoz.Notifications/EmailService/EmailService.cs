@@ -12,15 +12,13 @@ public class EmailService : IEmailService {
     private readonly string _smtpUser;
     private readonly string _smtpPassword;
 
-    public EmailService()
-    {
+    public EmailService() {
         _smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST") ?? throw new InvalidOperationException("SMTP_HOST environment variable is not set.");
         _smtpPort = int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out var port) ? port : throw new InvalidOperationException("SMTP_PORT environment variable is not set or is not a valid integer.");
         _smtpUser = Environment.GetEnvironmentVariable("SMTP_USER") ?? throw new InvalidOperationException("SMTP_USER environment variable is not set.");
         _smtpPassword = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? throw new InvalidOperationException("SMTP_PASSWORD environment variable is not set.");
     }
-    public async Task SendEmailAsync(EmailDto email)
-    {
+    public async Task SendEmailAsync(EmailDto email) {
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress("Moj Prijevoz", "noreply@mojprijevoz.ba"));
         message.To.Add(new MailboxAddress(null, email.To));
@@ -36,8 +34,7 @@ public class EmailService : IEmailService {
         await client.DisconnectAsync(true);
     }
 
-    private string GetSubject(EmailDto email)
-    {
+    private string GetSubject(EmailDto email) {
         return email.Subject ?? email.Type switch
         {
             EmailType.WelcomeEmail => "Dobrodošli u Moj Prijevoz!",
@@ -55,8 +52,7 @@ public class EmailService : IEmailService {
         };
     }
 
-    private string RenderEmailBody(EmailDto email)
-    {
+    private string RenderEmailBody(EmailDto email) {
         email.Data.Add("MojPrijevozEmail", Environment.GetEnvironmentVariable("MOJ_PRIJEVOZ_EMAIL") ?? throw new ArgumentNullException("MOJ_PRIJEVOZ_EMAIL nije postavljen!"));
         var template = Template.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Templates", $"{email.Type.ToString()}.html")));
         var result = template.Render(email.Data);

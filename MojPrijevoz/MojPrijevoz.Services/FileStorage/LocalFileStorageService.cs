@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using System.ComponentModel.DataAnnotations;
 
 namespace MojPrijevoz.Services.FileStorage;
 
@@ -9,7 +9,7 @@ public class LocalFileStorageService : IFileStorageService {
     private readonly string _basePath;
     private readonly string _baseUrl;
 
-    private static readonly string[] AllowedTypes = new[] {"image/jpeg", "image/png"};
+    private static readonly string[] AllowedTypes = new[] { "image/jpeg", "image/png" };
     private static readonly Dictionary<string, byte[]> MagicBytes = new()
     {
         ["image/jpeg"] = new byte[] { 0xFF, 0xD8, 0xFF },

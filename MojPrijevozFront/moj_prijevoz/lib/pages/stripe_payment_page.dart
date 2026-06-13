@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
-import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
 import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';

@@ -124,7 +124,8 @@ class NotificationProvider
               ?.read<NotificationProvider>()
               .insertLocally(NotificationResponse.fromJson(data), index: 0);
         });
-      } on Exception catch (e) {}
+        // ignore: empty_catches
+      } on Exception {}
     });
 
     _hubNotificationsConnection!.on(

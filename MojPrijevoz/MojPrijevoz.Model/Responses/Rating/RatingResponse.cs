@@ -2,8 +2,7 @@
 
 namespace MojPrijevoz.Model.Responses.Rating;
 
-public class RatingResponse
-{
+public class RatingResponse {
     public int Id { get; set; }
 
     public int FromId { get; set; }

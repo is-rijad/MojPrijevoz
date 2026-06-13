@@ -1,9 +1,6 @@
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moj_prijevoz/resources/common/gender.dart';
 import 'package:moj_prijevoz/resources/requests/has_picture_interface.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 

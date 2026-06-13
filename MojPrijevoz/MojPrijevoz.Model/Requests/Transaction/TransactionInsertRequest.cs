@@ -2,8 +2,7 @@
 
 namespace MojPrijevoz.Model.Requests.Transaction;
 
-public class TransactionInsertRequest
-{
+public class TransactionInsertRequest {
     public int FareId { get; set; }
 
     public TransactionSide Side { get; set; }

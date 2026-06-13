@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +111,7 @@ class FareLocationProvider extends ChangeNotifier {
         _locationReceived!.future,
         Future.delayed(const Duration(seconds: 10)),
       ]);
-    } on Exception catch (e) {
+    } on Exception {
       rethrow;
     } finally {
       _uiProvider.stopLoading();

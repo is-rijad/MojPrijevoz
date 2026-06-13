@@ -10,6 +10,7 @@ import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 abstract class DeleteDialog<
   TResponse extends JsonResponse,
   TProvider extends BaseProvider

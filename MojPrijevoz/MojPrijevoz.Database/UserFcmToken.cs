@@ -4,8 +4,7 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class UserFcmToken : IHasTimestamps
-{
+public class UserFcmToken : IHasTimestamps {
     public int Id { get; set; }
     public int UserId { get; set; }
     public string Token { get; set; } = null!;
@@ -15,10 +14,8 @@ public class UserFcmToken : IHasTimestamps
     public User? User { get; set; }
 }
 
-public class UserFcmTokenEntityConfiguration : IEntityTypeConfiguration<UserFcmToken>
-{
-    public void Configure(EntityTypeBuilder<UserFcmToken> entity)
-    {
+public class UserFcmTokenEntityConfiguration : IEntityTypeConfiguration<UserFcmToken> {
+    public void Configure(EntityTypeBuilder<UserFcmToken> entity) {
         entity.ToTable("UserFcmTokens");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Token)

@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using MojPrijevoz.Model.Responses.UserVehicle;
+﻿using MojPrijevoz.Model.Responses.UserVehicle;
+using System.Text.Json.Serialization;
 
 namespace MojPrijevoz.Model.Responses.SearchFare;
 

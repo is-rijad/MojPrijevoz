@@ -1,7 +1,6 @@
 ﻿namespace MojPrijevoz.Model.Responses.StopPoint;
 
-public class StopPointResponse
-{
+public class StopPointResponse {
     public int Id { get; set; }
     public short Order { get; set; }
     public int FareDataId { get; set; }

@@ -34,8 +34,7 @@ public class FareLocationsHub(
             await Clients.Client(connectionId)
                 .SendAsync("LocationRequested", requesterId);
         }
-        else
-        {
+        else {
             await notificationService.SendSilentToUserAsync(new SendSilentToUserDto()
             {
                 UserId = int.Parse(targetUserId),
@@ -43,7 +42,8 @@ public class FareLocationsHub(
                 {
                     ["Type"] = SendSilentToUserDto.LocationRequested,
                     ["RequesterId"] = requesterId
-                }});
+                }
+            });
         }
     }
 
@@ -58,15 +58,12 @@ public class FareLocationsHub(
         }
     }
 
-    public async Task GetLastLocation(string userId)
-    {
+    public async Task GetLastLocation(string userId) {
         cache.TryGetValue(GetCacheKey(userId), out var cachedValue);
-        if (cachedValue != null)
-        {
+        if (cachedValue != null) {
             await Clients.Caller.SendAsync("ReceiveLocation", cachedValue);
         }
-        else
-        {
+        else {
             await RequestLocation(userId);
         }
     }

@@ -1,5 +1,4 @@
 ﻿using MojPrijevoz.Model.Responses.City;
-using MojPrijevoz.Model.Responses.FareOffer;
 using MojPrijevoz.Model.Responses.StopPoint;
 
 namespace MojPrijevoz.Model.Responses.FareData;

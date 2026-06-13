@@ -1,5 +1,4 @@
-﻿using Azure;
-using MapsterMapper;
+﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
@@ -16,12 +15,10 @@ namespace MojPrijevoz.Services.Fare;
 public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, FareInsertRequest, FareResponse, FareSearchObject>, IFareService {
     private readonly BaseFareState _baseFareState;
 
-    public FareService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService, BaseFareState baseFareState) : base(context, mapper, authorizationService)
-    {
+    public FareService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService, BaseFareState baseFareState) : base(context, mapper, authorizationService) {
         _baseFareState = baseFareState;
     }
-    public async Task<bool> HasActiveFareForRoute(int passengerId, HasActiveFareRequest request)
-    {
+    public async Task<bool> HasActiveFareForRoute(int passengerId, HasActiveFareRequest request) {
         var queryable = _dbContext.Fares.Where(it =>
             it.FareData!.FareDateTime.Date == request.FareDateTime.Date
         );
@@ -29,13 +26,12 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         queryable = queryable.Where(it => it.FareData!.DestinationLat == request.DestinationCity.Lat &&
                                           it.FareData!.DestinationLong == request.DestinationCity.Long);
         queryable = queryable.Where(it => it.PassengerId == passengerId);
-        
-        
+
+
         return await queryable.AnyAsync();
     }
 
-    public override async Task<FareResponse> InsertAsync(FareInsertRequest request)
-    {
+    public override async Task<FareResponse> InsertAsync(FareInsertRequest request) {
         await BeforeInsert(request);
         var entityEntry = await _dbContext.Fares.AddAsync(MapToInsertEntity(request));
         _baseFareState.GetState(null).Create(entityEntry.Entity);
@@ -57,8 +53,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return MapToResponseModel<FareResponse>(entity, _mapper);
     }
 
-    public async Task<FareResponse> RejectAsync(int id)
-    {
+    public async Task<FareResponse> RejectAsync(int id) {
         var entity = await _dbContext.Fares.FindAsync(id);
         if (entity == null) {
             throw new NotFoundException("Vožnja nije pronađena!");
@@ -70,8 +65,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return MapToResponseModel<FareResponse>(entity, _mapper);
     }
 
-    public async Task<FareResponse> CancelAsync(int id)
-    {
+    public async Task<FareResponse> CancelAsync(int id) {
         var entity = await _dbContext.Fares.FindAsync(id);
         if (entity == null) {
             throw new NotFoundException("Vožnja nije pronađena!");
@@ -83,8 +77,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return MapToResponseModel<FareResponse>(entity, _mapper);
     }
 
-    public async Task<FareResponse> CompleteAsync(int id)
-    {
+    public async Task<FareResponse> CompleteAsync(int id) {
         var entity = await _dbContext.Fares.FindAsync(id);
         if (entity == null) {
             throw new NotFoundException("Vožnja nije pronađena!");
@@ -96,8 +89,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return MapToResponseModel<FareResponse>(entity, _mapper);
     }
 
-    public async Task<FareResponse> StartAsync(int id)
-    {
+    public async Task<FareResponse> StartAsync(int id) {
         var entity = await _dbContext.Fares.FindAsync(id);
         if (entity == null) {
             throw new NotFoundException("Vožnja nije pronađena!");
@@ -123,8 +115,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return MapToResponseModel<FareResponse>(entity, _mapper);
     }
 
-    public async Task<PagedResult<FareResponse>> GetNextAcceptedFaresAsync(FareSearchObject searchObject)
-    {
+    public async Task<PagedResult<FareResponse>> GetNextAcceptedFaresAsync(FareSearchObject searchObject) {
         var userId = _authorizationService.GetUserId();
         var queryable = _dbContext.Fares.Where(it => (it.Passenger!.UserId == userId || it.Driver!.UserId == userId) && (((it.Status == FareStatus.Accepted || it.Status == FareStatus.Payed) && it.FareData!.FareDateTime >= DateTime.UtcNow)) || it.Status == FareStatus.InProgress);
         var paginatedQueryable = await Paginate(queryable, searchObject);
@@ -141,33 +132,28 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
     }
 
 
-    public override async Task<IQueryable<Database.Fare>> ApplyFilter(IQueryable<Database.Fare> queryable, FareSearchObject searchObject)
-    {
+    public override async Task<IQueryable<Database.Fare>> ApplyFilter(IQueryable<Database.Fare> queryable, FareSearchObject searchObject) {
         queryable = await base.ApplyFilter(queryable, searchObject);
         var profileId = await _authorizationService.GetProfileId(searchObject.FareRole);
 
         if (profileId == null)
             throw new BadRequestException("Profil nije pronađen!");
 
-        if (searchObject.FareRole == ProfileType.Driver)
-        {
+        if (searchObject.FareRole == ProfileType.Driver) {
             queryable = queryable.Where(it => it.DriverId == profileId);
         }
-        else if (searchObject.FareRole == ProfileType.Passenger)
-        {
+        else if (searchObject.FareRole == ProfileType.Passenger) {
             queryable = queryable.Where(it => it.PassengerId == profileId);
         }
 
-        if (searchObject.FareId != null)
-        {
+        if (searchObject.FareId != null) {
             queryable = queryable.Where(it => it.Id == searchObject.FareId);
         }
         return queryable;
     }
 
 
-    public override async Task<IQueryable<Database.Fare>> IncludeAdditionalEntities(IQueryable<Database.Fare> queryable)
-    {
+    public override async Task<IQueryable<Database.Fare>> IncludeAdditionalEntities(IQueryable<Database.Fare> queryable) {
         queryable = await base.IncludeAdditionalEntities(queryable);
         queryable = queryable.Include(it => it.FareData)
             .ThenInclude(it => it!.OriginCity)
@@ -185,8 +171,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return queryable;
     }
 
-    protected override async Task PrepareForResponse(Database.Fare entity, MojPrijevozDbContext dbContext)
-    {
+    protected override async Task PrepareForResponse(Database.Fare entity, MojPrijevozDbContext dbContext) {
         entity.FareData = await _dbContext.FareData.FindAsync(entity.FareDataId);
         entity.FareData!.StopPoints = await _dbContext.StopPoints.Where(it => it.FareDataId == entity.FareDataId).ToListAsync();
         entity.FareData.OriginCity = await _dbContext.Cities.FindAsync(entity.FareData.OriginCityId);
@@ -196,8 +181,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         entity.UserVehicle = await _dbContext.UserVehicles.Include(it => it.Vehicle).FirstOrDefaultAsync(it => it.Id == entity.UserVehicleId);
     }
 
-    public async Task<List<string>> AllowedActions(int id)
-    {
+    public async Task<List<string>> AllowedActions(int id) {
         return await _baseFareState.AllowedActions(id);
     }
 }

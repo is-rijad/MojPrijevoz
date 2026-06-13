@@ -2,7 +2,6 @@
 
 namespace MojPrijevoz.Model.SearchObjects;
 
-public class NotificationSearchObject : BaseSearchObject
-{
-    
+public class NotificationSearchObject : BaseSearchObject {
+
 }

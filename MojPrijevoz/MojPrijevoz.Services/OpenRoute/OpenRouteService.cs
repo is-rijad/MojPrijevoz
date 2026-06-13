@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.OpenRoute;
 using MojPrijevoz.Model.Responses.OpenRoute;
 using MojPrijevoz.Services.City;
@@ -6,7 +7,6 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
-using MojPrijevoz.Model.Exceptions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace MojPrijevoz.Services.OpenRoute;
@@ -47,8 +47,7 @@ public class OpenRouteService : IOpenRouteService {
             MediaTypeNames.Application.Json);
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", _openApiConfiguration["Key"]!);
-        try
-        {
+        try {
             var response = await _httpClient.PostAsync(_openApiConfiguration["Url"], jsonRequest);
             var responseObject = await JsonSerializer.DeserializeAsync<JsonElement>(await response.Content.ReadAsStreamAsync());
             return new GetDistanceResponse()
@@ -56,8 +55,8 @@ public class OpenRouteService : IOpenRouteService {
                 DistanceInKm = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("distance").GetDouble(),
                 DurationInMinutes = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("duration").GetDouble(),
             };
-        } catch (HttpRequestException e)
-        {
+        }
+        catch (HttpRequestException e) {
             throw new BadRequestException("Previše uzastopnih slanja, pokušajte ponovo!");
         }
 

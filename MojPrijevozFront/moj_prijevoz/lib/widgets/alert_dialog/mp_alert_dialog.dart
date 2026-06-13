@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 

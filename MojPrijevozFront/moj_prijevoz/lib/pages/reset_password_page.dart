@@ -1,12 +1,7 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
-import 'package:moj_prijevoz/pages/home_page.dart';
-import 'package:moj_prijevoz/pages/register.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
-import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
 import 'package:moj_prijevoz/resources/requests/user/reset_password_request.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/common_form_fields/password_form_field.dart';
@@ -14,7 +9,6 @@ import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
-import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
 
 class ResetPasswordPage extends StatefulWidget {

@@ -8,7 +8,6 @@ import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/image_picker_provider.dart';
 import 'package:moj_prijevoz/providers/user_profile_provider.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
-import 'package:moj_prijevoz/resources/common/gender.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/requests/user/update_user_request.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';

@@ -1,7 +1,5 @@
-import 'package:easy_stars/easy_stars.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/pages/login.dart';
@@ -14,7 +12,6 @@ import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/responses/notification/notification_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/notification/notification_search_object.dart';
-import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/profile_dropdown/profile_dropdown_item.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';

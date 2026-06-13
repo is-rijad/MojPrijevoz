@@ -6,11 +6,9 @@ public class PendingLocationRequests {
     public void Add(string driverId, string passengerConnId)
         => _pending.Add(driverId, passengerConnId);
 
-    public string? Pop(string driverId)
-    {
+    public string? Pop(string driverId) {
         _pending.TryGetValue(driverId, out var passengerConnId);
-        if (passengerConnId != null)
-        {
+        if (passengerConnId != null) {
             _pending.Remove(driverId);
         }
 

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Exceptions;
@@ -9,7 +8,6 @@ using MojPrijevoz.Model.Responses.Stripe;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.FareOffer;
 using Stripe;
-using System.Data;
 
 namespace MojPrijevoz.Services.Stripe;
 
@@ -22,8 +20,7 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
     public StripeService(MojPrijevozDbContext dbContext,
         IHttpContextAccessor httpContextAccessor,
         IConfiguration config,
-        IFareOfferService fareOfferService)
-    {
+        IFareOfferService fareOfferService) {
         _dbContext = dbContext;
         _httpContextAccessor = httpContextAccessor;
         _config = config;
@@ -45,7 +42,7 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
         var service = new PaymentIntentService();
         var intent = await service.CreateAsync(options);
 
-        return new StripeHandleResponse () { ClientSecret = intent.ClientSecret };
+        return new StripeHandleResponse() { ClientSecret = intent.ClientSecret };
     }
 
     public async Task Webhook() {

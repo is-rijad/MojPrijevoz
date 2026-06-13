@@ -2,22 +2,19 @@
 
 namespace MojPrijevoz.Services.BaseStateMachine;
 
-public abstract class BaseState<TEntity, TBaseState>  where TEntity : class where TBaseState : class
-{
+public abstract class BaseState<TEntity, TBaseState> where TEntity : class where TBaseState : class {
     protected readonly IServiceProvider ServiceProvider;
     protected const string MethodNotAllowed = "Method not allowed!";
     protected readonly MojPrijevozDbContext _dbContext;
 
     protected BaseState(IServiceProvider serviceProvider,
-        MojPrijevozDbContext dbContext)
-    {
+        MojPrijevozDbContext dbContext) {
         ServiceProvider = serviceProvider;
         _dbContext = dbContext;
     }
 
 
-    public virtual TEntity Create(TEntity entity)
-    {
+    public virtual TEntity Create(TEntity entity) {
         throw new Exception(MethodNotAllowed);
     }
     public virtual TEntity Update(int id, TEntity entity) {

@@ -22,7 +22,9 @@ class SearchFareNegotiateFialog extends StatefulWidget {
 }
 
 class _SearchFareNegotiateFialogState extends State<SearchFareNegotiateFialog> {
+  // ignore: unused_field
   late final TextEditingController _priceTextEditingController;
+  // ignore: unused_field
   late final TextEditingController _additionalPriceTextEditingController;
   final _errorMessage = ValueNotifier<String?>(null);
   final _formKey = GlobalKey<FormState>();

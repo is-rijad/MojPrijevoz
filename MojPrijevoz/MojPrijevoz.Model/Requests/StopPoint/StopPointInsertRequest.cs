@@ -3,8 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MojPrijevoz.Model.Requests.StopPoint;
 
-public class StopPointInsertRequest
-{
+public class StopPointInsertRequest {
     [NotMapped] public short Order { get; set; }
     [NotMapped] public int FareDataId { get; set; }
     [Required]

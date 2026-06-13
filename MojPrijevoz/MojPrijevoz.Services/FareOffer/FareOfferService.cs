@@ -8,18 +8,16 @@ using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Requests.FareData;
 using MojPrijevoz.Model.Requests.FareOffer;
 using MojPrijevoz.Model.Requests.StopPoint;
+using MojPrijevoz.Model.Requests.Transaction;
 using MojPrijevoz.Model.Responses.Fare;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
-using MojPrijevoz.Services.Driver;
 using MojPrijevoz.Services.Fare;
 using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer.StateMachine;
 using MojPrijevoz.Services.NotificationService;
 using MojPrijevoz.Services.StopPoint;
-using System.Security.Cryptography.X509Certificates;
-using MojPrijevoz.Model.Requests.Transaction;
 using MojPrijevoz.Services.Transactions;
 
 namespace MojPrijevoz.Services.FareOffer;
@@ -92,7 +90,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             baseStateMachine.Create(entityEntry.Entity);
 
 
-            await _notificationService.SendToUserAsync(new SendToUserDto() {
+            await _notificationService.SendToUserAsync(new SendToUserDto()
+            {
                 UserId = drivers.First((it) => it.Id == driversPrice.DriverId).UserId,
                 Title = "Nova ponuda vožnje",
                 Body = $"Korisnik {passenger.User!.FirstName} je poslao ponudu za vožnju",
@@ -134,7 +133,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             .Include(it => it!.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
-            .FirstAsync(it => it.Id == id); 
+            .FirstAsync(it => it.Id == id);
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
         var state = _baseFareOfferState.GetState((short)entity.Status);
@@ -165,7 +164,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     {
                         ["FareId"] = entity.FareId.ToString(),
                         ["Type"] = SendToUserDto.AcceptedFareOfferType,
-                            ["Side"] = entity.Side.ToString()
+                        ["Side"] = entity.Side.ToString()
 
                     }
                 });
@@ -184,7 +183,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     }
                 });
                 break;
-        case FareOfferStatus.Rejected:
+            case FareOfferStatus.Rejected:
                 await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
                     UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
@@ -198,7 +197,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     }
                 });
                 break;
-        case FareOfferStatus.Expired:
+            case FareOfferStatus.Expired:
                 await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
                     UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
@@ -212,7 +211,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     }
                 });
                 break;
-        case FareOfferStatus.Payed:
+            case FareOfferStatus.Payed:
                 await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
                     UserId = driver.UserId,
@@ -240,7 +239,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                     }
                 });
                 break;
-        case FareOfferStatus.Cancelled:
+            case FareOfferStatus.Cancelled:
                 await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
                     UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
@@ -255,11 +254,10 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
                 });
                 break;
         }
-        
+
     }
 
-    protected override Database.FareOffer MapToUpdateEntity(FareOfferUpdateRequest request, Database.FareOffer entity)
-    {
+    protected override Database.FareOffer MapToUpdateEntity(FareOfferUpdateRequest request, Database.FareOffer entity) {
         var side = entity.Side == ProfileType.Passenger ? ProfileType.Driver : ProfileType.Passenger;
 
         return new Database.FareOffer()
@@ -279,12 +277,11 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         fareInsertRequest.UserVehicleId = driverPrice.UserVehicleId;
         fareInsertRequest.PassengerId = passengerId;
         fareInsertRequest.FareDataId = fareDataId;
-        
+
         return fareInsertRequest;
     }
 
-    protected override Database.FareOffer MapToInsertEntity(FareOfferInsertRequest request)
-    {
+    protected override Database.FareOffer MapToInsertEntity(FareOfferInsertRequest request) {
         return new Database.FareOffer()
         {
             Side = ProfileType.Passenger,
@@ -295,8 +292,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         };
     }
 
-    public async Task<FareResponse> AcceptOfferAsync(int id)
-    {
+    public async Task<FareResponse> AcceptOfferAsync(int id) {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
         var entity = await _dbContext.FareOffers
@@ -304,8 +300,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
             .FirstAsync(it => it.Id == id);
-        if (entity == null)
-        {
+        if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
 
@@ -346,13 +341,12 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
-    public async Task<FareResponse> ExpireOfferAsync(int id)
-    {
+    public async Task<FareResponse> ExpireOfferAsync(int id) {
         var entity = await _dbContext.FareOffers
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
-            .FirstAsync(it => it.Id == id); 
+            .FirstAsync(it => it.Id == id);
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
@@ -365,8 +359,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
-    public async Task<FareResponse> CancelOfferAsync(int id)
-    {
+    public async Task<FareResponse> CancelOfferAsync(int id) {
         var entity = await _dbContext.FareOffers
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
@@ -417,8 +410,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
     }
 
 
-    public async Task<List<string>> AllowedActions(int id)
-    {
+    public async Task<List<string>> AllowedActions(int id) {
         return await _baseFareOfferState.AllowedActions(id);
     }
 }

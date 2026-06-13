@@ -42,8 +42,7 @@ public abstract class
         return new PaginatedQueryable<TEntity>(queryable, fullCount, await queryable.CountAsync());
     }
 
-    protected virtual Task<IQueryable<TEntity>> ApplyOrdering(IQueryable<TEntity> queryable, TSearchObject searchObject)
-    {
+    protected virtual Task<IQueryable<TEntity>> ApplyOrdering(IQueryable<TEntity> queryable, TSearchObject searchObject) {
         return Task.FromResult(queryable);
     }
 

@@ -7,18 +7,15 @@ namespace MojPrijevoz.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RatingController : ControllerBase
-{
+public class RatingController : ControllerBase {
     private readonly IRatingService _ratingService;
 
-    public RatingController(IRatingService ratingService)
-    {
+    public RatingController(IRatingService ratingService) {
         _ratingService = ratingService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] RatingSearchObject searchObject)
-    {
+    public async Task<IActionResult> Get([FromQuery] RatingSearchObject searchObject) {
         return Ok(await _ratingService.GetAsync(searchObject));
     }
 

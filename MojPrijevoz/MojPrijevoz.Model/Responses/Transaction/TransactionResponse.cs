@@ -2,8 +2,7 @@
 
 namespace MojPrijevoz.Model.Responses.Transaction;
 
-public class TransactionResponse
-{
+public class TransactionResponse {
     public int Id { get; set; }
 
     public int FareId { get; set; }

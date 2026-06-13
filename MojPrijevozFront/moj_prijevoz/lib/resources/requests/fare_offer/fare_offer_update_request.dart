@@ -1,9 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:moj_prijevoz/resources/dtos/fare_offer/fare_offer_driver_price_dto.dart';
-import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
-import 'package:moj_prijevoz/resources/dtos/stop_point/stop_point_dto.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 part 'fare_offer_update_request.g.dart';

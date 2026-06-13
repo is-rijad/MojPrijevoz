@@ -5,21 +5,18 @@ using MojPrijevoz.Notifications.NotificationService;
 
 namespace MojPrijevoz.Notifications.Consumer;
 
-public class NotificationConsumer : INotificationConsumer
-{
+public class NotificationConsumer : INotificationConsumer {
     private readonly IBus _bus;
     private readonly IEmailService _emailService;
     private readonly INotificationService _notificationService;
 
-    public NotificationConsumer(IBus bus, IEmailService emailService, INotificationService notificationService)
-    {
+    public NotificationConsumer(IBus bus, IEmailService emailService, INotificationService notificationService) {
         _bus = bus;
         _emailService = emailService;
         _notificationService = notificationService;
     }
 
-    public async Task StartConsumingAsync()
-    {
+    public async Task StartConsumingAsync() {
         await _bus.PubSub.SubscribeAsync<EmailDto>("email-consumer", async email => await HandleEmailAsync(email));
         await _bus.PubSub.SubscribeAsync<SubscribeToFcmDto>("subscribe-to-fcm-consumer", async request => await HandleSubscribeToFcmAsync(request));
         await _bus.PubSub.SubscribeAsync<UnSubscribeFromFcmDto>("unsubscribe-from-fcm-consumer", async request => await HandleUnSubscribeFromFcmAsync(request));
@@ -27,8 +24,7 @@ public class NotificationConsumer : INotificationConsumer
         await _bus.PubSub.SubscribeAsync<SendSilentToUserDto>("send-silent-to-user-consumer", async request => await HandleSilentSendToUserAsync(request));
     }
 
-    private async Task HandleEmailAsync(EmailDto email)
-    {
+    private async Task HandleEmailAsync(EmailDto email) {
         await _emailService.SendEmailAsync(email);
     }
     private async Task HandleSubscribeToFcmAsync(SubscribeToFcmDto dto) {

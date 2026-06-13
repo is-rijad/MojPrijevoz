@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/pages/stripe_payment_page.dart';
 import 'package:moj_prijevoz/pages/track_driver_page.dart';

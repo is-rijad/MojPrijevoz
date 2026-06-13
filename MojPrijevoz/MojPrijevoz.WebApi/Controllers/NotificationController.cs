@@ -19,8 +19,7 @@ public class NotificationController : ControllerBase {
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id)
-    {
+    public async Task<IActionResult> Put(int id) {
         await _notificationService.MarkAsReadAsync(id);
         return Ok();
     }

@@ -1,5 +1,4 @@
-﻿using Bogus.DataSets;
-using MapsterMapper;
+﻿using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
@@ -24,8 +23,7 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         IHttpContextAccessor httpContextAccessor,
         AuthorizationService authorizationService,
         IFileStorageService fileStorageService,
-        INotificationService notificationService) : base(context, mapper, authorizationService, fileStorageService)
-    {
+        INotificationService notificationService) : base(context, mapper, authorizationService, fileStorageService) {
         _notificationService = notificationService;
     }
 
@@ -45,8 +43,7 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
 
     protected override async Task AfterInsert(Database.User entity, UserInsertRequest request, MojPrijevozDbContext dbContext) {
         await base.AfterInsert(entity, request, dbContext);
-        if (!(await _dbContext.UserProfiles.Where(it => it.UserId == entity.Id).AnyAsync()))
-        {
+        if (!(await _dbContext.UserProfiles.Where(it => it.UserId == entity.Id).AnyAsync())) {
             await _dbContext.UserProfiles.AddAsync(new Database.UserProfile
             {
                 ProfileType = ProfileType.Passenger,

@@ -1,6 +1,4 @@
 import 'package:easy_stars/easy_stars.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -38,7 +36,6 @@ import 'package:moj_prijevoz/resources/search_objects/search_fare/search_fare_se
 import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/cards/mp_card.dart';
-import 'package:moj_prijevoz/widgets/cards/paginated_cards.dart';
 import 'package:moj_prijevoz/widgets/date_time/date_time_picker_form_field.dart';
 import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';

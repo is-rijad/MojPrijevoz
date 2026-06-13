@@ -14,7 +14,6 @@ UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
   username: json['username'] as String,
   cityId: (json['cityId'] as num).toInt(),
   status: $enumDecode(_$AccountStatusEnumMap, json['status']),
-  gender: $enumDecodeNullable(_$GenderEnumMap, json['gender']),
 )..picture = json['picture'] as String?;
 
 Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
@@ -25,7 +24,6 @@ Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
       'email': instance.email,
       'username': instance.username,
       'cityId': instance.cityId,
-      'gender': _$GenderEnumMap[instance.gender],
       'picture': instance.picture,
       'status': _$AccountStatusEnumMap[instance.status]!,
     };
@@ -36,5 +34,3 @@ const _$AccountStatusEnumMap = {
   AccountStatus.waitingForChanges: 2,
   AccountStatus.waitingForReview: 3,
 };
-
-const _$GenderEnumMap = {Gender.female: 0, Gender.male: 1};

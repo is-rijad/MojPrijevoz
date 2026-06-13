@@ -1,6 +1,4 @@
-﻿using MojPrijevoz.Database;
-
-namespace MojPrijevoz.Model.Authorization;
+﻿namespace MojPrijevoz.Model.Authorization;
 
 public class UserInfoTokenDto {
     public required string FirstName { get; set; }

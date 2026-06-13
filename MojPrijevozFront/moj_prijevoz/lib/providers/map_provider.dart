@@ -78,6 +78,7 @@ class MapProvider {
       headersMap.addEntries(
         <String, dynamic>{"Authorization": _openRouteKey}.entries,
       );
+    // ignore: empty_catches
     } on Exception {}
     options.headers = headersMap;
     return options;

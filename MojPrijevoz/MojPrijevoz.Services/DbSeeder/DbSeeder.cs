@@ -1,16 +1,12 @@
-﻿using System.Diagnostics;
-using Bogus;
-using Bogus.DataSets;
+﻿using Bogus;
 using Bogus.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using MojPrijevoz.Database;
 using MojPrijevoz.Services.Authorization;
 
 namespace MojPrijevoz.Services.DbSeeder;
 
-public class DbSeeder
-{
+public class DbSeeder {
     private readonly MojPrijevozDbContext _mojPrijevozDbContext;
     private readonly AuthorizationService _authorizationService;
     private readonly Randomizer _randomizer = new Randomizer();
@@ -27,16 +23,13 @@ public class DbSeeder
     private List<dynamic>? _fares;
 
     public DbSeeder(MojPrijevozDbContext mojPrijevozDbContext,
-        AuthorizationService authorizationService)
-    {
+        AuthorizationService authorizationService) {
         _mojPrijevozDbContext = mojPrijevozDbContext;
         _authorizationService = authorizationService;
     }
 
-    public async Task SeedAsync()
-    {
-        if (!(await CheckIsSeedNeededAsync()))
-        {
+    public async Task SeedAsync() {
+        if (!(await CheckIsSeedNeededAsync())) {
             Console.WriteLine("Seeding database is not needed");
             return;
         }
@@ -59,20 +52,17 @@ public class DbSeeder
         await transaction.CommitAsync();
     }
 
-    private async Task<bool> CheckIsSeedNeededAsync()
-    {
+    private async Task<bool> CheckIsSeedNeededAsync() {
         return !await _mojPrijevozDbContext.Users.AnyAsync();
     }
 
-    private async Task PrepareIds()
-    {
+    private async Task PrepareIds() {
         _cities = await _mojPrijevozDbContext.Cities.ToListAsync();
         _vehicleIds = await _mojPrijevozDbContext.Vehicles.Select(c => c.Id).ToListAsync();
 
     }
 
-    private async Task SeedUsersAsync()
-    {
+    private async Task SeedUsersAsync() {
         _authorizationService.CreatePassword("Test123!", "Test123!", out var passwordHash, out var passwordSalt);
 
         var usersGen = new Faker<Database.User>(FakerLocale)
@@ -94,19 +84,16 @@ public class DbSeeder
         _userIds = new Queue<int>(users.Select(u => u.Id));
     }
 
-    private async Task SeedUserProfilesAsync()
-    {
+    private async Task SeedUserProfilesAsync() {
         var userProfiles = new List<Database.UserProfile>();
-        while (_userIds!.Any())
-        {
+        while (_userIds!.Any()) {
             var userId = _userIds!.Dequeue();
             userProfiles.Add(new Database.UserProfile
             {
                 UserId = userId,
                 ProfileType = ProfileType.Passenger,
             });
-            if (_randomizer.Bool(0.3f))
-            {
+            if (_randomizer.Bool(0.3f)) {
                 var userProfile = new Database.UserProfile
                 {
                     UserId = userId,
@@ -126,11 +113,9 @@ public class DbSeeder
             new List<int>(userProfiles.Where(up => up.ProfileType == ProfileType.Driver).Select(up => up.Id));
     }
 
-    private async Task SeedUserVehiclesAndDriverDiscountsAsync()
-    {
+    private async Task SeedUserVehiclesAndDriverDiscountsAsync() {
         var userVehicles = new List<Database.UserVehicle>();
-        foreach (var userProfileId in _driverProfileIds!)
-        {
+        foreach (var userProfileId in _driverProfileIds!) {
             var userVehicleFaker = new Faker<Database.UserVehicle>(FakerLocale)
                 .RuleFor(uv => uv.VehicleId, f => f.PickRandom(_vehicleIds))
                 .RuleFor(uv => uv.ProfileId, f => userProfileId)
@@ -152,20 +137,17 @@ public class DbSeeder
         _userVehicles = new List<dynamic>(userVehicles.Select(uv => new { Id = uv.Id, Status = uv.Status, ProfileId = uv.ProfileId }));
     }
 
-    private string GetRandomVehiclePicture()
-    {
+    private string GetRandomVehiclePicture() {
         // Hardcoded just to have some picture for user vehicles, since seeding real pictures would be more complex and time consuming
         return $"https://loremflickr.com/320/240/car?random={_randomizer.Int(1, 1000)}";
     }
 
-    private async Task SeedUserDiscounts(int driverUserProfileId)
-    {
+    private async Task SeedUserDiscounts(int driverUserProfileId) {
         var discounts = new List<Database.DriversDiscount>();
         var count = _randomizer.Int(0, 6);
         var currentMin = 0f;
 
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             var isLast = i == count - 1;
             var maxKm = isLast && _randomizer.Bool(0.3f)
                 ? (float?)null
@@ -187,8 +169,7 @@ public class DbSeeder
 
     }
 
-    private async Task SeedFareDataAsync()
-    {
+    private async Task SeedFareDataAsync() {
         var fareDataFaker = new Faker<Database.FareData>()
             .RuleFor(fd => fd.OriginCityId, (f, fd) =>
             {
@@ -208,8 +189,7 @@ public class DbSeeder
             .RuleFor(fd => fd.Length, f => f.Random.Int(5, 500))
             .RuleFor(fd => fd.Duration, (f, fd) =>
             {
-                switch (fd.Length)
-                {
+                switch (fd.Length) {
                     case < 20:
                         return f.Random.Int(10, 30);
                     case < 100:
@@ -225,7 +205,7 @@ public class DbSeeder
                     case >= 500:
                         return f.Random.Int(600, 1440);
                 }
-            } )
+            })
             .RuleFor(fd => fd.FareDateTime, f => f.Date.Future())
             .RuleFor(fd => fd.StopPoints, (f, fd) =>
             {
@@ -255,11 +235,9 @@ public class DbSeeder
         _fareDatas = new Queue<dynamic>(fareDataList.Select(fd => new { Id = fd.Id, FareDateTime = fd.FareDateTime }));
     }
 
-    private async Task SeedFaresAsync()
-    {
+    private async Task SeedFaresAsync() {
         var fareList = new List<Database.Fare>();
-        while (_fareDatas!.Any())
-        {
+        while (_fareDatas!.Any()) {
             var fareData = _fareDatas!.Dequeue();
             int fareDataId = (int)fareData.Id;
             var fareFaker = new Faker<Database.Fare>(FakerLocale)
@@ -279,20 +257,17 @@ public class DbSeeder
 
         await _mojPrijevozDbContext.Fares.AddRangeAsync(fareList);
         await _mojPrijevozDbContext.SaveChangesAsync();
-            _fares = new List<dynamic>(fareList.Select(f => new { Id = f.Id, Status = f.Status, DriverId = f.DriverId, PassengerId = f.PassengerId }));
+        _fares = new List<dynamic>(fareList.Select(f => new { Id = f.Id, Status = f.Status, DriverId = f.DriverId, PassengerId = f.PassengerId }));
 
     }
 
-    private async Task SeedFareOffersAsync()
-    {
+    private async Task SeedFareOffersAsync() {
         var fareOfferList = new List<Database.FareOffer>();
-        foreach (var fare in _fares!)
-        {
+        foreach (var fare in _fares!) {
             var count = _randomizer.Int(3, 8);
             var basePrice = _randomizer.Float(10, 80);
 
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 var isLast = i == count - 1;
                 var f = new Faker(FakerLocale);
 
@@ -323,8 +298,7 @@ public class DbSeeder
         await _mojPrijevozDbContext.SaveChangesAsync();
     }
 
-    private FareStatus GetFareStatusForOffer(FareOfferStatus offerStatus)
-    {
+    private FareStatus GetFareStatusForOffer(FareOfferStatus offerStatus) {
         return offerStatus switch
         {
             FareOfferStatus.Expired => FareStatus.Expired,
@@ -336,21 +310,19 @@ public class DbSeeder
         };
     }
 
-    private async Task SeedRatingsAsync()
-    {
+    private async Task SeedRatingsAsync() {
         var allRatings = new List<Database.Rating>();
-        foreach (var fare in _fares!.Where(it => it.Status == FareStatus.Completed))
-        {
+        foreach (var fare in _fares!.Where(it => it.Status == FareStatus.Completed)) {
             var ratingFaker = new Faker<Database.Rating>(FakerLocale)
                 .RuleFor(r => r.FareId, f => fare.Id)
-                .RuleFor(r => r.Grade, f => (short) f.Random.Int(1, 5))
+                .RuleFor(r => r.Grade, f => (short)f.Random.Int(1, 5))
                 .RuleFor(r => r.Comment, f => f.Lorem.Sentence().ClampLength(max: 256));
 
             var ratings = ratingFaker.Generate(2);
             ratings[0].FromId = ratings[1].ToId = fare.DriverId;
             ratings[1].FromId = ratings[0].ToId = fare.PassengerId;
             allRatings.AddRange(ratings);
-        }   
+        }
         await _mojPrijevozDbContext.Ratings.AddRangeAsync(allRatings);
         await _mojPrijevozDbContext.SaveChangesAsync();
     }

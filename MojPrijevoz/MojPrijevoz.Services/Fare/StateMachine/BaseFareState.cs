@@ -1,20 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Exceptions;
-using MojPrijevoz.Model.Responses.Fare;
 using MojPrijevoz.Services.BaseStateMachine;
 
 namespace MojPrijevoz.Services.Fare.StateMachine;
 
 public class BaseFareState : BaseState<Database.Fare, BaseFareState> {
-    public BaseFareState(IServiceProvider serviceProvider, MojPrijevozDbContext dbContext) : base(serviceProvider, dbContext)
-    {
+    public BaseFareState(IServiceProvider serviceProvider, MojPrijevozDbContext dbContext) : base(serviceProvider, dbContext) {
     }
 
-    public override BaseFareState GetState(short? state)
-    {
-        switch (state)
-        {
+    public override BaseFareState GetState(short? state) {
+        switch (state) {
             case (short)Database.FareStatus.InNegotiation:
                 return ServiceProvider.GetRequiredService<InNegotiationFareState>();
             case (short)Database.FareStatus.Accepted:

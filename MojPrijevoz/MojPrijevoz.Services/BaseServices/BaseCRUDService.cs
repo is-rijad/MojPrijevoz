@@ -68,11 +68,10 @@ public abstract class
         return MapToResponseModel<TResponse>(entity, _mapper);
     }
 
-    private async Task SetNewAndDeleteOldImageIfNeeded<T>(T request, TEntity entity)
-    {
-        if (request is not IFormHasPicture imageRequest 
-            || imageRequest.Picture is null 
-            || _fileStorageService is null) 
+    private async Task SetNewAndDeleteOldImageIfNeeded<T>(T request, TEntity entity) {
+        if (request is not IFormHasPicture imageRequest
+            || imageRequest.Picture is null
+            || _fileStorageService is null)
             return;
         if (entity is not IEntityHasPicture entityWithPicture)
             throw new Exception("Entity is not IEntityHasPicture!");

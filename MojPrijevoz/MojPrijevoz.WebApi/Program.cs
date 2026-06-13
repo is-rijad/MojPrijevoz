@@ -18,20 +18,19 @@ using MojPrijevoz.Services.FileStorage;
 using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.NotificationService;
 using MojPrijevoz.Services.OpenRoute;
+using MojPrijevoz.Services.Rating;
 using MojPrijevoz.Services.SearchFare;
 using MojPrijevoz.Services.SignalR.Hubs;
 using MojPrijevoz.Services.StopPoint;
 using MojPrijevoz.Services.Stripe;
+using MojPrijevoz.Services.Transactions;
 using MojPrijevoz.Services.User;
 using MojPrijevoz.Services.UserProfile;
 using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
 using Stripe;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using MojPrijevoz.Services.Rating;
-using MojPrijevoz.Services.Transactions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json").AddUserSecrets<Program>();
@@ -79,7 +78,7 @@ builder.Services.AddTransient<UserVehicleService>();
 builder.Services.AddTransient<VehicleService>();
 builder.Services.AddTransient<DriversDiscountService>();
 builder.Services.AddTransient<UserProfileService>();
-builder.Services.AddTransient<IFareOfferService,FareOfferService>();
+builder.Services.AddTransient<IFareOfferService, FareOfferService>();
 builder.Services.AddTransient<IFareService, FareService>();
 builder.Services.AddTransient<IFareDataService, FareDataService>();
 builder.Services.AddTransient<IStopPointService, StopPointService>();
@@ -92,8 +91,8 @@ builder.Services.AddTransient<IPaymentService<StripeHandleRequest, StripeHandleR
 
 
 builder.Services.AddTransient<BaseFareOfferState>();
-builder.Services.AddTransient<InitialFareOfferState>(); 
-builder.Services.AddTransient<InNegotiationFareOfferState>(); 
+builder.Services.AddTransient<InitialFareOfferState>();
+builder.Services.AddTransient<InNegotiationFareOfferState>();
 builder.Services.AddTransient<AcceptedFareOfferState>();
 
 

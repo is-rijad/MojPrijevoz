@@ -11,8 +11,7 @@ namespace MojPrijevoz.WebApi.Controllers;
 public class StripeController : ControllerBase {
     private readonly IPaymentService<StripeHandleRequest, StripeHandleResponse> _stripePaymentService;
 
-    public StripeController(IPaymentService<StripeHandleRequest, StripeHandleResponse> stripePaymentService)
-    {
+    public StripeController(IPaymentService<StripeHandleRequest, StripeHandleResponse> stripePaymentService) {
         _stripePaymentService = stripePaymentService;
     }
     [HttpPost("CreateIntent")]
@@ -22,8 +21,7 @@ public class StripeController : ControllerBase {
 
     [HttpPost("Webhook")]
     [AllowAnonymous]
-    public async Task<IActionResult> Webhook()
-    {
+    public async Task<IActionResult> Webhook() {
         await _stripePaymentService.Webhook();
         return Ok();
     }

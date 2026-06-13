@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
-using MojPrijevoz.Model.Requests.UserVehicle;
 using MojPrijevoz.Model.Responses.UserVehicle;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
@@ -20,8 +19,7 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
 
     public UserVehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
         IFileStorageService fileStorageService, INotificationService notificationService) :
-        base(context, mapper, authorizationService, fileStorageService)
-    {
+        base(context, mapper, authorizationService, fileStorageService) {
         _notificationService = notificationService;
     }
 
@@ -64,8 +62,7 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         request.ProfileId = profile.Id;
     }
 
-    protected override async Task AfterInsert(Database.UserVehicle entity, UserVehicleUpsertFormRequest request, MojPrijevozDbContext dbContext)
-    {
+    protected override async Task AfterInsert(Database.UserVehicle entity, UserVehicleUpsertFormRequest request, MojPrijevozDbContext dbContext) {
         await base.AfterInsert(entity, request, dbContext);
         var user = await dbContext.UserProfiles.Where(u => u.Id == entity.ProfileId).Select(it => it.User).FirstAsync();
         var vehicle = await dbContext.Vehicles.FirstAsync(v => v.Id == entity.VehicleId);
@@ -81,8 +78,7 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         });
     }
 
-    protected override async Task BeforeUpdate(int id, UserVehicleUpsertFormRequest request, Database.UserVehicle entity)
-    {
+    protected override async Task BeforeUpdate(int id, UserVehicleUpsertFormRequest request, Database.UserVehicle entity) {
         await base.BeforeUpdate(id, request, entity);
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
         var profile = await _dbContext.UserProfiles.FindAsync(profileId);
@@ -92,15 +88,13 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
             throw new BadRequestException("Vozilo već postoji.");
     }
 
-    protected override Database.UserVehicle MapToUpdateEntity(UserVehicleUpsertFormRequest request, Database.UserVehicle entity)
-    {
+    protected override Database.UserVehicle MapToUpdateEntity(UserVehicleUpsertFormRequest request, Database.UserVehicle entity) {
         var updateEntity = base.MapToUpdateEntity(request, entity);
         updateEntity.PricePerKm /= 10;
         return updateEntity;
     }
 
-    protected override Database.UserVehicle MapToInsertEntity(UserVehicleUpsertFormRequest request)
-    {
+    protected override Database.UserVehicle MapToInsertEntity(UserVehicleUpsertFormRequest request) {
         var insertEntity = base.MapToInsertEntity(request);
         insertEntity.PricePerKm /= 10;
         return insertEntity;

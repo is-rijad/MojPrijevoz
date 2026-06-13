@@ -1,6 +1,5 @@
 ﻿using MojPrijevoz.Model.Requests.FareOffer;
 using MojPrijevoz.Model.Responses.Fare;
-using MojPrijevoz.Model.Responses.FareOffer;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.BaseStateMachine;

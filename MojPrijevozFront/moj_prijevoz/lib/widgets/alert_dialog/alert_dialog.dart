@@ -5,14 +5,14 @@ import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
 
 class AlertDialog extends StatefulWidget {
-  String? title;
-  String message;
-  void Function()? onPressed;
-  AlertDialog({
+  final String? title;
+  final String message;
+  final void Function()? onPressed;
+  const AlertDialog({
     super.key,
     this.title,
     required this.message,
-    required void Function()? onPressed,
+    required this.onPressed,
   });
 
   @override

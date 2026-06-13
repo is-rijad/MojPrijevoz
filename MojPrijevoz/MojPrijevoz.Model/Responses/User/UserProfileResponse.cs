@@ -2,8 +2,7 @@
 
 namespace MojPrijevoz.Model.Responses.User;
 
-public class UserProfileResponse
-{
+public class UserProfileResponse {
     public int Id { get; set; }
     public int NumberOfFares { get; set; }
     public short ProfileType { get; set; }
@@ -13,5 +12,5 @@ public class UserProfileResponse
     public ICollection<Database.Rating>? RatingTos { get; set; }
 
     public double AverageReview => (RatingTos?.Count ?? 0) != 0 ? RatingTos!.Average((it) => it.Grade) : 0;
-    
+
 }

@@ -8,28 +8,23 @@ using Notification = MojPrijevoz.Database.Notification;
 
 namespace MojPrijevoz.Notifications.NotificationService;
 
-public class NotificationService : INotificationService
-{
+public class NotificationService : INotificationService {
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public NotificationService(IServiceScopeFactory scopeFactory)
-    {
+    public NotificationService(IServiceScopeFactory scopeFactory) {
         _scopeFactory = scopeFactory;
     }
-    public async Task SubscribeToFcmAsync(SubscribeToFcmDto dto)
-    {
+    public async Task SubscribeToFcmAsync(SubscribeToFcmDto dto) {
         await UpsertUserFcmTokenAsync(dto);
         Console.WriteLine($"UserId: {dto.UserId} subscribed to FCM!");
     }
 
-    public async Task UnsubscribeFromFcm(UnSubscribeFromFcmDto dto)
-    {
+    public async Task UnsubscribeFromFcm(UnSubscribeFromFcmDto dto) {
         await DeleteFcmTokenAsync(dto);
         Console.WriteLine($"UserId: {dto.UserId} unsubscribed from FCM!");
     }
 
-    public async Task SendToUserAsync(SendToUserDto dto)
-    {
+    public async Task SendToUserAsync(SendToUserDto dto) {
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider
             .GetRequiredService<MojPrijevozDbContext>();
@@ -76,8 +71,7 @@ public class NotificationService : INotificationService
         }
     }
 
-    public async Task SendSilentToUserAsync(SendSilentToUserDto dto)
-    {
+    public async Task SendSilentToUserAsync(SendSilentToUserDto dto) {
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider
             .GetRequiredService<MojPrijevozDbContext>();
@@ -105,8 +99,7 @@ public class NotificationService : INotificationService
         }
     }
 
-    private async Task<UserFcmToken> UpsertUserFcmTokenAsync(SubscribeToFcmDto dto)
-    {
+    private async Task<UserFcmToken> UpsertUserFcmTokenAsync(SubscribeToFcmDto dto) {
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider
             .GetRequiredService<MojPrijevozDbContext>();
@@ -146,7 +139,7 @@ public class NotificationService : INotificationService
     private async Task HandleFirebaseException(FirebaseMessagingException ex, UserFcmToken token) {
         switch (ex.MessagingErrorCode) {
             case MessagingErrorCode.Unregistered:
-                await DeleteFcmTokenAsync(new UnSubscribeFromFcmDto{UserId = token.UserId});
+                await DeleteFcmTokenAsync(new UnSubscribeFromFcmDto { UserId = token.UserId });
                 Console.WriteLine($"FCM token deleted for user {token.UserId}");
                 break;
 

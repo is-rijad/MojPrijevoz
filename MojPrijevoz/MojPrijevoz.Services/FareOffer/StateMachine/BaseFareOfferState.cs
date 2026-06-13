@@ -7,14 +7,11 @@ namespace MojPrijevoz.Services.FareOffer.StateMachine;
 
 public class BaseFareOfferState : BaseState<Database.FareOffer, BaseFareOfferState> {
 
-    public BaseFareOfferState(IServiceProvider serviceProvider, MojPrijevozDbContext dbContext) : base(serviceProvider, dbContext)
-    {
+    public BaseFareOfferState(IServiceProvider serviceProvider, MojPrijevozDbContext dbContext) : base(serviceProvider, dbContext) {
     }
 
-    public override BaseFareOfferState GetState(short? state)
-    {
-        switch (state)
-        {
+    public override BaseFareOfferState GetState(short? state) {
+        switch (state) {
             case null:
                 return ServiceProvider.GetRequiredService<InitialFareOfferState>();
             case (short)Database.FareOfferStatus.WaitingForResponse:
@@ -28,8 +25,7 @@ public class BaseFareOfferState : BaseState<Database.FareOffer, BaseFareOfferSta
         }
     }
 
-    public virtual Database.FareOffer Reject(Database.FareOffer entity)
-    {
+    public virtual Database.FareOffer Reject(Database.FareOffer entity) {
         throw new Exception(MethodNotAllowed);
     }
 
@@ -48,12 +44,11 @@ public class BaseFareOfferState : BaseState<Database.FareOffer, BaseFareOfferSta
         throw new Exception(MethodNotAllowed);
     }
 
-    public override async Task<List<string>> AllowedActions(int id)
-    {
-     var entity = await _dbContext.FareOffers.FindAsync(id);
-     if (entity == null)
-         throw new NotFoundException("Ponuda nije pronađena!");
-     var state = GetState((short)entity.Status);
-     return await state.AllowedActions(id);
+    public override async Task<List<string>> AllowedActions(int id) {
+        var entity = await _dbContext.FareOffers.FindAsync(id);
+        if (entity == null)
+            throw new NotFoundException("Ponuda nije pronađena!");
+        var state = GetState((short)entity.Status);
+        return await state.AllowedActions(id);
     }
 }

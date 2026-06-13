@@ -2,6 +2,5 @@
 
 namespace MojPrijevoz.Services.SignalR.Hubs;
 
-public class NotificationsHub : Hub
-{
+public class NotificationsHub : Hub {
 }
