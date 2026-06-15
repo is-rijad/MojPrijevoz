@@ -220,7 +220,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
   }
 
   Future<void> _buildStartFareDialog(FareResponse? fare) async {
-    bool? isDone = await showDialog(
+    bool? isDone = await showDialog<bool?>(
       context: context,
       builder: (context) => ConfirmationDialog(
         content:
@@ -250,7 +250,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
   }
 
   Future<void> _buildCancelFareDialog(FareResponse? fare) async {
-    await showDialog(
+    final isDone = await showDialog<bool?>(
       context: context,
       builder: (context) => ConfirmationDialog(
         content: "Da li ste sigurni da želite otkazati vožnju?",
@@ -262,9 +262,15 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
           Constants.messengerKey.currentState?.showSnackBar(
             SuccessSnackBar(message: "Otkazali ste vožnju."),
           );
+          if (context.mounted) {
+            Navigator.pop(context, true);
+          }
         },
       ),
     );
+    if ((isDone ?? false) && mounted) {
+      Navigator.pop(context);
+    }
   }
 
   Future<void> _showUserProfile(UserProfileResponse userProfile) async {

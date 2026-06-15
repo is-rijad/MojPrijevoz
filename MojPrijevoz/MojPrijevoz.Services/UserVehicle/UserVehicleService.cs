@@ -97,16 +97,4 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
                 uv.Id != entity.Id))
             throw new BadRequestException("Vozilo već postoji.");
     }
-
-    protected override Database.UserVehicle MapToUpdateEntity(UserVehicleUpsertFormRequest request, Database.UserVehicle entity) {
-        var updateEntity = base.MapToUpdateEntity(request, entity);
-        updateEntity.PricePerKm /= 10;
-        return updateEntity;
-    }
-
-    protected override Database.UserVehicle MapToInsertEntity(UserVehicleUpsertFormRequest request) {
-        var insertEntity = base.MapToInsertEntity(request);
-        insertEntity.PricePerKm /= 10;
-        return insertEntity;
-    }
 }

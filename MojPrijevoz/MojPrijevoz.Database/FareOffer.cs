@@ -13,7 +13,7 @@ public enum FareOfferStatus : short {
     Cancelled = 5
 }
 
-public class FareOffer : IHasCreatedAtTimestamp {
+public class FareOffer : IHasTimestamps {
     public int Id { get; set; }
 
     public ProfileType Side { get; set; }
@@ -31,6 +31,7 @@ public class FareOffer : IHasCreatedAtTimestamp {
     public Fare? Fare { get; set; }
     public FareOffer? LastOffer { get; set; }
     public float TotalPrice => Price + (AdditionalPrice ?? 0);
+    public DateTime? UpdatedAt { get; set; }
 }
 
 public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer> {

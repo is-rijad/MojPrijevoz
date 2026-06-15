@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/src/form_data.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
@@ -22,8 +23,27 @@ class NotificationProvider
   final HttpProvider _httpProvider = GetIt.I<HttpProvider>();
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
   bool _initialized = false;
+  bool hasUnread = false;
 
   NotificationProvider() : super(providerName: "notification");
+
+  @override
+  Future<void> fetchData(NotificationSearchObject searchObject) async {
+    await super.fetchData(searchObject);
+    if (searchResult.items.any((it) => !it.isRead)) {
+      hasUnread = true;
+      notifyListeners();
+    }
+  }
+
+  @override
+  void updateLocally(NotificationResponse entity) {
+    super.updateLocally(entity);
+    if (!searchResult.items.any((it) => !it.isRead)) {
+      hasUnread = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> initialize() async {
     if (!_initialized) {

@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:easy_stars/easy_stars.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moj_prijevoz/common/constants.dart';
@@ -295,19 +294,6 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
               iconData: Icons.person,
               text: person.user!.fullName,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                EasyStarsDisplay(
-                  emptyColor: context.primaryColor,
-                  initialRating: person.averageReview!,
-                  readOnly: true,
-                  allowHalfRating: true,
-                  filledColor: context.primaryColor,
-                ),
-              ],
-            ),
           ],
         ),
       ),
@@ -374,8 +360,9 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
               widget.fare.lastFareOffer!.id,
             );
             if (context.mounted) {
-              Navigator.pop(context);
+              Navigator.pop(context, true);
             }
+
             Constants.messengerKey.currentState?.showSnackBar(
               SuccessSnackBar(message: "Odbili ste ponudu!"),
             );
@@ -396,9 +383,9 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
     });
   }
 
-  Future _onAcceptOffer() async {
+  Future<bool?> _onAcceptOffer() async {
     if (_isEditable) {
-      await showDialog(
+      return await showDialog<bool?>(
         context: context,
         builder: (context) {
           return ConfirmationDialog(
@@ -419,7 +406,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
         },
       );
     } else {
-      await showDialog(
+      return await showDialog<bool?>(
         context: context,
         builder: (context) {
           return ConfirmationDialog(

@@ -59,6 +59,13 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         await base.BeforeInsert(request);
     }
 
+    protected override async Task<IQueryable<Database.FareOffer>> ApplyOrdering(IQueryable<Database.FareOffer> queryable, FareOfferSearchObject searchObject)
+    {
+        await base.ApplyOrdering(queryable, searchObject);
+        queryable = queryable.OrderByDescending(it => it.UpdatedAt).ThenByDescending(it => it.CreatedAt);
+        return queryable.AsQueryable();
+    }
+
     public override async Task<FareResponse> InsertWithTransactionAsync(FareOfferInsertRequest request) {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         var passengerId = (await _authorizationService.GetProfileId(ProfileType.Passenger))!.Value;
@@ -374,6 +381,12 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         await SendUpdateNotification(entity, null);
 
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
+    }
+
+    public override async Task<FareResponse> UpdateAsync(int id, FareOfferUpdateRequest request)
+    {
+        var updated = await base.UpdateAsync(id, request);
+        return await _fareService.GetByIdAsync(updated.Id);
     }
 
     public async Task<FareResponse> CancelOfferAsync(int id) {

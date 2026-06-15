@@ -5,7 +5,7 @@ import 'package:signalr_netcore/signalr_client.dart';
 class HubConnectionProvider {
   HubConnection? _hubConnection;
   HubConnection? get hubConnection => _hubConnection;
-  final List<Function(List<Object?>?)> _subscribers = [];
+  final Map<String, Function(List<Object?>?)> _subscribers = {};
 
   Future<void> init() async {
     if (_hubConnection == null) {
@@ -29,24 +29,29 @@ class HubConnectionProvider {
   void _init(String methodName) {
     _hubConnection!.off(methodName);
     _hubConnection!.on(methodName, (args) {
-      for (var subscriber in _subscribers) {
-        subscriber(args);
+      for (var subscriber in _subscribers.entries.where(
+        (it) => it.key == methodName,
+      )) {
+        subscriber.value(args);
       }
     });
   }
 
-  void subscribe(void Function(List<Object?>? data) callback) {
-    _subscribers.add(callback);
+  void subscribe(
+    String methodName,
+    void Function(List<Object?>? data) callback,
+  ) {
+    _subscribers.addAll({methodName: callback});
   }
 
-  void unsubscribe(void Function(List<Object?>? data) callback) {
-    _subscribers.remove(callback);
+  void unsubscribe(String methodName) {
+    _subscribers.remove(methodName);
   }
 
   void _initializeHubConnection() {
     _hubConnection = HubConnectionBuilder()
         .withUrl(
-          '${Environment.apiUrl.substring(0, Environment.apiUrl.indexOf("/api"))}/actionhub',
+          Environment.hubBaseUrl,
           options: HttpConnectionOptions(
             accessTokenFactory: () async {
               return await AuthProvider.getAccessToken();
@@ -61,7 +66,6 @@ class HubConnectionProvider {
     if (_hubConnection != null &&
         _hubConnection!.state != HubConnectionState.Disconnected) {
       await _hubConnection!.stop();
-      print("Hub stopped: ${_hubConnection!.state}");
     }
   }
 }

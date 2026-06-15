@@ -222,7 +222,7 @@ class _PageWrapperState extends State<PageWrapper> {
             controller: _notificationScrollController,
             padding: EdgeInsets.zero,
             itemCount:
-                provider.searchResult.items.length + (_isLoading ? 1 : 0),
+                provider.searchResult.items.length + 1 + (_isLoading ? 1 : 0),
             itemBuilder: (BuildContext context, int index) {
               if (index == 0) {
                 return DrawerHeader(
@@ -233,7 +233,7 @@ class _PageWrapperState extends State<PageWrapper> {
               if (index == provider.searchResult.items.length && _isLoading) {
                 return CircularProgressIndicator();
               }
-              var i = provider.searchResult.items[index];
+              var i = provider.searchResult.items[index - 1];
               return ListTile(
                 title: !i.isRead
                     ? TextBodyMedium(i.message, fontWeight: FontWeight(900))
@@ -263,9 +263,13 @@ class _PageWrapperState extends State<PageWrapper> {
   }
 
   Widget _buildDrawerIcon(BuildContext context) {
-    return IconButton(
+    final child = IconButton(
       onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       icon: Icon(Icons.notifications),
     );
+    if (context.watch<NotificationProvider>().hasUnread) {
+      return Badge(child: child);
+    }
+    return child;
   }
 }

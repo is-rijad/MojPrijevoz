@@ -98,6 +98,10 @@ class _StripePaymentPageState extends State<StripePaymentPage> {
         fareOfferId,
         FareStatus.payed,
       );
+      await Future.delayed(Duration(seconds: 5), () {
+        if (!mounted) return;
+        Navigator.pop(context);
+      });
     }
   }
 }

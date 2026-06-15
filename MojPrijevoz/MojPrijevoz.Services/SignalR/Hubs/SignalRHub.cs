@@ -7,7 +7,7 @@ using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.SignalR.Hubs;
 
-public class FareLocationsHub(
+public class SignalRHub(
     IMemoryCache cache,
     ConnectionTracker tracker,
     INotificationService notificationService) : Hub {

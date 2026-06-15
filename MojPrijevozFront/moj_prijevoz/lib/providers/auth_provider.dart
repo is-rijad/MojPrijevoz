@@ -24,8 +24,6 @@ class AuthProvider with ChangeNotifier {
   final NotificationProvider _notificationProvider =
       GetIt.I<NotificationProvider>();
   final _providerName = "auth";
-  bool _isRefreshing = false;
-  Completer<void>? _refreshCompleter;
   static final _refreshTokenKey = "refresh_token";
 
   AuthProvider(AccessTokenPayload? payload) {
@@ -51,8 +49,10 @@ class AuthProvider with ChangeNotifier {
     return response;
   }
 
-  Future<void> logout() async {
-    await _notificationProvider.logout();
+  Future<void> logout({bool withNotificationLogout = true}) async {
+    if (withNotificationLogout) {
+      await _notificationProvider.logout();
+    }
 
     await _sharedPrefsProvider.deleteString(Constants.accessTokenKey);
   }
@@ -71,8 +71,6 @@ class AuthProvider with ChangeNotifier {
 
   Future refresh(RefreshTokenRequest request, Dio dio) async {
     try {
-      _isRefreshing = true;
-      _refreshCompleter = Completer();
       final response = await _httpProvider
           .post<RefreshTokenRequest, AccessTokenResponse>(
             "$_providerName/refresh",
@@ -80,15 +78,9 @@ class AuthProvider with ChangeNotifier {
           );
       await _setAccessToken(response.token);
       await _setRefreshToken(response.refreshToken);
-
-      _refreshCompleter!.complete();
-    } catch (e) {
-      logout();
-      _refreshCompleter!.completeError(e);
+    } on DioException catch (e) {
+      logout(withNotificationLogout: false);
       rethrow;
-    } finally {
-      _isRefreshing = false;
-      _refreshCompleter = null;
     }
   }
 

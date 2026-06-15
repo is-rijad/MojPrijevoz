@@ -5,7 +5,9 @@ import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/components/next_fares/next_fares_component.dart';
 import 'package:moj_prijevoz/pages/search_fare_page.dart';
 import 'package:moj_prijevoz/providers/fare_location_provider.dart';
+import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/providers/hub_connection.dart';
+import 'package:moj_prijevoz/providers/location_provider.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
@@ -45,7 +47,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    hubConnectionProvider.unsubscribe(onNewNotification);
+    hubConnectionProvider.unsubscribe("NewNotification");
+    hubConnectionProvider.unsubscribe("ReceiveLocation");
+    hubConnectionProvider.unsubscribe("LocationRequested");
     super.dispose();
   }
 
@@ -89,9 +93,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> _init() async {
     await hubConnectionProvider.init();
-    hubConnectionProvider.subscribe(onNewNotification);
-    hubConnectionProvider.subscribe(onReceiveLocation);
-    hubConnectionProvider.subscribe(sendLocation);
+    hubConnectionProvider.subscribe("NewNotification", onNewNotification);
+    hubConnectionProvider.subscribe("ReceiveLocation", onReceiveLocation);
+    hubConnectionProvider.subscribe("LocationRequested", sendLocation);
 
     await GetIt.I<NotificationProvider>().initialize();
     if (!mounted) return false;
@@ -101,6 +105,7 @@ class _HomePageState extends State<HomePage> {
     await context.read<NotificationProvider>().fetchData(
       NotificationSearchObject(page: 1, pageSize: 15),
     );
+    await GetIt.I<LocationProvider>().hasPermissions();
     return true;
   }
 

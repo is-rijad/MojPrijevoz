@@ -48,7 +48,6 @@ class _ConfirmationDialogState extends State<ConfirmationDialog> {
         ),
         PrimaryButton(
           onPressed: () async {
-            Navigator.pop(context);
             await widget.onSubmit.call();
           },
           text: "Da",

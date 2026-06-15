@@ -191,6 +191,8 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
   }
 
   Future<void> _onTapCard(FareResponse fare) async {
+    await _navigateToNegotiatePage(fare);
+    return;
     if (fare.lastFareOffer!.side == FareOfferSide.driver &&
         fare.lastFareOffer!.status == FareOfferStatus.waitingForResponse) {
       await _navigateToNegotiatePage(fare);
@@ -223,7 +225,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
   }
 
   Future<void> _buildCancelFareDialog(FareResponse? fare) async {
-    await showDialog(
+    final isDone = await showDialog<bool?>(
       context: context,
       builder: (context) => ConfirmationDialog(
         content: "Da li ste sigurni da želite otkazati vožnju?",
@@ -232,12 +234,18 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
           await context.read<FareOfferProvider>().cancelWithEvent(
             fare!.lastFareOffer!.id,
           );
+          if (context.mounted) {
+            Navigator.pop(context, true);
+          }
           Constants.messengerKey.currentState?.showSnackBar(
             SuccessSnackBar(message: "Otkazali ste vožnju."),
           );
         },
       ),
     );
+    if ((isDone ?? false) && mounted) {
+      Navigator.pop(context, true);
+    }
   }
 
   Future<void> _showUserProfile(UserProfileResponse userProfile) async {

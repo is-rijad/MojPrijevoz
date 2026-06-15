@@ -50,6 +50,8 @@
     <string>Moramo pristupiti vašim fotografijama kako bismo omogućili dodavanje istih.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
     <string>Moramo pistupiti vašoj lokaciji kako bismo omogućili normalno funkcionisanje aplikacije.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Moramo pistupiti vašoj lokaciji kako bismo omogućili normalno funkcionisanje aplikacije.</string>
 
 </dict>
 </plist>

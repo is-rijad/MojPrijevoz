@@ -399,13 +399,23 @@ class _SearchFarePageState extends State<SearchFarePage> {
         });
       },
       initialValue: _nominatimPlaceSelectorForFinalLocation.locationBound,
-      decoration: InputDecorationWithIcon(
-        iconData: Icons.location_on_outlined,
-        iconHint: "Putujem do",
-      ),
+      decoration:
+          InputDecorationWithIcon(
+            iconData: Icons.location_on_outlined,
+            iconHint: "Putujem do",
+          ).copyWith(
+            suffixIcon: IconButton(
+              onPressed: () => setState(() {
+                _request.isChanged = true;
+                _nominatimPlaceSelectorForFinalLocation.resetSelection();
+                _request.finalLocation = null;
+              }),
+              icon: Icon(Icons.clear_rounded),
+            ),
+          ),
       validator: (value) {
         if (value == null) {
-          return "Početna lokacija je obavezna!";
+          return "Destinacija je obavezna!";
         }
         return null;
       },
@@ -805,7 +815,10 @@ class _SearchFarePageState extends State<SearchFarePage> {
     return ConfirmationDialog(
       content:
           "Da li ste sigurni da želite poslati zahtjeve izabranim vozačima?",
-      onSubmit: () => _sendFareOffers(),
+      onSubmit: () async {
+        Navigator.pop(context);
+        await _sendFareOffers();
+      },
     );
   }
 
@@ -855,8 +868,9 @@ class _SearchFarePageState extends State<SearchFarePage> {
   }
 
   Future<void> _onClickRecommendedDriver() async {
-    if (context.read<SearchFareProvider>().fareDrivers.isEmpty ||
-        (_request.isChanged && (_formKey.currentState?.validate() ?? false))) {
+    if ((context.read<SearchFareProvider>().fareDrivers.isEmpty ||
+            _request.isChanged) &&
+        (_formKey.currentState?.validate() ?? false)) {
       setState(() {
         _uiProvider.startLoading();
       });
@@ -897,12 +911,12 @@ class _SearchFarePageState extends State<SearchFarePage> {
       await context.read<SearchFareProvider>().fetchData(
         _searchFareSearchObject,
       );
+      setState(() {
+        currentBreadCrumbIndex = 1;
+        _uiProvider.disableLoading();
+      });
+      _request.isChanged = false;
     }
-    setState(() {
-      currentBreadCrumbIndex = 1;
-      _uiProvider.disableLoading();
-    });
-    _request.isChanged = false;
   }
 
   Future<void> _onSelectedDriverVehicle(

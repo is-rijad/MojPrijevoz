@@ -15,7 +15,7 @@ public enum FareStatus : short {
     Completed = 7
 }
 
-public class Fare : IHasCreatedAtTimestamp {
+public class Fare : IHasTimestamps {
     public int Id { get; set; }
 
     public FareStatus Status { get; set; } = FareStatus.InNegotiation;
@@ -35,6 +35,7 @@ public class Fare : IHasCreatedAtTimestamp {
 
     public UserProfile? Passenger { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }
 
 public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {

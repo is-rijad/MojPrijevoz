@@ -29,6 +29,22 @@ public class NotificationService : INotificationService {
         var dbContext = scope.ServiceProvider
             .GetRequiredService<MojPrijevozDbContext>();
 
+        dto.Data.TryGetValue("RatingId", out var ratingId);
+
+        await dbContext.Notifications.AddAsync(new Notification()
+        {
+            CreatedAt = DateTime.Now,
+            FareId = int.Parse(dto.Data["FareId"]),
+            Side = Enum<ProfileType>.Parse(dto.Data["Side"]),
+            Id = 0,
+            IsRead = false,
+            UserId = dto.UserId,
+            Message = dto.Body,
+            Type = dto.Data["Type"],
+            RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null,
+        });
+        await dbContext.SaveChangesAsync();
+
         var token = await dbContext.UserFcmTokens.FirstOrDefaultAsync(it => it.UserId == dto.UserId);
         if (token == null) return;
 
@@ -49,21 +65,7 @@ public class NotificationService : INotificationService {
 
         try {
             await FirebaseMessaging.DefaultInstance.SendAsync(message);
-            dto.Data.TryGetValue("RatingId", out var ratingId);
-
-            await dbContext.Notifications.AddAsync(new Notification()
-            {
-                CreatedAt = DateTime.Now,
-                FareId = int.Parse(dto.Data["FareId"]),
-                Side = Enum<ProfileType>.Parse(dto.Data["Side"]),
-                Id = 0,
-                IsRead = false,
-                UserId = dto.UserId,
-                Message = dto.Body,
-                Type = dto.Data["Type"],
-                RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null,
-            });
-            await dbContext.SaveChangesAsync();
+           
             Console.WriteLine($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
         }
         catch (FirebaseMessagingException ex) {

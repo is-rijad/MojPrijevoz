@@ -65,7 +65,7 @@ public class RatingService : BaseCrudService<Database.Rating, RatingInsertReques
 
     protected override async Task AfterInsert(Database.Rating entity, RatingInsertRequest request, MojPrijevozDbContext dbContext) {
         await base.AfterInsert(entity, request, dbContext);
-        var fromUser = await _dbContext.Users.FindAsync(entity.FromId);
+        var fromUser = await _dbContext.UserProfiles.Where(it => it.Id == request.FromId).Select(it => it.User).FirstAsync();
         await _notificationService.SendToUserAsync(new SendToUserDto()
         {
             UserId = entity.ToId,

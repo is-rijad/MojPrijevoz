@@ -75,8 +75,8 @@ public class TokenManager {
         if (jwtToken == null)
             throw new InvalidOperationException("Invalid token!");
         var id = int.Parse(jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
-        var firstName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value;
-        var lastName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value;
+        var firstName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Name).Value;
+        var lastName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.FamilyName).Value;
         var passengerProfileId = int.Parse(jwtToken.Claims.First(c => c.Type == PassengerProfileIdClaimType).Value);
         var driverProfileClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == DriverProfileIdClaimType);
         int? driverProfileId = driverProfileClaim != null ? int.Parse(driverProfileClaim.Value) : null;

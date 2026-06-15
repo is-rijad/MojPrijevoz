@@ -134,8 +134,7 @@ await database.Database.MigrateAsync();
 var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
 await dbSeeder.SeedAsync();
 
-app.MapHub<NotificationsHub>("/hubs/notifications");
-app.MapHub<FareLocationsHub>("/hubs/farelocations");
+app.MapHub<SignalRHub>("/hubs");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthorization();

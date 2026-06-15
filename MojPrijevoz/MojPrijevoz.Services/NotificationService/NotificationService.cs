@@ -16,9 +16,9 @@ namespace MojPrijevoz.Services.NotificationService;
 public class NotificationService : BaseService<NotificationResponse, Notification, NotificationSearchObject>, INotificationService {
     private readonly IBus _bus;
     private readonly AuthorizationService _authorizationService;
-    private IHubContext<NotificationsHub> _notificationsHubContext;
+    private IHubContext<SignalRHub> _notificationsHubContext;
 
-    public NotificationService(IBus bus, AuthorizationService authorizationService, MojPrijevozDbContext dbContext, IMapper mapper, IHubContext<NotificationsHub> notificationsHubContext) : base(dbContext, mapper) {
+    public NotificationService(IBus bus, AuthorizationService authorizationService, MojPrijevozDbContext dbContext, IMapper mapper, IHubContext<SignalRHub> notificationsHubContext) : base(dbContext, mapper) {
         _bus = bus;
         _authorizationService = authorizationService;
         _notificationsHubContext = notificationsHubContext;
@@ -26,6 +26,7 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
     public async Task SendEmailAsync(EmailDto email) {
         await _bus.PubSub.PublishAsync(email);
     }
+
 
     public async Task SubscribeToFcm(SubscribeToFcmRequest request) {
         var userId = _authorizationService.GetUserId();

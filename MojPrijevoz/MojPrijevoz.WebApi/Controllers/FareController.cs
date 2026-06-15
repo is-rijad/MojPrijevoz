@@ -14,13 +14,13 @@ namespace MojPrijevoz.WebApi.Controllers;
 [Route("api/[controller]")]
 public class FareController : ControllerBase {
     private readonly IFareService _fareService;
-    private readonly IHubContext<FareLocationsHub> _fareLocationHubContext;
+    private readonly IHubContext<SignalRHub> _fareLocationHubContext;
     private readonly IMemoryCache _cache;
     private readonly ConnectionTracker _tracker;
     private readonly AuthorizationService _authorizationService;
 
     public FareController(IFareService fareService,
-        IHubContext<FareLocationsHub> fareLocationHubContext,
+        IHubContext<SignalRHub> fareLocationHubContext,
         IMemoryCache cache,
         ConnectionTracker tracker,
         AuthorizationService authorizationService) {
@@ -56,7 +56,7 @@ public class FareController : ControllerBase {
         var connectionId = _tracker.Get(dto.UserId.ToString());
 
         if (connectionId != null) {
-            _cache.Set(FareLocationsHub.GetCacheKey(senderId.ToString()), dto, FareLocationsHub.CacheTtl);
+            _cache.Set(SignalRHub.GetCacheKey(senderId.ToString()), dto, SignalRHub.CacheTtl);
             await _fareLocationHubContext.Clients.Client(connectionId)
                 .SendAsync("ReceiveLocation", dto);
         }

@@ -47,6 +47,7 @@ class FareProvider
   @override
   void clearData(FareSearchObject searchObject) {
     super.clearData(searchObject);
+    nextFares.items.clear();
     fareStartTimers.clear();
   }
 
