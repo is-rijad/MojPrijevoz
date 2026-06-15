@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojPrijevoz.Database;
 
@@ -11,9 +12,11 @@ using MojPrijevoz.Database;
 namespace MojPrijevoz.Database.Migrations
 {
     [DbContext(typeof(MojPrijevozDbContext))]
-    partial class MojPrijevozDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260615120943_NotificationTypeAlter")]
+    partial class NotificationTypeAlter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -953,32 +956,6 @@ namespace MojPrijevoz.Database.Migrations
                     b.ToTable("Rating", (string)null);
                 });
 
-            modelBuilder.Entity("MojPrijevoz.Database.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TokenSalt")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens", (string)null);
-                });
-
             modelBuilder.Entity("MojPrijevoz.Database.StopPoint", b =>
                 {
                     b.Property<int>("Id")
@@ -1316,17 +1293,6 @@ namespace MojPrijevoz.Database.Migrations
                     b.Navigation("From");
 
                     b.Navigation("To");
-                });
-
-            modelBuilder.Entity("MojPrijevoz.Database.RefreshToken", b =>
-                {
-                    b.HasOne("MojPrijevoz.Database.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MojPrijevoz.Database.StopPoint", b =>

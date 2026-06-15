@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/dio_client.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/firebase_options.dart';
@@ -16,6 +17,7 @@ import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/providers/fare_location_provider.dart';
 import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
+import 'package:moj_prijevoz/providers/hub_connection.dart';
 import 'package:moj_prijevoz/providers/image_picker_provider.dart';
 import 'package:moj_prijevoz/providers/location_provider.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
@@ -41,6 +43,7 @@ void registerServices() {
   final getIt = GetIt.instance;
 
   getIt.registerLazySingleton(() => UIProvider());
+  getIt.registerLazySingleton(() => HubConnectionProvider());
 
   getIt.registerFactory<HttpProvider>(() => HttpProvider());
   getIt.registerFactory<MapProvider>(() => MapProvider());
@@ -104,6 +107,9 @@ Future<void> main() async {
       payload = await AuthProvider.getPayload();
       // ignore: empty_catches
     } on Exception {}
+    final authProvider = AuthProvider(payload);
+    DioClient.init(authProvider);
+
     final child = payload != null ? HomePage() : LoginPage();
 
     Stripe.publishableKey = Environment.stripeKey;

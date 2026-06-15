@@ -1,15 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:moj_prijevoz/common/dio_client.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
-import 'package:moj_prijevoz/providers/http_provider.dart';
 import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
 import 'package:moj_prijevoz/resources/requests/maps/maps_route_request.dart';
 import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
 
 class MapProvider {
-  final _dio = Dio(HttpProvider.dioBaseOptions);
   final _openRouteApiUrl = Environment.openRouteApiUrl;
   final _openReverseApiUrl = Environment.openReverseApiUrl;
   final _openRouteKey = Environment.openRouteKey;
@@ -34,7 +33,7 @@ class MapProvider {
         radiuses: [-1],
         units: "km",
       );
-      final response = await _dio.post(
+      final response = await DioClient.dio.post(
         "${_openRouteApiUrl}directions/driving-car",
         data: body.toJson(),
         options: _setRequestOptions(),
@@ -58,7 +57,7 @@ class MapProvider {
   }
 
   Future<String> _getLocationName(String lat, String long) async {
-    final response = await _dio.get(
+    final response = await DioClient.dio.get(
       "$_openReverseApiUrl?api_key=$_openRouteKey&point.lat=$lat&point.lon=$long&layers=street",
     );
     return response.data["features"][0]["properties"]["name"];

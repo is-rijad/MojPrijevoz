@@ -31,11 +31,78 @@ public class AuthorizationService {
             throw new BadRequestException("Vaš račun je blokiran. Kontaktirajte podršku za više informacija.");
 
         var token = await _tokenManager.GenerateToken(user);
+        var refreshToken = _tokenManager.GenerateRefreshToken(user);
+
+        HashRefreshToken(refreshToken, out var hash, out var salt);
+        await ChangeOrAddRefreshToken(new RefreshToken() { TokenHash = hash, TokenSalt = salt, User = user });
 
         return new AccessTokenResponse
         {
-            Token = token
+            Token = token,
+            RefreshToken = refreshToken
         };
+    }
+
+    private async Task ChangeOrAddRefreshToken(RefreshToken refreshToken) {
+        var refreshTokenEntity = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserId == refreshToken.UserId);
+        if (refreshTokenEntity == null) {
+            await _dbContext.RefreshTokens.AddAsync(refreshToken);
+        }
+        else {
+            refreshToken.TokenHash = refreshTokenEntity.TokenHash;
+            refreshToken.TokenSalt = refreshTokenEntity.TokenSalt;
+            _dbContext.Update(refreshToken);
+        }
+        await _dbContext.SaveChangesAsync();
+
+    }
+    public async Task<AccessTokenResponse> Refresh(RefreshTokenRequest request) {
+        var userId = _tokenManager.GetUserInfoFromToken(request.AccessToken).Id;
+        var user = (await _dbContext.Users.FindAsync(userId))!;
+        var refreshTokenEntity = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt =>
+            rt.UserId == userId);
+
+        if (refreshTokenEntity == null) {
+            throw new BadRequestException("Korisnik nije ulogovan.");
+        }
+
+        if (!VerifyRefreshToken(request.RefreshToken, refreshTokenEntity.TokenHash, refreshTokenEntity.TokenSalt)) {
+            throw new BadRequestException("Neispravan refresh token.");
+        }
+
+        var token = await _tokenManager.GenerateToken(user);
+        var refreshToken = _tokenManager.GenerateRefreshToken(user);
+
+        HashRefreshToken(refreshToken, out var tokenHash, out var tokenSalt);
+        refreshTokenEntity.TokenHash = tokenHash;
+        refreshTokenEntity.TokenSalt = tokenSalt;
+        _dbContext.RefreshTokens.Update(refreshTokenEntity);
+        await _dbContext.SaveChangesAsync();
+
+        return new AccessTokenResponse
+        {
+            Token = token,
+            RefreshToken = refreshToken
+        };
+    }
+
+    public void HashRefreshToken(string refreshToken, out string hash, out string salt) {
+        using var rng = RandomNumberGenerator.Create();
+        var saltBytes = new byte[SaltByteSize];
+        rng.GetBytes(saltBytes);
+        salt = Convert.ToBase64String(saltBytes);
+
+        using var pbkdf2 = new Rfc2898DeriveBytes(refreshToken, saltBytes, Iterations, _hashAlgorithm);
+        var hashBytes = pbkdf2.GetBytes(HashByteSize);
+        hash = Convert.ToBase64String(hashBytes);
+    }
+
+    public bool VerifyRefreshToken(string refreshToken, string storedHash, string storedSalt) {
+        var saltBytes = Convert.FromBase64String(storedSalt);
+        using var pbkdf2 = new Rfc2898DeriveBytes(refreshToken, saltBytes, Iterations, _hashAlgorithm);
+        var hashBytes = pbkdf2.GetBytes(HashByteSize);
+        var hash = Convert.ToBase64String(hashBytes);
+        return hash == storedHash;
     }
 
     public async Task<AccessTokenResponse> GetNewToken() {

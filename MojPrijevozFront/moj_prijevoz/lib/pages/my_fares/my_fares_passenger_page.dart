@@ -23,6 +23,7 @@ import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:provider/provider.dart';
 
 class MyFaresPassengerPage extends StatefulWidget {
@@ -36,6 +37,24 @@ class MyFaresPassengerPage extends StatefulWidget {
 class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
   @override
   Widget build(BuildContext context) {
+    return LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init);
+  }
+
+  Future<bool> _init() async {
+    if (widget.fareId == null) {
+      context.read<FareProvider>().clearData(
+        FareSearchObject(
+          page: 1,
+          pageSize: 5,
+          fareRole: ProfileType.passenger,
+          fareId: widget.fareId,
+        ),
+      );
+    }
+    return true;
+  }
+
+  Widget _build(BuildContext context) {
     return PaginatedCards<FareSearchObject, FareResponse, FareProvider>(
       spacing: 8,
       searchObject: FareSearchObject(

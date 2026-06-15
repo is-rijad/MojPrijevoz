@@ -14,6 +14,7 @@ import 'package:moj_prijevoz/widgets/cards/mp_card.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:provider/provider.dart';
+import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 
 class NextFaresComponent extends StatefulWidget {
   const NextFaresComponent({super.key});
@@ -50,6 +51,7 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
       ProfileType.passenger,
     ))!;
     if (!mounted) return false;
+    context.read<FareProvider>().clearData(_fareSearchObject);
     await context.read<FareProvider>().fetchNextFares(_fareSearchObject);
     return true;
   }
@@ -84,7 +86,11 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
   ) {
     if (searchResult.items.isEmpty) {
       return [
-        Expanded(child: const Center(child: Text("Nemate zakazanih vožnji!"))),
+        Expanded(
+          child: const Center(
+            child: TextTitleMedium("Nemate zakazanih vožnji!"),
+          ),
+        ),
       ];
     }
     return [
@@ -197,7 +203,7 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
   String _getBannerMessage(FareResponse fare) {
     if (fare.passengerId == _userPassengerProfileId) {
       if (fare.status == FareStatus.accepted) {
-        return "Potrebno platiti";
+        return "Potrebno plaćanje";
       } else if (fare.status == FareStatus.inProgress) {
         return "U toku";
       }

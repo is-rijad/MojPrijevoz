@@ -535,7 +535,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
     SearchFareResponse driver,
   ) {
     return MpCard(
-      onTap: () => _toggleSelectedDriver(driver),
+      onTap: () => _toggleSelectedDriver(driver.profileId),
       borderColor: _selectedDrivers.containsKey(driver.profileId)
           ? context.primaryColor
           : null,
@@ -925,10 +925,11 @@ class _SearchFarePageState extends State<SearchFarePage> {
       userVehicle.profileId,
       queryParameters: searchObject.toJson(),
     );
+    if (!mounted) return;
+    _toggleSelectedDriver(userVehicle.profileId);
   }
 
-  void _toggleSelectedDriver(SearchFareResponse driver) {
-    final driverId = driver.profileId;
+  void _toggleSelectedDriver(int driverId) {
     if (_selectedDrivers.containsKey(driverId)) {
       setState(() {
         _selectedDrivers.remove(driverId);

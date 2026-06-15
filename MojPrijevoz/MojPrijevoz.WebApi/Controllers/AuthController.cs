@@ -24,4 +24,9 @@ public class AuthController : ControllerBase {
     public async Task<IActionResult> Login([FromBody] UserLoginRequest request) {
         return Ok(await _authorizationService.Login(request));
     }
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request) {
+        return Ok(await _authorizationService.Refresh(request));
+    }
 }

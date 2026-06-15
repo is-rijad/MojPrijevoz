@@ -20,6 +20,10 @@ public class InNegotiationFareState : BaseFareState {
         entity.Status = Database.FareStatus.Cancelled;
         return entity;
     }
+    public override Database.Fare Expire(Database.Fare entity) {
+        entity.Status = Database.FareStatus.Expired;
+        return entity;
+    }
     public override async Task<Database.Fare> Accept(Database.Fare entity) {
         entity.Status = Database.FareStatus.Accepted;
         var fareData = await _dbContext.FareData.Where(fd => fd.Id == entity.FareDataId).FirstAsync();
@@ -41,7 +45,7 @@ public class InNegotiationFareState : BaseFareState {
 
 
     public override Task<List<string>> AllowedActions(int id) {
-        var list = new List<string>() { nameof(Reject), nameof(Accept), nameof(Cancel) };
+        var list = new List<string>() { nameof(Reject), nameof(Accept), nameof(Cancel), nameof(Expire) };
         return Task.FromResult(list);
     }
 }

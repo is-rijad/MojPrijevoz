@@ -6,8 +6,9 @@ part 'access_token_response.g.dart';
 @JsonSerializable()
 class AccessTokenResponse extends JsonParsable {
   final String token;
+  final String refreshToken;
 
-  AccessTokenResponse({required this.token});
+  AccessTokenResponse({required this.token, required this.refreshToken});
 
   factory AccessTokenResponse.fromJson(Map<String, dynamic> json) =>
       _$AccessTokenResponseFromJson(json);

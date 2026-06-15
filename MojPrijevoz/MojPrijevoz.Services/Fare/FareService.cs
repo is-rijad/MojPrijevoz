@@ -119,6 +119,19 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return MapToResponseModel<FareResponse>(entity, _mapper);
     }
 
+    public async Task<FareResponse> ExpireAsync(int id)
+    {
+        var entity = await _dbContext.Fares.FindAsync(id);
+        if (entity == null) {
+            throw new NotFoundException("Vožnja nije pronađena!");
+        }
+        var state = _baseFareState.GetState((short)entity.Status);
+        state.Expire(entity);
+        await _dbContext.SaveChangesAsync();
+
+        return MapToResponseModel<FareResponse>(entity, _mapper);
+    }
+
     public async Task MarkAsCompleted()
     {
         var faresToComplete = await _dbContext.Fares

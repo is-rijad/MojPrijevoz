@@ -7,8 +7,14 @@ part of 'access_token_response.dart';
 // **************************************************************************
 
 AccessTokenResponse _$AccessTokenResponseFromJson(Map<String, dynamic> json) =>
-    AccessTokenResponse(token: json['token'] as String);
+    AccessTokenResponse(
+      token: json['token'] as String,
+      refreshToken: json['refreshToken'] as String,
+    );
 
 Map<String, dynamic> _$AccessTokenResponseToJson(
   AccessTokenResponse instance,
-) => <String, dynamic>{'token': instance.token};
+) => <String, dynamic>{
+  'token': instance.token,
+  'refreshToken': instance.refreshToken,
+};

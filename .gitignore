@@ -541,5 +541,5 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 
 /MojPrijevoz/MojPrijevoz.WebApi/appsettings.Development.json
-/MojPrijevoz/MojPrijevoz.Notifications/firebase_credentials.json
 /MojPrijevoz/MojPrijevoz.WebApi/firebase_credentials.json
+MojPrijevozFront/moj_prijevoz/config/*

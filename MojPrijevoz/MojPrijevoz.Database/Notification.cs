@@ -32,7 +32,7 @@ public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notifica
             .HasMaxLength(64)
             .IsUnicode(true);
         entity.Property(e => e.Type)
-            .HasMaxLength(16)
+            .HasMaxLength(64)
             .IsUnicode(false);
 
         entity.HasOne(it => it.User).WithMany().HasForeignKey(it => it.UserId);

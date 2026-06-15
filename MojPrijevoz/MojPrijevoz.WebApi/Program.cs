@@ -1,6 +1,7 @@
 using EasyNetQ;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Requests.Stripe;
 using MojPrijevoz.Model.Responses.Stripe;
@@ -31,6 +32,8 @@ using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
 using Stripe;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+
 DotNetEnv.Env.Load("./.env");
 
 var builder = WebApplication.CreateBuilder(args);
@@ -96,6 +99,7 @@ builder.Services.AddTransient<BaseFareOfferState>();
 builder.Services.AddTransient<InitialFareOfferState>();
 builder.Services.AddTransient<InNegotiationFareOfferState>();
 builder.Services.AddTransient<AcceptedFareOfferState>();
+builder.Services.AddTransient<PayedFareOfferState>();
 
 
 builder.Services.AddTransient<BaseFareState>();
@@ -117,10 +121,16 @@ if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 using var scope = app.Services.CreateScope();
 var database = scope.ServiceProvider.GetRequiredService<MojPrijevozDbContext>();
-await database.Database.MigrateAsync();
 
+var databaseCreator = database.Database.GetService<IRelationalDatabaseCreator>();
+if (!await databaseCreator.ExistsAsync()) {
+    await databaseCreator.CreateAsync();
+}
+
+await database.Database.MigrateAsync();
 var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
 await dbSeeder.SeedAsync();
 

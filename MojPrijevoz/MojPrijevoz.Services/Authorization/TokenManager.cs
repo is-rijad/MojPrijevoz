@@ -37,6 +37,8 @@ public class TokenManager {
 
     private string JwtExpiration => _configuration["Jwt:ExpirationInMinutes"] ??
                                     throw new InvalidOperationException("JWT Expiration is not configured.");
+    private string RefreshJwtExpiration => _configuration["Jwt:RefreshExpirationInMinutes"] ??
+                                           throw new InvalidOperationException("JWT RefreshExpiration is not configured.");
 
     public async Task<string> GenerateToken(Database.User user) {
         var tokenDto = await GetTokenDto(user);
@@ -96,6 +98,27 @@ public class TokenManager {
             Role = role,
             Status = Int16.Parse(accountStatus)
         };
+    }
+
+    public string GenerateRefreshToken(Database.User user) {
+        var tokenDto = GetTokenDto(user);
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, tokenDto.Id.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        var token = new JwtSecurityToken(
+            JwtIssuer,
+            claims: claims,
+            expires: DateTime.Now.AddMinutes(Convert.ToDouble(RefreshJwtExpiration)),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     public int GetUserId() {

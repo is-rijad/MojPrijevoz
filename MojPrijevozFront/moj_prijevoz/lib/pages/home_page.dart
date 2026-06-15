@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/components/next_fares/next_fares_component.dart';
 import 'package:moj_prijevoz/pages/search_fare_page.dart';
+import 'package:moj_prijevoz/providers/fare_location_provider.dart';
+import 'package:moj_prijevoz/providers/hub_connection.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
+import 'package:moj_prijevoz/resources/responses/notification/notification_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search_object.dart';
 import 'package:moj_prijevoz/resources/search_objects/notification/notification_search_object.dart';
 import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
 import 'package:moj_prijevoz/widgets/dialogs/modal_bottom_sheet.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
@@ -27,6 +32,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _searchObject = NominatimSearchObject();
   late final NominatimPlaceSelector _nominatimPlaceSelector;
+  final HubConnectionProvider hubConnectionProvider =
+      GetIt.I<HubConnectionProvider>();
 
   @override
   void initState() {
@@ -34,6 +41,39 @@ class _HomePageState extends State<HomePage> {
     _nominatimPlaceSelector = NominatimPlaceSelector(
       searchObject: _searchObject,
     );
+  }
+
+  @override
+  void dispose() {
+    hubConnectionProvider.unsubscribe(onNewNotification);
+    super.dispose();
+  }
+
+  void onNewNotification(List<Object?>? args) async {
+    try {
+      final data = args![0] as Map<String, dynamic>;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Constants.messengerKey.currentState?.showSnackBar(
+          SuccessSnackBar(message: data["message"]),
+        );
+
+        Constants.messengerKey.currentContext
+            ?.read<NotificationProvider>()
+            .insertLocally(NotificationResponse.fromJson(data), index: 0);
+      });
+      // ignore: empty_catches
+    } on Exception {}
+  }
+
+  void onReceiveLocation(List<Object?>? args) async {
+    final data = args![0] as Map<String, dynamic>;
+    context.read<FareLocationProvider>().receiveLocation(data);
+  }
+
+  Future sendLocation(List<Object?>? args) async {
+    final data = args![0] as String;
+    await context.read<FareLocationProvider>().sendLocation(data);
   }
 
   @override
@@ -48,8 +88,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<bool> _init() async {
+    await hubConnectionProvider.init();
+    hubConnectionProvider.subscribe(onNewNotification);
+    hubConnectionProvider.subscribe(onReceiveLocation);
+    hubConnectionProvider.subscribe(sendLocation);
+
     await GetIt.I<NotificationProvider>().initialize();
     if (!mounted) return false;
+    context.read<NotificationProvider>().clearData(
+      NotificationSearchObject(page: 1, pageSize: 15),
+    );
     await context.read<NotificationProvider>().fetchData(
       NotificationSearchObject(page: 1, pageSize: 15),
     );

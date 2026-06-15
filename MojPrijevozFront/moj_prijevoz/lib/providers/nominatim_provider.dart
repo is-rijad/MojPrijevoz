@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/dio_client.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
@@ -12,7 +13,6 @@ class NominatimProvider
     extends BaseGetProvider<NominatimResponse, NominatimSearchObject> {
   final _nominatimApiUrl = Environment.nominatimApiUrl;
   final _excludeIds = <int>[];
-  final _dio = Dio(HttpProvider.dioBaseOptions);
   final _limit = 5;
 
   NominatimProvider() : super(providerName: "nominatim");
@@ -46,7 +46,7 @@ class NominatimProvider
 
   Future<dynamic> _fetchByQuery(NominatimSearchObject searchObject) async {
     final url = "${_nominatimApiUrl}search";
-    final response = await _dio.get(
+    final response = await DioClient.dio.get(
       url,
       options: _setRequestOptions(),
       queryParameters: _includeQueryParamsForQuerySearch(searchObject),
@@ -56,7 +56,7 @@ class NominatimProvider
 
   Future<dynamic> _fetchById(NominatimSearchObject searchObject) async {
     final url = "${_nominatimApiUrl}lookup";
-    final response = await _dio.get(
+    final response = await DioClient.dio.get(
       url,
       options: _setRequestOptions(),
       queryParameters: _includeQueryParamsForIdSearch(searchObject),

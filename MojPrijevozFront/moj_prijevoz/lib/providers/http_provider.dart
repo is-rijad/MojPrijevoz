@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/dio_client.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import "package:moj_prijevoz/providers/ui_provider.dart";
@@ -8,12 +9,6 @@ import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 class HttpProvider {
-  static final dioBaseOptions = BaseOptions(
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 20),
-    sendTimeout: const Duration(seconds: 20),
-  );
-  final _dio = Dio(dioBaseOptions);
   final String _apiUrl = Environment.apiUrl;
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
 
@@ -27,7 +22,7 @@ class HttpProvider {
       var path = "$_apiUrl$url";
       if (id != null) path += "/$id";
       var options = await _setRequestOptions();
-      var response = await _dio.get(
+      var response = await DioClient.dio.get(
         path,
         options: options,
         queryParameters: queryParameters,
@@ -50,7 +45,7 @@ class HttpProvider {
         queryParameters.addEntries(query.entries);
       }
       var options = await _setRequestOptions();
-      var response = await _dio.get(
+      var response = await DioClient.dio.get(
         "$_apiUrl$url",
         options: options,
         queryParameters: queryParameters,
@@ -83,7 +78,7 @@ class HttpProvider {
         options = options.copyWith(contentType: 'multipart/form-data');
       }
 
-      var response = await _dio.post(
+      var response = await DioClient.dio.post(
         "$_apiUrl$url",
         data: formData ?? request?.toJson(),
         options: options,
@@ -112,7 +107,7 @@ class HttpProvider {
       if (formData != null) {
         options = options.copyWith(contentType: 'multipart/form-data');
       }
-      var response = await _dio.put(
+      var response = await DioClient.dio.put(
         "$_apiUrl$url/$id",
         data: formData ?? request?.toJson(),
         options: options,
@@ -140,7 +135,7 @@ class HttpProvider {
       if (id != null) {
         requestUrl += id.toString();
       }
-      await _dio.delete(
+      await DioClient.dio.delete(
         requestUrl,
         options: options,
         queryParameters: queryParameters,

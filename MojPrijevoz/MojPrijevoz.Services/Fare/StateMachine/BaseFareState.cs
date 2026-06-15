@@ -44,6 +44,9 @@ public class BaseFareState : BaseState<Database.Fare, BaseFareState> {
     public virtual Database.Fare Pay(Database.Fare entity) {
         throw new Exception(MethodNotAllowed);
     }
+    public virtual Database.Fare Expire(Database.Fare entity) {
+        throw new Exception(MethodNotAllowed);
+    }
 
     public override async Task<List<string>> AllowedActions(int id) {
         var entity = await _dbContext.Fares.FindAsync(id);

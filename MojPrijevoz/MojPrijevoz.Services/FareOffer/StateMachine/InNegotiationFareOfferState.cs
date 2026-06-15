@@ -27,7 +27,7 @@ public class InNegotiationFareOfferState : BaseFareOfferState {
     }
 
     public override Task<List<string>> AllowedActions(int id) {
-        var list = new List<string>() { nameof(Update), nameof(Accept), nameof(Reject), nameof(Cancel) };
+        var list = new List<string>() { nameof(Update), nameof(Accept), nameof(Reject), nameof(Cancel), nameof(Expire) };
         return Task.FromResult(list);
     }
 }

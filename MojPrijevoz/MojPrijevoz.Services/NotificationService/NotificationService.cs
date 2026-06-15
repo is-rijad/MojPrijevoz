@@ -50,7 +50,7 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
 
         try {
             request.Data.TryGetValue("RatingId", out var ratingId);
-            await _notificationsHubContext.Clients.User(request.UserId.ToString()).SendAsync("new_notification", new Notification()
+            await _notificationsHubContext.Clients.User(request.UserId.ToString()).SendAsync("NewNotification", new Notification()
             {
                 CreatedAt = DateTime.Now,
                 FareId = int.Parse(request.Data["FareId"]),

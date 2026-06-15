@@ -81,7 +81,7 @@ class _SearchFareNegotiateFialogState extends State<SearchFareNegotiateFialog> {
                 if (value == null ||
                     value.isEmpty ||
                     double.tryParse(value) == null ||
-                    double.parse(value) < 0) {
+                    double.parse(value) < 1) {
                   return "Unos nije validan!";
                 }
                 return null;

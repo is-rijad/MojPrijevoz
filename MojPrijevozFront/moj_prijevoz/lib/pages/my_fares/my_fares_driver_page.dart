@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/pages/track_passenger_page.dart';
 import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
+import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:provider/provider.dart';
 
 import 'package:moj_prijevoz/common/constants.dart';
@@ -36,6 +38,24 @@ class MyFaresDriverPage extends StatefulWidget {
 class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
   @override
   Widget build(BuildContext context) {
+    return LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init);
+  }
+
+  Future<bool> _init() async {
+    if (widget.fareId == null) {
+      context.read<FareProvider>().clearData(
+        FareSearchObject(
+          page: 1,
+          pageSize: 5,
+          fareRole: ProfileType.driver,
+          fareId: widget.fareId,
+        ),
+      );
+    }
+    return true;
+  }
+
+  Widget _build(BuildContext context) {
     return PaginatedCards<FareSearchObject, FareResponse, FareProvider>(
       spacing: 8,
       searchObject: FareSearchObject(
@@ -200,7 +220,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
   }
 
   Future<void> _buildStartFareDialog(FareResponse? fare) async {
-    await showDialog(
+    bool? isDone = await showDialog(
       context: context,
       builder: (context) => ConfirmationDialog(
         content:
@@ -214,9 +234,19 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
                   "Započeli ste vožnju. Sada možete krenuti prema putnikovoj lokaciji.",
             ),
           );
+          if (!context.mounted) return null;
+          Navigator.pop(context, true);
         },
       ),
     );
+    if ((isDone ?? false) && mounted) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TrackPassengerPage(fare: fare!),
+        ),
+      );
+    }
   }
 
   Future<void> _buildCancelFareDialog(FareResponse? fare) async {

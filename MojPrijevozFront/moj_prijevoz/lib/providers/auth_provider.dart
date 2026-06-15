@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -8,6 +11,7 @@ import 'package:moj_prijevoz/providers/shared_prefs_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
+import 'package:moj_prijevoz/resources/requests/user/refresh_token_request.dart';
 import 'package:moj_prijevoz/resources/responses/user/access_token_response.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
@@ -20,6 +24,9 @@ class AuthProvider with ChangeNotifier {
   final NotificationProvider _notificationProvider =
       GetIt.I<NotificationProvider>();
   final _providerName = "auth";
+  bool _isRefreshing = false;
+  Completer<void>? _refreshCompleter;
+  static final _refreshTokenKey = "refresh_token";
 
   AuthProvider(AccessTokenPayload? payload) {
     if (payload != null) {
@@ -32,6 +39,7 @@ class AuthProvider with ChangeNotifier {
     final response = await _httpProvider
         .post<LoginRequest, AccessTokenResponse>(_providerName, request);
     await _setAccessToken(response.token);
+    await _setRefreshToken(response.refreshToken);
     return response;
   }
 
@@ -55,9 +63,48 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _setRefreshToken(String token) async {
+    await _sharedPrefsProvider.setString(_refreshTokenKey, token);
+    _accessTokenPayload = await getPayload();
+    notifyListeners();
+  }
+
+  Future refresh(RefreshTokenRequest request, Dio dio) async {
+    try {
+      _isRefreshing = true;
+      _refreshCompleter = Completer();
+      final response = await _httpProvider
+          .post<RefreshTokenRequest, AccessTokenResponse>(
+            "$_providerName/refresh",
+            request,
+          );
+      await _setAccessToken(response.token);
+      await _setRefreshToken(response.refreshToken);
+
+      _refreshCompleter!.complete();
+    } catch (e) {
+      logout();
+      _refreshCompleter!.completeError(e);
+      rethrow;
+    } finally {
+      _isRefreshing = false;
+      _refreshCompleter = null;
+    }
+  }
+
   static Future<String> getAccessToken() async {
     final token = await GetIt.I<SharedPrefsProvider>().getString(
       Constants.accessTokenKey,
+    );
+    if (token == null) {
+      throw Exception("User is not logged in!");
+    }
+    return token;
+  }
+
+  static Future<String> getRefreshToken() async {
+    final token = await GetIt.I<SharedPrefsProvider>().getString(
+      _refreshTokenKey,
     );
     if (token == null) {
       throw Exception("User is not logged in!");
