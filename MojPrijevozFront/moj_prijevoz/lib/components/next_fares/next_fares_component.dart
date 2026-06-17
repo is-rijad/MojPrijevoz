@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/pages/stripe_payment_page.dart';
 import 'package:moj_prijevoz/pages/track_driver_page.dart';
@@ -23,12 +24,32 @@ class NextFaresComponent extends StatefulWidget {
   State<StatefulWidget> createState() => _NextFaresComponentState();
 }
 
-class _NextFaresComponentState extends State<NextFaresComponent> {
-  late FareSearchObject _fareSearchObject;
+class _NextFaresComponentState extends State<NextFaresComponent>
+    with RouteAware {
+  final FareSearchObject _fareSearchObject = FareSearchObject(
+    pageSize: 4,
+    page: 1,
+    fareRole: ProfileType.passenger,
+  );
   final PageController _pageController = PageController(viewportFraction: 0.7);
   int _currentPage = 0;
-  final _pageSize = 4;
   late final int _userPassengerProfileId;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Constants.routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<FareProvider>().clearData(_fareSearchObject);
+      context.read<FareProvider>().fetchNextFares(_fareSearchObject);
+      _pageController.jumpToPage(0);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +58,12 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
 
   @override
   void dispose() {
+    Constants.routeObserver.unsubscribe(this);
     _pageController.dispose();
     super.dispose();
   }
 
   Future<bool> _init() async {
-    _fareSearchObject = FareSearchObject(
-      pageSize: _pageSize,
-      page: 1,
-      fareRole: ProfileType.passenger,
-    );
     _userPassengerProfileId = (await context.read<AuthProvider>().getProfileId(
       ProfileType.passenger,
     ))!;
@@ -129,9 +146,7 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
       message: _getBannerMessage(fare),
       location: BannerLocation.topEnd,
       child: MpCard(
-        onTap: () async => fare.status == FareStatus.accepted
-            ? await _buildPayementDialog(fare)
-            : await _trackUser(fare),
+        onTap: () async => await _onTap(fare),
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
           IconFieldWithText(
@@ -210,6 +225,14 @@ class _NextFaresComponentState extends State<NextFaresComponent> {
       return "Vi ste putnik";
     } else {
       return "Vi ste vozač";
+    }
+  }
+
+  Future<void> _onTap(FareResponse fare) async {
+    if (fare.status == FareStatus.accepted) {
+      await _buildPayementDialog(fare);
+    } else if (fare.status == FareStatus.inProgress) {
+      await _trackUser(fare);
     }
   }
 }

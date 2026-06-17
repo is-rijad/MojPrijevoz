@@ -7,18 +7,17 @@ namespace MojPrijevoz.Services.FileStorage;
 
 public class LocalFileStorageService : IFileStorageService {
     private readonly string _basePath;
-    private readonly string _baseUrl;
 
-    private static readonly string[] AllowedTypes = new[] { "image/jpeg", "image/png" };
+    private static readonly string[] AllowedTypes = new[] { "image/jpeg", "image/png", "image/jpg" };
     private static readonly Dictionary<string, byte[]> MagicBytes = new()
     {
+        ["image/jpg"] = new byte[] { 0xFF, 0xD8 },
         ["image/jpeg"] = new byte[] { 0xFF, 0xD8, 0xFF },
         ["image/png"] = new byte[] { 0x89, 0x50, 0x4E, 0x47 },
     };
 
-    public LocalFileStorageService(IWebHostEnvironment env, IConfiguration config) {
+    public LocalFileStorageService(IWebHostEnvironment env) {
         _basePath = Path.Combine(env.WebRootPath, "uploads");
-        _baseUrl = config["Storage:BaseUrl"] ?? "";
 
         Directory.CreateDirectory(_basePath);
     }
@@ -51,7 +50,6 @@ public class LocalFileStorageService : IFileStorageService {
     }
 
 
-    public string GetUrl(string fileName) => $"{_baseUrl}uploads/{fileName}";
 
     private static void ValidateSize(IFormFile file, long maxBytes = 5 * 1024 * 1024) {
         if (file.Length == 0) throw new ValidationException("File is empty.");
@@ -79,7 +77,7 @@ public class LocalFileStorageService : IFileStorageService {
     {
         "image/jpeg" => ".jpg",
         "image/png" => ".png",
-        "image/webp" => ".webp",
+        "image/jpg" => ".jpg",
         _ => throw new InvalidOperationException("Unhandled type.")
     };
 }

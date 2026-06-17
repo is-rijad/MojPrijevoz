@@ -10,7 +10,7 @@ public class UserFcmToken : IHasTimestamps {
     public string Token { get; set; } = null!;
     public string Platform { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
     public User? User { get; set; }
 }
 

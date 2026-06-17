@@ -74,6 +74,7 @@ class AppOverlay extends StatelessWidget {
       ],
       scaffoldMessengerKey: Constants.messengerKey,
       navigatorKey: Constants.navigatorKey,
+      navigatorObservers: [Constants.routeObserver],
     );
   }
 

@@ -6,7 +6,7 @@ namespace MojPrijevoz.Database;
 
 
 public class User : Account, IEntityHasPicture {
-    public string? Picture { get; set; }
+    public string? Picture { get; set; } 
 
     public int CityId { get; set; }
 

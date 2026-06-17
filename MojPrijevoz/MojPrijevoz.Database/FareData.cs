@@ -19,7 +19,7 @@ public class FareData : IHasCreatedAtTimestamp {
     public int Duration { get; set; }
     public DateTime FareDateTime { get; set; }
     public City? OriginCity { get; set; }
-    public Fare? Fare { get; set; }
+    public ICollection<Fare>? Fares { get; set; }
     public ICollection<StopPoint>? StopPoints { get; set; }
 
     public DateTime CreatedAt { get; set; }

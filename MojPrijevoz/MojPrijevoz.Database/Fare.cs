@@ -35,7 +35,7 @@ public class Fare : IHasTimestamps {
 
     public UserProfile? Passenger { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
@@ -46,8 +46,8 @@ public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
         entity.Property(e => e.Status).IsRequired(true);
 
         entity.HasOne<FareData>(d => d.FareData)
-            .WithOne(p => p.Fare)
-            .HasForeignKey<Fare>(e => e.FareDataId)
+            .WithMany(p => p.Fares)
+            .HasForeignKey(e => e.FareDataId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 
         entity.HasOne(d => d.Driver)

@@ -76,38 +76,38 @@ builder.Services.AddScoped<AuthorizationService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
-builder.Services.AddTransient<TokenManager>();
-builder.Services.AddTransient<CityService>();
-builder.Services.AddTransient<AdminCityService>();
-builder.Services.AddTransient<UserVehicleService>();
-builder.Services.AddTransient<VehicleService>();
-builder.Services.AddTransient<DriversDiscountService>();
-builder.Services.AddTransient<UserProfileService>();
-builder.Services.AddTransient<IFareOfferService, FareOfferService>();
-builder.Services.AddTransient<IFareService, FareService>();
-builder.Services.AddTransient<IFareDataService, FareDataService>();
-builder.Services.AddTransient<IStopPointService, StopPointService>();
-builder.Services.AddTransient<ISearchFareService, SearchFareService>();
-builder.Services.AddTransient<IOpenRouteService, OpenRouteService>();
-builder.Services.AddTransient<IOpenRouteService, OpenRouteService>();
-builder.Services.AddTransient<ITransactionService, TransactionService>();
-builder.Services.AddTransient<IRatingService, RatingService>();
-builder.Services.AddTransient<IPaymentService<StripeHandleRequest, StripeHandleResponse>, StripeService>();
+builder.Services.AddScoped<TokenManager>();
+builder.Services.AddScoped<CityService>();
+builder.Services.AddScoped<AdminCityService>();
+builder.Services.AddScoped<UserVehicleService>();
+builder.Services.AddScoped<VehicleService>();
+builder.Services.AddScoped<DriversDiscountService>();
+builder.Services.AddScoped<UserProfileService>();
+builder.Services.AddScoped<IFareOfferService, FareOfferService>();
+builder.Services.AddScoped<IFareService, FareService>();
+builder.Services.AddScoped<IFareDataService, FareDataService>();
+builder.Services.AddScoped<IStopPointService, StopPointService>();
+builder.Services.AddScoped<ISearchFareService, SearchFareService>();
+builder.Services.AddScoped<IOpenRouteService, OpenRouteService>();
+builder.Services.AddScoped<IOpenRouteService, OpenRouteService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<IPaymentService<StripeHandleRequest, StripeHandleResponse>, StripeService>();
 
 
-builder.Services.AddTransient<BaseFareOfferState>();
-builder.Services.AddTransient<InitialFareOfferState>();
-builder.Services.AddTransient<InNegotiationFareOfferState>();
-builder.Services.AddTransient<AcceptedFareOfferState>();
-builder.Services.AddTransient<PayedFareOfferState>();
+builder.Services.AddScoped<BaseFareOfferState>();
+builder.Services.AddScoped<InitialFareOfferState>();
+builder.Services.AddScoped<InNegotiationFareOfferState>();
+builder.Services.AddScoped<AcceptedFareOfferState>();
+builder.Services.AddScoped<PayedFareOfferState>();
 
 
-builder.Services.AddTransient<BaseFareState>();
-builder.Services.AddTransient<InitialFareState>();
-builder.Services.AddTransient<InNegotiationFareState>();
-builder.Services.AddTransient<AcceptedFareState>();
-builder.Services.AddTransient<PayedFareState>();
-builder.Services.AddTransient<InProgressFareState>();
+builder.Services.AddScoped<BaseFareState>();
+builder.Services.AddScoped<InitialFareState>();
+builder.Services.AddScoped<InNegotiationFareState>();
+builder.Services.AddScoped<AcceptedFareState>();
+builder.Services.AddScoped<PayedFareState>();
+builder.Services.AddScoped<InProgressFareState>();
 
 
 builder.Services.AddSingleton<ConnectionTracker>();

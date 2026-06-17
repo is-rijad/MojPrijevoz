@@ -11,5 +11,6 @@ public interface
     public Task<TResponse> InsertWithTransactionAsync(TInsertRequest request);
     public Task<TResponse> InsertAsync(TInsertRequest request);
     public Task<TResponse> UpdateAsync(int id, TUpdateRequest request);
+    public Task<TResponse> UpdateWithTransactionAsync(int id, TUpdateRequest request);
     public Task DeleteAsync(int id);
 }

@@ -31,7 +31,7 @@ public class FareOffer : IHasTimestamps {
     public Fare? Fare { get; set; }
     public FareOffer? LastOffer { get; set; }
     public float TotalPrice => Price + (AdditionalPrice ?? 0);
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer> {

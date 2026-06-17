@@ -28,7 +28,7 @@ public class ExceptionFilter : ExceptionFilterAttribute {
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
         }
         else {
-            context.ModelState.AddModelError("serverError", "Something went wrong!");
+            context.ModelState.AddModelError("serverError", "Neočekivana greška!");
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         }
 

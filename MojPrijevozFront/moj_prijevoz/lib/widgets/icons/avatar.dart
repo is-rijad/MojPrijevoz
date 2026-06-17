@@ -57,9 +57,7 @@ class _AvatarState extends State<Avatar> {
       }
     }
     return user.picture != null
-        ? NetworkImage(
-            "${Environment.apiUrl.split("api")[0]}uploads/${user.picture!}",
-          )
+        ? NetworkImage(user.picture!)
         : null; // TODO: fix image
   }
 }

@@ -1,6 +1,8 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using MojPrijevoz.Database;
+using MojPrijevoz.Database.Interfaces;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Dtos.BaseService;
 using MojPrijevoz.Model.Exceptions;
@@ -69,6 +71,12 @@ public abstract class
     }
 
     protected static T MapToResponseModel<T>(TEntity entity, IMapper mapper) {
-        return mapper.Map<T>(entity);
+        var mappedEntity = mapper.Map<T>(entity);
+        if (mappedEntity is IEntityHasPicture pictureEntity)
+        {
+            pictureEntity.Picture = pictureEntity.GetPicture();
+        }
+
+        return mappedEntity;
     }
 }

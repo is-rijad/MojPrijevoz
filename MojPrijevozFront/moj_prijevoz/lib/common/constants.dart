@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 abstract class Constants {
   static final usernameRegex = RegExp(r'^\S+$');
+  static final RouteObserver routeObserver = RouteObserver<ModalRoute>();
   static final GlobalKey<ScaffoldMessengerState> messengerKey =
       GlobalKey<ScaffoldMessengerState>();
   static final GlobalKey<NavigatorState> navigatorKey =

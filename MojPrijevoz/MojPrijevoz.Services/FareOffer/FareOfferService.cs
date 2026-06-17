@@ -87,10 +87,11 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         var passenger = await _dbContext.UserProfiles.Where(up => up.Id == passengerId).Include(it => it.User).FirstAsync();
         var startLocation = await _dbContext.Cities.Where(c => c.Id == request.OriginCityId).FirstAsync();
 
-        EntityEntry<Database.FareOffer>? entityEntry = null;
+        FareResponse? firstFare = null;
         foreach (var driversPrice in request.DriversPrices) {
             var fareRequest = MapToFareInsertRequest(passengerId, fareData.Id, driversPrice, request);
             var fare = await _fareService.InsertAsync(fareRequest);
+            firstFare ??= fare;
 
             request.Price = driversPrice.Price;
             request.AdditionalPrice = driversPrice.AdditionalPrice;
@@ -98,9 +99,9 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             request.FareDataId = fareData.Id;
             request.FareId = fare.Id;
 
-            entityEntry ??= await _dbContext.FareOffers.AddAsync(MapToInsertEntity(request));
+            var fareOffer = await _dbContext.FareOffers.AddAsync(MapToInsertEntity(request));
             var baseStateMachine = _baseFareOfferState.GetState(null);
-            baseStateMachine.Create(entityEntry.Entity);
+            baseStateMachine.Create(fareOffer.Entity);
 
 
             await _notificationService.SendToUserAsync(new SendToUserDto()
@@ -139,10 +140,12 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             }
         });
 
-        return await _fareService.GetByIdAsync(entityEntry!.Entity!.Fare!.Id);
+        return await _fareService.GetByIdAsync(firstFare!.Id);
     }
 
     public override async Task<FareResponse> UpdateWithTransactionAsync(int id, FareOfferUpdateRequest request) {
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
         var entity = await _dbContext.FareOffers
             .Include(it => it!.Fare)
             .ThenInclude(it => it!.FareData)
@@ -159,6 +162,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         state = _baseFareOfferState.GetState((short)FareOfferStatus.WaitingForResponse);
         state.Update(id, newEntity);
         await _dbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
         await SendUpdateNotification(newEntity, entity);
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
@@ -180,9 +184,9 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             case FareOfferStatus.Accepted:
                 await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
-                    UserId = entity.Side == ProfileType.Passenger ? passenger.UserId : driver.UserId,
+                    UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
                     Title = "Prihvaćena ponuda",
-                    Body = $"Korisnik {(entity.Side == ProfileType.Passenger ? passenger.User!.FirstName : driver.User!.FirstName)} je prihvatio Vašu ponudu",
+                    Body = $"Korisnik {(entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName)} je prihvatio Vašu ponudu",
                     Data = new Dictionary<string, string>()
                     {
                         ["FareId"] = entity.FareId.ToString(),
@@ -209,9 +213,9 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             case FareOfferStatus.Rejected:
                 await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
-                    UserId = entity.Side == ProfileType.Passenger ? passenger.UserId : driver.UserId,
+                    UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
                     Title = "Odbijena ponuda",
-                    Body = $"Korisnik {(entity.Side == ProfileType.Passenger ? passenger.User!.FirstName : driver.User!.FirstName)} je odbio ponudu u iznosu od {entity.TotalPrice}KM",
+                    Body = $"Korisnik {(entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName)} je odbio ponudu u iznosu od {entity.TotalPrice}KM",
                     Data = new Dictionary<string, string>()
                     {
                         ["FareId"] = entity.FareId.ToString(),
@@ -223,7 +227,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             case FareOfferStatus.Expired:
                 await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
-                    UserId = entity.Side == ProfileType.Passenger ? passenger.UserId : driver.UserId,
+                    UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
                     Title = "Ponuda istekla",
                     Body = $"Ponuda u iznosu od {entity.TotalPrice}KM ({entity.Fare!.FareData!.OriginCity!.Name} - {entity.Fare!.FareData!.DestinationName.Split(",").First()}) je istekla",
                     Data = new Dictionary<string, string>()
@@ -265,7 +269,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             case FareOfferStatus.Cancelled:
                 await _notificationService.SendToUserAsync(new SendToUserDto()
                 {
-                    UserId = entity.Side == ProfileType.Passenger ? passenger.UserId : driver.UserId,
+                    UserId = entity.Side == ProfileType.Passenger ? driver.UserId : passenger.UserId,
                     Title = "Ponuda otkazana",
                     Body = $"Ponuda u iznosu od {entity.TotalPrice}KM ({entity.Fare!.FareData!.OriginCity!.Name} - {entity.Fare!.FareData!.DestinationName.Split(",").First()}) je otkazana",
                     Data = new Dictionary<string, string>()
@@ -452,7 +456,6 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         foreach (var fare in fareOffersToExpire) {
             await ExpireOfferAsync(fare.Id);
         }
-        await _dbContext.SaveChangesAsync();
     }
 
 

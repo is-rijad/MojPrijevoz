@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MojPrijevoz.Services.City;
 using MojPrijevoz.Services.FareOffer;
 
 namespace MojPrijevoz.Services.Fare;

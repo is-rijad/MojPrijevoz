@@ -5,5 +5,5 @@ public interface IHasCreatedAtTimestamp {
 }
 
 public interface IHasTimestamps : IHasCreatedAtTimestamp {
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }

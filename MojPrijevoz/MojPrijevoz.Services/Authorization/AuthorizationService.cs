@@ -31,10 +31,9 @@ public class AuthorizationService {
             throw new BadRequestException("Vaš račun je blokiran. Kontaktirajte podršku za više informacija.");
 
         var token = await _tokenManager.GenerateToken(user);
-        var refreshToken = _tokenManager.GenerateRefreshToken(user);
+        var refreshToken = await _tokenManager.GenerateRefreshToken(user);
 
-        HashRefreshToken(refreshToken, out var hash, out var salt);
-        await ChangeOrAddRefreshToken(new RefreshToken() { TokenHash = hash, TokenSalt = salt, User = user });
+        await ChangeOrAddRefreshToken(refreshToken, user.Id);
 
         return new AccessTokenResponse
         {
@@ -43,15 +42,17 @@ public class AuthorizationService {
         };
     }
 
-    private async Task ChangeOrAddRefreshToken(RefreshToken refreshToken) {
-        var refreshTokenEntity = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserId == refreshToken.UserId);
+    private async Task ChangeOrAddRefreshToken(string refreshToken, int userId) {
+
+        var refreshTokenEntity = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserId == userId);
+        HashRefreshToken(refreshToken, out var hash, out var salt);
+
         if (refreshTokenEntity == null) {
-            await _dbContext.RefreshTokens.AddAsync(refreshToken);
+            await _dbContext.RefreshTokens.AddAsync(new RefreshToken() {TokenHash = hash, UserId = userId, TokenSalt = salt});
         }
         else {
-            refreshToken.TokenHash = refreshTokenEntity.TokenHash;
-            refreshToken.TokenSalt = refreshTokenEntity.TokenSalt;
-            _dbContext.Update(refreshToken);
+            refreshTokenEntity.TokenHash = hash;
+            refreshTokenEntity.TokenSalt = salt;
         }
         await _dbContext.SaveChangesAsync();
 
@@ -71,13 +72,9 @@ public class AuthorizationService {
         }
 
         var token = await _tokenManager.GenerateToken(user);
-        var refreshToken = _tokenManager.GenerateRefreshToken(user);
+        var refreshToken = await _tokenManager.GenerateRefreshToken(user);
 
-        HashRefreshToken(refreshToken, out var tokenHash, out var tokenSalt);
-        refreshTokenEntity.TokenHash = tokenHash;
-        refreshTokenEntity.TokenSalt = tokenSalt;
-        _dbContext.RefreshTokens.Update(refreshTokenEntity);
-        await _dbContext.SaveChangesAsync();
+        await ChangeOrAddRefreshToken(refreshToken, userId);
 
         return new AccessTokenResponse
         {
@@ -112,10 +109,14 @@ public class AuthorizationService {
             u.Id == userId);
 
         var token = await _tokenManager.GenerateToken(user);
+        var refreshToken = await _tokenManager.GenerateRefreshToken(user);
+
+        await ChangeOrAddRefreshToken(refreshToken, userId);
 
         return new AccessTokenResponse
         {
-            Token = token
+            Token = token,
+            RefreshToken = refreshToken
         };
     }
 

@@ -99,6 +99,13 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return MapToResponseModel<FareResponse>(entity, _mapper);
     }
 
+    private async Task IncrementCompletedFares(Database.Fare fare)
+    {
+        fare.Driver!.NumberOfFares++;
+        fare.Passenger!.NumberOfFares++;
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task<FareResponse> StartAsync(int id) {
         var entity = await _dbContext.Fares.FindAsync(id);
         if (entity == null) {
@@ -150,10 +157,12 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
             .ThenInclude(it => it!.User).ToListAsync();
         foreach (var fare in faresToComplete)
         {
+            await using  var transaction = await _dbContext.Database.BeginTransactionAsync();
             await CompleteAsync(fare.Id);
+            await IncrementCompletedFares(fare);
             await SendCompletedNotificationAsync(fare);
+            await transaction.CommitAsync();
         }
-        await _dbContext.SaveChangesAsync();
     }
 
     private async Task SendCompletedNotificationAsync(Database.Fare fare)

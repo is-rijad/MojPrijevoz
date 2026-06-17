@@ -8,6 +8,7 @@ using MojPrijevoz.Model.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Services.Authorization;
 
@@ -55,7 +56,7 @@ public class TokenManager {
             new(AccountStatusClaimType, tokenDto.Status.ToString())
         };
         if (tokenDto.Role.HasValue) claims.Add(new Claim(ClaimTypes.Role, tokenDto.Role.Value.ToString()));
-        if (tokenDto.Picture != null) claims.Add(new Claim(PictureClaimType, tokenDto.Picture));
+        if (tokenDto.Picture != null) claims.Add(new Claim(PictureClaimType, (user as IEntityHasPicture).GetPicture()!));
         if (tokenDto.DriverProfileId.HasValue)
             claims.Add(new Claim(DriverProfileIdClaimType, tokenDto.DriverProfileId!.Value.ToString()));
 
@@ -100,8 +101,8 @@ public class TokenManager {
         };
     }
 
-    public string GenerateRefreshToken(Database.User user) {
-        var tokenDto = GetTokenDto(user);
+    public async Task<string> GenerateRefreshToken(Database.User user) {
+        var tokenDto = await GetTokenDto(user);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

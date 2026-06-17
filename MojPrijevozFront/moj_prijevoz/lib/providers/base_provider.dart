@@ -43,7 +43,6 @@ abstract class BaseGetProvider<
     searchResult.items.clear();
     searchResult.hasMore = true;
     searchObject.page = 1;
-    notifyListeners();
   }
 
   Future<void> fetchData(TSearchObject searchObject) async {
@@ -136,7 +135,7 @@ abstract class BaseProvider<
       searchResult.items.firstWhere((i) => i.id == entity.id),
     );
     if (index == -1) {
-      throw Exception("Item does not exist");
+      return;
     }
     searchResult.items[index] = entity;
     notifyListeners();
@@ -157,7 +156,7 @@ abstract class BaseProvider<
       searchResult.items.firstWhere((i) => i.id == id),
     );
     if (index == -1) {
-      throw Exception("Item does not exist");
+      return;
     }
     searchResult.items.removeAt(index);
   }

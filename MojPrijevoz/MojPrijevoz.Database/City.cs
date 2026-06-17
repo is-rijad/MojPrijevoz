@@ -18,7 +18,7 @@ public class City : IHasTimestamps {
 
     public ICollection<User>? Users { get; set; }
 
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 
     public DateTime CreatedAt { get; set; }
 }

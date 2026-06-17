@@ -34,35 +34,57 @@ class MyFaresPassengerPage extends StatefulWidget {
   State<StatefulWidget> createState() => _MyFaresPassengerPageState();
 }
 
-class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
+class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
+    with RouteAware {
+  late final FareSearchObject _fareSearchObject;
   @override
   Widget build(BuildContext context) {
     return LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init);
   }
 
-  Future<bool> _init() async {
+  @override
+  void initState() {
+    _fareSearchObject = FareSearchObject(
+      page: 1,
+      pageSize: 5,
+      fareRole: ProfileType.passenger,
+    );
     if (widget.fareId == null) {
-      context.read<FareProvider>().clearData(
-        FareSearchObject(
-          page: 1,
-          pageSize: 5,
-          fareRole: ProfileType.passenger,
-          fareId: widget.fareId,
-        ),
-      );
+      _fareSearchObject.fareId = widget.fareId;
     }
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Constants.routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  Future<bool> _init() async {
+    context.read<FareProvider>().clearData(_fareSearchObject);
     return true;
+  }
+
+  @override
+  void didPopNext() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<FareProvider>().clearData(_fareSearchObject);
+      context.read<FareProvider>().fetchData(_fareSearchObject);
+    });
+  }
+
+  @override
+  void dispose() {
+    Constants.routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   Widget _build(BuildContext context) {
     return PaginatedCards<FareSearchObject, FareResponse, FareProvider>(
       spacing: 8,
-      searchObject: FareSearchObject(
-        page: 1,
-        pageSize: 5,
-        fareRole: ProfileType.passenger,
-        fareId: widget.fareId,
-      ),
+      searchObject: _fareSearchObject,
       mainAxisAlignment: MainAxisAlignment.center,
       fallbackText: "Nemate vožnji kao putnik!",
       children: (i) => [
@@ -225,7 +247,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
   }
 
   Future<void> _buildCancelFareDialog(FareResponse? fare) async {
-    final isDone = await showDialog<bool?>(
+    await showDialog<bool?>(
       context: context,
       builder: (context) => ConfirmationDialog(
         content: "Da li ste sigurni da želite otkazati vožnju?",
@@ -243,9 +265,6 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage> {
         },
       ),
     );
-    if ((isDone ?? false) && mounted) {
-      Navigator.pop(context, true);
-    }
   }
 
   Future<void> _showUserProfile(UserProfileResponse userProfile) async {

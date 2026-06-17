@@ -46,9 +46,9 @@ class FareProvider
 
   @override
   void clearData(FareSearchObject searchObject) {
-    super.clearData(searchObject);
     nextFares.items.clear();
     fareStartTimers.clear();
+    super.clearData(searchObject);
   }
 
   Future<FareResponse> start(int id) async {
@@ -75,8 +75,10 @@ class FareProvider
   }
 
   void updateNextFareLocally(int id, FareStatus status) {
-    nextFares.items.where((it) => it.lastFareOffer!.id == id).first.status =
-        status;
-    notifyListeners();
+    if (nextFares.items.any((it) => it.lastFareOffer!.id == id)) {
+      nextFares.items.where((it) => it.lastFareOffer!.id == id).first.status =
+          status;
+      notifyListeners();
+    }
   }
 }

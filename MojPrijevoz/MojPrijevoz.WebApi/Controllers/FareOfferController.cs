@@ -20,7 +20,7 @@ public class FareOfferController : ControllerBase {
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] FareOfferUpdateRequest request) {
-        return Ok(await _fareOfferService.UpdateAsync(id, request));
+        return Ok(await _fareOfferService.UpdateWithTransactionAsync(id, request));
     }
 
 

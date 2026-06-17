@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using MojPrijevoz.Model.Dtos.FareLocation;
 using MojPrijevoz.Model.Dtos.Notifications;
@@ -7,6 +8,7 @@ using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.SignalR.Hubs;
 
+[Authorize]
 public class SignalRHub(
     IMemoryCache cache,
     ConnectionTracker tracker,

@@ -99,7 +99,6 @@ class _MyProfilState extends State<MyProfile> {
     _oldPasswordController.text = "";
     _passwordController.text = "";
     _passwordAgainController.text = "";
-    _userUpdateRequest.picture = null;
   }
 
   @override
@@ -115,7 +114,7 @@ class _MyProfilState extends State<MyProfile> {
       body: FormWrapper(
         paddingFactor: 0,
         screenWidthFactor: 0.8,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         formKey: _formKey,
         children: [
           Padding(

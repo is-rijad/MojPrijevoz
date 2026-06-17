@@ -3,6 +3,7 @@ import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/pages/my_fares/my_fares_driver_page.dart';
 import 'package:moj_prijevoz/pages/my_fares/my_fares_passenger_page.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
@@ -58,10 +59,18 @@ class _MyFaresPageState extends State<MyFaresPage> {
               height: context.screenHeight * 0.7,
               child: TabBarView(
                 children: [
-                  MyFaresPassengerPage(
-                    fareId: int.tryParse(widget.fareId ?? ""),
+                  ChangeNotifierProvider(
+                    create: (_) => FareProvider(),
+                    child: MyFaresPassengerPage(
+                      fareId: int.tryParse(widget.fareId ?? ""),
+                    ),
                   ),
-                  MyFaresDriverPage(fareId: int.tryParse(widget.fareId ?? "")),
+                  ChangeNotifierProvider(
+                    create: (_) => FareProvider(),
+                    child: MyFaresDriverPage(
+                      fareId: int.tryParse(widget.fareId ?? ""),
+                    ),
+                  ),
                 ],
               ),
             ),

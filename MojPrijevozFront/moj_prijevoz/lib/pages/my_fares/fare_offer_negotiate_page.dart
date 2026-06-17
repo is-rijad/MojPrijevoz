@@ -384,8 +384,9 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
   }
 
   Future<bool?> _onAcceptOffer() async {
+    bool? isDone;
     if (_isEditable) {
-      return await showDialog<bool?>(
+      isDone = await showDialog<bool?>(
         context: context,
         builder: (context) {
           return ConfirmationDialog(
@@ -406,7 +407,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
         },
       );
     } else {
-      return await showDialog<bool?>(
+      isDone = await showDialog<bool?>(
         context: context,
         builder: (context) {
           return ConfirmationDialog(
@@ -426,6 +427,9 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
           );
         },
       );
+    }
+    if (mounted && (isDone ?? false)) {
+      Navigator.pop(context);
     }
   }
 }

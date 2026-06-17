@@ -38,6 +38,7 @@ class _PageWrapperState extends State<PageWrapper> {
   );
   final _notificationScrollController = ScrollController();
   bool _isLoading = false;
+  bool _isShowingDropdown = false;
 
   late AccessTokenPayload _accessTokenPayload;
 
@@ -131,6 +132,8 @@ class _PageWrapperState extends State<PageWrapper> {
   }
 
   Future<void> _showDropdown(BuildContext context) async {
+    if (_isShowingDropdown) return;
+    _isShowingDropdown = true;
     final RenderBox renderBox =
         _avatarKey.currentContext!.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
@@ -170,6 +173,8 @@ class _PageWrapperState extends State<PageWrapper> {
         ),
       ],
     );
+    _isShowingDropdown = false;
+
     switch (_uiProvider.profileDropdownAction) {
       case ProfileDropdownAction.profile:
         if (!context.mounted) return;
@@ -193,12 +198,14 @@ class _PageWrapperState extends State<PageWrapper> {
         );
         break;
       case ProfileDropdownAction.logout:
+        _uiProvider.startLoading();
         setState(() {
           _uiProvider.profileDropdownAction = null;
         });
         if (!context.mounted) return;
         await context.read<AuthProvider>().logout();
         if (!context.mounted) return;
+        _uiProvider.stopLoading();
         await Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),

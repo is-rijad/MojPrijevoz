@@ -35,24 +35,50 @@ class MyFaresDriverPage extends StatefulWidget {
   State<StatefulWidget> createState() => _MyFaresDriverPageState();
 }
 
-class _MyFaresDriverPageState extends State<MyFaresDriverPage> {
+class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
+  late final FareSearchObject _fareSearchObject;
   @override
   Widget build(BuildContext context) {
     return LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init);
   }
 
-  Future<bool> _init() async {
-    if (widget.fareId == null) {
-      context.read<FareProvider>().clearData(
-        FareSearchObject(
-          page: 1,
-          pageSize: 5,
-          fareRole: ProfileType.driver,
-          fareId: widget.fareId,
-        ),
-      );
+  @override
+  void initState() {
+    _fareSearchObject = FareSearchObject(
+      page: 1,
+      pageSize: 5,
+      fareRole: ProfileType.driver,
+    );
+    if (widget.fareId != null) {
+      _fareSearchObject.fareId = widget.fareId;
     }
+    super.initState();
+  }
+
+  Future<bool> _init() async {
+    context.read<FareProvider>().clearData(_fareSearchObject);
     return true;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Constants.routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<FareProvider>().clearData(_fareSearchObject);
+      context.read<FareProvider>().fetchData(_fareSearchObject);
+    });
+  }
+
+  @override
+  void dispose() {
+    Constants.routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   Widget _build(BuildContext context) {

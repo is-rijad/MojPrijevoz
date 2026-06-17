@@ -74,7 +74,11 @@ public class MojPrijevozDbContext : DbContext {
             e is { Entity: IHasCreatedAtTimestamp, State: EntityState.Added } or { Entity: IHasTimestamps, State: EntityState.Modified });
         foreach (var entityEntry in entries)
             if (entityEntry.State == EntityState.Added)
+            {
                 ((IHasCreatedAtTimestamp)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
+                if (entityEntry.Entity is IHasTimestamps entity)
+                    entity.UpdatedAt = DateTime.UtcNow;
+            }
             else if (entityEntry.State == EntityState.Modified)
                 ((IHasTimestamps)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
     }
