@@ -6,6 +6,9 @@ class PasswordFormField extends StatefulWidget {
   final bool required;
 
   final InputDecorationWithIcon? decoration;
+  final TextInputAction? textInputAction;
+  final FocusNode? focusNode;
+  final void Function(String)? onFieldSubmitted;
   final void Function(String?)? onSaved;
   final TextEditingController? controller;
   @override
@@ -16,6 +19,9 @@ class PasswordFormField extends StatefulWidget {
     this.onSaved,
     this.decoration,
     this.controller,
+    this.textInputAction,
+    this.onFieldSubmitted,
+    this.focusNode,
     this.required = true,
   });
 }
@@ -26,6 +32,9 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
   Widget build(BuildContext context) {
     return TextFormField(
       obscureText: _isObscured,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      textInputAction: widget.textInputAction,
+      focusNode: widget.focusNode,
       decoration:
           InputDecorationWithIcon(
             iconData: widget.decoration?.iconData,

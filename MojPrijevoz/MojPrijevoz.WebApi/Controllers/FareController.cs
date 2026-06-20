@@ -55,7 +55,9 @@ public class FareController : ControllerBase {
         var senderId = _authorizationService.GetUserId();
         var connectionId = _tracker.Get(dto.UserId.ToString());
 
-        if (connectionId != null) {
+        if (connectionId != null)
+        {
+            dto.IsAccurate = true;
             _cache.Set(SignalRHub.GetCacheKey(senderId.ToString()), dto, SignalRHub.CacheTtl);
             await _fareLocationHubContext.Clients.Client(connectionId)
                 .SendAsync("ReceiveLocation", dto);

@@ -14,4 +14,6 @@ public class SendToUserDto {
     public static readonly string CompletedFareType = "COMPLETED_FARE";
     public static readonly string CancelledFareOfferType = "CANCELLED_FARE_OFFER";
     public static readonly string NewRatingType = "NEW_RATING";
+    public static readonly string StartedFareType = "STARTED_FARE";
+    public static readonly string ProximityNotificationType = "PROXIMITY_NOTIFICATION";
 }

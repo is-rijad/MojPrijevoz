@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/create_user_request.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
@@ -83,6 +84,17 @@ class RegisterPageState extends State<RegisterPage> {
           hintText: "mujo.mujic",
         ),
         onSaved: (value) => _request.username = value!,
+      ),
+      InternationalPhoneNumberInput(
+        countries: ["BA"],
+        inputDecoration: InputDecorationWithIcon(
+          iconData: Icons.phone,
+          iconHint: "Broj mobitela",
+          hintText: "61123456",
+        ),
+        hintText: null,
+        errorMessage: "Broj mobitela nije validan",
+        onInputChanged: (value) => _request.phoneNumber = value.phoneNumber,
       ),
     ];
   }

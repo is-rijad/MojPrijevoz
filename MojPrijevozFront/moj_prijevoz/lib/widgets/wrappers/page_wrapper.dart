@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/pages/login.dart';
@@ -98,7 +99,7 @@ class _PageWrapperState extends State<PageWrapper> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      leading: Navigator.canPop(context)
+      leading: Constants.navigatorKey.currentState?.canPop() ?? false
           ? IconButton(
               icon: Icon(Icons.arrow_back_ios_new_rounded),
               onPressed: () => Navigator.pop(context),
@@ -232,9 +233,16 @@ class _PageWrapperState extends State<PageWrapper> {
                 provider.searchResult.items.length + 1 + (_isLoading ? 1 : 0),
             itemBuilder: (BuildContext context, int index) {
               if (index == 0) {
-                return DrawerHeader(
-                  decoration: BoxDecoration(color: context.primaryColor),
-                  child: TextTitleLarge('Notifikacije'),
+                return SizedBox(
+                  height: 60,
+                  child: DrawerHeader(
+                    padding: const EdgeInsetsGeometry.directional(
+                      top: 12,
+                      start: 12,
+                    ),
+                    decoration: BoxDecoration(color: context.primaryColor),
+                    child: TextTitleLarge('Notifikacije'),
+                  ),
                 );
               }
               if (index == provider.searchResult.items.length && _isLoading) {

@@ -12,6 +12,7 @@ UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
   lastName: json['lastName'] as String,
   email: json['email'] as String,
   username: json['username'] as String,
+  phoneNumber: json['phoneNumber'] as String,
   cityId: (json['cityId'] as num).toInt(),
   status: $enumDecode(_$AccountStatusEnumMap, json['status']),
 )..picture = json['picture'] as String?;
@@ -23,6 +24,7 @@ Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
       'lastName': instance.lastName,
       'email': instance.email,
       'username': instance.username,
+      'phoneNumber': instance.phoneNumber,
       'cityId': instance.cityId,
       'picture': instance.picture,
       'status': _$AccountStatusEnumMap[instance.status]!,

@@ -432,11 +432,11 @@ class _SearchFarePageState extends State<SearchFarePage> {
       ),
       onDateTimeChanged: (dateTime) {
         setState(() {
-          _request.fareDateTime = dateTime;
+          _request.fareDateTime = dateTime.toUtc();
           _request.isChanged = true;
         });
       },
-      onSaved: (newValue) => _request.fareDateTime = newValue,
+      onSaved: (newValue) => _request.fareDateTime = newValue!.toUtc(),
       validator: (value) {
         if (value == null) {
           return "Datum i vrijeme su obavezni!";
@@ -685,7 +685,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
     return await showDialog(
       context: context,
       builder: (context) {
-        return SearchFareNegotiateFialog(
+        return SearchFareNegotiateDialog(
           fareDriver: fareDriver!,
           onSavedPrice: (value) => setState(() {
             fareDriver.price = double.parse(value!);
@@ -747,7 +747,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
             IconFieldWithText(
               iconHint: "Vrijeme dolaska",
               iconData: Icons.watch_later,
-              text: DateFormat.Hm().format(
+              text: context.getLocalizedTime(
                 _searchFareSearchObject.fareDateTime!.add(
                   Duration(minutes: _searchFareSearchObject.duration!.toInt()),
                 ),

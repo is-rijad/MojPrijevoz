@@ -1,6 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/dio_client.dart';
+import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/refresh_token_request.dart';
 
 class AuthInterceptor extends Interceptor {
@@ -28,7 +33,11 @@ class AuthInterceptor extends Interceptor {
         final response = await DioClient.dio.fetch(request);
         return handler.resolve(response);
       } catch (_) {
-        return handler.reject(err);
+        GetIt.I<UIProvider>().stopLoading();
+        await Constants.navigatorKey.currentState?.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (route) => false,
+        );
       }
     }
     handler.reject(err);

@@ -71,12 +71,6 @@ public abstract class
     }
 
     protected static T MapToResponseModel<T>(TEntity entity, IMapper mapper) {
-        var mappedEntity = mapper.Map<T>(entity);
-        if (mappedEntity is IEntityHasPicture pictureEntity)
-        {
-            pictureEntity.Picture = pictureEntity.GetPicture();
-        }
-
-        return mappedEntity;
+    return mapper.Map<T>(entity);
     }
 }

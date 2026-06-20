@@ -12,6 +12,7 @@ FareLocationDto _$FareLocationDtoFromJson(Map<String, dynamic> json) =>
       lat: json['lat'] as String,
       lon: json['lon'] as String,
       dateTime: DateTime.parse(json['dateTime'] as String),
+      isAccurate: json['isAccurate'] as bool,
     );
 
 Map<String, dynamic> _$FareLocationDtoToJson(FareLocationDto instance) =>
@@ -20,4 +21,5 @@ Map<String, dynamic> _$FareLocationDtoToJson(FareLocationDto instance) =>
       'lat': instance.lat,
       'lon': instance.lon,
       'dateTime': instance.dateTime.toIso8601String(),
+      'isAccurate': instance.isAccurate,
     };

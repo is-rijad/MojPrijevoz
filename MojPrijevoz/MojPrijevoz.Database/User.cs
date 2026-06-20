@@ -9,6 +9,7 @@ public class User : Account, IEntityHasPicture {
     public string? Picture { get; set; } 
 
     public int CityId { get; set; }
+    public required string PhoneNumber { get; set; }
 
     public virtual City? City { get; set; }
 
@@ -24,6 +25,10 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User> {
         entity.Property(e => e.Picture)
             .HasMaxLength(256)
             .IsUnicode(false);
+
+        entity.Property(e => e.PhoneNumber)
+            .HasMaxLength(32)
+            .IsUnicode(true);
 
         entity.HasOne(d => d.City).WithMany(p => p.Users)
             .HasForeignKey(d => d.CityId)

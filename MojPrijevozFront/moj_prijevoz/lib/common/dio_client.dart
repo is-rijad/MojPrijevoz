@@ -5,7 +5,7 @@ import 'package:moj_prijevoz/providers/auth_provider.dart';
 class DioClient {
   static late Dio dio;
 
-  static void init(AuthProvider authProvider) {
+  static void init(AuthProvider? authProvider) {
     dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 10),
@@ -13,6 +13,8 @@ class DioClient {
       ),
     );
 
-    dio.interceptors.add(AuthInterceptor(authProvider));
+    if (authProvider != null) {
+      dio.interceptors.add(AuthInterceptor(authProvider));
+    }
   }
 }

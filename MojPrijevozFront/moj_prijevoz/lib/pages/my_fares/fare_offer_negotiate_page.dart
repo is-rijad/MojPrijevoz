@@ -103,6 +103,8 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
           Tooltip(message: "Cijena", child: Icon(Icons.attach_money)),
           Expanded(
             child: TextFormField(
+              decoration: InputDecoration(errorMaxLines: 3),
+
               controller: _priceTextEditingController,
               keyboardType: TextInputType.numberWithOptions(
                 signed: true,
@@ -127,15 +129,16 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
           Icon(Icons.add),
           Expanded(
             child: TextFormField(
+              decoration: InputDecoration(errorMaxLines: 3),
               keyboardType: TextInputType.numberWithOptions(
                 signed: true,
                 decimal: true,
               ),
               validator: (value) {
-                if (value == null ||
-                    value.isEmpty ||
-                    double.tryParse(value) == null ||
-                    double.parse(value) < 0) {
+                if (value != null &&
+                    (value.isNotEmpty) &&
+                    (double.tryParse(value) == null ||
+                        double.parse(value) < 0)) {
                   return "Unos nije validan!";
                 }
                 return null;
@@ -161,7 +164,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
             child: Icon(Icons.attach_money_rounded),
           ),
           Text(
-            "${round(_request.price! + (_request.additionalPrice ?? 0))}KM",
+            "${round(_request.price! + (_request.additionalPrice ?? 0), decimals: 2)}KM",
             style: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
           ),
         ],
@@ -356,7 +359,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
         return ConfirmationDialog(
           content: "Da li ste sigurni da želite odbiti ponudu?",
           onSubmit: () async {
-            await context.read<FareOfferProvider>().rejectWithEvent(
+            await context.read<FareOfferProvider>().reject(
               widget.fare.lastFareOffer!.id,
             );
             if (context.mounted) {
@@ -370,6 +373,8 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
         );
       },
     );
+    if (!mounted) return;
+    Navigator.pop(context, true);
   }
 
   Future _onNewOfferRequest() async {
@@ -392,7 +397,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
           return ConfirmationDialog(
             content: "Da li ste sigurni da želite poslati ponudu?",
             onSubmit: () async {
-              await context.read<FareOfferProvider>().updateWithEvent(
+              await context.read<FareOfferProvider>().update(
                 widget.fare.lastFareOffer!.id,
                 _request,
               );
@@ -414,7 +419,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
             content: "Da li ste sigurni da želite prihvatiti ponudu?",
 
             onSubmit: () async {
-              await context.read<FareOfferProvider>().acceptWithEvent(
+              await context.read<FareOfferProvider>().accept(
                 widget.fare.lastFareOffer!.id,
               );
               if (context.mounted) {

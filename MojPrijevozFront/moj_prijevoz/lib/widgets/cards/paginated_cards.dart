@@ -23,6 +23,7 @@ class PaginatedCards<
   final String Function(TResponse)? banner;
   final EdgeInsetsGeometry? padding;
   final String fallbackText;
+  final PageController? pageController;
 
   final double? spacing;
   final MainAxisSize? mainAxisSize;
@@ -41,6 +42,7 @@ class PaginatedCards<
     this.spacing,
     this.mainAxisSize,
     this.mainAxisAlignment,
+    this.pageController,
   });
 
   @override
@@ -64,6 +66,7 @@ class _PaginatedCardsState<
 
   @override
   void dispose() {
+    widget.pageController?.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -100,7 +103,7 @@ class _PaginatedCardsState<
           Flexible(
             fit: FlexFit.loose,
             child: PageView(
-              controller: _pageController,
+              controller: widget.pageController ?? _pageController,
               onPageChanged: (index) => _onPageChanged(index, searchResult),
               children: searchResult.items
                   .map((i) => _buildCard(context, i))
@@ -151,6 +154,7 @@ class _PaginatedCardsState<
     );
     if (widget.banner != null) {
       return Banner(
+        color: context.primaryColor,
         message: widget.banner!.call(i),
         location: BannerLocation.topEnd,
         child: child,

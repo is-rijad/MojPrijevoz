@@ -107,7 +107,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
     }
 
     public async Task<FareResponse> StartAsync(int id) {
-        var entity = await _dbContext.Fares.FindAsync(id);
+        var entity = await _dbContext.Fares.Include(it => it.Passenger).FirstAsync(it => it.Id == id);
         if (entity == null) {
             throw new NotFoundException("Vožnja nije pronađena!");
         }
@@ -115,6 +115,20 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         state.Start(entity);
 
         await _dbContext.SaveChangesAsync();
+
+        await _notificationService.SendToUserAsync(new SendToUserDto()
+        {
+            UserId = entity.Passenger!.UserId,
+            Title = "Vozač je pokrenuo vožnju",
+            Body = $"Vozač je krenuo prema Vašoj lokaciji",
+            Data = new Dictionary<string, string>()
+            {
+                ["FareId"] = entity.Id.ToString(),
+                ["Type"] = SendToUserDto.StartedFareType,
+                ["Side"] = ProfileType.Driver.ToString()
+
+            }
+        });
 
         await PrepareForResponse(entity, _dbContext);
         return MapToResponseModel<FareResponse>(entity, _mapper);

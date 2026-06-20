@@ -57,21 +57,23 @@ class _MyFaresPageState extends State<MyFaresPage> {
             const SizedBox(height: 20),
             SizedBox(
               height: context.screenHeight * 0.7,
-              child: TabBarView(
-                children: [
-                  ChangeNotifierProvider(
-                    create: (_) => FareProvider(),
-                    child: MyFaresPassengerPage(
-                      fareId: int.tryParse(widget.fareId ?? ""),
+              child: Center(
+                child: TabBarView(
+                  children: [
+                    ChangeNotifierProvider(
+                      create: (_) => FareProvider(),
+                      child: MyFaresPassengerPage(
+                        fareId: int.tryParse(widget.fareId ?? ""),
+                      ),
                     ),
-                  ),
-                  ChangeNotifierProvider(
-                    create: (_) => FareProvider(),
-                    child: MyFaresDriverPage(
-                      fareId: int.tryParse(widget.fareId ?? ""),
+                    ChangeNotifierProvider(
+                      create: (_) => FareProvider(),
+                      child: MyFaresDriverPage(
+                        fareId: int.tryParse(widget.fareId ?? ""),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

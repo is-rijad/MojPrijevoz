@@ -27,6 +27,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
     super.didChangeDependencies();
     _value = widget.initialValue;
     if (_value != null) {
+      _value = _value!.toLocal();
       _textController.text =
           "${_value!.day}.${_value!.month}.${_value!.year} ${TimeOfDay.fromDateTime(_value!).format(context)}";
     } else {
@@ -58,7 +59,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
               date.day,
               time.hour,
               time.minute,
-            );
+            ).toLocal();
             _onChanged(dateTime);
           }
         }

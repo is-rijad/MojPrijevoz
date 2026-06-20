@@ -21,6 +21,8 @@ abstract class Constants {
   static const String payedFareOfferType = 'PAYED_FARE_OFFER';
   static const String cancelledFareOfferType = 'CANCELLED_FARE_OFFER';
   static const String completedFareType = 'COMPLETED_FARE';
+  static const String startedFareType = 'STARTED_FARE';
   static const String newRatingType = 'NEW_RATING';
   static const String locationRequestedSilentType = 'LOCATION_REQUESTED';
+  static const String proximityNotificationType = 'PROXIMITY_NOTIFICATION';
 }

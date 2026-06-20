@@ -56,8 +56,10 @@ class _AvatarState extends State<Avatar> {
         return FileImage(user.imagePreview!);
       }
     }
-    return user.picture != null
-        ? NetworkImage(user.picture!)
-        : null; // TODO: fix image
+    try {
+      return user.picture != null ? NetworkImage(user.picture!) : null;
+    } catch (e) {
+      return null;
+    }
   }
 }

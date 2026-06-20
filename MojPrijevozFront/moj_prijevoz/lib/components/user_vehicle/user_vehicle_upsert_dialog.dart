@@ -206,10 +206,12 @@ class UserVehicleUpsertDialog
       );
     } else if (selectedItem?.picture != null) {
       return Image.network(
-        "${Environment.apiUrl.split("api")[0]}uploads/${selectedItem!.picture!}",
+        selectedItem!.picture!,
         width: context.screenWidth * 0.3,
         height: context.screenWidth * 0.3,
         fit: BoxFit.fill,
+        errorBuilder: (context, error, stackTrace) =>
+            Image.asset("images/vehiclePlaceholder.png", fit: BoxFit.fill),
       );
     }
     return Image.asset(

@@ -5,12 +5,12 @@ import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 
-class SearchFareNegotiateFialog extends StatefulWidget {
+class SearchFareNegotiateDialog extends StatefulWidget {
   final SearchFareDriverResponse fareDriver;
   final void Function(String? value) onSavedPrice;
   final void Function(String? value) onSavedAdditionalPrice;
 
-  const SearchFareNegotiateFialog({
+  const SearchFareNegotiateDialog({
     super.key,
     required this.fareDriver,
     required this.onSavedPrice,
@@ -18,10 +18,10 @@ class SearchFareNegotiateFialog extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _SearchFareNegotiateFialogState();
+  State<StatefulWidget> createState() => _SearchFareNegotiateDialogState();
 }
 
-class _SearchFareNegotiateFialogState extends State<SearchFareNegotiateFialog> {
+class _SearchFareNegotiateDialogState extends State<SearchFareNegotiateDialog> {
   // ignore: unused_field
   late final TextEditingController _priceTextEditingController;
   // ignore: unused_field
@@ -72,6 +72,7 @@ class _SearchFareNegotiateFialogState extends State<SearchFareNegotiateFialog> {
           Icon(Icons.attach_money),
           Expanded(
             child: TextFormField(
+              decoration: InputDecoration(errorMaxLines: 3),
               initialValue: price.toString(),
               keyboardType: TextInputType.numberWithOptions(
                 signed: true,
@@ -96,15 +97,17 @@ class _SearchFareNegotiateFialogState extends State<SearchFareNegotiateFialog> {
           Icon(Icons.add),
           Expanded(
             child: TextFormField(
+              decoration: InputDecoration(errorMaxLines: 3),
+
               keyboardType: TextInputType.numberWithOptions(
                 signed: true,
                 decimal: true,
               ),
               validator: (value) {
-                if (value == null ||
-                    value.isEmpty ||
-                    double.tryParse(value) == null ||
-                    double.parse(value) < 0) {
+                if (value != null &&
+                    (value.isNotEmpty) &&
+                    (double.tryParse(value) == null ||
+                        double.parse(value) < 0)) {
                   return "Unos nije validan!";
                 }
                 return null;

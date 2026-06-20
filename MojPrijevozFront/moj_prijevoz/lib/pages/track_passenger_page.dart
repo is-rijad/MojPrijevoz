@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
-import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/components/map/map_component.dart';
 import 'package:moj_prijevoz/providers/fare_location_provider.dart';
 import 'package:moj_prijevoz/providers/location_provider.dart';
-import 'package:moj_prijevoz/providers/map_provider.dart';
-import 'package:moj_prijevoz/resources/dtos/fare_location/fare_location_dto.dart';
 import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
-import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
@@ -19,6 +14,7 @@ import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class TrackPassengerPage extends StatefulWidget {
   final FareResponse fare;
@@ -29,9 +25,6 @@ class TrackPassengerPage extends StatefulWidget {
 }
 
 class _TrackPassengerPageState extends State<TrackPassengerPage> {
-  late Position driversLocation;
-  late MapsRouteResponse routeData;
-
   @override
   Widget build(BuildContext context) {
     return PageWrapper(
@@ -45,15 +38,20 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
       builder: (context, provider, _) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Center(
-          child: provider.location == null
+          child:
+              !(provider.locationReceiver?.isCompleted ?? true) ||
+                  provider.location == null ||
+                  provider.routeData == null
               ? AppOverlay.buildLoadingContainer(context)
-              : Column(
-                  spacing: 20,
-                  children: [
-                    _buildPassengerData(),
-                    _buildMap(provider.location!),
-                    _buildFareData(provider.location!),
-                  ],
+              : SingleChildScrollView(
+                  child: Column(
+                    spacing: 20,
+                    children: [
+                      _buildPassengerData(),
+                      _buildMap(provider),
+                      _buildFareData(provider),
+                    ],
+                  ),
                 ),
         ),
       ),
@@ -61,17 +59,12 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
   }
 
   Future<bool> _init() async {
-    await context.read<FareLocationProvider>().getLastLocation(
-      widget.fare.passenger!.userId,
-    );
-    final tempDriverLocation = await GetIt.I<LocationProvider>()
-        .getLocationData();
-    if (tempDriverLocation == null) {
-      throw UserException("Nije moguće pronaći lokaciju!");
-    }
-    driversLocation = tempDriverLocation;
+    final driverLocation = await GetIt.I<LocationProvider>().getLocationData();
     if (!mounted) return false;
-    await _refreshRoute(context.read<FareLocationProvider>().location!);
+
+    context.read<FareLocationProvider>().setMyLocation(driverLocation!);
+    if (!mounted) return false;
+    await _getLastLocation();
     return true;
   }
 
@@ -85,7 +78,7 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
     );
   }
 
-  Widget _buildMap(FareLocationDto passengerLocation) {
+  Widget _buildMap(FareLocationProvider provider) {
     return Column(
       spacing: 10,
       children: [
@@ -94,31 +87,47 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
           height: context.screenHeight * 0.3,
           child: MapComponent(
             from: NominatimCityDto(
-              long: driversLocation.longitude.toString(),
-              lat: driversLocation.latitude.toString(),
+              long: provider.myLocation!.longitude.toString(),
+              lat: provider.myLocation!.latitude.toString(),
             ),
             to: NominatimCityDto(
-              long: passengerLocation.lon,
-              lat: passengerLocation.lat,
+              long: provider.location!.lon,
+              lat: provider.location!.lat,
             ),
           ),
         ),
         TextBodyMedium(
-          "Posljednje osvježavanje lokacije: ${context.getLocalizedTime(passengerLocation.dateTime)}",
+          "Posljednje osvježavanje lokacije: ${context.getLocalizedTime(provider.location!.dateTime)}",
         ),
-        FractionallySizedBox(
-          widthFactor: 0.5,
-          child: PrimaryButton(
-            onPressed: _refreshLocation,
-            text: "Osvježi lokaciju",
+        if (!provider.location!.isAccurate)
+          TextBodyMedium(
+            "Lokacija nije precizna!",
+            fontWeight: FontWeight.bold,
           ),
-        ),
+        if (provider.routeData!.distance! <= 5)
+          FractionallySizedBox(
+            widthFactor: 0.5,
+            child: ElevatedButton(
+              onPressed: () async => await launchUrlString(
+                "tel://${widget.fare.passenger!.user!.phoneNumber}",
+              ),
+              child: const Text("Pozovite putnika"),
+            ),
+          ),
+        if (!provider.location!.isAccurate || provider.routeData!.distance! > 5)
+          FractionallySizedBox(
+            widthFactor: 0.5,
+            child: PrimaryButton(
+              onPressed: () async => await _refreshLocation(),
+              text: "Osvježi lokaciju",
+            ),
+          ),
         SizedBox(height: 10),
       ],
     );
   }
 
-  Widget _buildFareData(FareLocationDto passengerLocation) {
+  Widget _buildFareData(FareLocationProvider provider) {
     return Row(
       spacing: 30,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -129,12 +138,14 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
             IconFieldWithText(
               iconHint: "Vaša lokacija",
               iconData: Icons.location_pin,
-              text: routeData.startLocationName ?? "Nepoznata lokacija",
+              text:
+                  provider.routeData!.startLocationName ?? "Nepoznata lokacija",
             ),
             IconFieldWithText(
               iconHint: "Lokacija putnika",
               iconData: Icons.time_to_leave,
-              text: routeData.finalLocationName ?? "Nepoznata lokacija",
+              text:
+                  provider.routeData!.finalLocationName ?? "Nepoznata lokacija",
             ),
           ],
         ),
@@ -144,7 +155,8 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
             IconFieldWithText(
               iconHint: "Trajanje",
               iconData: Icons.timer,
-              text: "${routeData.duration!.round().toString()} minuta",
+              text:
+                  "${provider.routeData!.duration!.round().toString()} minuta",
             ),
 
             IconFieldWithText(
@@ -153,7 +165,7 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
               iconData: Icons.watch_later,
               text: context.getLocalizedTime(
                 DateTime.now().add(
-                  Duration(minutes: routeData.duration!.toInt()),
+                  Duration(minutes: provider.routeData!.duration!.toInt()),
                 ),
               ),
             ),
@@ -161,7 +173,7 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
               iconHint: "Udaljenost",
 
               iconData: Icons.social_distance,
-              text: "${routeData.distance!.round().toString()}km",
+              text: "${provider.routeData!.distance!.round().toString()}km",
             ),
           ],
         ),
@@ -169,20 +181,15 @@ class _TrackPassengerPageState extends State<TrackPassengerPage> {
     );
   }
 
-  void _refreshLocation() {
-    context.read<FareLocationProvider>().requestNewLocation(
+  Future _refreshLocation() async {
+    await context.read<FareLocationProvider>().requestNewLocation(
       widget.fare.passenger!.userId,
     );
   }
 
-  Future<void> _refreshRoute(FareLocationDto passengerLocation) async {
-    routeData = await GetIt.I<MapProvider>().getRoute(
-      NominatimCityDto(
-        long: driversLocation.longitude.toString(),
-        lat: driversLocation.latitude.toString(),
-      ),
-      NominatimCityDto(long: passengerLocation.lon, lat: passengerLocation.lat),
-      includeLocationNames: true,
+  Future<void> _getLastLocation() async {
+    await context.read<FareLocationProvider>().getLastLocation(
+      widget.fare.passenger!.userId,
     );
   }
 }

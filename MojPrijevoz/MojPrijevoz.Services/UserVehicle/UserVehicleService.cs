@@ -73,12 +73,12 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         var vehicle = await dbContext.Vehicles.FirstAsync(v => v.Id == entity.VehicleId);
         await _notificationService.SendEmailAsync(new EmailDto()
         {
-            To = user.Email,
+            To = user!.Email,
             Type = EmailType.BecomeDriverEmail,
             Data = new Dictionary<string, dynamic>()
             {
                 ["Name"] = user.FirstName,
-                ["Vehicle"] = vehicle.ToString() + " (" + entity.ModelYear + ")"
+                ["Vehicle"] = vehicle + " (" + entity.ModelYear + ")"
             }
         });
     }

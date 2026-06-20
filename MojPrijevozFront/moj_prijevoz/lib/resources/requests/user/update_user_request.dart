@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moj_prijevoz/resources/requests/has_picture_interface.dart';
@@ -12,6 +11,7 @@ class UpdateUserRequest extends JsonRequest implements HasPictureInterface {
   String? lastName;
   String? email;
   String? username;
+  String? phoneNumber;
   String? oldPassword;
   String? password;
   String? passwordAgain;
@@ -30,6 +30,7 @@ class UpdateUserRequest extends JsonRequest implements HasPictureInterface {
     this.password,
     this.passwordAgain,
     this.cityId,
+    this.phoneNumber,
   });
 
   @override

@@ -94,10 +94,6 @@ class _StripePaymentPageState extends State<StripePaymentPage> {
       setState(() {
         _isSucceded = true;
       });
-      context.read<FareProvider>().updateNextFareLocally(
-        fareOfferId,
-        FareStatus.payed,
-      );
       await Future.delayed(Duration(seconds: 5), () {
         if (!mounted) return;
         Navigator.pop(context);

@@ -88,7 +88,12 @@ class _UpsertDialogState<
 
   Future<void> _submitForm() async {
     if (widget.submitForm != null) {
-      return await widget.submitForm!.call(context, _formKey);
+      try {
+        return await widget.submitForm!.call(context, _formKey);
+      } on Exception catch (e, stack) {
+        _errorMessage.value = ErrorHandler.handle(e, stack);
+        await Future.delayed(Duration(seconds: 5));
+      }
     }
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -112,6 +117,7 @@ class _UpsertDialogState<
         );
       } on Exception catch (ex, stack) {
         _errorMessage.value = ErrorHandler.handle(ex, stack);
+        await Future.delayed(Duration(seconds: 5));
       }
     }
   }

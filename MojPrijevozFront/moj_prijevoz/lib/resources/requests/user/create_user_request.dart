@@ -9,6 +9,7 @@ class CreateUserRequest implements JsonRequest {
   String? lastName;
   String? email;
   String? username;
+  String? phoneNumber;
   String? password;
   String? passwordAgain;
   int? cityId;
@@ -21,6 +22,7 @@ class CreateUserRequest implements JsonRequest {
     this.password,
     this.passwordAgain,
     this.cityId,
+    this.phoneNumber,
   });
 
   @override

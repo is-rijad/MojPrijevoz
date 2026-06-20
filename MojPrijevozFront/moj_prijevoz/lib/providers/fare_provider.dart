@@ -25,7 +25,9 @@ class FareProvider
     await super.fetchData(searchObject);
     for (var fare in searchResult.items) {
       if (fare.fareStartAfter != null) {
-        final remaining = fare.fareStartAfter!.difference(DateTime.now());
+        final remaining = fare.fareStartAfter!.toLocal().difference(
+          DateTime.now(),
+        );
         if (!remaining.isNegative) {
           fareStartTimers[fare.id] = Timer(
             remaining,
@@ -56,7 +58,6 @@ class FareProvider
       "$providerName/$id/start",
       null,
     );
-    updateLocally(fare);
     return fare;
   }
 

@@ -59,6 +59,7 @@ builder.Services.AddDatabaseServices(connectionString);
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
+TypeAdapterConfig.GlobalSettings.Scan(typeof(MojPrijevoz.Services.Mapster.Configuration).Assembly);
 builder.Services.AddMapster();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();

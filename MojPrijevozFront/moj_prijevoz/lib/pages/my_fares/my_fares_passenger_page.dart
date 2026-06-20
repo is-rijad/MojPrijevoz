@@ -7,6 +7,7 @@ import 'package:moj_prijevoz/components/profile/show_profile_dialog.dart';
 import 'package:moj_prijevoz/pages/my_fares/fare_offer_negotiate_page.dart';
 import 'package:moj_prijevoz/pages/review_page.dart';
 import 'package:moj_prijevoz/pages/stripe_payment_page.dart';
+import 'package:moj_prijevoz/pages/track_driver_page.dart';
 import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/common/enums/fare_offer_side.dart';
@@ -37,6 +38,7 @@ class MyFaresPassengerPage extends StatefulWidget {
 class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
     with RouteAware {
   late final FareSearchObject _fareSearchObject;
+  final _pageController = PageController(viewportFraction: 0.6);
   @override
   Widget build(BuildContext context) {
     return LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init);
@@ -68,10 +70,12 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
 
   @override
   void didPopNext() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       context.read<FareProvider>().clearData(_fareSearchObject);
-      context.read<FareProvider>().fetchData(_fareSearchObject);
+      await context.read<FareProvider>().fetchData(_fareSearchObject);
+      if (!mounted || !_pageController.hasClients) return;
+      _pageController.jumpToPage(0);
     });
   }
 
@@ -84,6 +88,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
   Widget _build(BuildContext context) {
     return PaginatedCards<FareSearchObject, FareResponse, FareProvider>(
       spacing: 8,
+      pageController: _pageController,
       searchObject: _fareSearchObject,
       mainAxisAlignment: MainAxisAlignment.center,
       fallbackText: "Nemate vožnji kao putnik!",
@@ -186,24 +191,24 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
         IconFieldWithText(
           iconData: Icons.attach_money,
           iconHint: "Cijena",
-          text: "${i.lastFareOffer!.totalPrice.toString()}KM",
+          text: "${i.lastFareOffer!.totalPrice.roundToDouble().toString()}KM",
           textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
         ),
         (i.status == FareStatus.accepted)
             ? FractionallySizedBox(
-                widthFactor: 0.7,
+                widthFactor: 0.6,
                 child: PrimaryButton(
                   onPressed: () async => await _buildPayementDialog(i),
-                  text: "Platite vožnju",
+                  text: "Platite",
                 ),
               )
             : SizedBox.shrink(),
         (canCancel(i))
             ? FractionallySizedBox(
-                widthFactor: 0.7,
+                widthFactor: 0.6,
                 child: ElevatedButton(
                   onPressed: () async => await _buildCancelFareDialog(i),
-                  child: const Text("Otkažite vožnju"),
+                  child: const Text("Otkažite"),
                 ),
               )
             : SizedBox.shrink(),
@@ -213,14 +218,21 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
   }
 
   Future<void> _onTapCard(FareResponse fare) async {
-    await _navigateToNegotiatePage(fare);
-    return;
     if (fare.lastFareOffer!.side == FareOfferSide.driver &&
         fare.lastFareOffer!.status == FareOfferStatus.waitingForResponse) {
       await _navigateToNegotiatePage(fare);
+    } else if (fare.status == FareStatus.inProgress) {
+      await _trackUser(fare);
     } else if (fare.status == FareStatus.completed) {
       await _navigateToReviewPage(fare);
     }
+  }
+
+  Future _trackUser(FareResponse fare) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => TrackDriverPage(fare: fare)),
+    );
   }
 
   Future<void> _navigateToNegotiatePage(FareResponse fare) async {
@@ -253,7 +265,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
         content: "Da li ste sigurni da želite otkazati vožnju?",
 
         onSubmit: () async {
-          await context.read<FareOfferProvider>().cancelWithEvent(
+          await context.read<FareOfferProvider>().cancel(
             fare!.lastFareOffer!.id,
           );
           if (context.mounted) {
@@ -278,8 +290,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
 
   bool canCancel(FareResponse i) {
     return i.status == FareStatus.inNegotiation ||
-        i.status == FareStatus.accepted ||
-        i.status == FareStatus.payed;
+        i.status == FareStatus.accepted;
   }
 
   Future _buildPayementDialog(FareResponse i) async {

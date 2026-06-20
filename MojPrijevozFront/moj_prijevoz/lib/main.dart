@@ -110,26 +110,20 @@ Future<void> main() async {
     final authProvider = AuthProvider(payload);
     DioClient.init(authProvider);
 
-    final child = payload != null ? HomePage() : LoginPage();
-
     Stripe.publishableKey = Environment.stripeKey;
 
     runApp(
-      MultiProvider(
-        providers: registerProviders(payload),
-        child: MPApp(child: child),
-      ),
+      MultiProvider(providers: registerProviders(payload), child: MPApp()),
     );
   }, (ex, stack) => ErrorHandler.handle(ex, stack, showSnackBar: true));
 }
 
 class MPApp extends StatelessWidget {
-  final Widget child;
-  const MPApp({super.key, required this.child});
+  const MPApp({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return AppOverlay(child: child);
+    return AppOverlay();
   }
 }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
+using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.OpenRoute;
 using MojPrijevoz.Model.Responses.SearchFare;
 using MojPrijevoz.Model.Responses.UserVehicle;
@@ -25,6 +26,15 @@ public class SearchFareService : ISearchFareService {
         _openRouteService = openRouteService;
     }
     public async Task<PagedResult<SearchFareResponse>> Search(SearchFareSearchObject searchObject) {
+        if (searchObject.Distance < 1)
+        {
+            throw new BadRequestException("Distanca ne može biti manja od 1km");
+        }
+
+        if (searchObject.FareDateTime < DateTime.UtcNow)
+        {
+            throw new BadRequestException("Vrijeme vožnje ne može biti u prošlosti!");
+        }
         var newStart = searchObject.FareDateTime;
         var newEnd = searchObject.FareDateTime.AddMinutes(searchObject.Duration);
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
@@ -33,7 +43,7 @@ public class SearchFareService : ISearchFareService {
         var unAvailableDrivers = await _dbContext.Fares
             .Where(f =>
                 f.Status == FareStatus.Accepted &&
-                f.FareData!.FareDateTime < newEnd &&
+                (f.FareStartAfter ?? f.FareData!.FareDateTime.AddMinutes(-30)) < newEnd &&
                 f.FareData!.FareDateTime.AddMinutes(f.FareData.Duration) > newStart
             ).Select(it => it.DriverId).ToListAsync();
         var profilesQuery = _dbContext.UserProfiles

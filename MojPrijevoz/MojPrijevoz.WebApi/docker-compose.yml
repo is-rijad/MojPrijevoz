@@ -75,6 +75,8 @@
     ports:
       - "5068:8080"
     restart: unless-stopped
+    volumes:
+      - uploads-volume:/app/wwwroot/uploads
     depends_on:
       moj-prijevoz-db:
         condition: service_healthy
@@ -90,6 +92,7 @@ secrets:
 volumes:
   rabbitmq_data:
   database_data:
+  uploads-volume:
 
 networks:
   moj-prijevoz:

@@ -1,11 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'dart:developer';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
-import 'package:moj_prijevoz/pages/home_page.dart';
-import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/widgets/snackbars.dart';
 
 abstract class ErrorHandler {
@@ -69,11 +65,6 @@ abstract class ErrorHandler {
             switch (e.response!.statusCode!) {
               case 401:
                 message = null;
-                Navigator.pushAndRemoveUntil(
-                  Constants.messengerKey.currentContext!,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                  (route) => false,
-                );
             }
           }
           if (e.response!.data != null &&

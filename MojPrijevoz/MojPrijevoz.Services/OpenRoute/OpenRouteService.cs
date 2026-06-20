@@ -53,7 +53,7 @@ public class OpenRouteService : IOpenRouteService {
             return new GetDistanceResponse()
             {
                 DistanceInKm = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("distance").GetDouble(),
-                DurationInMinutes = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("duration").GetDouble(),
+                DurationInMinutes = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("duration").GetDouble() / 60,
             };
         }
         catch (HttpRequestException e) {

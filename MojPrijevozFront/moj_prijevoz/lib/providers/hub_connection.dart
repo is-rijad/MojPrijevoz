@@ -8,22 +8,28 @@ class HubConnectionProvider {
   final Map<String, Function(List<Object?>?)> _subscribers = {};
 
   Future<void> init() async {
-    if (_hubConnection == null) {
-      _initializeHubConnection();
-    }
+    await stop();
 
-    if (_hubConnection!.state != HubConnectionState.Disconnected) {
-      await _hubConnection!.stop();
-    }
-
-    try {
-      await _hubConnection!.start();
-    } catch (e) {
-      return;
-    }
+    _initializeHubConnection();
     _init("NewNotification");
     _init("ReceiveLocation");
     _init("LocationRequested");
+
+    try {
+      await _hubConnection!.start();
+      print("Connection started successfully!");
+    } on Exception catch (e) {
+      print("Error while establishing connection => $e");
+      return;
+    }
+
+    _hubConnection!.onclose(({Exception? error}) {
+      if (error != null) {
+        print('Connection closed with error: $error');
+      } else {
+        print('Connection closed successfully.');
+      }
+    });
   }
 
   void _init(String methodName) {

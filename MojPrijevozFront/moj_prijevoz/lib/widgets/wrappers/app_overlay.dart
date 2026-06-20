@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/providers/ui_provider.dart';
 import 'package:moj_prijevoz/widgets/texts/text_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-
 class AppOverlay extends StatelessWidget {
   final UIProvider _uiProvider = GetIt.I<UIProvider>();
-  final Widget child;
 
   static const primaryColor = Color(0xFF4A91D1);
   static const secondaryColor = Color(0xFFD1E9FE);
 
-  AppOverlay({super.key, required this.child});
+  AppOverlay({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,17 +60,13 @@ class AppOverlay extends StatelessWidget {
         fontFamily: "Inter",
         textTheme: textTheme,
       ),
-      home: child,
-        localizationsDelegates: [
+      home: HomePage(),
+      localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
-        Locale('hr'),
-        Locale('bs'),
-        Locale('sr'),
-      ],
+      supportedLocales: [Locale('hr'), Locale('bs'), Locale('sr')],
       scaffoldMessengerKey: Constants.messengerKey,
       navigatorKey: Constants.navigatorKey,
       navigatorObservers: [Constants.routeObserver],

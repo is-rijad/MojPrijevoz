@@ -7,7 +7,7 @@ public interface IEntityHasPicture {
 
 public static class EntityHasPictureExtension
 {
-    public static string? GetPicture(this IEntityHasPicture entity) {
+    public static string? GetPicture(this IEntityHasPicture? entity) {
         // Check for origin because seeded entities
         if (entity.Picture != null) {
             if (!entity.Picture.StartsWith("http")) {

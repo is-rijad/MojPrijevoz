@@ -3,6 +3,7 @@ import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/profile_dropdown_action.dart';
 import 'package:moj_prijevoz/pages/my_fares/my_fares_page.dart';
 import 'package:moj_prijevoz/pages/review_page.dart';
+import 'package:moj_prijevoz/pages/track_driver_page.dart';
 
 class UIProvider {
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
@@ -109,6 +110,22 @@ class UIProvider {
               ratingFromNotification: data["RatingId"]?.toString(),
               isReadOnly: true,
             ),
+          ),
+        );
+        break;
+      case Constants.proximityNotificationType:
+        await Constants.navigatorKey.currentState!.push(
+          MaterialPageRoute(
+            builder: (context) =>
+                TrackDriverPage(fareIdFromNotification: data["FareId"]),
+          ),
+        );
+        break;
+      case Constants.startedFareType:
+        await Constants.navigatorKey.currentState!.push(
+          MaterialPageRoute(
+            builder: (context) =>
+                TrackDriverPage(fareIdFromNotification: data["FareId"]),
           ),
         );
         break;

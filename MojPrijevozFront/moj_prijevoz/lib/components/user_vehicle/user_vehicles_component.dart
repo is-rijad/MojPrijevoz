@@ -65,6 +65,7 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
             UserVehicleResponse,
             UserVehicleProvider
           >(
+            spacing: 10,
             searchObject: UserVehicleSearchObject(
               page: 1,
               pageSize: 5,
@@ -116,8 +117,12 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
       clipBehavior: Clip.hardEdge,
       child: userVehicle.picture != null
           ? Image.network(
-              "${Environment.apiUrl.split("api")[0]}uploads/${userVehicle.picture!}",
+              userVehicle.picture!,
               fit: BoxFit.fill,
+              errorBuilder: (context, error, stackTrace) => Image.asset(
+                "images/vehiclePlaceholder.png",
+                fit: BoxFit.fill,
+              ),
             )
           : Image.asset("images/vehiclePlaceholder.png", fit: BoxFit.fill),
     );

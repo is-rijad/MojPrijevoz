@@ -25,11 +25,10 @@ public class InNegotiationFareState : BaseFareState {
         return entity;
     }
     public override async Task<Database.Fare> Accept(Database.Fare entity) {
-        entity.Status = Database.FareStatus.Accepted;
         var fareData = await _dbContext.FareData.Where(fd => fd.Id == entity.FareDataId).FirstAsync();
         var cityFromId = await _dbContext.UserProfiles.Where(c => c.Id == entity.DriverId).Select(it => it.User!.CityId).FirstAsync();
         var route = await _openRouteService.GetDistance(new GetDistanceRequest() { CityFrom = cityFromId, CityTo = fareData.OriginCityId });
-        entity.FareStartAfter = fareData.FareDateTime.AddMinutes((route.DurationInMinutes) * -1);
+        entity.FareStartAfter = fareData.FareDateTime.AddMinutes((route.DurationInMinutes + 30) * -1);
 
         var fares = await _dbContext.Fares.Include(it => it.FareOffers).Where(it => it.FareDataId == entity.FareDataId && it.Id != entity.Id).ToListAsync();
         foreach (var fare in fares) {
@@ -39,6 +38,7 @@ public class InNegotiationFareState : BaseFareState {
             }
         }
 
+        entity.Status = Database.FareStatus.Accepted;
 
         return entity;
     }

@@ -15,6 +15,7 @@ CreateUserRequest _$CreateUserRequestFromJson(Map<String, dynamic> json) =>
       password: json['password'] as String?,
       passwordAgain: json['passwordAgain'] as String?,
       cityId: (json['cityId'] as num?)?.toInt(),
+      phoneNumber: json['phoneNumber'] as String?,
     );
 
 Map<String, dynamic> _$CreateUserRequestToJson(CreateUserRequest instance) =>
@@ -23,6 +24,7 @@ Map<String, dynamic> _$CreateUserRequestToJson(CreateUserRequest instance) =>
       'lastName': instance.lastName,
       'email': instance.email,
       'username': instance.username,
+      'phoneNumber': instance.phoneNumber,
       'password': instance.password,
       'passwordAgain': instance.passwordAgain,
       'cityId': instance.cityId,

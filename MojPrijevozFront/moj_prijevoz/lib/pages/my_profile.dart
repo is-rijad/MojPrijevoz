@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
@@ -141,6 +142,7 @@ class _MyProfilState extends State<MyProfile> {
           ..._buildPasswords(context),
           SizedBox(height: 36),
           _buildSubmitButton(context),
+          SizedBox(height: 12),
         ],
       ),
       appBarTitle: "Moj profil",
@@ -223,7 +225,23 @@ class _MyProfilState extends State<MyProfile> {
           onSaved: (value) => _userUpdateRequest.username = value,
         ),
       ),
-
+      InternationalPhoneNumberInput(
+        initialValue: PhoneNumber(
+          phoneNumber: _userData.phoneNumber,
+          dialCode: "+387",
+          isoCode: "BA",
+        ),
+        countries: ["BA"],
+        inputDecoration: InputDecorationWithIcon(
+          iconData: Icons.phone,
+          iconHint: "Broj mobitela",
+          hintText: "61123456",
+        ),
+        hintText: null,
+        errorMessage: "Broj mobitela nije validan",
+        onInputChanged: (value) =>
+            _userUpdateRequest.phoneNumber = value.phoneNumber,
+      ),
       SizedBox(height: 12),
       Flexible(
         child: CityPagedDropdown(

@@ -10,7 +10,8 @@ public class UserUpdateRequest {
     [MaxLength(32)]
     [EmailAddress(ErrorMessage = "Email nije validan!")]
     public string? Email { get; set; }
-
+    [MaxLength(32)]
+    public string? PhoneNumber { get; set; }
     [MaxLength(32)] public string? Username { get; set; }
 
     public string? OldPassword { get; set; }

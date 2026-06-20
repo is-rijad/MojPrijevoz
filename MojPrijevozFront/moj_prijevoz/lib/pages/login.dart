@@ -6,6 +6,7 @@ import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/pages/reset_password_page.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/common_form_fields/password_form_field.dart';
@@ -14,11 +15,23 @@ import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
 import 'package:provider/provider.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _loginRequest = LoginRequest();
+  final _passwordFocusNode = FocusNode();
 
-  LoginPage({super.key});
+  @override
+  void dispose() {
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   Future<void> submitForm(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
@@ -62,6 +75,9 @@ class LoginPage extends StatelessWidget {
   List<Widget> _buildInputs(BuildContext context) {
     return <Widget>[
       TextFormField(
+        textInputAction: TextInputAction.next,
+        onFieldSubmitted: (_) =>
+            FocusScope.of(context).requestFocus(_passwordFocusNode),
         decoration: InputDecorationWithIcon(
           iconData: Icons.person,
           iconHint: "Korisničko ime ili email",
@@ -80,6 +96,9 @@ class LoginPage extends StatelessWidget {
         onSaved: (value) => _loginRequest.usernameOrEmail = value!,
       ),
       PasswordFormField(
+        focusNode: _passwordFocusNode,
+        textInputAction: TextInputAction.done,
+        onFieldSubmitted: (_) async => await submitForm(context),
         onSaved: (value) => _loginRequest.password = value!,
         decoration: InputDecorationWithIcon(
           iconData: Icons.password,

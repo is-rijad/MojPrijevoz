@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
+import 'package:moj_prijevoz/providers/hub_connection.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/providers/shared_prefs_provider.dart';
 import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
@@ -14,6 +15,7 @@ import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
 import 'package:moj_prijevoz/resources/requests/user/refresh_token_request.dart';
 import 'package:moj_prijevoz/resources/responses/user/access_token_response.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
+import 'package:signalr_netcore/hub_connection.dart';
 
 class AuthProvider with ChangeNotifier {
   late AccessTokenPayload _accessTokenPayload;
@@ -53,8 +55,9 @@ class AuthProvider with ChangeNotifier {
     if (withNotificationLogout) {
       await _notificationProvider.logout();
     }
-
+    await GetIt.I<HubConnectionProvider>().stop();
     await _sharedPrefsProvider.deleteString(Constants.accessTokenKey);
+    await _sharedPrefsProvider.deleteString(_refreshTokenKey);
   }
 
   Future<void> _setAccessToken(String token) async {

@@ -85,6 +85,7 @@ class _DeleteDialogState<
       );
     } on Exception catch (ex, stack) {
       _errorMessage.value = ErrorHandler.handle(ex, stack);
+      await Future.delayed(Duration(seconds: 5));
     }
   }
 }

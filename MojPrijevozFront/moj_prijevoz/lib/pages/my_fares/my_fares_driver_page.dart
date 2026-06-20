@@ -37,6 +37,7 @@ class MyFaresDriverPage extends StatefulWidget {
 
 class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
   late final FareSearchObject _fareSearchObject;
+  final _pageController = PageController(viewportFraction: 0.6);
   @override
   Widget build(BuildContext context) {
     return LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init);
@@ -68,10 +69,12 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
 
   @override
   void didPopNext() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       context.read<FareProvider>().clearData(_fareSearchObject);
-      context.read<FareProvider>().fetchData(_fareSearchObject);
+      await context.read<FareProvider>().fetchData(_fareSearchObject);
+      if (!mounted || !_pageController.hasClients) return;
+      _pageController.jumpToPage(0);
     });
   }
 
@@ -84,6 +87,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
   Widget _build(BuildContext context) {
     return PaginatedCards<FareSearchObject, FareResponse, FareProvider>(
       spacing: 8,
+      pageController: _pageController,
       searchObject: FareSearchObject(
         page: 1,
         pageSize: 5,
@@ -217,9 +221,18 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
     if (fare.lastFareOffer!.side == FareOfferSide.passenger &&
         fare.lastFareOffer!.status == FareOfferStatus.waitingForResponse) {
       await _navigateToNegotiatePage(fare);
+    } else if (fare.status == FareStatus.inProgress) {
+      await _trackUser(fare);
     } else if (fare.status == FareStatus.completed) {
       await _navigateToReviewPage(fare);
     }
+  }
+
+  Future _trackUser(FareResponse fare) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => TrackPassengerPage(fare: fare)),
+    );
   }
 
   Future<void> _navigateToReviewPage(FareResponse fare) async {
@@ -282,7 +295,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
         content: "Da li ste sigurni da želite otkazati vožnju?",
 
         onSubmit: () async {
-          await context.read<FareOfferProvider>().cancelWithEvent(
+          await context.read<FareOfferProvider>().cancel(
             fare!.lastFareOffer!.id,
           );
           Constants.messengerKey.currentState?.showSnackBar(
@@ -310,7 +323,6 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
 
   bool canCancel(FareResponse i) {
     return i.status == FareStatus.inNegotiation ||
-        i.status == FareStatus.accepted ||
-        i.status == FareStatus.payed;
+        i.status == FareStatus.accepted;
   }
 }

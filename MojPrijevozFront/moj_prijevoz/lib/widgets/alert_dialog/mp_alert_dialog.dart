@@ -6,12 +6,19 @@ import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
 class MPAlertDialog extends StatelessWidget {
   final String? title;
   final AlertDialogContent content;
+  final BoxConstraints? constraints;
 
-  const MPAlertDialog({super.key, this.title, required this.content});
+  const MPAlertDialog({
+    super.key,
+    this.title,
+    required this.content,
+    this.constraints,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      constraints: constraints,
       shape: RoundedRectangleBorder(
         side: BorderSide(color: Colors.black, width: 1.0),
         borderRadius: BorderRadius.all(Radius.circular(30)),

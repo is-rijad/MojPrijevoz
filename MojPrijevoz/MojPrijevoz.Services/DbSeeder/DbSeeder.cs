@@ -75,7 +75,8 @@ public class DbSeeder {
             .RuleFor(u => u.PasswordSalt, f => passwordSalt)
             .RuleFor(u => u.CityId, f => f.PickRandom(_cities!.Select(c => c.Id)))
             .RuleFor(u => u.Status, f => f.PickRandom<AccountStatus>())
-            .RuleFor(u => u.Picture, f => f.Image.PicsumUrl());
+            .RuleFor(u => u.Picture, f => f.Image.PicsumUrl())
+            .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber(format: "+38761#####"));
 
         var users = usersGen.Generate(50);
         await _mojPrijevozDbContext.Users.AddRangeAsync(users);

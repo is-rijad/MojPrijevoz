@@ -19,6 +19,7 @@ class UserResponse extends JsonResponse
   String lastName;
   String email;
   String username;
+  String phoneNumber;
   int cityId;
   @override
   String? picture;
@@ -36,6 +37,7 @@ class UserResponse extends JsonResponse
     required this.lastName,
     required this.email,
     required this.username,
+    required this.phoneNumber,
     required this.cityId,
     required this.status,
   });

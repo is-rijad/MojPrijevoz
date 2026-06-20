@@ -9,12 +9,14 @@ class FareLocationDto extends JsonRequest {
   final String lat;
   final String lon;
   final DateTime dateTime;
+  final bool isAccurate;
 
   FareLocationDto({
     required this.userId,
     required this.lat,
     required this.lon,
     required this.dateTime,
+    required this.isAccurate
   });
 
   @override

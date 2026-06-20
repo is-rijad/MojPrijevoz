@@ -7,32 +7,64 @@ import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/dio_client.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
+import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/hub_connection.dart';
 import 'package:moj_prijevoz/providers/location_provider.dart';
-import 'package:moj_prijevoz/providers/ui_provider.dart';
+import 'package:moj_prijevoz/providers/map_provider.dart';
+import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/dtos/fare_location/fare_location_dto.dart';
+import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
+import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:moj_prijevoz/common/env.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 class FareLocationProvider extends ChangeNotifier {
-  final _uiProvider = GetIt.I<UIProvider>();
-  final _hubConnection = GetIt.I<HubConnectionProvider>().hubConnection;
+  Position? myLocation;
   FareLocationDto? location;
-  Completer<void>? _locationReceived;
+  MapsRouteResponse? routeData;
+  Completer<void>? locationReceiver;
+  @override
+  void dispose() {
+    locationReceiver = null;
+    super.dispose();
+  }
 
-  void receiveLocation(Map<String, dynamic> data) {
-    _locationReceived?.complete();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      location = FareLocationDto.fromJson(data);
-      notifyListeners();
-    });
+  Future<void> receiveLocation(Map<String, dynamic> data) async {
+    if (locationReceiver == null || locationReceiver!.isCompleted) return;
+    locationReceiver?.complete();
+    final locationDto = FareLocationDto.fromJson(data);
+    setNewLocation(locationDto);
+    await _refreshRoute(locationDto);
+  }
+
+  void setMyLocation(Position location) {
+    myLocation = location;
+    notifyListeners();
+  }
+
+  void setNewLocation(FareLocationDto location) {
+    this.location = location;
+    notifyListeners();
+  }
+
+  Future<void> _refreshRoute(FareLocationDto location) async {
+    routeData = await GetIt.I<MapProvider>().getRoute(
+      NominatimCityDto(
+        long: myLocation!.longitude.toString(),
+        lat: myLocation!.latitude.toString(),
+      ),
+      NominatimCityDto(long: location.lon, lat: location.lat),
+      includeLocationNames: true,
+    );
+    notifyListeners();
   }
 
   Future<void> sendLocation(String requesterId) async {
     final data = await GetIt.I<LocationProvider>().getLocationData();
     if (data != null) {
-      await _hubConnection!.invoke(
+      await GetIt.I<HubConnectionProvider>().hubConnection!.invoke(
         'SendLocation',
         args: [
           FareLocationDto(
@@ -40,62 +72,86 @@ class FareLocationProvider extends ChangeNotifier {
             lat: data.latitude.toString(),
             lon: data.longitude.toString(),
             dateTime: DateTime.now().toUtc(),
+            isAccurate: true,
           ),
         ],
       );
-    } else {
-      throw UserException("Nije moguće pronaći lokaciju!");
     }
   }
 
   Future getLastLocation(int userId) async {
-    await _hubConnection!.invoke('GetLastLocation', args: [userId.toString()]);
+    try {
+      locationReceiver = Completer();
+      notifyListeners();
+
+      await GetIt.I<HubConnectionProvider>().hubConnection!.invoke(
+        'GetLastLocation',
+        args: [userId.toString()],
+      );
+      await Future.any([
+        locationReceiver!.future,
+        Future.delayed(const Duration(seconds: 20), () {
+          if (locationReceiver == null || locationReceiver!.isCompleted) return;
+          locationReceiver!.completeError(
+            UserException("Lokacija nije dostupna"),
+          );
+          notifyListeners();
+        }),
+      ]);
+    } on Exception {
+      rethrow;
+    }
   }
 
   Future requestNewLocation(int userId) async {
-    _uiProvider.startLoading();
-
     try {
-      _locationReceived = Completer();
+      locationReceiver = Completer();
+      notifyListeners();
 
-      await _hubConnection!.invoke(
+      await GetIt.I<HubConnectionProvider>().hubConnection!.invoke(
         'RequestLocation',
         args: [userId.toString()],
       );
 
       await Future.any([
-        _locationReceived!.future,
-        Future.delayed(const Duration(seconds: 10)),
+        locationReceiver!.future,
+        Future.delayed(const Duration(seconds: 20), () {
+          if (locationReceiver == null || locationReceiver!.isCompleted) return;
+          locationReceiver!.completeError(
+            UserException("Lokacija nije dostupna"),
+          );
+          notifyListeners();
+        }),
       ]);
     } on Exception {
       rethrow;
-    } finally {
-      _uiProvider.stopLoading();
     }
   }
 
   static Future handleRequestFromBackground(Map<String, dynamic> data) async {
-    final requesterId = data['requesterId']!;
+    final requesterId = data['RequesterId']!;
     final sharedPrefs = await SharedPreferences.getInstance();
-
     final permissions = await Geolocator.checkPermission();
-    if (permissions == LocationPermission.always) {
-      final pos = await Geolocator.getCurrentPosition();
-      await DioClient.dio.post(
-        '${Environment.apiUrl}fare/location',
-        options: Options(
-          headers: {
-            'Authorization':
-                'Bearer ${sharedPrefs.getString(Constants.accessTokenKey)}',
-          },
-        ),
-        data: FareLocationDto(
-          dateTime: DateTime.now().toUtc(),
-          lat: pos.latitude.toString(),
-          lon: pos.longitude.toString(),
-          userId: requesterId,
-        ).toJson(),
-      );
+    if (permissions != LocationPermission.always) {
+      return;
     }
+    final pos = await Geolocator.getCurrentPosition();
+    DioClient.init(null);
+    await DioClient.dio.post(
+      '${Environment.apiUrl}fare/location',
+      options: Options(
+        headers: {
+          'Authorization':
+              'Bearer ${sharedPrefs.getString(Constants.accessTokenKey)}',
+        },
+      ),
+      data: FareLocationDto(
+        dateTime: DateTime.now().toUtc(),
+        lat: pos.latitude.toString(),
+        lon: pos.longitude.toString(),
+        userId: int.parse(requesterId),
+        isAccurate: true,
+      ).toJson(),
+    );
   }
 }

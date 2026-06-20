@@ -10,9 +10,12 @@ import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
+import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/fare/fare_search_object.dart';
 import 'package:moj_prijevoz/widgets/cards/mp_card.dart';
+import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
+import 'package:moj_prijevoz/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
 import 'package:provider/provider.dart';
 import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
@@ -43,10 +46,11 @@ class _NextFaresComponentState extends State<NextFaresComponent>
 
   @override
   void didPopNext() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       context.read<FareProvider>().clearData(_fareSearchObject);
-      context.read<FareProvider>().fetchNextFares(_fareSearchObject);
+      await context.read<FareProvider>().fetchNextFares(_fareSearchObject);
+      if (!mounted || !_pageController.hasClients) return;
       _pageController.jumpToPage(0);
     });
   }
@@ -182,6 +186,7 @@ class _NextFaresComponentState extends State<NextFaresComponent>
             text: fare.userVehicle!.licensePlate,
             iconHint: "Registarske tablice",
           ),
+          _buildVehiclePicture(fare.userVehicle!),
           SizedBox(height: 12),
           IconFieldWithText(
             iconHint: "Ukupna cijena",
@@ -224,15 +229,78 @@ class _NextFaresComponentState extends State<NextFaresComponent>
       }
       return "Vi ste putnik";
     } else {
+      if (fare.status == FareStatus.inProgress) {
+        return "U toku";
+      } else if (fare.status == FareStatus.accepted && fare.isStartAvailable) {
+        return "Moguće započeti";
+      }
       return "Vi ste vozač";
     }
   }
 
   Future<void> _onTap(FareResponse fare) async {
-    if (fare.status == FareStatus.accepted) {
+    if (fare.status == FareStatus.accepted &&
+        fare.passengerId == _userPassengerProfileId) {
       await _buildPayementDialog(fare);
     } else if (fare.status == FareStatus.inProgress) {
       await _trackUser(fare);
+    } else if (fare.status == FareStatus.accepted &&
+        fare.passengerId != _userPassengerProfileId &&
+        fare.isStartAvailable) {
+      await _buildStartFareDialog(fare);
+    }
+  }
+
+  Future<void> _buildStartFareDialog(FareResponse? fare) async {
+    bool? isDone = await showDialog<bool?>(
+      context: context,
+      builder: (context) => ConfirmationDialog(
+        content:
+            "Ukoliko započnete vožnju, putnik će dobiti obavijest da ste krenuli sa svoje lokacije.\nDa li ste sigurni da želite započeti vožnju?",
+
+        onSubmit: () async {
+          await context.read<FareProvider>().start(fare!.id);
+          Constants.messengerKey.currentState?.showSnackBar(
+            SuccessSnackBar(
+              message:
+                  "Započeli ste vožnju. Sada možete krenuti prema putnikovoj lokaciji.",
+            ),
+          );
+          if (!context.mounted) return null;
+          Navigator.pop(context, true);
+        },
+      ),
+    );
+    if ((isDone ?? false) && mounted) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TrackPassengerPage(fare: fare!),
+        ),
+      );
+    }
+  }
+
+  Widget _buildVehiclePicture(UserVehicleResponse userVehicleResponse) {
+    {
+      return Container(
+        height: 50,
+        decoration: BoxDecoration(
+          border: Border.all(color: Constants.placeholderTextColor, width: 2),
+          shape: BoxShape.circle,
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: userVehicleResponse.picture != null
+            ? Image.network(
+                userVehicleResponse.picture!,
+                fit: BoxFit.fill,
+                errorBuilder: (context, error, stackTrace) => Image.asset(
+                  "images/vehiclePlaceholder.png",
+                  fit: BoxFit.fill,
+                ),
+              )
+            : Image.asset("images/vehiclePlaceholder.png", fit: BoxFit.fill),
+      );
     }
   }
 }
