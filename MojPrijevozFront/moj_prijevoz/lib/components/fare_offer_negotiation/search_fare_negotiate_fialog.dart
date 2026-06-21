@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_driver_response.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
@@ -143,7 +144,7 @@ class _SearchFareNegotiateDialogState extends State<SearchFareNegotiateDialog> {
 
         children: [
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Constants.navigatorKey.currentState?.pop(),
             child: const Text("Otkaži"),
           ),
           PrimaryButton(
@@ -151,7 +152,7 @@ class _SearchFareNegotiateDialogState extends State<SearchFareNegotiateDialog> {
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                Navigator.pop(context);
+                Constants.navigatorKey.currentState?.pop();
               }
             },
           ),

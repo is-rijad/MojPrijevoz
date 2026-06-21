@@ -102,7 +102,7 @@ class _PageWrapperState extends State<PageWrapper> {
       leading: Constants.navigatorKey.currentState?.canPop() ?? false
           ? IconButton(
               icon: Icon(Icons.arrow_back_ios_new_rounded),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Constants.navigatorKey.currentState?.pop(),
             )
           : null,
       automaticallyImplyLeading: false,
@@ -179,22 +179,19 @@ class _PageWrapperState extends State<PageWrapper> {
     switch (_uiProvider.profileDropdownAction) {
       case ProfileDropdownAction.profile:
         if (!context.mounted) return;
-        await Navigator.push(
-          context,
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(builder: (context) => MyProfile()),
         );
         break;
       case ProfileDropdownAction.driver:
         if (!context.mounted) return;
-        await Navigator.push(
-          context,
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(builder: (context) => MyDriverProfile()),
         );
         break;
       case ProfileDropdownAction.fares:
         if (!context.mounted) return;
-        await Navigator.push(
-          context,
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(builder: (context) => MyFaresPage()),
         );
         break;
@@ -207,9 +204,9 @@ class _PageWrapperState extends State<PageWrapper> {
         await context.read<AuthProvider>().logout();
         if (!context.mounted) return;
         _uiProvider.stopLoading();
-        await Navigator.pushReplacement(
-          context,
+        await Constants.navigatorKey.currentState?.pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => LoginPage()),
+          (route) => false,
         );
         break;
       default:
@@ -245,8 +242,15 @@ class _PageWrapperState extends State<PageWrapper> {
                   ),
                 );
               }
-              if (index == provider.searchResult.items.length && _isLoading) {
-                return CircularProgressIndicator();
+              if (index == 1 && provider.searchResult.hasMore == false) {}
+              if (index == provider.searchResult.items.length + 1 &&
+                  _isLoading) {
+                return ListTile(
+                  title: TextBodyMedium(
+                    "Nemate notifikacija!",
+                    textAlign: TextAlign.center,
+                  ),
+                );
               }
               var i = provider.searchResult.items[index - 1];
               return ListTile(
@@ -275,6 +279,7 @@ class _PageWrapperState extends State<PageWrapper> {
       "IsRead": i.isRead,
       "RatingId": i.ratingId,
     });
+    if (mounted) setState(() {});
   }
 
   Widget _buildDrawerIcon(BuildContext context) {

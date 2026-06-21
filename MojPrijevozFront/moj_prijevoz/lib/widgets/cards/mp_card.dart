@@ -38,6 +38,8 @@ class _MpCardState extends State<MpCard> {
           constraints: constraints,
           child: GestureDetector(
             onTap: widget.onTap,
+            onLongPress: widget.onLongPress,
+            onSecondaryTap: widget.onSecondaryTap,
             child: Card(
               borderOnForeground: true,
               elevation: 4,

@@ -344,7 +344,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
         bool? isDone = await _onAcceptOffer();
         if (!mounted) return;
         if (isDone ?? false) {
-          Navigator.pop(context);
+          Constants.navigatorKey.currentState?.pop();
         }
       } on Exception catch (ex, stack) {
         _errorMessage.value = ErrorHandler.handle(ex, stack);
@@ -363,7 +363,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
               widget.fare.lastFareOffer!.id,
             );
             if (context.mounted) {
-              Navigator.pop(context, true);
+              Constants.navigatorKey.currentState?.pop(true);
             }
 
             Constants.messengerKey.currentState?.showSnackBar(
@@ -374,7 +374,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
       },
     );
     if (!mounted) return;
-    Navigator.pop(context, true);
+    Constants.navigatorKey.currentState?.pop(true);
   }
 
   Future _onNewOfferRequest() async {
@@ -402,7 +402,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
                 _request,
               );
               if (context.mounted) {
-                Navigator.pop(context, true);
+                Constants.navigatorKey.currentState?.pop(true);
               }
               Constants.messengerKey.currentState?.showSnackBar(
                 SuccessSnackBar(message: "Poslali ste novu ponudu!"),
@@ -423,7 +423,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
                 widget.fare.lastFareOffer!.id,
               );
               if (context.mounted) {
-                Navigator.pop(context, true);
+                Constants.navigatorKey.currentState?.pop(true);
               }
               Constants.messengerKey.currentState?.showSnackBar(
                 SuccessSnackBar(message: "Prihvatili ste ponudu!"),
@@ -434,7 +434,7 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
       );
     }
     if (mounted && (isDone ?? false)) {
-      Navigator.pop(context);
+      Constants.navigatorKey.currentState?.pop();
     }
   }
 }

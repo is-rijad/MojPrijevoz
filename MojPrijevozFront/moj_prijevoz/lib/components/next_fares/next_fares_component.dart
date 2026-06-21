@@ -200,8 +200,7 @@ class _NextFaresComponentState extends State<NextFaresComponent>
   }
 
   Future _trackUser(FareResponse fare) async {
-    await Navigator.push(
-      context,
+    await Constants.navigatorKey.currentState?.push(
       MaterialPageRoute(
         builder: (context) => fare.passengerId == _userPassengerProfileId
             ? TrackDriverPage(fare: fare)
@@ -211,8 +210,7 @@ class _NextFaresComponentState extends State<NextFaresComponent>
   }
 
   Future _buildPayementDialog(FareResponse i) async {
-    await Navigator.push(
-      context,
+    await Constants.navigatorKey.currentState?.push(
       MaterialPageRoute(
         builder: (context) =>
             StripePaymentPage(fareOfferId: i.lastFareOffer!.id),
@@ -239,8 +237,7 @@ class _NextFaresComponentState extends State<NextFaresComponent>
   }
 
   Future<void> _onTap(FareResponse fare) async {
-    if (fare.status == FareStatus.accepted &&
-        fare.passengerId == _userPassengerProfileId) {
+    if (_canPay(fare) && fare.passengerId == _userPassengerProfileId) {
       await _buildPayementDialog(fare);
     } else if (fare.status == FareStatus.inProgress) {
       await _trackUser(fare);
@@ -249,6 +246,13 @@ class _NextFaresComponentState extends State<NextFaresComponent>
         fare.isStartAvailable) {
       await _buildStartFareDialog(fare);
     }
+  }
+
+  bool _canPay(FareResponse fare) {
+    return fare.status == FareStatus.accepted &&
+        fare.fareStartAfter!
+            .subtract(Duration(minutes: 60))
+            .isAfter(DateTime.now().toUtc());
   }
 
   Future<void> _buildStartFareDialog(FareResponse? fare) async {
@@ -267,13 +271,12 @@ class _NextFaresComponentState extends State<NextFaresComponent>
             ),
           );
           if (!context.mounted) return null;
-          Navigator.pop(context, true);
+          Constants.navigatorKey.currentState?.pop(true);
         },
       ),
     );
     if ((isDone ?? false) && mounted) {
-      await Navigator.push(
-        context,
+      await Constants.navigatorKey.currentState?.push(
         MaterialPageRoute(
           builder: (context) => TrackPassengerPage(fare: fare!),
         ),

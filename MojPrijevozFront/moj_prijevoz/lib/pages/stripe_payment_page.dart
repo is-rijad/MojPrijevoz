@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
@@ -84,7 +85,7 @@ class _StripePaymentPageState extends State<StripePaymentPage> {
       await Stripe.instance.presentPaymentSheet();
     } on StripeException catch (e) {
       if (mounted && e.error.code == FailureCode.Canceled) {
-        Navigator.pop(context);
+        Constants.navigatorKey.currentState?.pop();
         return;
       }
       rethrow;
@@ -96,7 +97,7 @@ class _StripePaymentPageState extends State<StripePaymentPage> {
       });
       await Future.delayed(Duration(seconds: 5), () {
         if (!mounted) return;
-        Navigator.pop(context);
+        Constants.navigatorKey.currentState?.pop();
       });
     }
   }

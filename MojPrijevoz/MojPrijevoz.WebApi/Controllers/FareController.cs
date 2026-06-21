@@ -50,6 +50,11 @@ public class FareController : ControllerBase {
     public async Task<IActionResult> GetNextAcceptedFaresAsync([FromQuery] FareSearchObject searchObject) {
         return Ok(await _fareService.GetNextAcceptedFaresAsync(searchObject));
     }
+
+    [HttpGet("{id}/rated")]
+    public async Task<IActionResult> IsRatedAsync(int id) {
+        return Ok(await _fareService.IsRatedAsync(id));
+    }
     [HttpPost("location")]
     public async Task<IActionResult> SendLocation(FareLocationDto dto) {
         var senderId = _authorizationService.GetUserId();

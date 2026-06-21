@@ -46,7 +46,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         if (await _fareService.HasActiveFareForRoute(request.PassengerId, _mapper.Map<HasActiveFareRequest>(request))) {
             throw new BadRequestException("Već imate zakazanu vožnju za istu rutu, na isti dan!");
         }
-        if (request.FareDateTime < DateTime.Now) {
+        if (request.FareDateTime < DateTime.UtcNow) {
             throw new BadRequestException("Vrijeme vožnje ne može biti u prošlosti!");
         }
 
@@ -306,12 +306,15 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
 
         var newStart = entity.Fare!.FareData!.FareDateTime;
         var newEnd = entity.Fare!.FareData!.FareDateTime.AddMinutes(entity.Fare!.FareData!.Duration);
-        var isDriverUnavailable = await _dbContext.Fares
+
+        var unavailableQuery = _dbContext.Fares
             .Where(f =>
-                f.Status == FareStatus.Accepted &&
+                (f.Status == FareStatus.Accepted || f.Status == FareStatus.Payed ||
+                 f.Status == FareStatus.InProgress) &&
                 (f.FareStartAfter ?? f.FareData!.FareDateTime.AddMinutes(-30)) < newEnd &&
-                f.FareData!.FareDateTime.AddMinutes(f.FareData.Duration) > newStart
-                && f.DriverId == entity.Fare!.DriverId
+                f.FareData!.FareDateTime.AddMinutes(f.FareData.Duration) > newStart).AsQueryable();
+        var isDriverUnavailable = await unavailableQuery
+            .Where(f => f.DriverId == entity.Fare!.DriverId
             ).AnyAsync();
         if (isDriverUnavailable)
         {
@@ -323,12 +326,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             throw new BadRequestException("Vozač je zauzet u tom periodu!");
         }
 
-        var isPassengerUnavailable = await _dbContext.Fares
-            .Where(f =>
-                f.Status == FareStatus.Accepted &&
-                (f.FareStartAfter ?? f.FareData!.FareDateTime.AddMinutes(-30)) < newEnd &&
-                f.FareData!.FareDateTime.AddMinutes(f.FareData.Duration) > newStart
-                && f.PassengerId == entity.Fare!.PassengerId
+        var isPassengerUnavailable = await unavailableQuery
+            .Where(f => f.PassengerId == entity.Fare!.PassengerId
             ).AnyAsync();
         if (isPassengerUnavailable) {
             var tempState = _baseFareOfferState.GetState((short)entity.Status);
@@ -409,7 +408,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             .Include(fareOffer => fareOffer.Fare!)
             .ThenInclude(fare => fare.Driver!)
             .Include(fareOffer => fareOffer.Fare)
-            .ThenInclude(fare => fare.Passenger!)
+            .ThenInclude(fare => fare!.Passenger!)
             .FirstAsync(it => it.Id == id);
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
@@ -475,8 +474,10 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
     {
         var fareOffersToExpire = await _dbContext.FareOffers
             .Where(it =>
-                it.Status == FareOfferStatus.WaitingForResponse && it.CreatedAt.AddHours(48) <
-                DateTime.UtcNow)
+                (it.Status == FareOfferStatus.WaitingForResponse && (it.UpdatedAt.AddHours(48) <=
+                    DateTime.UtcNow || it.CreatedAt.AddHours(48) <=
+                    DateTime.UtcNow)) || (it.Status == FareOfferStatus.Accepted &&
+                                          it.Fare!.FareStartAfter!.Value.AddMinutes(-60) < DateTime.UtcNow))
             .Include(it => it.Fare!.Driver)
             .ThenInclude(it => it!.User)
             .Include(it => it.Fare!.Passenger)

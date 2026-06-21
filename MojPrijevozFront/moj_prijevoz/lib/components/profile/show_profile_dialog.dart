@@ -76,7 +76,7 @@ class _ShowProfileDialogState extends State<ShowProfileDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Constants.navigatorKey.currentState?.pop(),
                   icon: Icon(Icons.cancel),
                 ),
               ],
@@ -84,6 +84,21 @@ class _ShowProfileDialogState extends State<ShowProfileDialog> {
             Avatar(user: userProfile.user!, maxRadius: 60),
             TextHeadlineSmall(
               "${userProfile.user!.firstName} ${userProfile.user!.lastName}",
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+              decoration: BoxDecoration(
+                color: context.primaryColor,
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+              ),
+              width: context.screenWidth * 0.7,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const TextLabelLarge("Broj vožnji"),
+                  TextLabelLarge(userProfile.numberOfFares.toString()),
+                ],
+              ),
             ),
             Expanded(
               child:

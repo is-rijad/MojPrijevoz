@@ -41,20 +41,23 @@ class _DeleteDialogState<
 
   @override
   Widget build(BuildContext context) {
-    return MPAlertDialog(
-      title: "Obriši ${widget.entityName}",
-      content: AlertDialogContent(
-        errorMessageValueNotifier: _errorMessage,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            TextBodyMedium(
-              "Da li ste sigurni da želite obrisati ${widget.entityName} ${widget.itemToString.call(widget.selectedItem)}",
-            ),
-            SizedBox(height: 20),
-            _buildButtons(context),
-          ],
+    return SizedBox.shrink(
+      child: MPAlertDialog(
+        title: "Obriši ${widget.entityName}",
+        content: AlertDialogContent(
+          errorMessageValueNotifier: _errorMessage,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              TextTitleMedium(
+                "Da li ste sigurni da želite obrisati ${widget.entityName} ${widget.itemToString.call(widget.selectedItem)}?",
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20),
+              _buildButtons(context),
+            ],
+          ),
         ),
       ),
     );
@@ -66,7 +69,7 @@ class _DeleteDialogState<
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Constants.navigatorKey.currentState?.pop(),
           child: const Text("Otkaži"),
         ),
         PrimaryButton(onPressed: () => _submitForm(), text: "Obriši"),
@@ -79,7 +82,7 @@ class _DeleteDialogState<
       await context.read<TProvider>().deleteWithEvent(widget.selectedItem.id);
 
       if (!mounted) return;
-      Navigator.pop(context, true);
+      Constants.navigatorKey.currentState?.pop(true);
       Constants.messengerKey.currentState!.showSnackBar(
         SuccessSnackBar(message: "Uspješno obrisano!"),
       );

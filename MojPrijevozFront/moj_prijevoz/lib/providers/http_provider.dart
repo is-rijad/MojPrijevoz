@@ -27,7 +27,10 @@ class HttpProvider {
         options: options,
         queryParameters: queryParameters,
       );
-      return parseJson<TResponse>(response.data);
+      if (response.data is Map<String, dynamic>) {
+        return parseJson<TResponse>(response.data);
+      }
+      return response.data as TResponse;
     } finally {
       _uiProvider.stopLoading();
     }
@@ -153,8 +156,7 @@ class HttpProvider {
       headersMap.addEntries(
         <String, dynamic>{"Authorization": "Bearer $token"}.entries,
       );
-      // ignore: empty_catches
-    } on Exception {}
+    } catch (_) {}
 
     options.headers = headersMap;
     return options;

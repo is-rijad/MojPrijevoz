@@ -6,9 +6,7 @@ import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/components/next_fares/next_fares_component.dart';
 import 'package:moj_prijevoz/pages/search_fare_page.dart';
 import 'package:moj_prijevoz/providers/fare_location_provider.dart';
-import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/providers/hub_connection.dart';
-import 'package:moj_prijevoz/providers/location_provider.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
@@ -16,8 +14,6 @@ import 'package:moj_prijevoz/resources/responses/notification/notification_respo
 import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search_object.dart';
 import 'package:moj_prijevoz/resources/search_objects/notification/notification_search_object.dart';
 import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
-import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
-import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
 import 'package:moj_prijevoz/widgets/dialogs/modal_bottom_sheet.dart';
@@ -96,7 +92,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    Navigator.canPop(context);
     return LoadUntilReadyWrapper(
       buildFunction: (context) => _buildHomePage(context),
       futureFunction: _init,
@@ -132,7 +127,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           content: 'GPS je isključen. Otvoriti postavke lokacije?',
           onSubmit: () async {
             await Geolocator.openLocationSettings();
-            Constants.navigatorKey.currentState!.pop();
+            Constants.navigatorKey.currentState?.pop();
           },
         ),
       );
@@ -156,7 +151,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               'Idite na Dopuštenja > Lokacija > Dopusti cijelo vrijeme.',
           onSubmit: () async {
             await Geolocator.openAppSettings();
-            Constants.navigatorKey.currentState!.pop();
+            Constants.navigatorKey.currentState?.pop();
           },
         ),
       );
@@ -310,8 +305,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _nominatimPlaceSelector.selectPlace(location);
     }
     if (!mounted) return;
-    await Navigator.push(
-      context,
+    await Constants.navigatorKey.currentState?.push(
       MaterialPageRoute(
         builder: (context) =>
             SearchFarePage(to: _nominatimPlaceSelector.locationBound!),

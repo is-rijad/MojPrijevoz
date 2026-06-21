@@ -94,9 +94,10 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
       fallbackText: "Nemate vožnji kao putnik!",
       children: (i) => [
         (i.lastFareOffer!.side == FareOfferSide.driver &&
-                (i.lastFareOffer!.status ==
-                        FareOfferStatus.waitingForResponse ||
-                    i.lastFareOffer!.status == FareOfferStatus.accepted))
+                (i.status == FareStatus.inNegotiation ||
+                    i.status == FareStatus.payed ||
+                    i.status == FareStatus.inProgress ||
+                    i.status == FareStatus.accepted))
             ? Badge(
                 child: IconFieldWithText(
                   iconData: Icons.info,
@@ -194,7 +195,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
           text: "${i.lastFareOffer!.totalPrice.roundToDouble().toString()}KM",
           textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
         ),
-        (i.status == FareStatus.accepted)
+        (_canPay(i))
             ? FractionallySizedBox(
                 widthFactor: 0.6,
                 child: PrimaryButton(
@@ -212,9 +213,31 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
                 ),
               )
             : SizedBox.shrink(),
+        if (_canPay(i))
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextLabelSmall(
+                    "* vožnju možete platiti najkasnije do ${context.getLocalizedDate(i.fareStartAfter!.subtract(Duration(minutes: 60)))} ${context.getLocalizedTime(i.fareStartAfter!.subtract(Duration(minutes: 60)))}",
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
       onTap: (i) => _onTapCard(i!),
     );
+  }
+
+  bool _canPay(FareResponse fare) {
+    return fare.status == FareStatus.accepted &&
+        fare.fareStartAfter!
+            .subtract(Duration(minutes: 60))
+            .isAfter(DateTime.now().toUtc());
   }
 
   Future<void> _onTapCard(FareResponse fare) async {
@@ -225,19 +248,19 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
       await _trackUser(fare);
     } else if (fare.status == FareStatus.completed) {
       await _navigateToReviewPage(fare);
+    } else if (_canPay(fare)) {
+      await _buildPayementDialog(fare);
     }
   }
 
   Future _trackUser(FareResponse fare) async {
-    await Navigator.push(
-      context,
+    await Constants.navigatorKey.currentState?.push(
       MaterialPageRoute(builder: (context) => TrackDriverPage(fare: fare)),
     );
   }
 
   Future<void> _navigateToNegotiatePage(FareResponse fare) async {
-    await Navigator.push(
-      context,
+    await Constants.navigatorKey.currentState?.push(
       MaterialPageRoute(
         builder: (context) =>
             FareOfferNegotiatePage(fare: fare, person: fare.driver!),
@@ -246,8 +269,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
   }
 
   Future<void> _navigateToReviewPage(FareResponse fare) async {
-    await Navigator.push(
-      context,
+    await Constants.navigatorKey.currentState?.push(
       MaterialPageRoute(
         builder: (context) => ReviewPage(
           fare: fare,
@@ -269,7 +291,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
             fare!.lastFareOffer!.id,
           );
           if (context.mounted) {
-            Navigator.pop(context, true);
+            Constants.navigatorKey.currentState?.pop(true);
           }
           Constants.messengerKey.currentState?.showSnackBar(
             SuccessSnackBar(message: "Otkazali ste vožnju."),
@@ -294,8 +316,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
   }
 
   Future _buildPayementDialog(FareResponse i) async {
-    await Navigator.push(
-      context,
+    await Constants.navigatorKey.currentState?.push(
       MaterialPageRoute(
         builder: (context) =>
             StripePaymentPage(fareOfferId: i.lastFareOffer!.id),

@@ -32,7 +32,7 @@ class UIProvider {
   Future handleNavigationFromNotification(Map<String, dynamic> data) async {
     switch (data["Type"]) {
       case Constants.newFareOfferType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) => MyFaresPage(
               fareId: data["FareId"]?.toString(),
@@ -42,7 +42,7 @@ class UIProvider {
         );
         break;
       case Constants.payedFareOfferType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) => MyFaresPage(
               fareId: data["FareId"]?.toString(),
@@ -52,7 +52,7 @@ class UIProvider {
         );
         break;
       case Constants.expiredFareOfferType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) => MyFaresPage(
               fareId: data["FareId"]?.toString(),
@@ -62,7 +62,7 @@ class UIProvider {
         );
         break;
       case Constants.acceptedFareOfferType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) => MyFaresPage(
               fareId: data["FareId"]?.toString(),
@@ -72,7 +72,7 @@ class UIProvider {
         );
         break;
       case Constants.rejectedFareOfferType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) => MyFaresPage(
               fareId: data["FareId"]?.toString(),
@@ -82,7 +82,7 @@ class UIProvider {
         );
         break;
       case Constants.cancelledFareOfferType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) => MyFaresPage(
               fareId: data["FareId"]?.toString(),
@@ -92,7 +92,7 @@ class UIProvider {
         );
         break;
       case Constants.completedFareType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) => MyFaresPage(
               fareId: data["FareId"]?.toString(),
@@ -102,7 +102,7 @@ class UIProvider {
         );
         break;
       case Constants.newRatingType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) => ReviewPage(
               fareIdFromNotification: data["FareId"]?.toString(),
@@ -114,7 +114,7 @@ class UIProvider {
         );
         break;
       case Constants.proximityNotificationType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) =>
                 TrackDriverPage(fareIdFromNotification: data["FareId"]),
@@ -122,7 +122,7 @@ class UIProvider {
         );
         break;
       case Constants.startedFareType:
-        await Constants.navigatorKey.currentState!.push(
+        await Constants.navigatorKey.currentState?.push(
           MaterialPageRoute(
             builder: (context) =>
                 TrackDriverPage(fareIdFromNotification: data["FareId"]),

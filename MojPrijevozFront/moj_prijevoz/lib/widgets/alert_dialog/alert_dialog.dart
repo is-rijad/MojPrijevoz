@@ -2,6 +2,7 @@
 import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
 
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 
 import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
@@ -50,7 +51,7 @@ class _AlertDialogState extends State<AlertDialog> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Constants.navigatorKey.currentState?.pop(),
           child: const Text("Ne"),
         ),
         ElevatedButton(

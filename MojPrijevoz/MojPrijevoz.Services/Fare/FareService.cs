@@ -159,11 +159,17 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return MapToResponseModel<FareResponse>(entity, _mapper);
     }
 
+    public async Task<bool> IsRatedAsync(int id)
+    {
+        var userId = _authorizationService.GetUserId();
+        return await _dbContext.Ratings.AnyAsync(it => it.FareId == id && it.From!.UserId == userId);
+    }
+
     public async Task MarkAsCompleted()
     {
         var faresToComplete = await _dbContext.Fares
             .Where(it =>
-                it.Status == FareStatus.InProgress && it.FareData!.FareDateTime.AddMinutes(it.FareData!.Duration + 60) <
+                it.Status == FareStatus.InProgress && it.FareData!.FareDateTime.AddMinutes(it.FareData!.Duration + 60) <=
                 DateTime.UtcNow)
             .Include(it => it.Driver)
             .ThenInclude(it => it!.User)

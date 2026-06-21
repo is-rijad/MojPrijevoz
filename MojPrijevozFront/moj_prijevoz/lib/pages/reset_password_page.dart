@@ -175,7 +175,7 @@ class _ResetPasswordState extends State<ResetPasswordPage> {
         SuccessSnackBar(message: "Uspješno ste resetovali lozinku!"),
       );
       if (!context.mounted) return;
-      Navigator.pop(context);
+      Constants.navigatorKey.currentState?.pop();
     }
   }
 }

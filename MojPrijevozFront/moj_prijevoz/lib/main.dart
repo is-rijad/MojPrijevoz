@@ -105,8 +105,7 @@ Future<void> main() async {
     AccessTokenPayload? payload;
     try {
       payload = await AuthProvider.getPayload();
-      // ignore: empty_catches
-    } on Exception {}
+    } catch (_) {}
     final authProvider = AuthProvider(payload);
     DioClient.init(authProvider);
 

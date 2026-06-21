@@ -91,7 +91,6 @@ public class SignalRHub(
         }
         else
         {
-            await RequestLocation(userId);
             await using var scope = scopeFactory.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<MojPrijevozDbContext>();
             var parsedUserId = int.Parse(userId);

@@ -98,9 +98,9 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
 
       children: (i) => [
         (i.lastFareOffer!.side == FareOfferSide.passenger &&
-                (i.lastFareOffer!.status ==
-                        FareOfferStatus.waitingForResponse ||
-                    i.lastFareOffer!.status == FareOfferStatus.payed))
+                (i.status == FareStatus.inNegotiation ||
+                    i.status == FareStatus.payed ||
+                    i.status == FareStatus.inProgress))
             ? Badge(
                 child: IconFieldWithText(
                   iconData: Icons.info,
@@ -211,6 +211,21 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
                 ),
               )
             : SizedBox.shrink(),
+        if (!i.isStartAvailable && i.status == FareStatus.payed)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextLabelSmall(
+                    "* vožnju ćete moći započeti nakon ${context.getLocalizedDate(i.fareStartAfter!)} ${context.getLocalizedTime(i.fareStartAfter!)}",
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
       onTap: (i) async => await _onTapCard(i!),
       fallbackText: "Nemate vožnji kao vozač",
@@ -225,32 +240,33 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
       await _trackUser(fare);
     } else if (fare.status == FareStatus.completed) {
       await _navigateToReviewPage(fare);
+    } else if (fare.isStartAvailable) {
+      await _buildStartFareDialog(fare);
     }
   }
 
   Future _trackUser(FareResponse fare) async {
-    await Navigator.push(
-      context,
+    await Constants.navigatorKey.currentState?.push(
       MaterialPageRoute(builder: (context) => TrackPassengerPage(fare: fare)),
     );
   }
 
   Future<void> _navigateToReviewPage(FareResponse fare) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ReviewPage(
-          fare: fare,
-          profileType: ProfileType.driver,
-          isReadOnly: false,
+    if (!(await context.read<FareProvider>().isRated(fare.id)) && mounted) {
+      await Constants.navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => ReviewPage(
+            fare: fare,
+            profileType: ProfileType.driver,
+            isReadOnly: false,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Future<void> _navigateToNegotiatePage(FareResponse fare) async {
-    await Navigator.push(
-      context,
+    await Constants.navigatorKey.currentState?.push(
       MaterialPageRoute(
         builder: (context) =>
             FareOfferNegotiatePage(fare: fare, person: fare.passenger!),
@@ -274,13 +290,12 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
             ),
           );
           if (!context.mounted) return null;
-          Navigator.pop(context, true);
+          Constants.navigatorKey.currentState?.pop(true);
         },
       ),
     );
     if ((isDone ?? false) && mounted) {
-      await Navigator.push(
-        context,
+      await Constants.navigatorKey.currentState?.push(
         MaterialPageRoute(
           builder: (context) => TrackPassengerPage(fare: fare!),
         ),
@@ -302,13 +317,13 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
             SuccessSnackBar(message: "Otkazali ste vožnju."),
           );
           if (context.mounted) {
-            Navigator.pop(context, true);
+            Constants.navigatorKey.currentState?.pop(true);
           }
         },
       ),
     );
     if ((isDone ?? false) && mounted) {
-      Navigator.pop(context);
+      Constants.navigatorKey.currentState?.pop();
     }
   }
 

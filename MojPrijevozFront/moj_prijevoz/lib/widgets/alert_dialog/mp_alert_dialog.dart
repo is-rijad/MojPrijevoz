@@ -48,7 +48,7 @@ class MPAlertDialog extends StatelessWidget {
             children: [
               TextTitleMedium(title ?? ""),
               IconButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Constants.navigatorKey.currentState?.pop(),
                 icon: Image.asset("images/iconClose.png"),
               ),
             ],

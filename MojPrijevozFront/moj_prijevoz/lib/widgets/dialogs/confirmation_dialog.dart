@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
@@ -26,7 +27,7 @@ class _ConfirmationDialogState extends State<ConfirmationDialog> {
   @override
   Widget build(BuildContext context) {
     return MPAlertDialog(
-      constraints: BoxConstraints(maxHeight: context.screenHeight * 0.5),
+      constraints: BoxConstraints(maxHeight: context.screenHeight * 0.6),
       content: AlertDialogContent(
         errorMessageValueNotifier: _errorNotifier,
         child: Column(
@@ -48,7 +49,7 @@ class _ConfirmationDialogState extends State<ConfirmationDialog> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Constants.navigatorKey.currentState?.pop(),
           child: const Text("Ne"),
         ),
         PrimaryButton(

@@ -58,7 +58,7 @@ class UserVehicleUpsertDialog
           }
           if (!context.mounted) return;
           previewImage.value = null;
-          Navigator.pop(context, resultItem);
+          Constants.navigatorKey.currentState?.pop(resultItem);
           Constants.messengerKey.currentState?.showSnackBar(
             SuccessSnackBar(message: "Uspješno spremljeno!"),
           );

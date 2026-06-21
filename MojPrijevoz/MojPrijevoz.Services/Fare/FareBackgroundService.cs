@@ -15,7 +15,7 @@ public class FareBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var timer = new PeriodicTimer(TimeSpan.FromHours(1));
+        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(15));
 
         while (await timer.WaitForNextTickAsync(stoppingToken)) {
             await DoWorkAsync();

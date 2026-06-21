@@ -119,13 +119,14 @@ class _ReviewPageState extends State<ReviewPage> {
     }
     _request.fareId = _fare.id;
     _request.profileType = _profileType;
+    _request.comment = _commentController.text;
     await context.read<RatingProvider>().insert(_request);
     if (!mounted) return;
 
     Constants.messengerKey.currentState!.showSnackBar(
       SuccessSnackBar(message: "Uspješno ste ostavili ocjenu!"),
     );
-    Navigator.pop(context);
+    Constants.navigatorKey.currentState?.pop();
   }
 
   Future<bool> _init() async {

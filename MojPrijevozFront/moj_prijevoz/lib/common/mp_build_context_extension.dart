@@ -14,11 +14,11 @@ extension MPBuildContext on BuildContext {
 
   String getLocalizedDate(DateTime date) {
     final locale = Localizations.localeOf(this).toString();
-    return DateFormat.yMMMd(locale).format(date.toLocal());
+    return DateFormat.yMMMd(locale).format(date);
   }
 
   String getLocalizedTime(DateTime date) {
     final locale = Localizations.localeOf(this).toString();
-    return DateFormat.Hm(locale).format(date.toLocal());
+    return DateFormat.Hm(locale).format(date);
   }
 }

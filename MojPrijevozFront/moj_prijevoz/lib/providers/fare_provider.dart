@@ -25,8 +25,8 @@ class FareProvider
     await super.fetchData(searchObject);
     for (var fare in searchResult.items) {
       if (fare.fareStartAfter != null) {
-        final remaining = fare.fareStartAfter!.toLocal().difference(
-          DateTime.now(),
+        final remaining = fare.fareStartAfter!.difference(
+          DateTime.now().toUtc(),
         );
         if (!remaining.isNegative) {
           fareStartTimers[fare.id] = Timer(
@@ -59,6 +59,10 @@ class FareProvider
       null,
     );
     return fare;
+  }
+
+  Future<bool> isRated(int id) async {
+    return await httpProvider.getSingle<dynamic>("$providerName/$id/rated");
   }
 
   Future<void> fetchNextFares(FareSearchObject searchObject) async {

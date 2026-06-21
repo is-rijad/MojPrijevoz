@@ -48,22 +48,24 @@ class _UpsertDialogState<
 
   @override
   Widget build(BuildContext context) {
-    return MPAlertDialog(
-      title: widget.selectedItem != null
-          ? "Uredi ${widget.entityName}"
-          : "Dodaj ${widget.entityName}",
-      content: AlertDialogContent(
-        errorMessageValueNotifier: _errorMessage,
-        child: FormWrapper(
-          paddingFactor: 0.02,
-          screenWidthFactor: 0.9,
-          formKey: _formKey,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ...widget.buildContent(context, widget.request),
-            SizedBox(height: 20),
-            _buildButtons(context),
-          ],
+    return SizedBox.shrink(
+      child: MPAlertDialog(
+        title: widget.selectedItem != null
+            ? "Uredi ${widget.entityName}"
+            : "Dodaj ${widget.entityName}",
+        content: AlertDialogContent(
+          errorMessageValueNotifier: _errorMessage,
+          child: FormWrapper(
+            paddingFactor: 0.02,
+            screenWidthFactor: 0.9,
+            formKey: _formKey,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ...widget.buildContent(context, widget.request),
+              SizedBox(height: 20),
+              _buildButtons(context),
+            ],
+          ),
         ),
       ),
     );
@@ -75,7 +77,7 @@ class _UpsertDialogState<
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         ElevatedButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Constants.navigatorKey.currentState?.pop(),
           child: const Text("Otkaži"),
         ),
         PrimaryButton(
@@ -111,7 +113,7 @@ class _UpsertDialogState<
           );
         }
         if (!mounted) return;
-        Navigator.pop(context, resultItem);
+        Constants.navigatorKey.currentState?.pop(resultItem);
         Constants.messengerKey.currentState!.showSnackBar(
           SuccessSnackBar(message: "Uspješno spremljeno!"),
         );

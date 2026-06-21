@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/providers/user_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/create_user_request.dart';
 import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
@@ -145,7 +146,7 @@ class RegisterPageState extends State<RegisterPage> {
       _formKey.currentState!.save();
       await context.read<UserProvider>().insert(_request);
       if (!mounted) return;
-      Navigator.pop(context);
+      Constants.navigatorKey.currentState?.pop();
     }
   }
 }

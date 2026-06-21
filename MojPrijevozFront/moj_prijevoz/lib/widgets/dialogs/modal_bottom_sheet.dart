@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
@@ -128,7 +129,7 @@ class _ModalBottomSheetState<
                       return ListTile(
                         title: Text(widget.getItemTitle.call(item)),
                         onTap: () {
-                          Navigator.of(context).pop(item);
+                          Constants.navigatorKey.currentState?.pop(item);
                         },
                       );
                     },

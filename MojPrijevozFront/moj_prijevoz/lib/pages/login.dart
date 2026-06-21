@@ -38,9 +38,9 @@ class _LoginPageState extends State<LoginPage> {
       _formKey.currentState!.save();
       await context.read<AuthProvider>().login(_loginRequest);
       if (!context.mounted) return;
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
+      Constants.navigatorKey.currentState?.pushReplacement(
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
     }
   }
 
@@ -129,9 +129,9 @@ class _LoginPageState extends State<LoginPage> {
               padding: WidgetStatePropertyAll(EdgeInsets.zero),
             ),
             onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (context) => RegisterPage()));
+              Constants.navigatorKey.currentState?.push(
+                MaterialPageRoute(builder: (context) => RegisterPage()),
+              );
             },
             child: const TextBodySmall("Nemate račun? Registrujte se."),
           ),
@@ -140,8 +140,7 @@ class _LoginPageState extends State<LoginPage> {
               padding: WidgetStatePropertyAll(EdgeInsets.zero),
             ),
             onPressed: () async {
-              await Navigator.push(
-                context,
+              await Constants.navigatorKey.currentState?.push(
                 MaterialPageRoute(builder: (context) => ResetPasswordPage()),
               );
             },

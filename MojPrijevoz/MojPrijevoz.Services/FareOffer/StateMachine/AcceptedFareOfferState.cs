@@ -13,9 +13,13 @@ public class AcceptedFareOfferState : BaseFareOfferState {
         entity.Status = Database.FareOfferStatus.Cancelled;
         return entity;
     }
+    public override Database.FareOffer Expire(Database.FareOffer entity) {
+        entity.Status = Database.FareOfferStatus.Expired;
+        return entity;
+    }
 
     public override Task<List<string>> AllowedActions(int id) {
-        var list = new List<string>() { nameof(Pay), nameof(Cancel) };
+        var list = new List<string>() { nameof(Pay), nameof(Cancel), nameof(Expire) };
         return Task.FromResult(list);
     }
 }

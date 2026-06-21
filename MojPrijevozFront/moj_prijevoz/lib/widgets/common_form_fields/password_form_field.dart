@@ -42,6 +42,7 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
             iconHint: widget.decoration?.iconHint,
             hintText: widget.decoration?.hintText,
           ).copyWith(
+            errorMaxLines: 3,
             suffixIcon: IconButton(
               icon: Icon(
                 _isObscured ? Icons.visibility : Icons.visibility_off,
@@ -57,7 +58,8 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
       onSaved: widget.onSaved,
       controller: widget.controller,
       validator: (value) {
-        var errorMessage = "Lozinka nije validna!";
+        var errorMessage =
+            "Lozinka mora imati minimalno 8 znakova, velika i mala slova, barem jedan broj i specijalni znak!";
         if (widget.required && (value == null || value.isEmpty)) {
           return errorMessage;
         }
