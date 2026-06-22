@@ -49,6 +49,11 @@ public class SearchFareService : ISearchFareService {
         var profilesQuery = _dbContext.UserProfiles
             .Where(it => it.ProfileType == ProfileType.Driver && it.Id != profileId && !unAvailableDrivers.Contains(it.Id)).AsQueryable();
 
+        if (searchObject.DriverId != null)
+        {
+            profilesQuery = profilesQuery.Where(it => it.Id == searchObject.DriverId.Value);
+        }
+
         var fullCount = await profilesQuery.CountAsync();
         double passLat = Convert.ToDouble(passengerCity.Lat, System.Globalization.CultureInfo.InvariantCulture);
         double passLon = Convert.ToDouble(passengerCity.Long, System.Globalization.CultureInfo.InvariantCulture);

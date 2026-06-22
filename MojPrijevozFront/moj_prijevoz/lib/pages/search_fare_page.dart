@@ -37,6 +37,7 @@ import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/cards/mp_card.dart';
 import 'package:moj_prijevoz/widgets/date_time/date_time_picker_form_field.dart';
 import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
+import 'package:moj_prijevoz/widgets/dialogs/modal_bottom_sheet.dart';
 import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
@@ -50,9 +51,10 @@ import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
 
 class SearchFarePage extends StatefulWidget {
-  final NominatimResponse to;
+  final NominatimResponse? to;
+  final int? driverId;
 
-  const SearchFarePage({super.key, required this.to});
+  const SearchFarePage({super.key, this.to, this.driverId});
 
   @override
   State<StatefulWidget> createState() => _SearchFarePageState();
@@ -106,7 +108,9 @@ class _SearchFarePageState extends State<SearchFarePage> {
     _nominatimPlaceSelectorForFinalLocation = NominatimPlaceSelector(
       searchObject: _nominatimSearchObject,
     );
-    _nominatimPlaceSelectorForFinalLocation.selectPlace(widget.to);
+    if (widget.to != null) {
+      _nominatimPlaceSelectorForFinalLocation.selectPlace(widget.to!);
+    }
     context.read<SearchFareProvider>().clearData(_searchFareSearchObject);
     context.read<SearchFareProvider>().clearFareDrivers();
     _addStopPlace();
@@ -397,6 +401,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
         setState(() {
           _nominatimPlaceSelectorForFinalLocation.selectPlace(value);
           _request.finalLocation = value;
+          _nominatimSearchObject.contains = value.displayName;
         });
       },
       initialValue: _nominatimPlaceSelectorForFinalLocation.locationBound,
@@ -404,23 +409,26 @@ class _SearchFarePageState extends State<SearchFarePage> {
           InputDecorationWithIcon(
             iconData: Icons.location_on_outlined,
             iconHint: "Putujem do",
+            hintText: "Destinacija",
           ).copyWith(
             suffixIcon: IconButton(
               onPressed: () => setState(() {
                 _request.isChanged = true;
                 _nominatimPlaceSelectorForFinalLocation.resetSelection();
                 _request.finalLocation = null;
+                _nominatimSearchObject.contains = null;
               }),
               icon: Icon(Icons.clear_rounded),
             ),
           ),
       validator: (value) {
-        if (value == null) {
+        if (_nominatimPlaceSelectorForFinalLocation.locationBound == null) {
           return "Destinacija je obavezna!";
         }
         return null;
       },
-      onSaved: (value) => _request.finalLocation = value,
+      onSaved: (value) => _request.finalLocation =
+          _nominatimPlaceSelectorForFinalLocation.locationBound,
     );
   }
 
@@ -484,9 +492,15 @@ class _SearchFarePageState extends State<SearchFarePage> {
       child: Center(
         child: Consumer<SearchFareProvider>(
           builder: (context, provider, _) {
+            if (provider.searchResult.items.isEmpty &&
+                widget.driverId != null) {
+              return const Center(
+                child: TextTitleMedium("Vozač nije dostupan za ovu rutu!"),
+              );
+            }
             if (provider.searchResult.items.isEmpty) {
               return const Center(
-                child: Text("Nisu pronađeni vozači za ovu rutu!"),
+                child: TextTitleMedium("Nisu pronađeni vozači za ovu rutu!"),
               );
             }
             return Column(
@@ -868,6 +882,21 @@ class _SearchFarePageState extends State<SearchFarePage> {
   }
 
   Future<void> _onClickRecommendedDriver() async {
+    if (_nominatimSearchObject.contains != null &&
+        _nominatimPlaceSelectorForFinalLocation.locationBound == null) {
+      final location =
+          await ModalBottomSheet.showModalSheet<
+            NominatimResponse,
+            NominatimSearchObject,
+            NominatimProvider
+          >(context, _nominatimSearchObject, (i) => i.displayName);
+      _request.isChanged = true;
+      setState(() {
+        _nominatimPlaceSelectorForFinalLocation.selectPlace(location);
+        _request.finalLocation = location;
+        _nominatimSearchObject.contains = location.displayName;
+      });
+    }
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         _uiProvider.startLoading();
@@ -906,6 +935,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
         _searchFareSearchObject.distance = route.distance;
         _searchFareSearchObject.budget = _request.budget;
         _searchFareSearchObject.fareDateTime = _request.fareDateTime;
+        _searchFareSearchObject.driverId = widget.driverId;
 
         if (!mounted) return;
         await context.read<SearchFareProvider>().fetchData(

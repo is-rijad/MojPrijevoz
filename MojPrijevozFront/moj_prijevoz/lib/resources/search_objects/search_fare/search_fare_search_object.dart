@@ -10,6 +10,7 @@ class SearchFareSearchObject extends BaseSearchObject {
   double? budget;
   double? distance;
   double? duration;
+  int? driverId;
 
   SearchFareSearchObject({
     this.originCityId,
@@ -17,6 +18,7 @@ class SearchFareSearchObject extends BaseSearchObject {
     this.budget,
     this.distance,
     this.duration,
+    this.driverId,
     required super.page,
     required super.pageSize,
   });

@@ -1,7 +1,9 @@
 import 'package:easy_stars/easy_stars.dart';
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/components/profile/show_profile_dialog.dart';
+import 'package:moj_prijevoz/pages/search_fare_page.dart';
 import 'package:moj_prijevoz/providers/recommender_provider.dart';
 import 'package:moj_prijevoz/resources/responses/recommender/recommended_driver_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/recommended_drivers/recommended_drivers_search_object.dart';
@@ -32,7 +34,7 @@ class _RecommendedDriversComponentState
       padding: EdgeInsets.symmetric(vertical: 12),
       spacing: 8,
       searchObject: RecommendedDriversSearchObject(page: 1, pageSize: 5),
-      onTap: (i) => {},
+      onTap: (i) async => await _onTap(i!.id),
       fallbackText: "Nema preporučenih vozača",
       children: (i) => _buildRecommendedDriverCard(context, i),
     );
@@ -89,6 +91,14 @@ class _RecommendedDriversComponentState
       builder: (context) {
         return ShowProfileDialog(profileId: profileId);
       },
+    );
+  }
+
+  Future<void> _onTap(int profileId) async {
+    await Constants.navigatorKey.currentState?.push(
+      MaterialPageRoute(
+        builder: (context) => SearchFarePage(driverId: profileId),
+      ),
     );
   }
 }

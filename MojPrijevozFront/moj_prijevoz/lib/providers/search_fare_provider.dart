@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/providers/base_provider.dart';
 import 'package:moj_prijevoz/providers/http_provider.dart';
@@ -15,7 +16,7 @@ class SearchFareProvider
 
   void clearFareDrivers() {
     fareDrivers.clear();
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
   }
 
   @override

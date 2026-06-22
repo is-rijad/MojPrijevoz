@@ -16,6 +16,7 @@ SearchFareSearchObject _$SearchFareSearchObjectFromJson(
   budget: (json['budget'] as num?)?.toDouble(),
   distance: (json['distance'] as num?)?.toDouble(),
   duration: (json['duration'] as num?)?.toDouble(),
+  driverId: (json['driverId'] as num?)?.toInt(),
   page: (json['page'] as num).toInt(),
   pageSize: (json['pageSize'] as num).toInt(),
 );
@@ -30,4 +31,5 @@ Map<String, dynamic> _$SearchFareSearchObjectToJson(
   'budget': instance.budget,
   'distance': instance.distance,
   'duration': instance.duration,
+  'driverId': instance.driverId,
 };

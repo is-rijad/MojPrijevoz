@@ -8,4 +8,5 @@ public class SearchFareSearchObject : BaseSearchObject {
     public double? Budget { get; set; }
     public double Distance { get; set; }
     public double Duration { get; set; }
+    public int? DriverId { get; set; }
 }

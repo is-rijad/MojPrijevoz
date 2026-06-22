@@ -20,7 +20,7 @@ SearchFareDriverSearchObject _$SearchFareDriverSearchObjectFromJson(
   duration: (json['duration'] as num?)?.toDouble(),
   page: (json['page'] as num).toInt(),
   pageSize: (json['pageSize'] as num).toInt(),
-);
+)..driverId = (json['driverId'] as num?)?.toInt();
 
 Map<String, dynamic> _$SearchFareDriverSearchObjectToJson(
   SearchFareDriverSearchObject instance,
@@ -32,6 +32,7 @@ Map<String, dynamic> _$SearchFareDriverSearchObjectToJson(
   'budget': instance.budget,
   'distance': instance.distance,
   'duration': instance.duration,
+  'driverId': instance.driverId,
   'profileId': instance.profileId,
   'userVehicleId': instance.userVehicleId,
 };
