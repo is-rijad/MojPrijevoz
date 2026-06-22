@@ -107,6 +107,8 @@ class _SearchFarePageState extends State<SearchFarePage> {
       searchObject: _nominatimSearchObject,
     );
     _nominatimPlaceSelectorForFinalLocation.selectPlace(widget.to);
+    context.read<SearchFareProvider>().clearData(_searchFareSearchObject);
+    context.read<SearchFareProvider>().clearFareDrivers();
     _addStopPlace();
     super.initState();
   }
@@ -912,7 +914,7 @@ class _SearchFarePageState extends State<SearchFarePage> {
       }
       setState(() {
         currentBreadCrumbIndex = 1;
-        _uiProvider.disableLoading();
+        _uiProvider.stopLoading();
       });
       _request.isChanged = false;
     }

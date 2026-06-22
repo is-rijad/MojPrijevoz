@@ -131,8 +131,9 @@ class FareLocationProvider extends ChangeNotifier {
   static Future handleRequestFromBackground(Map<String, dynamic> data) async {
     final requesterId = data['RequesterId']!;
     final sharedPrefs = await SharedPreferences.getInstance();
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     final permissions = await Geolocator.checkPermission();
-    if (permissions != LocationPermission.always) {
+    if (permissions != LocationPermission.always || !serviceEnabled) {
       return;
     }
     final pos = await Geolocator.getCurrentPosition();
