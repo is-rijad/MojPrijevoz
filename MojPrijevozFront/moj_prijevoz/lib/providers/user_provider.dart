@@ -1,4 +1,4 @@
-import 'package:moj_prijevoz/providers/base_provider.dart';
+import 'package:moj_prijevoz/common/providers/base_provider.dart';
 import 'package:moj_prijevoz/resources/requests/user/request_reset_password_request.dart';
 import 'package:moj_prijevoz/resources/requests/user/reset_password_request.dart';
 import 'package:moj_prijevoz/resources/responses/user/request_reset_password_response.dart';

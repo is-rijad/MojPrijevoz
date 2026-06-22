@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:moj_prijevoz/common/widgets/snackbars.dart';
 import 'package:path/path.dart' as path;
 
 class ImagePickerProvider {

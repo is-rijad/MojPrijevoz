@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'dart:developer';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
-import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:moj_prijevoz/common/widgets/snackbars.dart';
 
 abstract class ErrorHandler {
   static String? handle(Object ex, StackTrace stack, {showSnackBar = false}) {

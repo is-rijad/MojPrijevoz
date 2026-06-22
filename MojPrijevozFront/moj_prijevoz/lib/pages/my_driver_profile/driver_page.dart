@@ -4,8 +4,8 @@ import 'package:moj_prijevoz/components/drivers_discount/drivers_discount_compon
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicles_component.dart';
 import 'package:moj_prijevoz/providers/user_profile_provider.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_profile_response.dart';
-import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
-import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
+import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/common/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
 

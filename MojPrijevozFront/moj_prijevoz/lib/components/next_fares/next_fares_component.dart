@@ -13,12 +13,12 @@ import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/fare/fare_search_object.dart';
 import 'package:moj_prijevoz/widgets/cards/mp_card.dart';
-import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
+import 'package:moj_prijevoz/common/widgets/dialogs/confirmation_dialog.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
-import 'package:moj_prijevoz/widgets/snackbars.dart';
-import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
+import 'package:moj_prijevoz/common/widgets/snackbars.dart';
+import 'package:moj_prijevoz/common/wrappers/load_until_ready_wrapper.dart';
 import 'package:provider/provider.dart';
-import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 
 class NextFaresComponent extends StatefulWidget {
   const NextFaresComponent({super.key});

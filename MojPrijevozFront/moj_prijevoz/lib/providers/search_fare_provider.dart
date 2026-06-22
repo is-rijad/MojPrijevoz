@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/providers/base_provider.dart';
-import 'package:moj_prijevoz/providers/http_provider.dart';
+import 'package:moj_prijevoz/common/providers/base_provider.dart';
+import 'package:moj_prijevoz/common/providers/http_provider.dart';
 import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_driver_response.dart';
 import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/search_fare/search_fare_search_object.dart';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_driver_response.dart';
-import 'package:moj_prijevoz/widgets/alert_dialog/alert_dialog_content.dart';
-import 'package:moj_prijevoz/widgets/alert_dialog/mp_alert_dialog.dart';
-import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
-import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/common/widgets/alert_dialog/alert_dialog_content.dart';
+import 'package:moj_prijevoz/common/widgets/alert_dialog/mp_alert_dialog.dart';
+import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 
 class SearchFareNegotiateDialog extends StatefulWidget {
   final SearchFareDriverResponse fareDriver;

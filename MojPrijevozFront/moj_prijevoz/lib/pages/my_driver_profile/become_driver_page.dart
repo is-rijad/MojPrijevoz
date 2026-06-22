@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
 import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
-import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
-import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
 

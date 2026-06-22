@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:moj_prijevoz/providers/base_provider.dart';
+import 'package:moj_prijevoz/common/providers/base_provider.dart';
 import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';
 import 'package:moj_prijevoz/resources/common/search_result.dart';
 import 'package:moj_prijevoz/resources/helpers/tplaceholder.dart';

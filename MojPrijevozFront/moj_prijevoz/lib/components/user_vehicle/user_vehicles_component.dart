@@ -7,10 +7,10 @@ import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/resources/common/enums/statuses/user_vehicle_status.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/user_vehicle/user_vehicle_search_object.dart';
-import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/cards/paginated_cards.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
-import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 
 class UserVehiclesComponent extends StatefulWidget {
   final int profileId;

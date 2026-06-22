@@ -14,10 +14,10 @@ import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_respo
 import 'package:moj_prijevoz/resources/responses/vehicle/vehicle_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/vehicle/vehicle_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
-import 'package:moj_prijevoz/widgets/dialogs/upsert_dialog.dart';
-import 'package:moj_prijevoz/widgets/dropdowns/paged_dropdown_form_field.dart';
+import 'package:moj_prijevoz/common/widgets/dialogs/upsert_dialog.dart';
+import 'package:moj_prijevoz/common/widgets/dropdowns/paged_dropdown_form_field.dart';
 import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
-import 'package:moj_prijevoz/widgets/snackbars.dart';
+import 'package:moj_prijevoz/common/widgets/snackbars.dart';
 import 'package:provider/provider.dart';
 
 class UserVehicleUpsertDialog

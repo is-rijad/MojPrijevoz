@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:moj_prijevoz/providers/base_provider.dart';
+import 'package:moj_prijevoz/common/providers/base_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/requests/fare_offer/fare_offer_insert_request.dart';
 import 'package:moj_prijevoz/resources/requests/fare_offer/fare_offer_update_request.dart';

@@ -6,7 +6,7 @@ import 'package:moj_prijevoz/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
-import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
+import 'package:moj_prijevoz/common/wrappers/load_until_ready_wrapper.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
 

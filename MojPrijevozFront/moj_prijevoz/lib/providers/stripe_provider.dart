@@ -1,5 +1,5 @@
 import 'package:get_it/get_it.dart';
-import 'package:moj_prijevoz/providers/http_provider.dart';
+import 'package:moj_prijevoz/common/providers/http_provider.dart';
 import 'package:moj_prijevoz/resources/requests/stripe/stripe_create_intent_request.dart';
 import 'package:moj_prijevoz/resources/responses/stripe/stripe_create_intent_response.dart';
 

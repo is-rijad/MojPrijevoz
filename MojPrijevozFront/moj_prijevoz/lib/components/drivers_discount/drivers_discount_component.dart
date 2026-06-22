@@ -5,9 +5,9 @@ import 'package:moj_prijevoz/components/drivers_discount/drivers_discount_upsert
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/resources/responses/drivers_discount/drivers_discount_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/drivers_discount/drivers_discount_search_object.dart';
-import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/cards/paginated_cards.dart';
-import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 
 class DriversDiscountComponent extends StatefulWidget {
   final int profileId;

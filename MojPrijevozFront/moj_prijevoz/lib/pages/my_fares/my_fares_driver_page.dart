@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/pages/track_passenger_page.dart';
 import 'package:moj_prijevoz/providers/fare_offer_provider.dart';
-import 'package:moj_prijevoz/widgets/wrappers/load_until_ready_wrapper.dart';
+import 'package:moj_prijevoz/common/wrappers/load_until_ready_wrapper.dart';
 import 'package:provider/provider.dart';
 
 import 'package:moj_prijevoz/common/constants.dart';
@@ -19,13 +19,13 @@ import 'package:moj_prijevoz/resources/common/profile_type.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_profile_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/fare/fare_search_object.dart';
-import 'package:moj_prijevoz/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/widgets/cards/paginated_cards.dart';
-import 'package:moj_prijevoz/widgets/dialogs/confirmation_dialog.dart';
+import 'package:moj_prijevoz/common/widgets/dialogs/confirmation_dialog.dart';
 import 'package:moj_prijevoz/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/icons/icon_field_with_text.dart';
-import 'package:moj_prijevoz/widgets/snackbars.dart';
-import 'package:moj_prijevoz/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz/common/widgets/snackbars.dart';
+import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 
 class MyFaresDriverPage extends StatefulWidget {
   final int? fareId;
