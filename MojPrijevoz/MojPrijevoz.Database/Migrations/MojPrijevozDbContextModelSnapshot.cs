@@ -1409,7 +1409,7 @@ namespace MojPrijevoz.Database.Migrations
 
             modelBuilder.Entity("MojPrijevoz.Database.RefreshToken", b =>
                 {
-                    b.HasOne("MojPrijevoz.Database.User", "User")
+                    b.HasOne("MojPrijevoz.Database.Account", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)

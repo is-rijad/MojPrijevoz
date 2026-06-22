@@ -7,7 +7,7 @@ import 'package:moj_prijevoz/common/widgets/alert_dialog/alert_dialog_content.da
 import 'package:moj_prijevoz/common/widgets/alert_dialog/mp_alert_dialog.dart';
 import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/common/widgets/snackbars.dart';
-import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
+import 'package:moj_prijevoz/common/wrappers/form_wrapper.dart';
 import 'package:provider/provider.dart';
 
 abstract class UpsertDialog<

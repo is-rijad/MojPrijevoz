@@ -1,0 +1,140 @@
+import 'package:email_validator/email_validator.dart';
+import 'package:flutter/material.dart';
+import 'package:moj_prijevoz_admin/common/constants.dart';
+import 'package:moj_prijevoz_admin/common/mp_build_context_extension.dart';
+import 'package:moj_prijevoz_admin/common/providers/auth_provider.dart';
+import 'package:moj_prijevoz_admin/common/resources/requests/user/login_request.dart';
+import 'package:moj_prijevoz_admin/common/widgets/buttons/primary_button.dart';
+import 'package:moj_prijevoz_admin/common/widgets/common_form_fields/password_form_field.dart';
+import 'package:moj_prijevoz_admin/common/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz_admin/common/widgets/texts/text_widgets.dart';
+import 'package:moj_prijevoz_admin/common/wrappers/form_wrapper.dart';
+import 'package:moj_prijevoz_admin/pages/home_page.dart';
+import 'package:moj_prijevoz_admin/pages/reset_password_page.dart';
+import 'package:provider/provider.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _loginRequest = LoginRequest();
+  final _passwordFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> submitForm(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      await context.read<AuthProvider>().login(_loginRequest);
+      if (!context.mounted) return;
+      Constants.navigatorKey.currentState?.pushReplacement(
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FormWrapper(
+        paddingFactor: 0,
+        screenWidthFactor: 0.8,
+        mainAxisAlignment: MainAxisAlignment.center,
+        formKey: _formKey,
+        children: [
+          Image.asset("images/mojPrijevoz.png", height: 100, width: 100),
+          Text(
+            "Moj Prijevoz",
+            style: TextStyle(
+              fontFamily: "Inter",
+              color: context.primaryColor,
+              fontWeight: FontWeight(900),
+              fontSize: 32,
+            ),
+          ),
+          SizedBox(height: 36),
+          ..._buildInputs(context),
+          SizedBox(height: 36),
+          ..._buildButtons(context),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildInputs(BuildContext context) {
+    return <Widget>[
+      TextFormField(
+        textInputAction: TextInputAction.next,
+        onFieldSubmitted: (_) =>
+            FocusScope.of(context).requestFocus(_passwordFocusNode),
+        decoration: InputDecorationWithIcon(
+          iconData: Icons.person,
+          iconHint: "Korisničko ime ili email",
+          hintText: "mujo.mujic",
+        ),
+        keyboardType: TextInputType.emailAddress,
+        validator: (value) {
+          if (value == null ||
+              !value.isNotEmpty ||
+              (!Constants.usernameRegex.hasMatch(value) &&
+                  !EmailValidator.validate(value))) {
+            return "Korisničko ime ili email nije validan!";
+          }
+          return null;
+        },
+        onSaved: (value) => _loginRequest.usernameOrEmail = value!,
+      ),
+      PasswordFormField(
+        focusNode: _passwordFocusNode,
+        textInputAction: TextInputAction.done,
+        onFieldSubmitted: (_) async => await submitForm(context),
+        onSaved: (value) => _loginRequest.password = value!,
+        decoration: InputDecorationWithIcon(
+          iconData: Icons.password,
+          iconHint: "Lozinka",
+          hintText: "••••••••",
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildButtons(BuildContext context) {
+    return <Widget>[
+      Center(
+        child: FractionallySizedBox(
+          widthFactor: 0.7,
+          child: PrimaryButton(
+            onPressed: () => submitForm(context),
+            text: "Prijavi se",
+          ),
+        ),
+      ),
+      SizedBox(height: 12),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextButton(
+            style: ButtonStyle(
+              padding: WidgetStatePropertyAll(EdgeInsets.zero),
+            ),
+            onPressed: () async {
+              await Constants.navigatorKey.currentState?.push(
+                MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+              );
+            },
+            child: const TextBodySmall("Zaboravili ste lozinku?"),
+          ),
+        ],
+      ),
+    ];
+  }
+}

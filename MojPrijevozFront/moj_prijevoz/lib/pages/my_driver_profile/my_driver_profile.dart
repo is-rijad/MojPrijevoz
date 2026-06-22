@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/pages/my_driver_profile/become_driver_page.dart';
 import 'package:moj_prijevoz/pages/my_driver_profile/driver_page.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 
 class MyDriverProfile extends StatefulWidget {

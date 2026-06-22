@@ -18,7 +18,7 @@ import 'package:moj_prijevoz/utils/nominatim_place_selector.dart';
 import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/common/widgets/dialogs/confirmation_dialog.dart';
 import 'package:moj_prijevoz/common/widgets/dialogs/modal_bottom_sheet.dart';
-import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz/common/widgets/icons/input_decoration_with_icon.dart';
 import 'package:moj_prijevoz/common/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';

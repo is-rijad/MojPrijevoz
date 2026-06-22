@@ -2,17 +2,16 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
+import 'package:moj_prijevoz/common/resources/requests/user/login_request.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/register.dart';
 import 'package:moj_prijevoz/pages/reset_password_page.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
-import 'package:moj_prijevoz/providers/notification_provider.dart';
-import 'package:moj_prijevoz/resources/requests/user/login_request.dart';
+import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/common/widgets/common_form_fields/password_form_field.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
-import 'package:moj_prijevoz/widgets/wrappers/form_wrapper.dart';
-import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz/common/wrappers/form_wrapper.dart';
+import 'package:moj_prijevoz/common/widgets/icons/input_decoration_with_icon.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {

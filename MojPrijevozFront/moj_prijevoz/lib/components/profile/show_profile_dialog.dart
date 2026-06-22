@@ -7,7 +7,7 @@ import 'package:moj_prijevoz/providers/user_profile_provider.dart';
 import 'package:moj_prijevoz/resources/responses/rating/rating_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_profile_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/rating/rating_search_object.dart';
-import 'package:moj_prijevoz/widgets/icons/avatar.dart';
+import 'package:moj_prijevoz/common/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/common/widgets/tables/paginated_table.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/common/wrappers/load_until_ready_wrapper.dart';

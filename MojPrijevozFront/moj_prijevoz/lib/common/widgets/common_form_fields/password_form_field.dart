@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
-import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz/common/widgets/icons/input_decoration_with_icon.dart';
 
 class PasswordFormField extends StatefulWidget {
   final bool required;

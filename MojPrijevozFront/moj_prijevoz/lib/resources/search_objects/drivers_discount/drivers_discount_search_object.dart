@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
+import 'package:moj_prijevoz/common/resources/search_objects/base_search_object.dart';
 
 part 'drivers_discount_search_object.g.dart';
 

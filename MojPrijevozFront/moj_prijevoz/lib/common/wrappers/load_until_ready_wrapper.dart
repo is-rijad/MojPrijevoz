@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/widgets.dart';
-import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
+import 'package:moj_prijevoz/common/wrappers/app_overlay.dart';
 
 class LoadUntilReadyWrapper extends StatefulWidget {
   final Widget Function(BuildContext) buildFunction;

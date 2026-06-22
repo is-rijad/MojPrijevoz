@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moj_prijevoz/resources/common/enums/statuses/user_vehicle_status.dart';
+import 'package:moj_prijevoz/common/resources/enums/statuses/user_vehicle_status.dart';
 import 'package:moj_prijevoz/resources/responses/vehicle/vehicle_response.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 part 'user_vehicle_response.g.dart';

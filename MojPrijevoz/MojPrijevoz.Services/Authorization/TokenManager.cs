@@ -17,6 +17,7 @@ public class TokenManager {
     private const string PassengerProfileIdClaimType = "passenger_profile_id";
     private const string DriverProfileIdClaimType = "driver_profile_id";
     private const string AccountStatusClaimType = "account_status";
+    private const string RoleClaimType = "role";
     private readonly IConfiguration _configuration;
     private readonly MojPrijevozDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -41,8 +42,8 @@ public class TokenManager {
     private string RefreshJwtExpiration => _configuration["Jwt:RefreshExpirationInMinutes"] ??
                                            throw new InvalidOperationException("JWT RefreshExpiration is not configured.");
 
-    public async Task<string> GenerateToken(Database.User user) {
-        var tokenDto = await GetTokenDto(user);
+    public async Task<string> GenerateToken(Account account) {
+        var tokenDto = await GetTokenDto(account);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -52,13 +53,14 @@ public class TokenManager {
             new(JwtRegisteredClaimNames.Name, tokenDto.FirstName),
             new(JwtRegisteredClaimNames.FamilyName, tokenDto.LastName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(PassengerProfileIdClaimType, tokenDto.PassengerProfileId.ToString()),
             new(AccountStatusClaimType, tokenDto.Status.ToString())
         };
-        if (tokenDto.Role.HasValue) claims.Add(new Claim(ClaimTypes.Role, tokenDto.Role.Value.ToString()));
-        if (tokenDto.Picture != null) claims.Add(new Claim(PictureClaimType, (user as IEntityHasPicture).GetPicture()!));
+        if (tokenDto.Role.HasValue) claims.Add(new Claim(RoleClaimType, tokenDto.Role.Value.ToString()));
+        if (tokenDto.Picture != null && account is IEntityHasPicture picture) claims.Add(new Claim(PictureClaimType, picture.GetPicture()!));
         if (tokenDto.DriverProfileId.HasValue)
             claims.Add(new Claim(DriverProfileIdClaimType, tokenDto.DriverProfileId!.Value.ToString()));
+        if (tokenDto.PassengerProfileId.HasValue)
+            claims.Add(new Claim(PassengerProfileIdClaimType, tokenDto.PassengerProfileId!.Value.ToString()));
 
         var token = new JwtSecurityToken(
             JwtIssuer,
@@ -78,7 +80,8 @@ public class TokenManager {
         var id = int.Parse(jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
         var firstName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Name).Value;
         var lastName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.FamilyName).Value;
-        var passengerProfileId = int.Parse(jwtToken.Claims.First(c => c.Type == PassengerProfileIdClaimType).Value);
+        var passengerProfileClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PassengerProfileIdClaimType);
+        int? passengerProfileId = passengerProfileClaim != null ? int.Parse(jwtToken.Claims.First(c => c.Type == PassengerProfileIdClaimType).Value) : null;
         var driverProfileClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == DriverProfileIdClaimType);
         int? driverProfileId = driverProfileClaim != null ? int.Parse(driverProfileClaim.Value) : null;
         var pictureClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PictureClaimType);
@@ -101,8 +104,8 @@ public class TokenManager {
         };
     }
 
-    public async Task<string> GenerateRefreshToken(Database.User user) {
-        var tokenDto = await GetTokenDto(user);
+    public async Task<string> GenerateRefreshToken(Account account) {
+        var tokenDto = await GetTokenDto(account);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -134,21 +137,22 @@ public class TokenManager {
         return int.Parse(profileIdString);
     }
 
-    private async Task<UserInfoTokenDto> GetTokenDto(Database.User user) {
-        var tokenDto = _mapper.Map<UserInfoTokenDto>(user);
+    private async Task<UserInfoTokenDto> GetTokenDto(Account account) {
+        var tokenDto = _mapper.Map<UserInfoTokenDto>(account);
 
-        tokenDto.PassengerProfileId = await _dbContext.UserProfiles
-            .Where(up => up.UserId == user.Id)
-            .Select(up => up.Id)
-            .FirstAsync();
+        var passengerProfile = (await _dbContext.UserProfiles
+            .Where(up => up.UserId == account.Id)
+            .FirstOrDefaultAsync())?.Id;
+        if (passengerProfile != null)
+            tokenDto.DriverProfileId = passengerProfile.Value;
 
         var driverProfile = (await _dbContext.UserProfiles
-            .Where(up => up.UserId == user.Id && up.ProfileType == ProfileType.Driver)
+            .Where(up => up.UserId == account.Id && up.ProfileType == ProfileType.Driver)
             .FirstOrDefaultAsync())?.Id;
         if (driverProfile != null)
             tokenDto.DriverProfileId = driverProfile.Value;
 
-        var role = await _dbContext.Administrators.FindAsync(user.Id);
+        var role = await _dbContext.Administrators.FindAsync(account.Id);
         if (role != null)
             tokenDto.Role = Convert.ToInt32(role.Role);
 

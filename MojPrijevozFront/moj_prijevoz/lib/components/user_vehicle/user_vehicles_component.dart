@@ -4,7 +4,7 @@ import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_delete_dialog.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
-import 'package:moj_prijevoz/resources/common/enums/statuses/user_vehicle_status.dart';
+import 'package:moj_prijevoz/common/resources/enums/statuses/user_vehicle_status.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/user_vehicle/user_vehicle_search_object.dart';
 import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';

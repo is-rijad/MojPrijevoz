@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
-import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
+import 'package:moj_prijevoz/common/wrappers/app_overlay.dart';
 
 class MapComponent extends StatefulWidget {
   final NominatimCityDto? from;

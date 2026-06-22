@@ -11,7 +11,7 @@ import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/firebase_options.dart';
 import 'package:moj_prijevoz/pages/home_page.dart';
 import 'package:moj_prijevoz/pages/login.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';
 import 'package:moj_prijevoz/providers/fare_location_provider.dart';
@@ -29,11 +29,11 @@ import 'package:moj_prijevoz/providers/search_fare_provider.dart';
 import 'package:moj_prijevoz/common/providers/shared_prefs_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
 import 'package:moj_prijevoz/providers/user_profile_provider.dart';
-import 'package:moj_prijevoz/providers/user_provider.dart';
+import 'package:moj_prijevoz/common/providers/user_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';
 import 'package:moj_prijevoz/providers/vehicle_provider.dart';
-import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
-import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
+import 'package:moj_prijevoz/common/resources/access_token_payload.dart';
+import 'package:moj_prijevoz/common/wrappers/app_overlay.dart';
 import 'package:moj_prijevoz/common/providers/http_provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/providers/ui_provider.dart';
@@ -92,7 +92,11 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> initializeFirebase() async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } on FirebaseException catch (_) {}
 
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 }

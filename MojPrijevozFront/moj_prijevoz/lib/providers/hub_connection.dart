@@ -1,5 +1,5 @@
 import 'package:moj_prijevoz/common/env.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 class HubConnectionProvider {

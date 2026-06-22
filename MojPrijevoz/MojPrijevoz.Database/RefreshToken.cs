@@ -10,7 +10,7 @@ public class RefreshToken
     public string TokenSalt { get; set; } = null!;
     public int UserId { get; set; }
 
-    public User? User { get; set; } = null!;
+    public Account? User { get; set; } = null!;
 }
 public class RefreshTokenEntityConfiguration : IEntityTypeConfiguration<RefreshToken> {
     public void Configure(EntityTypeBuilder<RefreshToken> builder) {

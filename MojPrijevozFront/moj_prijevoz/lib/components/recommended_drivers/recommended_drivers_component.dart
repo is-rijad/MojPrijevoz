@@ -8,7 +8,7 @@ import 'package:moj_prijevoz/providers/recommender_provider.dart';
 import 'package:moj_prijevoz/resources/responses/recommender/recommended_driver_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/recommended_drivers/recommended_drivers_search_object.dart';
 import 'package:moj_prijevoz/widgets/cards/paginated_cards.dart';
-import 'package:moj_prijevoz/widgets/icons/avatar.dart';
+import 'package:moj_prijevoz/common/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 
 class RecommendedDriversComponent extends StatefulWidget {

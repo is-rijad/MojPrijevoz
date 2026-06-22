@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
+import 'package:moj_prijevoz/common/resources/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/resources/responses/drivers_discount/drivers_discount_response.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
@@ -14,8 +14,8 @@ import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_driver_
 import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_response.dart';
 import 'package:moj_prijevoz/resources/responses/stop_points/stop_point_response.dart';
 import 'package:moj_prijevoz/resources/responses/stripe/stripe_create_intent_response.dart';
-import 'package:moj_prijevoz/resources/responses/user/access_token_response.dart';
-import 'package:moj_prijevoz/resources/responses/user/request_reset_password_response.dart';
+import 'package:moj_prijevoz/common/resources/responses/user/access_token_response.dart';
+import 'package:moj_prijevoz/common/resources/responses/user/request_reset_password_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_profile_response.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';

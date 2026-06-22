@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moj_prijevoz/resources/common/enums/statuses/account_status.dart';
-import 'package:moj_prijevoz/resources/common/user_for_circle_avatar_interface.dart';
+import 'package:moj_prijevoz/common/resources/enums/statuses/account_status.dart';
+import 'package:moj_prijevoz/common/resources/user_for_circle_avatar_interface.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 part 'recommended_driver_response.g.dart';

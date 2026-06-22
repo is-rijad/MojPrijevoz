@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';
+import 'package:moj_prijevoz/common/resources/enums/statuses/fare_status.dart';
 import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 

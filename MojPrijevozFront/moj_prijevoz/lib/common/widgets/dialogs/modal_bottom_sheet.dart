@@ -3,7 +3,7 @@ import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/common/providers/base_provider.dart';
-import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
+import 'package:moj_prijevoz/common/resources/search_objects/base_search_object.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:provider/provider.dart';
 

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/dio_client.dart';
+import 'package:moj_prijevoz/common/resources/requests/user/refresh_token_request.dart';
 import 'package:moj_prijevoz/pages/login.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 import 'package:moj_prijevoz/common/providers/ui_provider.dart';
-import 'package:moj_prijevoz/resources/requests/user/refresh_token_request.dart';
 
 class AuthInterceptor extends Interceptor {
   final AuthProvider authProvider;

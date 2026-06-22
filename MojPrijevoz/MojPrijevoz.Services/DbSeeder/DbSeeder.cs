@@ -3,6 +3,7 @@ using Bogus.Extensions;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Services.Authorization;
+using MojPrijevoz.Services.Recommender;
 
 namespace MojPrijevoz.Services.DbSeeder;
 
@@ -40,6 +41,7 @@ public class DbSeeder {
 
         await PrepareIds();
 
+        await SeedAdminsAsync();
         await SeedUsersAsync();
         await SeedUserProfilesAsync();
         await SeedUserVehiclesAndDriverDiscountsAsync();
@@ -50,6 +52,8 @@ public class DbSeeder {
         await SeedRatingsAsync();
 
         await transaction.CommitAsync();
+        Console.WriteLine("Seeding database done!");
+
     }
 
     private async Task<bool> CheckIsSeedNeededAsync() {
@@ -60,6 +64,36 @@ public class DbSeeder {
         _cities = await _mojPrijevozDbContext.Cities.ToListAsync();
         _vehicleIds = await _mojPrijevozDbContext.Vehicles.Select(c => c.Id).ToListAsync();
 
+    }
+
+    private async Task SeedAdminsAsync() {
+        _authorizationService.CreatePassword("Test123!", "Test123!", out var passwordHash, out var passwordSalt);
+
+        var admin = new Administrator()
+        {
+            FirstName = "Admin",
+            LastName = "Admin",
+            Email = "admin@gmail.com",
+            Username = "admin",
+            Role = AdministratorRole.Admin,
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt,
+            Status = AccountStatus.Active
+        };
+        var moderator = new Administrator()
+        {
+            FirstName = "Moderator",
+            LastName = "Moderator",
+            Email = "moderator@gmail.com",
+            Username = "moderator",
+            Role = AdministratorRole.Moderator,
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt,
+            Status = AccountStatus.Active
+        };
+        await _mojPrijevozDbContext.Administrators.AddAsync(admin);
+        await _mojPrijevozDbContext.Administrators.AddAsync(moderator);
+        await _mojPrijevozDbContext.SaveChangesAsync();
     }
 
     private async Task SeedUsersAsync() {
@@ -185,6 +219,7 @@ public class DbSeeder {
                 var city = f.PickRandom(_cities!.Where(c => c.Id != fd.OriginCityId));
                 fd.DestinationLat = city.Lat;
                 fd.DestinationLong = city.Long;
+                fd.DestinationZone = ZoneHelper.ToZoneKey(city.Lat, city.Long);
                 return city.Name;
             })
             .RuleFor(fd => fd.Length, f => f.Random.Int(5, 500))

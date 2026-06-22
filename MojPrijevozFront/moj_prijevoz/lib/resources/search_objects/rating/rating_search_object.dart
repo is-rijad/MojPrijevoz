@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
+import 'package:moj_prijevoz/common/resources/search_objects/base_search_object.dart';
 part 'rating_search_object.g.dart';
 
 @JsonSerializable()

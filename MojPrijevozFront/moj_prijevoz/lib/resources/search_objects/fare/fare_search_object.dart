@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moj_prijevoz/resources/common/profile_type.dart';
-import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
+import 'package:moj_prijevoz/common/resources/profile_type.dart';
+import 'package:moj_prijevoz/common/resources/search_objects/base_search_object.dart';
 
 part 'fare_search_object.g.dart';
 

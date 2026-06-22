@@ -7,16 +7,16 @@ import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/pages/my_driver_profile/my_driver_profile.dart';
 import 'package:moj_prijevoz/pages/my_fares/my_fares_page.dart';
 import 'package:moj_prijevoz/pages/my_profile.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/common/providers/ui_provider.dart';
-import 'package:moj_prijevoz/resources/common/access_token_payload.dart';
+import 'package:moj_prijevoz/common/resources/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/responses/notification/notification_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/notification/notification_search_object.dart';
-import 'package:moj_prijevoz/widgets/icons/avatar.dart';
+import 'package:moj_prijevoz/common/widgets/icons/avatar.dart';
 import 'package:moj_prijevoz/widgets/profile_dropdown/profile_dropdown_item.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
-import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
+import 'package:moj_prijevoz/common/wrappers/app_overlay.dart';
 import 'package:provider/provider.dart';
 
 class PageWrapper extends StatefulWidget {

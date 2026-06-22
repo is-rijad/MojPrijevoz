@@ -3,7 +3,7 @@ import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/resources/search_objects/city/city_search_object.dart';
 import 'package:moj_prijevoz/resources/responses/city/city_response.dart';
 import 'package:moj_prijevoz/common/widgets/dropdowns/paged_dropdown_form_field.dart';
-import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz/common/widgets/icons/input_decoration_with_icon.dart';
 
 class CityPagedDropdown extends StatelessWidget {
   final ValueChanged<CityResponse>? onChanged;

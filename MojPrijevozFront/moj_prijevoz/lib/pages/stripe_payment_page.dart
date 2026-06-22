@@ -5,7 +5,7 @@ import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/fare_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
-import 'package:moj_prijevoz/resources/common/enums/statuses/fare_status.dart';
+import 'package:moj_prijevoz/common/resources/enums/statuses/fare_status.dart';
 import 'package:moj_prijevoz/resources/requests/stripe/stripe_create_intent_request.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/widgets/wrappers/page_wrapper.dart';

@@ -16,7 +16,7 @@ import 'package:moj_prijevoz/resources/search_objects/vehicle/vehicle_search_obj
 import 'package:moj_prijevoz/utils/json_parser.dart';
 import 'package:moj_prijevoz/common/widgets/dialogs/upsert_dialog.dart';
 import 'package:moj_prijevoz/common/widgets/dropdowns/paged_dropdown_form_field.dart';
-import 'package:moj_prijevoz/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz/common/widgets/icons/input_decoration_with_icon.dart';
 import 'package:moj_prijevoz/common/widgets/snackbars.dart';
 import 'package:provider/provider.dart';
 

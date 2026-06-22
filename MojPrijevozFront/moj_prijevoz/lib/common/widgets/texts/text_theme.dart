@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/widgets/wrappers/app_overlay.dart';
+import 'package:moj_prijevoz/common/wrappers/app_overlay.dart';
 
 final textTheme = TextTheme(
   displayLarge: TextStyle(

@@ -23,17 +23,22 @@ public class AuthorizationService {
     }
 
     public async Task<AccessTokenResponse> Login(UserLoginRequest request) {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u =>
+        Account? account = await _dbContext.Users.FirstOrDefaultAsync(u =>
             u.Username == request.UsernameOrEmail || u.Email == request.UsernameOrEmail);
-        if (user == null || !VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
+        if (account == null)
+        {
+            account = await _dbContext.Administrators.FirstOrDefaultAsync(u =>
+                u.Username == request.UsernameOrEmail || u.Email == request.UsernameOrEmail);
+        }
+        if (account == null || !VerifyPassword(request.Password, account.PasswordHash, account.PasswordSalt))
             throw new BadRequestException("Uneseni podaci nisu ispravni");
-        if (user.Status == AccountStatus.Banned)
+        if (account.Status == AccountStatus.Banned)
             throw new BadRequestException("Vaš račun je blokiran. Kontaktirajte podršku za više informacija.");
 
-        var token = await _tokenManager.GenerateToken(user);
-        var refreshToken = await _tokenManager.GenerateRefreshToken(user);
+        var token = await _tokenManager.GenerateToken(account);
+        var refreshToken = await _tokenManager.GenerateRefreshToken(account);
 
-        await ChangeOrAddRefreshToken(refreshToken, user.Id);
+        await ChangeOrAddRefreshToken(refreshToken, account.Id);
 
         return new AccessTokenResponse
         {
@@ -59,7 +64,11 @@ public class AuthorizationService {
     }
     public async Task<AccessTokenResponse> Refresh(RefreshTokenRequest request) {
         var userId = _tokenManager.GetUserInfoFromToken(request.AccessToken).Id;
-        var user = (await _dbContext.Users.FindAsync(userId))!;
+        Account? account = await _dbContext.Users.FirstOrDefaultAsync(it => it.Id == userId);
+        if (account == null)
+        {
+            account = await _dbContext.Administrators.FirstOrDefaultAsync(it => it.Id == userId);
+        }
         var refreshTokenEntity = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt =>
             rt.UserId == userId);
 
@@ -71,8 +80,8 @@ public class AuthorizationService {
             throw new BadRequestException("Neispravan refresh token.");
         }
 
-        var token = await _tokenManager.GenerateToken(user);
-        var refreshToken = await _tokenManager.GenerateRefreshToken(user);
+        var token = await _tokenManager.GenerateToken(account!);
+        var refreshToken = await _tokenManager.GenerateRefreshToken(account!);
 
         await ChangeOrAddRefreshToken(refreshToken, userId);
 
@@ -105,7 +114,7 @@ public class AuthorizationService {
     public async Task<AccessTokenResponse> GetNewToken() {
         var userId = GetUserId();
 
-        var user = await _dbContext.Users.FirstAsync(u =>
+        var user = await _dbContext.Accounts.FirstAsync(u =>
             u.Id == userId);
 
         var token = await _tokenManager.GenerateToken(user);

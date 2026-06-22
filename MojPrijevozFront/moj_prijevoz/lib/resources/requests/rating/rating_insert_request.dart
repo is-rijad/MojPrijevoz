@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moj_prijevoz/resources/common/profile_type.dart';
+import 'package:moj_prijevoz/common/resources/profile_type.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 part 'rating_insert_request.g.dart';

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/providers/http_provider.dart';
 import 'package:moj_prijevoz/common/providers/ui_provider.dart';
-import 'package:moj_prijevoz/resources/search_objects/base/base_search_object.dart';
-import 'package:moj_prijevoz/resources/common/search_result.dart';
+import 'package:moj_prijevoz/common/resources/search_objects/base_search_object.dart';
+import 'package:moj_prijevoz/common/resources/search_result.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
 abstract class BaseGetProvider<

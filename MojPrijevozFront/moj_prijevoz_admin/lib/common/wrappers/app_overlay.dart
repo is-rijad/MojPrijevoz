@@ -1,0 +1,103 @@
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:moj_prijevoz_admin/common/mp_build_context_extension.dart';
+import 'package:moj_prijevoz_admin/common/constants.dart';
+import 'package:moj_prijevoz_admin/pages/home_page.dart';
+import 'package:moj_prijevoz_admin/common/providers/ui_provider.dart';
+import 'package:moj_prijevoz_admin/common/widgets/texts/text_theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+class AppOverlay extends StatelessWidget {
+  final UIProvider _uiProvider = GetIt.I<UIProvider>();
+
+  static const primaryColor = Color(0xFF4A91D1);
+  static const secondaryColor = Color(0xFFD1E9FE);
+
+  AppOverlay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: AlignmentGeometry.topCenter,
+      fit: StackFit.expand,
+      children: [
+        RepaintBoundary(child: _buildBackgroundImage(context)),
+        _buildApp(context),
+        _buildLoadingOverlay(context),
+      ],
+    );
+  }
+
+  MaterialApp _buildApp(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Moj Prijevoz',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          primary: primaryColor,
+          secondary: secondaryColor,
+        ),
+        useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(150)),
+          ),
+          toolbarHeight: 60,
+          backgroundColor: primaryColor,
+          foregroundColor: secondaryColor,
+          iconTheme: const IconThemeData(color: secondaryColor),
+          titleTextStyle: const TextStyle(color: secondaryColor, fontSize: 24),
+        ),
+        scaffoldBackgroundColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: primaryColor),
+        fontFamily: "Inter",
+        textTheme: textTheme,
+      ),
+      home: HomePage(),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [Locale('hr'), Locale('bs'), Locale('sr')],
+      scaffoldMessengerKey: Constants.messengerKey,
+      navigatorKey: Constants.navigatorKey,
+      navigatorObservers: [Constants.routeObserver],
+    );
+  }
+
+  ValueListenableBuilder<bool> _buildLoadingOverlay(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: _uiProvider.isLoading,
+      builder: (context, loading, _) {
+        if (!loading) return const SizedBox.shrink();
+        return buildLoadingContainer(context);
+      },
+    );
+  }
+
+  static Widget buildLoadingContainer(BuildContext context) {
+    return Container(
+      color: context.secondaryColor.withAlpha(125),
+      child: const Center(
+        child: CircularProgressIndicator(color: AppOverlay.primaryColor),
+      ),
+    );
+  }
+
+  Widget _buildBackgroundImage(BuildContext context) {
+    return Container(
+      width: context.screenWidth,
+      decoration: BoxDecoration(
+        color: const Color(0xFFACD8FF),
+        image: DecorationImage(
+          image: AssetImage("images/background.png"),
+          fit: BoxFit.fill,
+          filterQuality: FilterQuality.low,
+        ),
+      ),
+    );
+  }
+}

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:moj_prijevoz/common/auth_interceptor.dart';
-import 'package:moj_prijevoz/providers/auth_provider.dart';
+import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 
 class DioClient {
   static late Dio dio;

@@ -1,8 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:moj_prijevoz/resources/common/enums/fare_offer_side.dart';
-import 'package:moj_prijevoz/resources/common/enums/statuses/fare_offer_status.dart';
+import 'package:moj_prijevoz/common/resources/enums/fare_offer_side.dart';
+import 'package:moj_prijevoz/common/resources/enums/statuses/fare_offer_status.dart';
 import 'package:moj_prijevoz/resources/responses/fare/fare_response.dart';
 import 'package:moj_prijevoz/utils/json_parser.dart';
 
