@@ -24,6 +24,7 @@ import 'package:moj_prijevoz/providers/map_provider.dart';
 import 'package:moj_prijevoz/providers/nominatim_provider.dart';
 import 'package:moj_prijevoz/providers/notification_provider.dart';
 import 'package:moj_prijevoz/providers/rating_provider.dart';
+import 'package:moj_prijevoz/providers/recommender_provider.dart';
 import 'package:moj_prijevoz/providers/search_fare_provider.dart';
 import 'package:moj_prijevoz/providers/shared_prefs_provider.dart';
 import 'package:moj_prijevoz/providers/stripe_provider.dart';
@@ -74,6 +75,7 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
     ),
     ChangeNotifierProvider(create: (_) => FareLocationProvider()),
     ChangeNotifierProvider(create: (_) => NotificationProvider()),
+    ChangeNotifierProvider(create: (_) => RecommenderProvider()),
   ];
 }
 

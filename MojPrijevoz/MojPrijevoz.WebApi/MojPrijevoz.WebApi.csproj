@@ -18,6 +18,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\MojPrijevoz.Recommender\MojPrijevoz.Recommender.csproj" />
 		<ProjectReference Include="..\MojPrijevoz.Services\MojPrijevoz.Services.csproj" />
 	</ItemGroup>
 

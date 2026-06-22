@@ -1,6 +1,5 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
@@ -17,6 +16,7 @@ using MojPrijevoz.Services.Fare;
 using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer.StateMachine;
 using MojPrijevoz.Services.NotificationService;
+using MojPrijevoz.Services.Recommender;
 using MojPrijevoz.Services.StopPoint;
 using MojPrijevoz.Services.Transactions;
 
@@ -74,6 +74,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         var fareDataRequest = _mapper.Map<FareDataInsertRequest>(request);
         fareDataRequest.DestinationLat = request.DestinationCity.Lat;
         fareDataRequest.DestinationLong = request.DestinationCity.Long;
+        fareDataRequest.DestinationZone =
+            ZoneHelper.ToZoneKey(request.DestinationCity.Lat, request.DestinationCity.Long);
         var fareData = await _fareDataService.InsertAsync(fareDataRequest);
 
         for (int i = 0; i < request.StopPoints.Count; i++) {
@@ -276,7 +278,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         fareInsertRequest.UserVehicleId = driverPrice.UserVehicleId;
         fareInsertRequest.PassengerId = passengerId;
         fareInsertRequest.FareDataId = fareDataId;
-
+        
         return fareInsertRequest;
     }
 

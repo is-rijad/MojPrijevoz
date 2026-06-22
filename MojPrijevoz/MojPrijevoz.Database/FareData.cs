@@ -14,6 +14,8 @@ public class FareData : IHasCreatedAtTimestamp {
     public string DestinationLong { get; set; } = null!;
     public string DestinationName { get; set; } = null!;
 
+    public string DestinationZone { get; set; } = null!;
+
     public int Length { get; set; }
 
     public int Duration { get; set; }
@@ -47,6 +49,8 @@ public class FareDataEntityConfiguration : IEntityTypeConfiguration<FareData> {
         entity.Property(e => e.DestinationName)
             .HasMaxLength(int.MaxValue)
             .IsUnicode(true);
+
+        entity.Property(e => e.DestinationZone).IsRequired(true).IsUnicode(true).HasMaxLength(32);
 
         entity.Property(e => e.Duration)
             .IsRequired(true);

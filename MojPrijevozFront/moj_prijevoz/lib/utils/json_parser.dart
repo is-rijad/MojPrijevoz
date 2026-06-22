@@ -9,6 +9,7 @@ import 'package:moj_prijevoz/resources/responses/fare_offer/fare_offer_response.
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
 import 'package:moj_prijevoz/resources/responses/notification/notification_response.dart';
 import 'package:moj_prijevoz/resources/responses/rating/rating_response.dart';
+import 'package:moj_prijevoz/resources/responses/recommender/recommended_driver_response.dart';
 import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_driver_response.dart';
 import 'package:moj_prijevoz/resources/responses/search_fare/search_fare_response.dart';
 import 'package:moj_prijevoz/resources/responses/stop_points/stop_point_response.dart';
@@ -44,6 +45,7 @@ final Map<Type, _FromJson> _jsonFactories = {
       RequestResetPasswordResponse.fromJson(json),
   RatingResponse: (json) => RatingResponse.fromJson(json),
   NotificationResponse: (json) => NotificationResponse.fromJson(json),
+  RecommendedDriverResponse: (json) => RecommendedDriverResponse.fromJson(json),
 };
 
 T parseJson<T>(Map<String, dynamic> json) {

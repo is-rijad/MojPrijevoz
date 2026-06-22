@@ -33,6 +33,7 @@ using MojPrijevoz.WebApi.Filters;
 using Stripe;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using MojPrijevoz.Recommender.Configuration;
 
 DotNetEnv.Env.Load("./.env");
 
@@ -65,6 +66,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.AddSignalR(it => it.EnableDetailedErrors = true);
 builder.Services.AddMemoryCache();
+builder.Services.AddRecommenderService();
 builder.Services.AddHostedService<FareBackgroundService>();
 
 var rabbitMqSection = builder.Configuration.GetSection("RabbitMQ");

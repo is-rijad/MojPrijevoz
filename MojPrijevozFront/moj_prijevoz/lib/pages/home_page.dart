@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/components/next_fares/next_fares_component.dart';
+import 'package:moj_prijevoz/components/recommended_drivers/recommended_drivers_component.dart';
 import 'package:moj_prijevoz/pages/search_fare_page.dart';
 import 'package:moj_prijevoz/providers/fare_location_provider.dart';
 import 'package:moj_prijevoz/providers/hub_connection.dart';
@@ -286,7 +287,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TextTitleMedium("Preporučeni vozači"),
-        Container(color: Colors.deepOrange, height: 200),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 280),
+          child: RecommendedDriversComponent(),
+        ),
       ],
     );
   }

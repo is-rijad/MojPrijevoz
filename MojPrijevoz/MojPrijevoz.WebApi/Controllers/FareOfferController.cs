@@ -41,5 +41,4 @@ public class FareOfferController : ControllerBase {
     public async Task<IActionResult> Allowed(int id) {
         return Ok(await _fareOfferService.AllowedActions(id));
     }
-
 }
