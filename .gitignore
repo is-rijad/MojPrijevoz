@@ -545,3 +545,4 @@ app.*.symbols
 MojPrijevozFront/moj_prijevoz/config/*
 MojPrijevozFront/moj_prijevoz_admin/config/*
 MojPrijevozFront/moj_prijevoz_admin/.vscode/*
+/MojPrijevoz/MojPrijevoz.Recommender/Data/*

@@ -26,9 +26,15 @@ public class RecommenderService {
 
     private Dictionary<int, int> _driverFareCounts = new();
     private Dictionary<int, List<int>> _driversByOriginCity = new();
+    
+    private static string DataDir => Environment.GetEnvironmentVariable("Recommender__DataDir") ??
+                                       throw new ArgumentException("Recommender__DataDir is not set!");
 
-    private static readonly string ModelPath = "passenger_recommender_model.zip";
-    private static readonly string IndexPath = "passenger_recommender_index.json";
+    private static string ModelPath => DataDir + Environment.GetEnvironmentVariable("Recommender__ModelPath") ??
+                                       throw new ArgumentException("Recommender__ModelPath is not set!");
+    private static string IndexPath => DataDir + Environment.GetEnvironmentVariable("Recommender__IndexPath") ??
+                                       throw new ArgumentException("Recommender__IndexPath is not set!");
+
 
     public RecommenderService(
         IServiceScopeFactory scopeFactory,
@@ -99,6 +105,10 @@ public class RecommenderService {
     }
 
     public async Task LoadOrTrainAsync() {
+        if (!Directory.Exists(DataDir))
+        {
+            Directory.CreateDirectory(DataDir);
+        }
         if (File.Exists(ModelPath) && File.Exists(IndexPath)) {
             _model = _mlContext.Model.Load(ModelPath, out _);
 

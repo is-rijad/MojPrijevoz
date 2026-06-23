@@ -71,12 +71,14 @@
     environment:
       - RabbitMQ__Host=rabbitmq
       - ConnectionStrings__Default=Server=moj-prijevoz-db,1433;Database=MojPrijevoz;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      - Recommender__DataDir=/app/RecommenderData/ 
     container_name: api_service
     ports:
       - "5068:8080"
     restart: unless-stopped
     volumes:
       - uploads-volume:/app/wwwroot/uploads
+      - recommender_data:/app/RecommenderData
     depends_on:
       moj-prijevoz-db:
         condition: service_healthy
@@ -93,6 +95,7 @@ volumes:
   rabbitmq_data:
   database_data:
   uploads-volume:
+  recommender_data:
 
 networks:
   moj-prijevoz:

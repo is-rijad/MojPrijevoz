@@ -20,5 +20,7 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 RUN mkdir -p /app/wwwroot/uploads \
     && chown -R $APP_UID:$APP_UID /app/wwwroot/uploads
+RUN mkdir -p /app/RecommenderData \
+    && chown -R $APP_UID:$APP_UID /app/RecommenderData
 USER $APP_UID
 ENTRYPOINT ["dotnet", "MojPrijevoz.WebApi.dll"]
