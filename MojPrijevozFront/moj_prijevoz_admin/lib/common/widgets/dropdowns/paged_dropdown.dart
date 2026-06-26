@@ -6,12 +6,13 @@ import 'package:moj_prijevoz_admin/utils/json_parser.dart';
 import 'package:moj_prijevoz_admin/common/widgets/dropdowns/base_dropdown.dart';
 
 class PagedDropdown<
-  T extends JsonParsable,
+  TAll extends JsonParsable,
+  T extends TAll,
   TValue,
-  TProvider extends BaseGetProvider<T, TSearchObject>,
+  TProvider extends BaseGetProvider<TAll, T, TSearchObject>,
   TSearchObject extends StringSearchObject
 >
-    extends BaseDropdown<T, TValue, TProvider, TSearchObject> {
+    extends BaseDropdown<TAll, T, TValue, TProvider, TSearchObject> {
   const PagedDropdown({
     super.key,
     required super.getLabel,
@@ -25,18 +26,20 @@ class PagedDropdown<
 
   @override
   State<BaseDropdown> createState() =>
-      _PagedDropdownState<T, TValue, TProvider, TSearchObject>();
+      _PagedDropdownState<TAll, T, TValue, TProvider, TSearchObject>();
 }
 
 class _PagedDropdownState<
-  T extends JsonParsable,
+  TAll extends JsonParsable,
+  T extends TAll,
   TValue,
-  TProvider extends BaseGetProvider<T, TSearchObject>,
+  TProvider extends BaseGetProvider<TAll, T, TSearchObject>,
   TSearchObject extends StringSearchObject
 >
     extends
         BaseDropdownState<
-          PagedDropdown<T, TValue, TProvider, TSearchObject>,
+          PagedDropdown<TAll, T, TValue, TProvider, TSearchObject>,
+          TAll,
           T,
           TValue,
           TProvider,
@@ -61,7 +64,7 @@ class _PagedDropdownState<
   }
 
   @override
-  ListTile buildListTile(SearchResult<T> searchResult, int index) {
+  ListTile buildListTile(SearchResult<TAll> searchResult, int index) {
     final item = searchResult.items[index];
     return ListTile(
       selected: selectedItem != null

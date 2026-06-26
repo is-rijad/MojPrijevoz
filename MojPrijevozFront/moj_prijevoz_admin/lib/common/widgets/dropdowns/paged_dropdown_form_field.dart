@@ -5,20 +5,21 @@ import 'package:moj_prijevoz_admin/utils/json_parser.dart';
 import 'package:moj_prijevoz_admin/common/widgets/dropdowns/paged_dropdown.dart';
 
 class PagedDropdownFormField<
-  T extends JsonParsable,
+  TAll extends JsonParsable,
+  T extends TAll,
   TValue,
-  TProvider extends BaseGetProvider<T, TSearchObject>,
+  TProvider extends BaseGetProvider<TAll, T, TSearchObject>,
   TSearchObject extends StringSearchObject
 >
-    extends FormField<T> {
+    extends FormField<TAll> {
   PagedDropdownFormField({
     super.key,
     required TSearchObject searchObject,
-    required String Function(T) getLabel,
-    required TValue Function(T) getValue,
+    required String Function(TAll) getLabel,
+    required TValue Function(TAll) getValue,
     String? defaultLabel,
-    ValueChanged<T>? onSelectionChanged,
-    ValueChanged<T>? onTextChanged,
+    ValueChanged<TAll>? onSelectionChanged,
+    ValueChanged<TAll>? onTextChanged,
     super.onSaved,
     super.validator,
     super.initialValue,
@@ -32,7 +33,7 @@ class PagedDropdownFormField<
            return Column(
              crossAxisAlignment: CrossAxisAlignment.start,
              children: [
-               PagedDropdown<T, TValue, TProvider, TSearchObject>(
+               PagedDropdown<TAll, T, TValue, TProvider, TSearchObject>(
                  searchObject: searchObject,
                  decoration: decoration,
                  getLabel: getLabel,

@@ -8,6 +8,7 @@ using MojPrijevoz.Model.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Mapster.Utils;
 using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Services.Authorization;
@@ -135,6 +136,13 @@ public class TokenManager {
         if (profileIdString == null)
             return null;
         return int.Parse(profileIdString);
+    }
+
+    public AdministratorRole? GetAdminRole() {
+        var roleClaimValueString = _httpContextAccessor.HttpContext!.User.FindFirst(RoleClaimType)?.Value;
+        if (roleClaimValueString == null)
+            return null;
+        return Enum<AdministratorRole>.Parse(roleClaimValueString);
     }
 
     private async Task<UserInfoTokenDto> GetTokenDto(Account account) {

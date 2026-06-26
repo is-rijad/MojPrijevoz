@@ -27,15 +27,19 @@ public class ExceptionFilter : ExceptionFilterAttribute {
             context.ModelState.AddModelError("unauthorized", context.Exception.Message);
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
         }
+        else if (context.Exception is ForbiddenException) {
+            context.ModelState.AddModelError("forbidden", context.Exception.Message);
+            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+        }
         else {
             context.ModelState.AddModelError("serverError", "Neočekivana greška!");
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         }
 
-        var list = context.ModelState.Where(x => x.Value.Errors.Count > 0)
-            .ToDictionary(x => x.Key, y => y.Value.Errors.Select(z => z.ErrorMessage));
+        var list = context.ModelState.Where(x => x.Value != null && x.Value.Errors.Count > 0)
+            .ToDictionary(x => x.Key, y => y.Value?.Errors.Select(z => z.ErrorMessage));
 
-        var lastError = list.SelectMany(x => x.Value).Last();
+        var lastError = list.SelectMany(x => x.Value!).Last();
         context.Result = new JsonResult(new
         {
             message = lastError,

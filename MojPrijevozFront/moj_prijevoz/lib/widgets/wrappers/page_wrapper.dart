@@ -238,7 +238,21 @@ class _PageWrapperState extends State<PageWrapper> {
                       start: 12,
                     ),
                     decoration: BoxDecoration(color: context.primaryColor),
-                    child: TextTitleLarge('Notifikacije'),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const TextTitleLarge('Notifikacije'),
+                        IconButton(
+                          onPressed: () =>
+                              _scaffoldKey.currentState?.closeEndDrawer(),
+                          icon: Icon(
+                            Icons.close,
+                            color: context.secondaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
@@ -267,7 +281,7 @@ class _PageWrapperState extends State<PageWrapper> {
   }
 
   Future _onTap(NotificationResponse i) async {
-    _scaffoldKey.currentState?.closeDrawer();
+    _scaffoldKey.currentState?.closeEndDrawer();
     await context.read<NotificationProvider>().update(i.id, null);
     i.isRead = true;
     if (!mounted) return;
@@ -284,7 +298,7 @@ class _PageWrapperState extends State<PageWrapper> {
 
   Widget _buildDrawerIcon(BuildContext context) {
     final child = IconButton(
-      onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+      onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
       icon: Icon(Icons.notifications),
     );
     if (context.watch<NotificationProvider>().hasUnread) {

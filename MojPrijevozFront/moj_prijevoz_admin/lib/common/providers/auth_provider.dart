@@ -8,6 +8,7 @@ import 'package:moj_prijevoz_admin/common/constants.dart';
 import 'package:moj_prijevoz_admin/common/providers/http_provider.dart';
 import 'package:moj_prijevoz_admin/common/providers/shared_prefs_provider.dart';
 import 'package:moj_prijevoz_admin/common/resources/access_token_payload.dart';
+import 'package:moj_prijevoz_admin/common/resources/enums/administrator_role.dart';
 import 'package:moj_prijevoz_admin/common/resources/profile_type.dart';
 import 'package:moj_prijevoz_admin/common/resources/requests/user/login_request.dart';
 import 'package:moj_prijevoz_admin/common/resources/requests/user/refresh_token_request.dart';
@@ -107,6 +108,14 @@ class AuthProvider with ChangeNotifier {
     var token = await getAccessToken();
     var payload = JwtDecoder.decode(token);
     return int.parse(payload["sub"]);
+  }
+
+  Future<AdministartorRole> getAdminRole() async {
+    var token = await getAccessToken();
+    var payload = JwtDecoder.decode(token);
+    return AdministartorRole.values
+        .where((it) => it.index == payload["role"])
+        .first;
   }
 
   static Future<AccessTokenPayload> getPayload() async {

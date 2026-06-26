@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz_admin/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz_admin/common/resources/enums/statuses/account_status.dart';
 import 'package:moj_prijevoz_admin/common/resources/user_for_circle_avatar_interface.dart';
-import 'package:moj_prijevoz_admin/common/resources/user_for_circle_avatar_with_preview_interface.dart';
 
 class Avatar extends StatefulWidget {
   final UserForCircleAvatarInterface user;
@@ -40,8 +40,8 @@ class _AvatarState extends State<Avatar> {
       assert(widget.showAccountStatus && widget.fontSize != null);
       return Banner(
         message: accountStatusMap[widget.user.status]!,
-        location: BannerLocation.bottomStart,
-        color: Colors.red,
+        location: BannerLocation.topEnd,
+        color: context.primaryColor,
         textStyle: TextStyle(fontSize: widget.fontSize),
         child: child,
       );
@@ -50,14 +50,9 @@ class _AvatarState extends State<Avatar> {
   }
 
   ImageProvider<Object>? _getUserPicture(UserForCircleAvatarInterface user) {
-    if (user is UserForCircleAvatarWithPreviewInterface) {
-      if (user.imagePreview != null) {
-        return FileImage(user.imagePreview!);
-      }
-    }
     try {
       return user.picture != null ? NetworkImage(user.picture!) : null;
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }

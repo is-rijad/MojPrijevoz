@@ -21,6 +21,7 @@
 	  <Folder Include="Responses\FareOffer\" />
 	  <Folder Include="Responses\Fare\" />
 	  <Folder Include="Responses\Stripe\" />
+	  <Folder Include="SearchObjects\Admin\" />
 	</ItemGroup>
 
 </Project>

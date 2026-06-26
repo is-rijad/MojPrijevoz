@@ -9,20 +9,21 @@ import 'package:moj_prijevoz_admin/utils/json_parser.dart';
 import 'package:provider/provider.dart';
 
 abstract class BaseDropdown<
-  T extends JsonParsable,
+  TAll extends JsonParsable,
+  T extends TAll,
   TValue,
-  TProvider extends BaseGetProvider<T, TSearchObject>,
+  TProvider extends BaseGetProvider<TAll, T, TSearchObject>,
   TSearchObject extends StringSearchObject
 >
     extends StatefulWidget {
   final TSearchObject searchObject;
-  final String Function(T) getLabel;
-  final TValue Function(T) getValue;
-  final ValueChanged<T>? onSelectionChanged;
+  final String Function(TAll) getLabel;
+  final TValue Function(TAll) getValue;
+  final ValueChanged<TAll>? onSelectionChanged;
   final ValueChanged<String>? onTextChanged;
   final String? defaultLabel;
   final InputDecoration? decoration;
-  final T? selectedItem;
+  final TAll? selectedItem;
 
   const BaseDropdown({
     super.key,
@@ -38,10 +39,11 @@ abstract class BaseDropdown<
 }
 
 class BaseDropdownState<
-  TDropdown extends BaseDropdown<T, TValue, TProvider, TSearchObject>,
-  T extends JsonParsable,
+  TDropdown extends BaseDropdown<TAll, T, TValue, TProvider, TSearchObject>,
+  TAll extends JsonParsable,
+  T extends TAll,
   TValue,
-  TProvider extends BaseGetProvider<T, TSearchObject>,
+  TProvider extends BaseGetProvider<TAll, T, TSearchObject>,
   TSearchObject extends StringSearchObject
 >
     extends State<TDropdown> {
@@ -52,7 +54,7 @@ class BaseDropdownState<
   final TextEditingController textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   Timer? _debounce;
-  T? selectedItem;
+  TAll? selectedItem;
 
   bool isLoading = false;
   bool isOpen = false;
@@ -224,7 +226,7 @@ class BaseDropdownState<
     );
   }
 
-  ListTile buildListTile(SearchResult<T> searchResult, int index) {
+  ListTile buildListTile(SearchResult<TAll> searchResult, int index) {
     final item = searchResult.items[index];
     return ListTile(
       title: Text(widget.getLabel(item)),
@@ -232,7 +234,7 @@ class BaseDropdownState<
     );
   }
 
-  void onSelectItem(SearchResult<T> searchResult, T item) {
+  void onSelectItem(SearchResult<TAll> searchResult, TAll item) {
     widget.onTextChanged?.call(widget.getLabel(item));
     widget.onSelectionChanged?.call(item);
     toggleDropdown();
@@ -242,7 +244,7 @@ class BaseDropdownState<
     });
   }
 
-  void changeDropdownText(T? item) {
+  void changeDropdownText(TAll? item) {
     textController.text = item != null
         ? widget.getLabel(item)
         : widget.defaultLabel ?? "";

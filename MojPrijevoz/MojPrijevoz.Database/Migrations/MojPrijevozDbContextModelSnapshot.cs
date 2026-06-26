@@ -1193,6 +1193,36 @@ namespace MojPrijevoz.Database.Migrations
                     b.ToTable("UserProfile", (string)null);
                 });
 
+            modelBuilder.Entity("MojPrijevoz.Database.UserRequestChanges", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Field")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRequestChanges", (string)null);
+                });
+
             modelBuilder.Entity("MojPrijevoz.Database.UserVehicle", b =>
                 {
                     b.Property<int>("Id")
@@ -1453,6 +1483,17 @@ namespace MojPrijevoz.Database.Migrations
                     b.HasOne("MojPrijevoz.Database.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MojPrijevoz.Database.UserRequestChanges", b =>
+                {
+                    b.HasOne("MojPrijevoz.Database.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");

@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Mapster.Utils;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -16,10 +19,13 @@ public class AuthorizationService {
     private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA256;
 
     private readonly TokenManager _tokenManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public AuthorizationService(MojPrijevozDbContext context, TokenManager tokenManager) {
+    public AuthorizationService(MojPrijevozDbContext context, TokenManager tokenManager,
+        IHttpContextAccessor httpContextAccessor) {
         _dbContext = context;
         _tokenManager = tokenManager;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<AccessTokenResponse> Login(UserLoginRequest request) {
@@ -181,9 +187,15 @@ public class AuthorizationService {
         return (await GetUserProfile(profileType))?.Id;
     }
 
-    public async Task<Database.UserProfile?> GetUserProfile(ProfileType profileType) {
+    public async Task<Database.UserProfile?> GetUserProfile(ProfileType profileType)
+    {
+        var userId = Convert.ToInt32(_httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         return await _dbContext.UserProfiles
-            .Where(up => up.UserId == GetUserId() && up.ProfileType == profileType)
+            .Where(up => up.UserId == userId && up.ProfileType == profileType)
             .FirstOrDefaultAsync();
+    }
+    public AdministratorRole? GetAdminRole()
+    {
+        return _tokenManager.GetAdminRole();
     }
 }

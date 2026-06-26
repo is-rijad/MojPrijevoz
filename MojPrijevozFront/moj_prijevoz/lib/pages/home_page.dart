@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
 import 'package:moj_prijevoz/components/next_fares/next_fares_component.dart';
 import 'package:moj_prijevoz/components/recommended_drivers/recommended_drivers_component.dart';
@@ -100,6 +101,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<bool> _init() async {
+    try {
+      await context.read<AuthProvider>().getNewToken();
+    } catch (_) {
+      return false;
+    }
     await hubConnectionProvider.init();
     hubConnectionProvider.subscribe("NewNotification", onNewNotification);
     hubConnectionProvider.subscribe("ReceiveLocation", onReceiveLocation);

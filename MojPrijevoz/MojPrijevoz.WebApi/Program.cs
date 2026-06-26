@@ -34,6 +34,8 @@ using Stripe;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MojPrijevoz.Recommender.Configuration;
+using MojPrijevoz.Services.Admin;
+using MojPrijevoz.WebApi.Controllers.Admin;
 
 DotNetEnv.Env.Load("./.env");
 
@@ -115,6 +117,9 @@ builder.Services.AddScoped<InProgressFareState>();
 
 builder.Services.AddSingleton<ConnectionTracker>();
 builder.Services.AddSingleton<PendingLocationRequests>();
+
+
+builder.Services.AddScoped<AdminUsersService>();
 
 
 var app = builder.Build();

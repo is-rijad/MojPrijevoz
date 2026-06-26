@@ -5,20 +5,25 @@ import 'package:moj_prijevoz_admin/common/providers/http_provider.dart';
 import 'package:moj_prijevoz_admin/common/providers/ui_provider.dart';
 import 'package:moj_prijevoz_admin/common/resources/search_objects/base_search_object.dart';
 import 'package:moj_prijevoz_admin/common/resources/search_result.dart';
+import 'package:moj_prijevoz_admin/resources/requests/request_changes/request_changes_request.dart';
 import 'package:moj_prijevoz_admin/utils/json_parser.dart';
 
 abstract class BaseGetProvider<
-  TResponse extends JsonParsable,
+  TAllResponse extends JsonParsable,
+
+  TResponse extends TAllResponse,
   TSearchObject extends BaseSearchObject
 >
     with ChangeNotifier {
   final httpProvider = GetIt.I<HttpProvider>();
   final uiProvider = GetIt.I<UIProvider>();
 
-  final String providerName;
-  final searchResult = SearchResult<TResponse>();
+  String providerName;
+  final searchResult = SearchResult<TAllResponse>();
 
-  BaseGetProvider({required this.providerName});
+  BaseGetProvider({required this.providerName}) {
+    providerName = "admin/$providerName";
+  }
 
   Future<TResponse> getById(
     int id, {
@@ -31,9 +36,9 @@ abstract class BaseGetProvider<
     );
   }
 
-  Future<SearchResult<TResponse>> _getAll(TSearchObject search) async {
+  Future<SearchResult<TAllResponse>> _getAll(TSearchObject search) async {
     uiProvider.disableLoading();
-    return await httpProvider.getAll<TResponse, TSearchObject>(
+    return await httpProvider.getAll<TAllResponse, TSearchObject>(
       providerName,
       search,
     );
@@ -67,11 +72,12 @@ abstract class BaseGetProvider<
 
 abstract class BaseProvider<
   TResponse extends JsonResponse,
+  TAllResponse extends TResponse,
   TSearchObject extends BaseSearchObject,
   TInsertRequest extends JsonRequest,
   TUpdateRequest extends JsonRequest
 >
-    extends BaseGetProvider<TResponse, TSearchObject> {
+    extends BaseGetProvider<TResponse, TAllResponse, TSearchObject> {
   BaseProvider({required super.providerName});
 
   Future<TResponse> insert(
@@ -159,5 +165,31 @@ abstract class BaseProvider<
       return;
     }
     searchResult.items.removeAt(index);
+  }
+
+  Future<TResponse?> requestChanges(
+    int id,
+    RequestChangesRequest? request, {
+    FormData? formData,
+  }) async {
+    return await httpProvider.put<RequestChangesRequest, TResponse>(
+      "$providerName/changes",
+      id,
+      request,
+      formData: formData,
+    );
+  }
+
+  Future<TResponse?> requestChangesWithEvent(
+    int id,
+    RequestChangesRequest? request, {
+    FormData? formData,
+  }) async {
+    final updatedItem = await requestChanges(id, request, formData: formData);
+    if (updatedItem != null) {
+      updateLocally(updatedItem);
+      return updatedItem;
+    }
+    return null;
   }
 }

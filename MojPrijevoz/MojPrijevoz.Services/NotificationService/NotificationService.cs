@@ -66,7 +66,7 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
             Console.WriteLine($"Message {request.Data["Type"]} is sent to user {request.UserId} By SignalR");
 
         }
-        catch (Exception ex) {
+        catch (Exception) {
             Console.WriteLine($"Message {request.Data["Type"]} failed to send to user {request.UserId}");
         }
     }
@@ -92,8 +92,7 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
         return queryable;
     }
 
-    protected override async Task<IQueryable<Notification>> ApplyOrdering(IQueryable<Notification> queryable, NotificationSearchObject searchObject) {
-        await base.ApplyOrdering(queryable, searchObject);
+    protected override IQueryable<Notification> ApplyOrdering(IQueryable<Notification> queryable, NotificationSearchObject searchObject) {
         queryable = queryable.OrderByDescending(it => it.CreatedAt).ThenBy(it => it.IsRead);
         return queryable.AsQueryable();
     }

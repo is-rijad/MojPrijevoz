@@ -296,6 +296,20 @@ public class DbSeeder {
         _fares = new List<dynamic>(fareList.Select(f => new { Id = f.Id, Status = f.Status, DriverId = f.DriverId, PassengerId = f.PassengerId }));
 
     }
+    public static FareOfferStatus ToFareOfferStatus(FareStatus fareStatus) {
+        return fareStatus switch
+        {
+            FareStatus.Rejected => FareOfferStatus.Rejected,
+            FareStatus.Accepted => FareOfferStatus.Accepted,
+            FareStatus.InNegotiation => FareOfferStatus.WaitingForResponse,
+            FareStatus.Expired => FareOfferStatus.Expired,
+            FareStatus.Payed => FareOfferStatus.Payed,
+            FareStatus.Cancelled => FareOfferStatus.Cancelled,
+            FareStatus.InProgress => FareOfferStatus.Accepted,
+            FareStatus.Completed => FareOfferStatus.Accepted,
+            _ => throw new ArgumentOutOfRangeException(nameof(fareStatus))
+        };
+    }
 
     private async Task SeedFareOffersAsync() {
         var fareOfferList = new List<Database.FareOffer>();
@@ -316,7 +330,7 @@ public class DbSeeder {
                     FareId = fare.Id,
                     Side = i % 2 == 0 ? ProfileType.Passenger : ProfileType.Driver,
                     Status = isLast
-                        ? f.PickRandom(Enum.GetValues<FareOfferStatus>().Where(it => it != FareOfferStatus.Expired))
+                        ? ToFareOfferStatus(fare.Status)
                         : FareOfferStatus.Expired,
                     Price = (float)Math.Round(price, 2),
                     AdditionalPrice = f.Random.Bool(0.2f) ? (float)Math.Round(additionalPrice, 2) : null,

@@ -25,7 +25,7 @@ public abstract class
     public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject) {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         queryable = await ApplyFilter(queryable, searchObject);
-        queryable = await ApplyOrdering(queryable, searchObject);
+        queryable = ApplyOrdering(queryable, searchObject);
         var paginatedQueryable = await Paginate(queryable, searchObject);
         queryable = paginatedQueryable.Queryable;
         queryable = await IncludeAdditionalEntities(queryable);
@@ -44,8 +44,8 @@ public abstract class
         return new PaginatedQueryable<TEntity>(queryable, fullCount, await queryable.CountAsync());
     }
 
-    protected virtual Task<IQueryable<TEntity>> ApplyOrdering(IQueryable<TEntity> queryable, TSearchObject searchObject) {
-        return Task.FromResult(queryable);
+    protected virtual IQueryable<TEntity> ApplyOrdering(IQueryable<TEntity> queryable, TSearchObject searchObject) {
+        return queryable.OrderByDescending(it => EF.Property<int>(it, "Id")).AsQueryable();
     }
 
     public async Task<TResponse> GetByIdAsync(int id) {

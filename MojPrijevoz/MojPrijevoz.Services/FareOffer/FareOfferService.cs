@@ -59,9 +59,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         await base.BeforeInsert(request);
     }
 
-    protected override async Task<IQueryable<Database.FareOffer>> ApplyOrdering(IQueryable<Database.FareOffer> queryable, FareOfferSearchObject searchObject)
+    protected override IQueryable<Database.FareOffer> ApplyOrdering(IQueryable<Database.FareOffer> queryable, FareOfferSearchObject searchObject)
     {
-        await base.ApplyOrdering(queryable, searchObject);
         queryable = queryable.OrderByDescending(it => it.UpdatedAt).ThenByDescending(it => it.CreatedAt);
         return queryable.AsQueryable();
     }
@@ -485,6 +484,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             .Include(it => it.Fare!.Passenger)
             .ThenInclude(it => it!.User).ToListAsync();
         foreach (var fare in fareOffersToExpire) {
+            Console.WriteLine($"Exipring => {fare.Id}");
             await ExpireOfferAsync(fare.Id);
         }
     }

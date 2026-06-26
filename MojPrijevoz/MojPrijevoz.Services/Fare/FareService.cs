@@ -35,8 +35,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         return await queryable.AnyAsync();
     }
 
-    protected override async Task<IQueryable<Database.Fare>> ApplyOrdering(IQueryable<Database.Fare> queryable, FareSearchObject searchObject) {
-        await base.ApplyOrdering(queryable, searchObject);
+    protected override IQueryable<Database.Fare> ApplyOrdering(IQueryable<Database.Fare> queryable, FareSearchObject searchObject) {
         queryable = queryable.OrderByDescending(it => it.UpdatedAt).ThenByDescending(it => it.CreatedAt);
         return queryable.AsQueryable();
     }
@@ -218,7 +217,7 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
     public async Task<PagedResult<FareResponse>> GetNextAcceptedFaresAsync(FareSearchObject searchObject) {
         var userId = _authorizationService.GetUserId();
         var queryable = _dbContext.Fares.Where(it => (it.Passenger!.UserId == userId || it.Driver!.UserId == userId) && (((it.Status == FareStatus.Accepted || it.Status == FareStatus.Payed) && it.FareData!.FareDateTime >= DateTime.UtcNow)) || it.Status == FareStatus.InProgress);
-        queryable = await ApplyOrdering(queryable, searchObject);
+        queryable = ApplyOrdering(queryable, searchObject);
         var paginatedQueryable = await Paginate(queryable, searchObject);
         queryable = paginatedQueryable.Queryable;
         queryable = queryable.OrderBy(it => it.FareData!.FareDateTime);

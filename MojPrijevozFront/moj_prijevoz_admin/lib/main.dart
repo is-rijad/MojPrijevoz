@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz_admin/common/providers/user_provider.dart';
+import 'package:moj_prijevoz_admin/providers/users_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -29,6 +30,7 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
   return [
     ChangeNotifierProvider(create: (_) => AuthProvider(payload)),
     ChangeNotifierProvider(create: (_) => UserProvider()),
+    ChangeNotifierProvider(create: (_) => UsersProvider()),
   ];
 }
 
