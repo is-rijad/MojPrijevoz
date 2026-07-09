@@ -7,16 +7,16 @@ import 'package:moj_prijevoz_admin/common/providers/auth_provider.dart';
 import 'package:moj_prijevoz_admin/common/providers/ui_provider.dart';
 import 'package:moj_prijevoz_admin/common/widgets/drawer_menu/drawer_menu_item.dart';
 import 'package:moj_prijevoz_admin/common/widgets/texts/text_widgets.dart';
-import 'package:moj_prijevoz_admin/pages/admins_page.dart';
-import 'package:moj_prijevoz_admin/pages/cities_page.dart';
+import 'package:moj_prijevoz_admin/pages/admins/admins_page.dart';
+import 'package:moj_prijevoz_admin/pages/cities/cities_page.dart';
 import 'package:moj_prijevoz_admin/pages/home_page.dart';
 import 'package:moj_prijevoz_admin/pages/login_page.dart';
-import 'package:moj_prijevoz_admin/pages/ratings_page.dart';
+import 'package:moj_prijevoz_admin/pages/ratings/ratings_page.dart';
 import 'package:moj_prijevoz_admin/pages/reports_page.dart';
-import 'package:moj_prijevoz_admin/pages/transactions_page.dart';
-import 'package:moj_prijevoz_admin/pages/user_vehicles_page.dart';
+import 'package:moj_prijevoz_admin/pages/transactions/transactions_page.dart';
+import 'package:moj_prijevoz_admin/pages/user_vehicles/user_vehicles_page.dart';
 import 'package:moj_prijevoz_admin/pages/users/users_page.dart';
-import 'package:moj_prijevoz_admin/pages/vehicles_page.dart';
+import 'package:moj_prijevoz_admin/pages/vehicles/vehicles_page.dart';
 import 'package:provider/provider.dart';
 
 class PageWrapper extends StatefulWidget {

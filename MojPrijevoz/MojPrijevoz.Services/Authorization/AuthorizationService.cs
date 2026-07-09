@@ -18,6 +18,12 @@ public class AuthorizationService {
     private readonly MojPrijevozDbContext _dbContext;
     private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA256;
 
+    private const string Upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private const string Lower = "abcdefghijklmnopqrstuvwxyz";
+    private const string Digits = "0123456789";
+    private const string Symbols = "!@#$%^&*";
+    private const string All = Upper + Lower + Digits + Symbols;
+
     private readonly TokenManager _tokenManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -177,6 +183,37 @@ public class AuthorizationService {
         var hashBytes = pbkdf2.GetBytes(HashByteSize);
         var hash = Convert.ToBase64String(hashBytes);
         return hash == storedHash;
+    }
+
+    public string GenerateRandomPassword(int length = 8) {
+
+        var rng = RandomNumberGenerator.Create();
+        var chars = new List<char>
+        {
+            Pick(Upper, rng),
+            Pick(Lower, rng),
+            Pick(Digits, rng),
+            Pick(Symbols, rng),
+        };
+
+        for (int i = chars.Count; i < length; i++)
+            chars.Add(Pick(All, rng));
+
+        for (int i = chars.Count - 1; i > 0; i--) {
+            int j = RandomInt(rng, i + 1);
+            (chars[i], chars[j]) = (chars[j], chars[i]);
+        }
+
+        return new string(chars.ToArray());
+    }
+
+    private char Pick(string charset, RandomNumberGenerator rng)
+        => charset[RandomInt(rng, charset.Length)];
+
+    private int RandomInt(RandomNumberGenerator rng, int max) {
+        var bytes = new byte[4];
+        rng.GetBytes(bytes);
+        return (int)(BitConverter.ToUInt32(bytes, 0) % (uint)max);
     }
 
     public int GetUserId() {

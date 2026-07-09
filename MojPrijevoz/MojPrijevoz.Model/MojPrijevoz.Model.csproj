@@ -15,13 +15,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Requests\Admin\Rating\" />
 	  <Folder Include="Requests\OpenRoute\" />
 	  <Folder Include="Requests\UserVehicle\" />
+	  <Folder Include="Responses\Admin\City\" />
+	  <Folder Include="Responses\Admin\Administrators\" />
+	  <Folder Include="Responses\Admin\Transaction\" />
 	  <Folder Include="Responses\DriversDiscount\" />
 	  <Folder Include="Responses\FareOffer\" />
 	  <Folder Include="Responses\Fare\" />
 	  <Folder Include="Responses\Stripe\" />
-	  <Folder Include="SearchObjects\Admin\" />
 	</ItemGroup>
 
 </Project>

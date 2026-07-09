@@ -21,7 +21,7 @@ class AlertDialogContent extends StatelessWidget {
           builder: (context, value, _) {
             if (value != null) {
               Future.delayed(
-                Duration(seconds: 3),
+                Duration(seconds: 5),
                 () => errorMessageValueNotifier?.value = null,
               );
               return Positioned(

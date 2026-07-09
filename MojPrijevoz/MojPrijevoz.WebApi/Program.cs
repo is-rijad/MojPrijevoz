@@ -36,6 +36,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using MojPrijevoz.Recommender.Configuration;
 using MojPrijevoz.Services.Admin;
 using MojPrijevoz.WebApi.Controllers.Admin;
+using AdminCityService = MojPrijevoz.Services.Admin.AdminCityService;
 
 DotNetEnv.Env.Load("./.env");
 
@@ -120,6 +121,12 @@ builder.Services.AddSingleton<PendingLocationRequests>();
 
 
 builder.Services.AddScoped<AdminUsersService>();
+builder.Services.AddScoped<AdminVehicleService>();
+builder.Services.AddScoped<AdminUserVehiclesService>();
+builder.Services.AddScoped<AdminRatingService>();
+builder.Services.AddScoped<AdminCityService>();
+builder.Services.AddScoped<AdminAdministratorService>();
+builder.Services.AddScoped<AdminTransactionService>();
 
 
 var app = builder.Build();

@@ -70,11 +70,9 @@ public class SearchFareService : ISearchFareService {
             LastName = it.User!.LastName,
             Picture = it.User!.Picture,
 
-            AverageReview = it.RatingTos!.Any()
-                ? it.RatingTos!.Average(r => r.Grade)
-                : 0,
+            AverageReview = _dbContext.Ratings.Where(r => r.ToId == it.Id).Average(r => (double?)r.Grade) ?? 0,
 
-            NumberOfReviews = it.RatingTos!.Count,
+            NumberOfReviews = _dbContext.Ratings.Count(r => r.ToId == it.Id),
 
             Vehicles = it.UserVehicles!.AsQueryable().OrderBy(uv => uv.PricePerKm).Include(uv => uv.Vehicle)
                 .Select(i => _mapper.Map<UserVehicleResponse>(i))

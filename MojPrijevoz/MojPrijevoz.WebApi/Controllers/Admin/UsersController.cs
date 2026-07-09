@@ -15,7 +15,7 @@ namespace MojPrijevoz.WebApi.Controllers.Admin;
             _usersService = usersService;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] UsersSearchObject searchObject)
+        public async Task<IActionResult> GetAll([FromQuery] AdminUserSearchObject searchObject)
         {
             return Ok(await _usersService.GetAsync(searchObject));
         }

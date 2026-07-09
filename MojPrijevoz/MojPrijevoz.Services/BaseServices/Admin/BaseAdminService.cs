@@ -5,6 +5,7 @@ using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.BaseModels.Admin;
 using MojPrijevoz.Model.Dtos.BaseService;
 using MojPrijevoz.Model.Exceptions;
+using System.Linq.Dynamic.Core;
 
 namespace MojPrijevoz.Services.BaseServices.Admin;
 
@@ -23,7 +24,7 @@ public abstract class
     }
 
 
-    public async Task<PagedResult<TAllResponse>> GetAsync(TSearchObject searchObject) {
+    public async Task<Model.BaseModels.PagedResult<TAllResponse>> GetAsync(TSearchObject searchObject) {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         queryable = await ApplyFilter(queryable, searchObject);
         queryable = ApplyOrdering(queryable, searchObject);
@@ -31,7 +32,7 @@ public abstract class
         queryable = paginatedQueryable.Queryable;
         queryable = await IncludeAdditionalEntities(queryable);
         var list = await queryable.Select(e => MapToResponseModel<TAllResponse>(e, _mapper)).ToListAsync();
-        return new PagedResult<TAllResponse>
+        return new Model.BaseModels.PagedResult<TAllResponse>
         {
             Items = list,
             Count = paginatedQueryable.PaginatedCount,
@@ -48,9 +49,8 @@ public abstract class
     protected virtual IQueryable<TEntity> ApplyOrdering(IQueryable<TEntity> queryable, TSearchObject searchObject) {
         if (!string.IsNullOrEmpty(searchObject.OrderBy))
         {
-            return (searchObject.OrderDirection ?? "asc") == "desc"
-                ? queryable.OrderByDescending(e => EF.Property<object>(e, searchObject.OrderBy)).AsQueryable()
-                : queryable.OrderBy(e => EF.Property<object>(e, searchObject.OrderBy)).AsQueryable();
+            var direction = searchObject.OrderDirection == "desc" ? "descending" : "ascending";
+            return queryable.OrderBy($"{searchObject.OrderBy} {direction}").AsQueryable();
         }
         return queryable.OrderByDescending(it => EF.Property<int>(it, "Id")).AsQueryable();
     }

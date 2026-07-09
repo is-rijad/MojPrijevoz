@@ -13,7 +13,7 @@ import 'package:moj_prijevoz_admin/providers/request_changes_provider.dart';
 import 'package:moj_prijevoz_admin/providers/users_provider.dart';
 import 'package:moj_prijevoz_admin/resources/requests/request_changes/request_changes_request.dart';
 import 'package:moj_prijevoz_admin/resources/requests/user/user_update_request.dart';
-import 'package:moj_prijevoz_admin/resources/responses/users/user_response.dart';
+import 'package:moj_prijevoz_admin/resources/responses/user/user_response.dart';
 import 'package:moj_prijevoz_admin/widgets/states/route_aware_state.dart';
 import 'package:moj_prijevoz_admin/widgets/wrappers/page_wrapper.dart';
 import 'package:provider/provider.dart';
@@ -93,6 +93,7 @@ class _OneUserPageState extends RouteAwareState<OneUserPage> {
     _dropDownStatusController.text = accountStatusMap[_userResponse.status]!;
     if (!context.mounted) return;
     context.read<RequestChangesProvider>().refresh();
+    _formKey.currentState?.reset();
   }
 
   Widget _buildUserData() {

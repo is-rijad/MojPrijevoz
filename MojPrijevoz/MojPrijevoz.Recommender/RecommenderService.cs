@@ -209,9 +209,9 @@ public class RecommenderService {
                 FirstName = g.First().Driver!.User!.FirstName,
                 LastName = g.First().Driver!.User!.LastName,
                 Picture = g.First().Driver!.User!.GetPicture(),
-                AverageRating = g.First().Driver!.RatingTos!.Any() == true
-                    ? g.First().Driver!.RatingTos!.Average(r => r.Grade)
-                    : 0,
+                AverageRating = dto.Database.Ratings
+                    .Where(r => r.ToId == g.Key.DriverId)
+                    .Average(r => (double?)r.Grade) ?? 0,
                 OriginCityName = g.First().FareData!.OriginCity!.Name,
                 DestinationName = g.First().FareData!.DestinationName,
                 RidesCount = g.Count(),

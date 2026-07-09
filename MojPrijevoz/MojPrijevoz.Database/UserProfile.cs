@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
@@ -22,6 +23,7 @@ public class UserProfile {
     public ICollection<UserVehicle>? UserVehicles { get; set; }
     public ICollection<DriversDiscount>? DriversDiscounts { get; set; }
 
+    [NotMapped]
     public ICollection<Rating>? RatingTos { get; set; }
 }
 

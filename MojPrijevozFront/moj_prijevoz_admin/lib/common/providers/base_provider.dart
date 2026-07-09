@@ -80,6 +80,11 @@ abstract class BaseProvider<
     extends BaseGetProvider<TResponse, TAllResponse, TSearchObject> {
   BaseProvider({required super.providerName});
 
+  @override
+  void notifyListeners() {
+    super.notifyListeners();
+  }
+
   Future<TResponse> insert(
     TInsertRequest? request, {
     FormData? formData,

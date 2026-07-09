@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+
+<html lang="bs">
+
+<head>
+    <meta charset="utf-8" />
+</head>
+
+{{ msg_subject = "Potrebna podrška: " + Username }}
+{{ msg_body = "Poštovani\Administrator me je banovao.\nMolim vas za reakciju." }}
+
+<body style="background-color: #D1E9FE;">
+    <div style="width: 80vw; margin-left: auto; margin-right: auto;">
+        <h3>Poštovani {{ Name }},</h3>
+        <p>Administrator Vas je banovao.<br /></p>
+        <p><strong>Ukoliko smatrate da je to bila greška, odmah se</strong> <a href="mailto:{{ MojPrijevozEmail }}?subject={{ msg_subject | html.url_encode }}&body={{ msg_body | html.url_encode }}">obratite administratoru</a>.<br /></p>
+    </div>
+    <div style="width: 80vw; margin-left: auto; margin-right: auto;">
+        <p>S poštovanjem,<br>Moj Prijevoz Team.</p>
+    </div>
+</body>
+</html>

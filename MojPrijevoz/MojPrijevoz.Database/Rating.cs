@@ -16,6 +16,7 @@ public class Rating : IHasCreatedAtTimestamp {
     public short Grade { get; set; }
 
     public int FareId { get; set; }
+    public bool IsVisible { get; set; } = false;
 
     public Fare? Fare { get; set; }
 
@@ -46,7 +47,7 @@ public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating> {
             .HasForeignKey(d => d.FromId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 
-        entity.HasOne(d => d.To).WithMany(p => p.RatingTos)
+        entity.HasOne(d => d.To).WithMany()
             .HasForeignKey(d => d.ToId)
             .OnDelete(DeleteBehavior.ClientSetNull);
     }

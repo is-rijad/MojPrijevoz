@@ -6,10 +6,14 @@ public enum EmailType {
     ResetPasswordEmail,
     PasswordChangedEmail,
     NewFareOfferEmail,
-    AcceptFareOfferEmail,
-    ExpiredFareOfferEmail,
-    RejectFareOfferEmail,
     SentFareOfferEmail,
-    PayedFareOfferEmail,
-    ReceiptFareOfferEmail
+    ReceiptFareOfferEmail,
+    ReviewVisibleEmail,
+    BecomeAdministratorEmail,
+    AdministratorBannedEmail,
+    AdministratorPasswordChangedEmail,
+    TransactionPostedEmail,
+    UserRequestChangesEmail,
+    UserVehicleRequestChangesEmail,
+    UserBannedEmail
 }

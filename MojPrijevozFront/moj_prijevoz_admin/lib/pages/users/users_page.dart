@@ -6,8 +6,8 @@ import 'package:moj_prijevoz_admin/common/resources/enums/statuses/account_statu
 import 'package:moj_prijevoz_admin/common/widgets/tables/paginated_table.dart';
 import 'package:moj_prijevoz_admin/pages/users/one_user_page.dart';
 import 'package:moj_prijevoz_admin/providers/users_provider.dart';
-import 'package:moj_prijevoz_admin/resources/responses/users/user_response.dart';
-import 'package:moj_prijevoz_admin/resources/responses/users/users_response.dart';
+import 'package:moj_prijevoz_admin/resources/responses/user/user_response.dart';
+import 'package:moj_prijevoz_admin/resources/responses/user/all_users_response.dart';
 import 'package:moj_prijevoz_admin/resources/search_objects/users/users_search_object.dart';
 import 'package:moj_prijevoz_admin/widgets/states/route_aware_state.dart';
 import 'package:moj_prijevoz_admin/widgets/wrappers/page_wrapper.dart';
@@ -33,7 +33,7 @@ class _UsersPageState extends RouteAwareState<UsersPage> {
       width: context.screenWidth,
       child:
           PaginatedTable<
-            UsersResponse,
+            AllUsersResponse,
             UserResponse,
             UsersProvider,
             UsersSearchObject

@@ -366,6 +366,7 @@ public class DbSeeder {
         foreach (var fare in _fares!.Where(it => it.Status == FareStatus.Completed)) {
             var ratingFaker = new Faker<Database.Rating>(FakerLocale)
                 .RuleFor(r => r.FareId, f => fare.Id)
+                .RuleFor(r => r.IsVisible, f => true)
                 .RuleFor(r => r.Grade, f => (short)f.Random.Int(1, 5))
                 .RuleFor(r => r.Comment, f => f.Lorem.Sentence().ClampLength(max: 256));
 

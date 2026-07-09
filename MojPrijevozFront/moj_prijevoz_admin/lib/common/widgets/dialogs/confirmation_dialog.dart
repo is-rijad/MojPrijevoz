@@ -26,7 +26,6 @@ class _ConfirmationDialogState extends State<ConfirmationDialog> {
   @override
   Widget build(BuildContext context) {
     return MPAlertDialog(
-      constraints: BoxConstraints(maxHeight: context.screenHeight * 0.6),
       content: AlertDialogContent(
         errorMessageValueNotifier: _errorNotifier,
         child: Column(

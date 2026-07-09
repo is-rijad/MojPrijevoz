@@ -21,7 +21,6 @@ public class FareData : IHasCreatedAtTimestamp {
     public int Duration { get; set; }
     public DateTime FareDateTime { get; set; }
     public City? OriginCity { get; set; }
-    public ICollection<Fare>? Fares { get; set; }
     public ICollection<StopPoint>? StopPoints { get; set; }
 
     public DateTime CreatedAt { get; set; }
@@ -61,7 +60,7 @@ public class FareDataEntityConfiguration : IEntityTypeConfiguration<FareData> {
             .IsRequired(true);
 
         entity.HasOne(d => d.OriginCity)
-            .WithMany(p => p.FareDataOriginCities)
+            .WithMany()
             .HasForeignKey(d => d.OriginCityId)
             .OnDelete(DeleteBehavior.ClientSetNull);
     }

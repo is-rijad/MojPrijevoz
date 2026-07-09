@@ -41,6 +41,7 @@ public class MojPrijevozDbContext : DbContext {
     public virtual DbSet<Vehicle> Vehicles { get; set; }
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
     public virtual DbSet<UserRequestChanges> UserRequestChanges { get; set; }
+    public virtual DbSet<UserVehicleRequestChanges> UserVehicleRequestChanges { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
@@ -65,6 +66,7 @@ public class MojPrijevozDbContext : DbContext {
         modelBuilder.ApplyConfiguration(new UserFcmTokenEntityConfiguration());
         modelBuilder.ApplyConfiguration(new RefreshTokenEntityConfiguration());
         modelBuilder.ApplyConfiguration(new UserRequestChangesEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new UserVehicleRequestChangesEntityConfiguration());
     }
 
     private void ApplyDefaultQueries(ModelBuilder modelBuilder) {

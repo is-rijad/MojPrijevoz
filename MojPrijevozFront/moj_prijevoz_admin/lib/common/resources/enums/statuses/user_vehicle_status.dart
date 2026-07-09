@@ -12,8 +12,7 @@ enum UserVehicleStatus {
 }
 
 Map<UserVehicleStatus, String> userVehicleStatusMap = {
-  UserVehicleStatus.deleted: "Obrisan",
   UserVehicleStatus.active: "Aktivan",
-  UserVehicleStatus.waitingForChanges: "Potrebne izmjene",
+  UserVehicleStatus.waitingForChanges: "Čeka na izmjene",
   UserVehicleStatus.waitingForReview: "Čeka na pregled",
 };

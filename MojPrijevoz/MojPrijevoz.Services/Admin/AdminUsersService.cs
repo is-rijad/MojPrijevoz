@@ -2,22 +2,28 @@
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
+using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Admin.User;
-using MojPrijevoz.Model.Responses.Admin.Users;
+using MojPrijevoz.Model.Responses.Admin.User;
 using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices.Admin;
+using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.Admin;
 
-public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholder, AdminUserUpdateRequest, UserRequestChanges, UserResponse, UsersResponse, UsersSearchObject>
+public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholder, AdminUserUpdateRequest, UserRequestChanges, AdminUsersResponse, AdminAllUsersResponse, AdminUserSearchObject>
 {
-    public AdminUsersService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService)
+    private readonly INotificationService _notificationService;
+
+    public AdminUsersService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
+        INotificationService notificationService) : base(context, mapper, authorizationService)
     {
+        _notificationService = notificationService;
     }
 
-    public override async Task<IQueryable<Database.User>> ApplyFilter(IQueryable<Database.User> queryable, UsersSearchObject searchObject)
+    public override async Task<IQueryable<Database.User>> ApplyFilter(IQueryable<Database.User> queryable, AdminUserSearchObject searchObject)
     {
         queryable = await base.ApplyFilter(queryable, searchObject);
         if (!string.IsNullOrEmpty(searchObject.Contains))
@@ -59,8 +65,37 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
         return entity;
     }
 
-    public override Task SendNotificationEmail(List<UserRequestChanges> entities)
+    public override async Task SendNotificationEmail(List<UserRequestChanges> entities)
     {
-        return Task.CompletedTask;
+        var userProfile = await _dbContext.UserProfiles.Include(it => it!.User)
+            .FirstAsync(it => it.UserId == entities.First().UserId);
+        await _notificationService.SendEmailAsync(new EmailDto()
+        {
+            To = userProfile.User!.Email,
+            Type = EmailType.UserRequestChangesEmail,
+            Data = new Dictionary<string, dynamic>()
+            {
+                ["Name"] = userProfile.User!.FirstName,
+                ["Changes"] = entities
+            }
+        });
+    }
+
+    protected override async Task AfterUpdate(Database.User entity, MojPrijevozDbContext dbContext)
+    {
+        await base.AfterUpdate(entity, dbContext);
+        if (entity.Status == AccountStatus.Banned)
+        {
+            await _notificationService.SendEmailAsync(new EmailDto()
+            {
+                To = entity.Email,
+                Type = EmailType.UserBannedEmail,
+                Data = new Dictionary<string, dynamic>()
+                {
+                    ["Name"] = entity.FirstName,
+                    ["Username"] = entity.Username
+                }
+            });
+        }
     }
 }

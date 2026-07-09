@@ -47,15 +47,19 @@ public class EmailService : IEmailService {
         {
             EmailType.WelcomeEmail => "Dobrodošli u Moj Prijevoz!",
             EmailType.BecomeDriverEmail => "Postali ste vozač!",
-            EmailType.ResetPasswordEmail => "Reset lozinke.",
+            EmailType.ResetPasswordEmail => "Reset lozinke!",
             EmailType.PasswordChangedEmail => "Lozinka promijenjena!",
             EmailType.NewFareOfferEmail => "Nova ponuda za vožnju!",
-            EmailType.AcceptFareOfferEmail => "Vaša ponuda za vožnju je prihvaćena!",
-            EmailType.ExpiredFareOfferEmail => "Ponuda za vožnju je istekla!",
-            EmailType.RejectFareOfferEmail => "Vaša ponuda za vožnju je odbijena!",
             EmailType.SentFareOfferEmail => "Ponuda za vožnju poslana!",
-            EmailType.PayedFareOfferEmail => "Ponuda za vožnju plaćena!",
             EmailType.ReceiptFareOfferEmail => "Račun za vašu vožnju!",
+            EmailType.ReviewVisibleEmail => "Administrator je označio Vašu recenziju vidljivom!",
+            EmailType.BecomeAdministratorEmail => "Postali ste administrator!",
+            EmailType.AdministratorBannedEmail => "Niste više administrator!",
+            EmailType.AdministratorPasswordChangedEmail => "Vaša lozinka je promijenjena!",
+            EmailType.TransactionPostedEmail => "Transakcija je proknjižena!",
+            EmailType.UserRequestChangesEmail => "Administrator je zatražio promjene na Vašem profilu!",
+            EmailType.UserVehicleRequestChangesEmail => "Administrator je zatražio promjene na Vašem vozilu!",
+            EmailType.UserBannedEmail => "Administrator Vas je banovao!",
             _ => throw new ArgumentOutOfRangeException(nameof(email.Type), $"Undefined email type: {email.Type}")
         };
     }

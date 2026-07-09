@@ -46,7 +46,7 @@ public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
         entity.Property(e => e.Status).IsRequired(true);
 
         entity.HasOne<FareData>(d => d.FareData)
-            .WithMany(p => p.Fares)
+            .WithMany()
             .HasForeignKey(e => e.FareDataId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 

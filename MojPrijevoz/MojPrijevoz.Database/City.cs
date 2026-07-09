@@ -14,8 +14,6 @@ public class City : IHasTimestamps {
     public string Lat { get; set; } = null!;
 
 
-    public ICollection<FareData>? FareDataOriginCities { get; set; }
-
     public ICollection<User>? Users { get; set; }
 
     public DateTime UpdatedAt { get; set; }

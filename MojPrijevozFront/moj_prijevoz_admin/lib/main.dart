@@ -3,7 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz_admin/common/providers/user_provider.dart';
+import 'package:moj_prijevoz_admin/providers/administrator_provider.dart';
+import 'package:moj_prijevoz_admin/providers/city_provider.dart';
+import 'package:moj_prijevoz_admin/providers/map_provider.dart';
+import 'package:moj_prijevoz_admin/providers/rating_provider.dart';
+import 'package:moj_prijevoz_admin/providers/transaction_provider.dart';
+import 'package:moj_prijevoz_admin/providers/user_vehicles_provider.dart';
 import 'package:moj_prijevoz_admin/providers/users_provider.dart';
+import 'package:moj_prijevoz_admin/providers/vehicles_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -20,6 +27,7 @@ void registerServices() {
   final getIt = GetIt.instance;
 
   getIt.registerLazySingleton(() => UIProvider());
+  getIt.registerLazySingleton<MapProvider>(() => MapProvider());
 
   getIt.registerFactory<HttpProvider>(() => HttpProvider());
 
@@ -31,6 +39,12 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
     ChangeNotifierProvider(create: (_) => AuthProvider(payload)),
     ChangeNotifierProvider(create: (_) => UserProvider()),
     ChangeNotifierProvider(create: (_) => UsersProvider()),
+    ChangeNotifierProvider(create: (_) => VehiclesProvider()),
+    ChangeNotifierProvider(create: (_) => UserVehiclesProvider()),
+    ChangeNotifierProvider(create: (_) => RatingProvider()),
+    ChangeNotifierProvider(create: (_) => CityProvider()),
+    ChangeNotifierProvider(create: (_) => AdministratorProvider()),
+    ChangeNotifierProvider(create: (_) => TransactionProvider()),
   ];
 }
 

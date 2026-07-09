@@ -1021,6 +1021,9 @@ namespace MojPrijevoz.Database.Migrations
                     b.Property<short>("Grade")
                         .HasColumnType("smallint");
 
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("bit");
+
                     b.Property<int>("ToId")
                         .HasColumnType("int");
 
@@ -1265,6 +1268,36 @@ namespace MojPrijevoz.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("UserVehicle", (string)null);
+                });
+
+            modelBuilder.Entity("MojPrijevoz.Database.UserVehicleRequestChanges", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Field")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("UserVehicleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserVehicleId");
+
+                    b.ToTable("UserVehicleRequestChanges", (string)null);
                 });
 
             modelBuilder.Entity("MojPrijevoz.Database.Vehicle", b =>
@@ -1514,6 +1547,17 @@ namespace MojPrijevoz.Database.Migrations
                     b.Navigation("Profile");
 
                     b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("MojPrijevoz.Database.UserVehicleRequestChanges", b =>
+                {
+                    b.HasOne("MojPrijevoz.Database.UserVehicle", "UserVehicle")
+                        .WithMany()
+                        .HasForeignKey("UserVehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserVehicle");
                 });
 
             modelBuilder.Entity("MojPrijevoz.Database.Administrator", b =>

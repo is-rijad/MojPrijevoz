@@ -20,10 +20,12 @@ class RequestChangesComponent<T extends JsonResponse> extends StatefulWidget {
 class _RequestChangesComponentState<T extends JsonResponse>
     extends State<RequestChangesComponent<T>> {
   late final Iterable<MapEntry<String, dynamic>> entityEntries;
+  late final Map<String, String> _fieldsMap;
   @override
   void initState() {
+    _fieldsMap = fieldsMap<T>();
     entityEntries = widget.entity.toJson().entries.where(
-      (it) => it.key != "id" && it.key != "status" && it.key != "registeredAt",
+      (it) => _fieldsMap.containsKey(it.key),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<RequestChangesProvider>().createControllers(entityEntries);
@@ -51,7 +53,7 @@ class _RequestChangesComponentState<T extends JsonResponse>
                         (e) => CheckboxListTile(
                           value: provider.getValue(e.key),
                           onChanged: (val) => provider.toogleItem(e.key),
-                          title: Text(fieldsMap<T>()[e.key]!),
+                          title: Text(_fieldsMap[e.key]!),
                         ),
                       ),
                     ],
@@ -73,7 +75,7 @@ class _RequestChangesComponentState<T extends JsonResponse>
                                 (e) => Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    TextBodyLarge(fieldsMap<T>()[e.key]!),
+                                    TextBodyLarge(_fieldsMap[e.key]!),
                                     TextFormField(
                                       maxLength: 64,
                                       controller: provider
