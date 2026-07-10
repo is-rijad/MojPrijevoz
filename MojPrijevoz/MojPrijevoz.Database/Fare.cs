@@ -43,7 +43,7 @@ public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
         entity.HasKey(e => e.Id);
         entity.ToTable("Fare");
 
-        entity.Property(e => e.Status).IsRequired(true);
+        entity.Property(e => e.Status).IsRequired();
 
         entity.HasOne<FareData>(d => d.FareData)
             .WithMany()

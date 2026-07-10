@@ -34,7 +34,7 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
 
         var options = new PaymentIntentCreateOptions
         {
-            Amount = (long)(fareOffer.TotalPrice * 100),
+            Amount = (long)((fareOffer.TotalPrice * 100) * (1 - 0.10)),
             Currency = "bam",
             Metadata = new Dictionary<string, string> { ["fareOfferId"] = fareOfferId.ToString() }
         };

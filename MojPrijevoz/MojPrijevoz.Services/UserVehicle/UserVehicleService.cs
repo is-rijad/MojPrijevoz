@@ -97,4 +97,24 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
                 uv.Id != entity.Id))
             throw new BadRequestException("Vozilo već postoji.");
     }
+
+    public override async Task DeleteAsync(int id)
+    {
+        var userVehicle = await _dbContext.UserVehicles.FindAsync(id);
+        userVehicle!.Status = UserVehicleStatus.Deleted;
+        await _dbContext.SaveChangesAsync();
+    }
+
+    protected override async Task BeforeDelete(int id, Database.UserVehicle entity)
+    {
+        await base.BeforeDelete(id, entity);
+        var hasActiveFares = await _dbContext.Fares.AnyAsync(it => it.UserVehicleId == entity.Id && (it.Status ==
+            FareStatus.Accepted || it.Status == FareStatus.InNegotiation || it.Status == FareStatus.InProgress ||
+            it.Status == FareStatus.Payed));
+        if (hasActiveFares)
+        {
+            throw new BadRequestException("Ne možete obrisati vozilo koje ima zahtjev za vožnju!");
+        }
+
+    }
 }

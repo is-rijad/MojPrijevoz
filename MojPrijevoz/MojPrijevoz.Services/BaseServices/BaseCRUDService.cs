@@ -86,7 +86,7 @@ public abstract class
         entityWithPicture.Picture = imagePath;
     }
 
-    public async Task DeleteAsync(int id) {
+    public virtual async Task DeleteAsync(int id) {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         var dbSet = _dbContext.Set<TEntity>();
         var entity = await _dbContext.Set<TEntity>().FindAsync(id);

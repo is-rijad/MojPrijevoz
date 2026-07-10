@@ -35,7 +35,7 @@ public class CityEntityConfiguration : IEntityTypeConfiguration<City> {
             .IsUnicode(false);
         entity.Property(e => e.Name)
             .HasMaxLength(32)
-            .IsUnicode(false);
+            .IsUnicode();
 
         entity.HasData(
             new City { Id = 1, Name = "Banja Luka", Lat = "44.7725", Long = "17.1925" },

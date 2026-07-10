@@ -59,6 +59,35 @@ public class AuthorizationService {
         };
     }
 
+    public async Task<bool> CheckIsAccountActive()
+    {
+        var userId = GetUserId();
+        var user = await _dbContext.Users.FindAsync(userId);
+        if (user!.Status == AccountStatus.Banned)
+        {
+            throw new UnauthorizedException("Banovani ste, ne možete koristiti aplikaciju!");
+        }
+        else if (user.Status != AccountStatus.Active)
+        {
+            throw new BadRequestException(
+                "Vaš nalog nije aktivan, administrator je zatražio izmjene na Vašem profilu!");
+        }
+
+        return true;
+    }
+    public async Task<bool> CheckIsAccountActive(int profileId) {
+        var userProfile = await _dbContext.UserProfiles.Include(it => it.User).FirstOrDefaultAsync(it => it.Id == profileId);
+        if (userProfile!.User!.Status == AccountStatus.Banned) {
+            throw new BadRequestException("Korisnik je banovan, ne može koristiti aplikaciju!");
+        }
+        else if (userProfile!.User!.Status != AccountStatus.Active) {
+            throw new BadRequestException(
+                "Korisnikov nalog nije aktivan!");
+        }
+
+        return true;
+    }
+
     private async Task ChangeOrAddRefreshToken(string refreshToken, int userId) {
 
         var refreshTokenEntity = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserId == userId);

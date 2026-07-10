@@ -249,6 +249,8 @@ public class FareService : BaseCrudService<Database.Fare, FareInsertRequest, Far
         if (searchObject.FareId != null) {
             queryable = queryable.Where(it => it.Id == searchObject.FareId);
         }
+
+        queryable = queryable.IgnoreQueryFilters();
         return queryable;
     }
 

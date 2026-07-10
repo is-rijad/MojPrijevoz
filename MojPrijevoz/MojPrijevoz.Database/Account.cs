@@ -73,7 +73,5 @@ public class AccountEntityConfiguration : IEntityTypeConfiguration<Account> {
         entity.Property(e => e.ResetPasswordCode)
             .HasMaxLength(64)
             .IsUnicode(false);
-        entity.Property(e => e.RegisteredAt).ValueGeneratedOnAdd()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

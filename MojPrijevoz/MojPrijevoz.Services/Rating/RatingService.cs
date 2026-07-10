@@ -26,7 +26,7 @@ public class RatingService : BaseCrudService<Database.Rating, RatingInsertReques
 
     public override async Task<IQueryable<Database.Rating>> ApplyFilter(IQueryable<Database.Rating> queryable, RatingSearchObject searchObject) {
         await base.ApplyFilter(queryable, searchObject);
-        queryable = queryable.Where(it => it.ToId == searchObject.ProfileId);
+        queryable = queryable.Where(it => it.ToId == searchObject.ProfileId && it.IsVisible);
         return queryable;
     }
 

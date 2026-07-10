@@ -47,7 +47,7 @@ public class SearchFareService : ISearchFareService {
                 f.FareData!.FareDateTime.AddMinutes(f.FareData.Duration) > newStart
             ).Select(it => it.DriverId).ToListAsync();
         var profilesQuery = _dbContext.UserProfiles
-            .Where(it => it.ProfileType == ProfileType.Driver && it.Id != profileId && !unAvailableDrivers.Contains(it.Id)).AsQueryable();
+            .Where(it => it.ProfileType == ProfileType.Driver && it.Id != profileId && !unAvailableDrivers.Contains(it.Id) && it.UserVehicles!.Any(i => i.Status == UserVehicleStatus.Active) && it.User!.Status == AccountStatus.Active).AsQueryable();
 
         if (searchObject.DriverId != null)
         {
@@ -74,7 +74,7 @@ public class SearchFareService : ISearchFareService {
 
             NumberOfReviews = _dbContext.Ratings.Count(r => r.ToId == it.Id),
 
-            Vehicles = it.UserVehicles!.AsQueryable().OrderBy(uv => uv.PricePerKm).Include(uv => uv.Vehicle)
+            Vehicles = it.UserVehicles!.Where(i => i.Status == UserVehicleStatus.Active).AsQueryable().OrderBy(uv => uv.PricePerKm).Include(uv => uv.Vehicle)
                 .Select(i => _mapper.Map<UserVehicleResponse>(i))
                 .ToList(),
 
@@ -99,7 +99,15 @@ public class SearchFareService : ISearchFareService {
         };
     }
 
-    public async Task<SearchFareDriverResponse> SearchDriver(int profileId, SearchFareDriverSearchObject searchObject) {
+    public async Task<SearchFareDriverResponse> SearchDriver(int profileId, SearchFareDriverSearchObject searchObject)
+    {
+        var driver = await _dbContext.UserProfiles
+            .Where(it => it.Id == profileId && it.User!.Status == AccountStatus.Active).FirstOrDefaultAsync();
+        if (driver == null)
+        {
+            throw new BadRequestException("Korisnik nije pronađen!");
+        }
+
         var driversCityId = await _dbContext.UserProfiles.Where(it => it.Id == profileId).Select(it => it.User!.CityId)
             .FirstAsync();
         var distance = searchObject.Distance;
@@ -110,7 +118,11 @@ public class SearchFareService : ISearchFareService {
         var driversDiscount = await _dbContext.DriversDiscounts.Where(it =>
                 it.MinKm >= finalDistance && (it.MaxKm == null || it.MaxKm <= finalDistance))
             .FirstOrDefaultAsync();
-        var userVehicle = await _dbContext.UserVehicles.FindAsync(searchObject.UserVehicleId);
+        var userVehicle = await _dbContext.UserVehicles.Where(it => it.Status == UserVehicleStatus.Active).FirstOrDefaultAsync(it => it.Id == searchObject.UserVehicleId);
+        if (userVehicle is null)
+        {
+            throw new BadRequestException("Vozilo nije pronađeno!");
+        }
         var price = Math.Round(
             (distance * userVehicle!.PricePerKm) * ((driversDiscount?.Discount / 100) ?? 1), 2);
         var additionalPrice = Math.Round(

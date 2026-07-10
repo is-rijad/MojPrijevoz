@@ -42,7 +42,9 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         _transactionService = transactionService;
     }
 
-    protected override async Task BeforeInsert(FareOfferInsertRequest request) {
+    protected override async Task BeforeInsert(FareOfferInsertRequest request)
+    {
+        await _authorizationService.CheckIsAccountActive();
         if (await _fareService.HasActiveFareForRoute(request.PassengerId, _mapper.Map<HasActiveFareRequest>(request))) {
             throw new BadRequestException("Već imate zakazanu vožnju za istu rutu, na isti dan!");
         }
@@ -144,7 +146,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         return await _fareService.GetByIdAsync(firstFare!.Id);
     }
 
-    public override async Task<FareResponse> UpdateWithTransactionAsync(int id, FareOfferUpdateRequest request) {
+    public override async Task<FareResponse> UpdateWithTransactionAsync(int id, FareOfferUpdateRequest request)
+    {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
         var entity = await _dbContext.FareOffers
@@ -154,6 +157,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             .FirstAsync(it => it.Id == id);
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
+        await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
+
         await BeforeUpdate(id, request, entity);
 
         var state = _baseFareOfferState.GetState((short)entity.Status);
@@ -170,10 +175,13 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
 
     protected override async Task BeforeUpdate(int id, FareOfferUpdateRequest request, Database.FareOffer entity)
     {
+        await _authorizationService.CheckIsAccountActive();
+
         await base.BeforeUpdate(id, request, entity);
         if ((request.Price + (request.AdditionalPrice ?? 0)) < 1) {
             throw new BadRequestException("Ukupna cijena ne može biti manja od 1KM!");
         }
+
     }
 
     private async Task SendUpdateNotification(Database.FareOffer entity, Database.FareOffer? oldEntity) {
@@ -292,7 +300,9 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         };
     }
 
-    public async Task<FareResponse> AcceptOfferAsync(int id) {
+    public async Task<FareResponse> AcceptOfferAsync(int id)
+    {
+        await _authorizationService.CheckIsAccountActive();
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
 
@@ -304,6 +314,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
+        await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
         var newStart = entity.Fare!.FareData!.FareDateTime;
         var newEnd = entity.Fare!.FareData!.FareDateTime.AddMinutes(entity.Fare!.FareData!.Duration);
@@ -353,6 +364,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
     }
 
     public async Task<FareResponse> RejectOfferAsync(int id) {
+        await _authorizationService.CheckIsAccountActive();
+
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
         var entity = await _dbContext.FareOffers
@@ -363,6 +376,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
+        await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
+
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Reject(entity);
         await _fareService.RejectAsync(entity!.Fare!.Id);
@@ -377,11 +392,15 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
     }
 
     public async Task<FareResponse> ExpireOfferAsync(int id) {
+        await _authorizationService.CheckIsAccountActive();
+
         var entity = await _dbContext.FareOffers
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
             .FirstAsync(it => it.Id == id);
+        await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
+
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
@@ -397,11 +416,15 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
 
     public override async Task<FareResponse> UpdateAsync(int id, FareOfferUpdateRequest request)
     {
+        await _authorizationService.CheckIsAccountActive();
+
         var updated = await base.UpdateAsync(id, request);
         return await _fareService.GetByIdAsync(updated.Id);
     }
 
     public async Task<FareResponse> CancelOfferAsync(int id) {
+        await _authorizationService.CheckIsAccountActive();
+
         var entity = await _dbContext.FareOffers
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
@@ -414,6 +437,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
+        await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
+
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Cancel(entity);
         await _fareService.CancelAsync(entity!.Fare!.Id);
@@ -442,6 +467,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
 
 
     public async Task<FareResponse> PayOfferAsync(int id) {
+        await _authorizationService.CheckIsAccountActive();
+
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
         var entity = await _dbContext.FareOffers
@@ -452,6 +479,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");
         }
+
+        await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Pay(entity);
         await _fareService.PayAsync(entity!.Fare!.Id);
