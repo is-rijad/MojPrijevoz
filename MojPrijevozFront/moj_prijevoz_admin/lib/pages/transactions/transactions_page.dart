@@ -23,7 +23,7 @@ class TransactionsPage extends StatefulWidget {
 
 class _TransactionsPageState extends RouteAwareState<TransactionsPage> {
   _TransactionsPageState() : super(action: DrawerMenuAction.transactions);
-
+  final _searchObject = TransactionSearchObject(page: 1, pageSize: 10);
   @override
   Widget build(BuildContext context) {
     return PageWrapper(body: _build(context), appBarTitle: "Transakcije");
@@ -42,10 +42,11 @@ class _TransactionsPageState extends RouteAwareState<TransactionsPage> {
                 TransactionProvider,
                 TransactionSearchObject
               >(
-                searchObject: TransactionSearchObject(page: 1, pageSize: 10),
+                searchObject: _searchObject,
                 header: <String, String?>{
                   "Vožnja": null,
                   "Vrijednost": "Amount",
+                  "Provizija": "FeeAmount",
                   "Tip": "Side",
                   "Proknjižen u": "PostedAt",
                   "Kreiran u": "CreatedAt",
@@ -56,7 +57,10 @@ class _TransactionsPageState extends RouteAwareState<TransactionsPage> {
                   (i) => Text(
                     "${i.fare!.fareData!.originCity!.name}-${i.fare!.fareData!.trimmedDestinationName}",
                   ),
-                  (i) => Text("${i.amount.toString()}KM"),
+                  (i) => Text("${i.amount.toStringAsFixed(2)}KM"),
+                  (i) => i.feeAmount != null
+                      ? Text("${i.feeAmount!.toStringAsFixed(2)}KM")
+                      : const Text("-"),
                   (i) => Text(transactionSideMap[i.side]!),
                   (i) => i.postedAt != null
                       ? Text(
@@ -88,7 +92,8 @@ class _TransactionsPageState extends RouteAwareState<TransactionsPage> {
               i.id,
               null,
             );
-
+            if (!context.mounted) return;
+            context.read<TransactionProvider>().clearData(_searchObject);
             Constants.messengerKey.currentState?.showSnackBar(
               SuccessSnackBar(message: "Uspješno ste proknjižili transakciju!"),
             );

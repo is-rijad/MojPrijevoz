@@ -127,7 +127,7 @@ public class TokenManager {
     }
 
     public int GetUserId() {
-        return Convert.ToInt32(_httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        return Convert.ToInt32(_httpContextAccessor.HttpContext!.User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
     }
 
     public int? GetProfileId(ProfileType profileType) {

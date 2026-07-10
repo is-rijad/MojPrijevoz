@@ -31,6 +31,7 @@ public class FareOffer : IHasTimestamps {
     public Fare? Fare { get; set; }
     public FareOffer? LastOffer { get; set; }
     public float TotalPrice => Price + (AdditionalPrice ?? 0);
+    public float PriceToDriver => (Price + (AdditionalPrice ?? 0)) * (1 - 0.10f);
     public DateTime UpdatedAt { get; set; }
 }
 

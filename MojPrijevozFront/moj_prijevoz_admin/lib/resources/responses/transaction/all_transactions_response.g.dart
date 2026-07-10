@@ -20,6 +20,7 @@ AllTransactionsResponse _$AllTransactionsResponseFromJson(
   fare: json['fare'] == null
       ? null
       : FareResponse.fromJson(json['fare'] as Map<String, dynamic>),
+  feeAmount: (json['feeAmount'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$AllTransactionsResponseToJson(
@@ -29,6 +30,7 @@ Map<String, dynamic> _$AllTransactionsResponseToJson(
   'fareId': instance.fareId,
   'side': _$TransactionSideEnumMap[instance.side]!,
   'amount': instance.amount,
+  'feeAmount': instance.feeAmount,
   'postedAt': instance.postedAt?.toIso8601String(),
   'createdAt': instance.createdAt.toIso8601String(),
   'fare': instance.fare,

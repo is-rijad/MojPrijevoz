@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MojPrijevoz.Model.Requests.Admin.City;
 using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Admin;
 
 namespace MojPrijevoz.WebApi.Controllers.Admin;
 [ApiController]
+[Authorize(Roles = "0,1")]
 [Route("api/admin/[controller]")]
     public class CityController : ControllerBase {
         private readonly AdminCityService _cityService;

@@ -22,6 +22,7 @@ public class DbSeeder {
     private List<dynamic>? _userVehicles;
     private Queue<dynamic>? _fareDatas;
     private List<dynamic>? _fares;
+    private Queue<dynamic>? _payedFareOffers;
 
     public DbSeeder(MojPrijevozDbContext mojPrijevozDbContext,
         AuthorizationService authorizationService) {
@@ -50,11 +51,14 @@ public class DbSeeder {
         await SeedFaresAsync();
         await SeedFareOffersAsync();
         await SeedRatingsAsync();
+        await SeedTransactionsAsync();
 
         await transaction.CommitAsync();
         Console.WriteLine("Seeding database done!");
 
     }
+
+
 
     private async Task<bool> CheckIsSeedNeededAsync() {
         return !await _mojPrijevozDbContext.Users.AnyAsync();
@@ -344,6 +348,11 @@ public class DbSeeder {
             fareOfferList.Add(lastOffer);
         }
 
+        _payedFareOffers = new Queue<dynamic>(fareOfferList.Where(it => it.Status == FareOfferStatus.Payed).Select(it => new
+        {
+            FareId = it.FareId,
+            TotalPrice = it.Price + (it.AdditionalPrice ?? 0)
+        }));
         await _mojPrijevozDbContext.FareOffers.AddRangeAsync(fareOfferList);
         await _mojPrijevozDbContext.SaveChangesAsync();
     }
@@ -359,6 +368,24 @@ public class DbSeeder {
             FareOfferStatus.Cancelled => FareStatus.Cancelled,
             _ => throw new ArgumentOutOfRangeException(nameof(offerStatus), offerStatus, null)
         };
+    }
+
+    private async Task SeedTransactionsAsync()
+    {
+        var transactionList = new List<Transaction>();
+        while (_payedFareOffers!.Any()) {
+            var fareOffer = _payedFareOffers!.Dequeue();
+            var transactionFaker = new Faker<Database.Transaction>(FakerLocale)
+                .RuleFor(f => f.FareId, f => fareOffer.FareId)
+                .RuleFor(f => f.Amount, f => fareOffer.TotalPrice * (1 - 0.10f))
+                .RuleFor(f => f.FeeAmount, f => fareOffer.TotalPrice * 0.10f)
+                .RuleFor(f => f.Side, f => TransactionSide.Debit);
+            var transaction = transactionFaker.Generate();
+
+            transactionList.Add(transaction);        }
+
+        await _mojPrijevozDbContext.Transactions.AddRangeAsync(transactionList);
+        await _mojPrijevozDbContext.SaveChangesAsync();
     }
 
     private async Task SeedRatingsAsync() {

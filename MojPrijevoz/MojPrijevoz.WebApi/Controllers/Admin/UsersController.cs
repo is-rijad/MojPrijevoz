@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MojPrijevoz.Model.Requests.Admin.RequestChanges;
 using MojPrijevoz.Model.Requests.Admin.User;
 using MojPrijevoz.Model.SearchObjects.Admin;
@@ -6,6 +7,7 @@ using MojPrijevoz.Services.Admin;
 
 namespace MojPrijevoz.WebApi.Controllers.Admin;
 [ApiController]
+[Authorize(Roles = "0,1")]
 [Route("api/admin/[controller]")]
     public class UsersController : ControllerBase {
         private readonly AdminUsersService _usersService;

@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MojPrijevoz.Model.Requests.Admin.Transaction;
 using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Admin;
 
 namespace MojPrijevoz.WebApi.Controllers.Admin;
 [ApiController]
+[Authorize(Roles = "1")]
 [Route("api/admin/[controller]")]
     public class TransactionController : ControllerBase {
         private readonly AdminTransactionService _transactionService;

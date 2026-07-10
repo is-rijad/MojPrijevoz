@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojPrijevoz.Database;
 
@@ -11,9 +12,11 @@ using MojPrijevoz.Database;
 namespace MojPrijevoz.Database.Migrations
 {
     [DbContext(typeof(MojPrijevozDbContext))]
-    partial class MojPrijevozDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260710194333_feeAmountTransactionFieldAdd")]
+    partial class feeAmountTransactionFieldAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1120,7 +1123,7 @@ namespace MojPrijevoz.Database.Migrations
                     b.Property<int>("FareId")
                         .HasColumnType("int");
 
-                    b.Property<float?>("FeeAmount")
+                    b.Property<float>("FeeAmount")
                         .HasColumnType("real");
 
                     b.Property<DateTime?>("PostedAt")

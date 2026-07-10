@@ -8,4 +8,5 @@ public class TransactionInsertRequest {
     public TransactionSide Side { get; set; }
 
     public float Amount { get; set; }
+    public float FeeAmount { get; set; }
 }

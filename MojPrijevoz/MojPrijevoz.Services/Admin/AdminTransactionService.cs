@@ -50,6 +50,13 @@ public class AdminTransactionService : BaseAdminCrudService<Database.Transaction
     protected override async Task AfterUpdate(Transaction entity, MojPrijevozDbContext dbContext)
     {
         await base.AfterUpdate(entity, dbContext);
+        await _dbContext.Transactions.AddAsync(new Transaction()
+        {
+            Side = TransactionSide.Credit,
+            FareId = entity.FareId,
+            Amount = entity.Amount,
+            PostedAt = entity.PostedAt
+        });
         var fare = await _dbContext.Fares.Include(it => it.FareData).ThenInclude(it => it!.OriginCity)
             .Include(it => it.Driver).ThenInclude(it => it!.User).Include(it => it.Passenger)
             .ThenInclude(it => it!.User).FirstAsync(it => it.Id == entity.FareId);

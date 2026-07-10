@@ -39,9 +39,11 @@ public abstract class
         await BeforeInsert(request);
         var entityEntry = await _dbContext.Set<TEntity>().AddAsync(MapToInsertEntity(request));
 
-        await _dbContext.SaveChangesAsync();
         await AfterInsert(entityEntry.Entity, request, _dbContext);
+        await _dbContext.SaveChangesAsync();
+
         await PrepareForResponse(entityEntry.Entity, _dbContext);
+
         return MapToResponseModel<TResponse>(entityEntry.Entity, _mapper);
     }
 
@@ -104,8 +106,9 @@ public abstract class
 
         MapToUpdateEntity(request, entity);
 
-        await _dbContext.SaveChangesAsync();
         await AfterUpdate(entity, _dbContext);
+        await _dbContext.SaveChangesAsync();
+
         await PrepareForResponse(entity, _dbContext);
         return MapToResponseModel<TResponse>(entity, _mapper);
     }

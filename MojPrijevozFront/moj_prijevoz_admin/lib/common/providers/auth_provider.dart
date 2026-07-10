@@ -9,7 +9,6 @@ import 'package:moj_prijevoz_admin/common/providers/http_provider.dart';
 import 'package:moj_prijevoz_admin/common/providers/shared_prefs_provider.dart';
 import 'package:moj_prijevoz_admin/common/resources/access_token_payload.dart';
 import 'package:moj_prijevoz_admin/common/resources/enums/administrator_role.dart';
-import 'package:moj_prijevoz_admin/common/resources/profile_type.dart';
 import 'package:moj_prijevoz_admin/common/resources/requests/user/login_request.dart';
 import 'package:moj_prijevoz_admin/common/resources/requests/user/refresh_token_request.dart';
 import 'package:moj_prijevoz_admin/common/resources/responses/user/access_token_response.dart';
@@ -114,7 +113,7 @@ class AuthProvider with ChangeNotifier {
     var token = await getAccessToken();
     var payload = JwtDecoder.decode(token);
     return AdministartorRole.values
-        .where((it) => it.index == payload["role"])
+        .where((it) => it.index == int.parse(payload["role"]))
         .first;
   }
 
@@ -122,12 +121,5 @@ class AuthProvider with ChangeNotifier {
     var token = await getAccessToken();
     var payload = JwtDecoder.decode(token);
     return parseJson<AccessTokenPayload>(payload);
-  }
-
-  Future<int?> getProfileId(ProfileType profileType) async {
-    var payload = await getPayload();
-    return profileType == ProfileType.passenger
-        ? payload.passengerProfileId
-        : payload.driverProfileId;
   }
 }

@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MojPrijevoz.Model.Requests.Admin.Administrators;
 using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Admin;
 
 namespace MojPrijevoz.WebApi.Controllers.Admin;
 [ApiController]
+[Authorize(Roles = "1")]
 [Route("api/admin/[controller]")]
     public class AdministratorController : ControllerBase {
         private readonly AdminAdministratorService _administratorService;
@@ -14,7 +16,8 @@ namespace MojPrijevoz.WebApi.Controllers.Admin;
             _administratorService = administratorService;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] AdminAdministratorSearchObject searchObject)
+
+    public async Task<IActionResult> GetAll([FromQuery] AdminAdministratorSearchObject searchObject)
         {
             return Ok(await _administratorService.GetAsync(searchObject));
         }

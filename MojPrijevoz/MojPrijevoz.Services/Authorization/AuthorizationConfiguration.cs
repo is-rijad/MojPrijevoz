@@ -23,12 +23,15 @@ public static class AuthorizationConfiguration {
             {
                 options.RequireHttpsMetadata = true;
                 options.SaveToken = true;
+                options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
+                    NameClaimType = "sub",
                     ValidateIssuer = true,
                     ValidateLifetime = true,
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
+                    RoleClaimType = "role",
                     ValidIssuer = jwtSettings["Issuer"] ??
                                   throw new InvalidOperationException("Jwt Issuer is not configured!"),
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"] ??

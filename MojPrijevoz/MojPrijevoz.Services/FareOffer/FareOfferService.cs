@@ -486,7 +486,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         await _fareService.PayAsync(entity!.Fare!.Id);
         await _transactionService.InsertAsync(new TransactionInsertRequest()
         {
-            Amount = entity.TotalPrice,
+            Amount = entity.TotalPrice * (1 - 0.10f),
+            FeeAmount = entity.TotalPrice * 0.10f,
             FareId = entity.FareId,
             Side = TransactionSide.Debit
         });

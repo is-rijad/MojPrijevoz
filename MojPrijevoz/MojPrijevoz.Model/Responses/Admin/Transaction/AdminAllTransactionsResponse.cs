@@ -12,6 +12,7 @@ public class AdminAllTransactionsResponse
     public TransactionSide Side { get; set; }
 
     public float Amount { get; set; }
+    public float FeeAmount { get; set; }
 
     public DateTime? PostedAt { get; set; }
 

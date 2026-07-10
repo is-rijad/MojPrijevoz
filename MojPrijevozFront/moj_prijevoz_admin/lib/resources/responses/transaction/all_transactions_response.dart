@@ -12,6 +12,7 @@ class AllTransactionsResponse extends JsonResponse {
   final int fareId;
   final TransactionSide side;
   final double amount;
+  final double? feeAmount;
   final DateTime? postedAt;
   final DateTime createdAt;
   final FareResponse? fare;
@@ -24,6 +25,7 @@ class AllTransactionsResponse extends JsonResponse {
     this.postedAt,
     required this.createdAt,
     this.fare,
+    this.feeAmount,
   });
 
   factory AllTransactionsResponse.fromJson(Map<String, dynamic> json) =>
