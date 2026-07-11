@@ -7,6 +7,7 @@ import 'package:moj_prijevoz_admin/providers/administrator_provider.dart';
 import 'package:moj_prijevoz_admin/providers/city_provider.dart';
 import 'package:moj_prijevoz_admin/providers/map_provider.dart';
 import 'package:moj_prijevoz_admin/providers/rating_provider.dart';
+import 'package:moj_prijevoz_admin/providers/stats_provider.dart';
 import 'package:moj_prijevoz_admin/providers/transaction_provider.dart';
 import 'package:moj_prijevoz_admin/providers/user_vehicles_provider.dart';
 import 'package:moj_prijevoz_admin/providers/users_provider.dart';
@@ -45,6 +46,7 @@ List<SingleChildWidget> registerProviders(AccessTokenPayload? payload) {
     ChangeNotifierProvider(create: (_) => CityProvider()),
     ChangeNotifierProvider(create: (_) => AdministratorProvider()),
     ChangeNotifierProvider(create: (_) => TransactionProvider()),
+    ChangeNotifierProvider(create: (_) => StatsProvider()),
   ];
 }
 

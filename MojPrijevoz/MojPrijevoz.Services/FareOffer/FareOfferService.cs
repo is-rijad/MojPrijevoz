@@ -391,15 +391,14 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
-    public async Task<FareResponse> ExpireOfferAsync(int id) {
-        await _authorizationService.CheckIsAccountActive();
+    public async Task<FareResponse> ExpireOfferAsync(int id)
+    {
 
         var entity = await _dbContext.FareOffers
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
             .FirstAsync(it => it.Id == id);
-        await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
         if (entity == null) {
             throw new NotFoundException("Ponuda nije pronađena!");

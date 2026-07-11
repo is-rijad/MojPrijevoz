@@ -10,6 +10,9 @@ import 'package:moj_prijevoz_admin/resources/responses/fare/fare_response.dart';
 import 'package:moj_prijevoz_admin/resources/responses/fare_data/fare_data_response.dart';
 import 'package:moj_prijevoz_admin/resources/responses/rating/all_ratings_response.dart';
 import 'package:moj_prijevoz_admin/resources/responses/rating/rating_response.dart';
+import 'package:moj_prijevoz_admin/resources/responses/stats/fares_this_month/fares_this_month_response.dart';
+import 'package:moj_prijevoz_admin/resources/responses/stats/users_by_city/users_by_city_response.dart';
+import 'package:moj_prijevoz_admin/resources/responses/stats/base_response_by_month/base_response_by_month.dart';
 import 'package:moj_prijevoz_admin/resources/responses/transaction/all_transactions_response.dart';
 import 'package:moj_prijevoz_admin/resources/responses/transaction/transaction_response.dart';
 import 'package:moj_prijevoz_admin/resources/responses/user/user_response.dart';
@@ -40,6 +43,9 @@ final Map<Type, _FromJson> _jsonFactories = {
   AdministratorResponse: (json) => AdministratorResponse.fromJson(json),
   AllTransactionsResponse: (json) => AllTransactionsResponse.fromJson(json),
   TransactionResponse: (json) => TransactionResponse.fromJson(json),
+  UsersByCityResponse: (json) => UsersByCityResponse.fromJson(json),
+  BaseResponseByMonth: (json) => BaseResponseByMonth.fromJson(json),
+  FaresThisMonthResponse: (json) => FaresThisMonthResponse.fromJson(json),
 };
 
 final Map<Type, Map<String, String>> _fieldsMapFactories =

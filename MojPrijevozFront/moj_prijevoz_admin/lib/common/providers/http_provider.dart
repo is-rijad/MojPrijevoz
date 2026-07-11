@@ -64,6 +64,30 @@ class HttpProvider {
     }
   }
 
+  Future<SearchResult<TResponse>> getAllWithoutSearchObject<TResponse>(
+    String url, {
+    Map<String, dynamic>? query,
+  }) async {
+    try {
+      _uiProvider.startLoading();
+
+      var options = await _setRequestOptions();
+      var response = await DioClient.dio.get(
+        "$_apiUrl$url",
+        options: options,
+        queryParameters: query,
+      );
+      return SearchResult<TResponse>(
+        items: List<TResponse>.from(
+          response.data["items"].map((it) => parseJson<TResponse>(it)),
+        ),
+        hasMore: response.data["hasMore"],
+      );
+    } finally {
+      _uiProvider.stopLoading();
+    }
+  }
+
   Future<TResponse> post<TRequest extends JsonParsable, TResponse>(
     String url,
     TRequest? request, {

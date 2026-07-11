@@ -125,6 +125,7 @@ builder.Services.AddScoped<AdminRatingService>();
 builder.Services.AddScoped<AdminCityService>();
 builder.Services.AddScoped<AdminAdministratorService>();
 builder.Services.AddScoped<AdminTransactionService>();
+builder.Services.AddScoped<AdminStatsService>();
 
 
 var app = builder.Build();

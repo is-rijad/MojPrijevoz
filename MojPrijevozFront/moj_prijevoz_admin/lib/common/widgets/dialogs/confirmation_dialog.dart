@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz_admin/common/constants.dart';
 import 'package:moj_prijevoz_admin/common/error_handler.dart';
-import 'package:moj_prijevoz_admin/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz_admin/common/widgets/alert_dialog/alert_dialog_content.dart';
 import 'package:moj_prijevoz_admin/common/widgets/alert_dialog/mp_alert_dialog.dart';
 import 'package:moj_prijevoz_admin/common/widgets/buttons/primary_button.dart';
