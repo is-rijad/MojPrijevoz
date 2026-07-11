@@ -11,6 +11,7 @@ using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.FileStorage;
 using MojPrijevoz.Services.FormRequests.User;
+using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.User;
@@ -18,13 +19,19 @@ namespace MojPrijevoz.Services.User;
 public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateFormRequest, UserResponse,
     BaseSearchObject> {
     private readonly INotificationService _notificationService;
+    private readonly RevokedTokenService _revokedTokenService;
+    private readonly TokenManager _tokenManager;
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,
-        IHttpContextAccessor httpContextAccessor,
         AuthorizationService authorizationService,
         IFileStorageService fileStorageService,
-        INotificationService notificationService) : base(context, mapper, authorizationService, fileStorageService) {
+        INotificationService notificationService,
+        RevokedTokenService revokedTokenService,
+        TokenManager tokenManager
+        ) : base(context, mapper, authorizationService, fileStorageService) {
         _notificationService = notificationService;
+        _revokedTokenService = revokedTokenService;
+        _tokenManager = tokenManager;
     }
 
     protected override async Task BeforeInsert(UserInsertRequest request) {
@@ -122,6 +129,8 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         _authorizationService.CreatePassword(request.Password, request.PasswordAgain, out var passwordHash,
             out var passwordSalt);
         (user.PasswordHash, user.PasswordSalt) = (passwordHash, passwordSalt);
+        _revokedTokenService.Revoke(user.Id, null);
+        await _tokenManager.DropRefreshTokenIfExists(user.Id);
 
         await _notificationService.SendEmailAsync(new EmailDto()
         {

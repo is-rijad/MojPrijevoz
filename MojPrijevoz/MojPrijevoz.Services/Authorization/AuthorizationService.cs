@@ -8,6 +8,7 @@ using MojPrijevoz.Model.Responses.User;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using MojPrijevoz.Services.InMemoryDatabase;
 
 namespace MojPrijevoz.Services.Authorization;
 
@@ -26,12 +27,14 @@ public class AuthorizationService {
 
     private readonly TokenManager _tokenManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly RevokedTokenService _revokedTokenService;
 
     public AuthorizationService(MojPrijevozDbContext context, TokenManager tokenManager,
-        IHttpContextAccessor httpContextAccessor) {
+        IHttpContextAccessor httpContextAccessor, RevokedTokenService revokedTokenService) {
         _dbContext = context;
         _tokenManager = tokenManager;
         _httpContextAccessor = httpContextAccessor;
+        _revokedTokenService = revokedTokenService;
     }
 
     public async Task<AccessTokenResponse> Login(UserLoginRequest request) {
@@ -51,6 +54,7 @@ public class AuthorizationService {
         var refreshToken = await _tokenManager.GenerateRefreshToken(account);
 
         await ChangeOrAddRefreshToken(refreshToken, account.Id);
+        _revokedTokenService.DropKeyIfExists(account.Id);
 
         return new AccessTokenResponse
         {
@@ -123,6 +127,7 @@ public class AuthorizationService {
 
         var token = await _tokenManager.GenerateToken(account!);
         var refreshToken = await _tokenManager.GenerateRefreshToken(account!);
+        _revokedTokenService.DropKeyIfExists(userId);
 
         await ChangeOrAddRefreshToken(refreshToken, userId);
 
@@ -160,6 +165,7 @@ public class AuthorizationService {
 
         var token = await _tokenManager.GenerateToken(user);
         var refreshToken = await _tokenManager.GenerateRefreshToken(user);
+        _revokedTokenService.DropKeyIfExists(userId);
 
         await ChangeOrAddRefreshToken(refreshToken, userId);
 

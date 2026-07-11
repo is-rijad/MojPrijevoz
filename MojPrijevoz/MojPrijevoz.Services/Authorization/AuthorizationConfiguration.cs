@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
+using MojPrijevoz.Services.InMemoryDatabase;
 
 namespace MojPrijevoz.Services.Authorization;
 
@@ -21,6 +22,32 @@ public static class AuthorizationConfiguration {
             })
             .AddJwtBearer(options =>
             {
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated =  context =>
+                    {
+                        if (!int.TryParse(context.Principal?.FindFirst("sub")?.Value, out var userId))
+                        {
+                            context.Fail("Missing subject claim.");
+                            return Task.CompletedTask;
+                        }
+
+                        var revokedTokenService =
+                            context.HttpContext.RequestServices.GetRequiredService<RevokedTokenService>();
+                        var revokedAt = revokedTokenService.GetRevokedRecord(userId);
+                        if (revokedAt != null)
+                        {
+                            var issuedAtClaim = context.Principal?.FindFirst("iat")?.Value;
+                            var issuedAt = issuedAtClaim is not null
+                                ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(issuedAtClaim)).UtcDateTime
+                                : DateTime.MinValue;
+
+                            if (issuedAt <= revokedAt)
+                                context.Fail("Token revoked.");
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
                 options.RequireHttpsMetadata = true;
                 options.SaveToken = true;
                 options.MapInboundClaims = false;

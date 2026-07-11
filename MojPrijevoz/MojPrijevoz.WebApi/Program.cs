@@ -35,8 +35,6 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MojPrijevoz.Recommender.Configuration;
 using MojPrijevoz.Services.Admin;
-using MojPrijevoz.WebApi.Controllers.Admin;
-using AdminCityService = MojPrijevoz.Services.Admin.AdminCityService;
 
 DotNetEnv.Env.Load("./.env");
 
@@ -84,7 +82,6 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddScoped<TokenManager>();
 builder.Services.AddScoped<CityService>();
-builder.Services.AddScoped<AdminCityService>();
 builder.Services.AddScoped<UserVehicleService>();
 builder.Services.AddScoped<VehicleService>();
 builder.Services.AddScoped<DriversDiscountService>();
@@ -117,10 +114,11 @@ builder.Services.AddScoped<InProgressFareState>();
 
 
 builder.Services.AddSingleton<ConnectionTracker>();
-builder.Services.AddSingleton<PendingLocationRequests>();
+builder.Services.AddScoped<RevokedTokenService>();
 
 
 builder.Services.AddScoped<AdminUsersService>();
+builder.Services.AddScoped<AdminCityService>();
 builder.Services.AddScoped<AdminVehicleService>();
 builder.Services.AddScoped<AdminUserVehiclesService>();
 builder.Services.AddScoped<AdminRatingService>();

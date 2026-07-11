@@ -72,6 +72,19 @@ public class TokenManager {
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+    public async Task DropRefreshTokenIfExists(int userId) {
+        await _dbContext.RefreshTokens
+            .Where(rt => rt.UserId == userId)
+            .ExecuteDeleteAsync();
+    }
+    public int GetExpirationInMinutes(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        if (jwtToken == null)
+            throw new InvalidOperationException("Invalid token!");
+        return (jwtToken.ValidTo - DateTime.UtcNow).Minutes;
+    }
 
     public UserInfoTokenDto GetUserInfoFromToken(string token) {
         var handler = new JwtSecurityTokenHandler();
@@ -90,7 +103,6 @@ public class TokenManager {
         var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
         int? role = roleClaim != null ? int.Parse(roleClaim.Value) : null;
         var accountStatus = jwtToken.Claims.FirstOrDefault(c => c.Type == AccountStatusClaimType)!.Value;
-
 
         return new UserInfoTokenDto
         {
@@ -119,7 +131,7 @@ public class TokenManager {
         var token = new JwtSecurityToken(
             JwtIssuer,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(Convert.ToDouble(RefreshJwtExpiration)),
+            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(RefreshJwtExpiration)),
             signingCredentials: creds
         );
 

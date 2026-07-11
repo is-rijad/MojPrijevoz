@@ -9,6 +9,7 @@ using MojPrijevoz.Model.Responses.Admin.User;
 using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices.Admin;
+using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.Admin;
@@ -16,11 +17,16 @@ namespace MojPrijevoz.Services.Admin;
 public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholder, AdminUserUpdateRequest, UserRequestChanges, AdminUsersResponse, AdminAllUsersResponse, AdminUserSearchObject>
 {
     private readonly INotificationService _notificationService;
+    private readonly TokenManager _tokenManager;
+    private readonly RevokedTokenService _revokedTokenService;
 
     public AdminUsersService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
-        INotificationService notificationService) : base(context, mapper, authorizationService)
+        INotificationService notificationService, RevokedTokenService revokedTokenService,
+        TokenManager tokenManager) : base(context, mapper, authorizationService)
     {
         _notificationService = notificationService;
+        _revokedTokenService = revokedTokenService;
+        _tokenManager = tokenManager;
     }
 
     public override async Task<IQueryable<Database.User>> ApplyFilter(IQueryable<Database.User> queryable, AdminUserSearchObject searchObject)
@@ -57,6 +63,7 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
         }
         user.Status = AccountStatus.WaitingForChanges;
 
+        _revokedTokenService.Revoke(id, null);
     }
 
     public override UserRequestChanges MapIdToRequestChanges(int id, UserRequestChanges entity)
@@ -96,6 +103,8 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
                     ["Username"] = entity.Username
                 }
             });
+            await _tokenManager.DropRefreshTokenIfExists(entity.Id);
         }
+        _revokedTokenService.Revoke(entity.Id, null);
     }
 }

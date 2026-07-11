@@ -8,17 +8,23 @@ using MojPrijevoz.Model.Responses.Admin.Administrators;
 using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices.Admin;
+using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.Admin;
 
 public class AdminAdministratorService : BaseAdminCrudService<Database.Administrator, AdminAdministratorUpsertRequest, AdminAdministratorUpsertRequest, BaseRequestChanges, AdminAdministratorResponse, AdminAllAdministratorsResponse, AdminAdministratorSearchObject> {
     private readonly INotificationService _notificationService;
+    private readonly RevokedTokenService _revokedTokenService;
+    private readonly TokenManager _tokenManager;
 
     public AdminAdministratorService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
-        INotificationService notificationService) : base(context, mapper, authorizationService)
+        INotificationService notificationService, RevokedTokenService revokedTokenService,
+        TokenManager tokenManager) : base(context, mapper, authorizationService)
     {
         _notificationService = notificationService;
+        _revokedTokenService = revokedTokenService;
+        _tokenManager = tokenManager;
     }
 
     public override async Task<IQueryable<Database.Administrator>> ApplyFilter(IQueryable<Database.Administrator> queryable, AdminAdministratorSearchObject searchObject) {
@@ -75,6 +81,8 @@ public class AdminAdministratorService : BaseAdminCrudService<Database.Administr
                     ["NewPassword"] = password
                 }
             });
+            _revokedTokenService.Revoke(id, null);
+            await _tokenManager.DropRefreshTokenIfExists(id);
         }
     }
 
@@ -92,6 +100,8 @@ public class AdminAdministratorService : BaseAdminCrudService<Database.Administr
                     ["Name"] = entity.FirstName,
                 }
             });
+            _revokedTokenService.Revoke(entity.Id, null);
+            await _tokenManager.DropRefreshTokenIfExists(entity.Id);
         }
 
     }

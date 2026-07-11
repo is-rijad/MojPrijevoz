@@ -65,6 +65,7 @@ abstract class ErrorHandler {
             switch (e.response!.statusCode!) {
               case 401:
                 message = null;
+                break;
             }
           }
           if (e.response!.data != null &&
