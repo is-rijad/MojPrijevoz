@@ -26,6 +26,12 @@ class _HomePageState extends RouteAwareState<HomePage> {
   _HomePageState() : super(action: DrawerMenuAction.home);
 
   @override
+  void didPopNext() {
+    fetchData();
+    super.didPopNext();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LoadUntilReadyWrapper(buildFunction: _build, futureFunction: _init);
   }
@@ -133,12 +139,16 @@ class _HomePageState extends RouteAwareState<HomePage> {
       GetIt.I<UIProvider>().drawerMenuAction = DrawerMenuAction.home;
     });
     if (!mounted) return false;
+    await fetchData();
+    return true;
+  }
+
+  Future fetchData() async {
     await Future.wait([
       context.read<StatsProvider>().getUsersByCity(),
       context.read<StatsProvider>().getUsersByMonth(),
       context.read<StatsProvider>().getRevenueByMonth(),
       context.read<StatsProvider>().getFaresThisMonth(),
     ]);
-    return true;
   }
 }
