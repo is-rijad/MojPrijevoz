@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
@@ -15,7 +14,7 @@ public enum FareStatus : short {
     Completed = 7
 }
 
-public class Fare : IHasTimestamps {
+public class Fare {
     public int Id { get; set; }
 
     public FareStatus Status { get; set; } = FareStatus.InNegotiation;
@@ -64,5 +63,10 @@ public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
         entity.HasOne<UserVehicle>(it => it.UserVehicle)
             .WithMany(it => it.Fares)
             .HasForeignKey(it => it.UserVehicleId);
+
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

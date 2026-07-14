@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class UserFcmToken : IHasTimestamps {
+public class UserFcmToken {
     public int Id { get; set; }
     public int UserId { get; set; }
     public string Token { get; set; } = null!;
@@ -27,5 +26,10 @@ public class UserFcmTokenEntityConfiguration : IEntityTypeConfiguration<UserFcmT
         entity.HasOne(d => d.User).WithMany(p => p.UserFcmTokens)
             .HasForeignKey(d => d.UserId)
             .OnDelete(DeleteBehavior.ClientSetNull);
+
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

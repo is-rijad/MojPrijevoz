@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
@@ -13,7 +12,7 @@ public enum FareOfferStatus : short {
     Cancelled = 5
 }
 
-public class FareOffer : IHasTimestamps {
+public class FareOffer {
     public int Id { get; set; }
 
     public ProfileType Side { get; set; }
@@ -49,6 +48,11 @@ public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer> 
             .WithMany()
             .HasForeignKey(it => it.LastOfferId)
             .IsRequired(false);
+
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
     }
 }

@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class Rating : IHasCreatedAtTimestamp {
+public class Rating {
     public int Id { get; set; }
 
     public int FromId { get; set; }
@@ -50,5 +49,8 @@ public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating> {
         entity.HasOne(d => d.To).WithMany()
             .HasForeignKey(d => d.ToId)
             .OnDelete(DeleteBehavior.ClientSetNull);
+
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

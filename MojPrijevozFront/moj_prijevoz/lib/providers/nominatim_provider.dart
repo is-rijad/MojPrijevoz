@@ -3,7 +3,6 @@ import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/dio_client.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/providers/base_provider.dart';
-import 'package:moj_prijevoz/common/providers/http_provider.dart';
 import 'package:moj_prijevoz/common/resources/search_result.dart';
 import 'package:moj_prijevoz/resources/responses/nominatim/nominatim_response.dart';
 import 'package:moj_prijevoz/resources/search_objects/nominatim/nominatim_search_object.dart';

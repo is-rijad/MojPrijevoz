@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dio/src/form_data.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/providers/base_provider.dart';

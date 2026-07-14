@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/providers/image_picker_provider.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';

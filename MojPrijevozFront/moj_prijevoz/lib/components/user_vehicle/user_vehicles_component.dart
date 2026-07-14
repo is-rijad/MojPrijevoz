@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/constants.dart';
-import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_delete_dialog.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
 import 'package:moj_prijevoz/providers/user_vehicle_provider.dart';

@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MojPrijevoz.Database.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MojPrijevoz.Database;
 
-public class FareData : IHasCreatedAtTimestamp {
+public class FareData {
     public int Id { get; set; }
     public int OriginCityId { get; set; }
 
@@ -63,5 +62,8 @@ public class FareDataEntityConfiguration : IEntityTypeConfiguration<FareData> {
             .WithMany()
             .HasForeignKey(d => d.OriginCityId)
             .OnDelete(DeleteBehavior.ClientSetNull);
+
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

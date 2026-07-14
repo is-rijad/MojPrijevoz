@@ -78,7 +78,7 @@ class AuthProvider with ChangeNotifier {
           );
       await _setAccessToken(response.token);
       await _setRefreshToken(response.refreshToken);
-    } on DioException catch (e) {
+    } on DioException {
       logout(withNotificationLogout: false);
       rethrow;
     }

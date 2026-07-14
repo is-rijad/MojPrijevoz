@@ -161,10 +161,10 @@ public class TokenManager {
         var tokenDto = _mapper.Map<UserInfoTokenDto>(account);
 
         var passengerProfile = (await _dbContext.UserProfiles
-            .Where(up => up.UserId == account.Id)
+            .Where(up => up.UserId == account.Id && up.ProfileType == ProfileType.Passenger)
             .FirstOrDefaultAsync())?.Id;
         if (passengerProfile != null)
-            tokenDto.DriverProfileId = passengerProfile.Value;
+            tokenDto.PassengerProfileId = passengerProfile.Value;
 
         var driverProfile = (await _dbContext.UserProfiles
             .Where(up => up.UserId == account.Id && up.ProfileType == ProfileType.Driver)

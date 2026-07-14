@@ -62,5 +62,6 @@ class ImagePickerProvider {
         rethrow;
       }
     }
+    return null;
   }
 }

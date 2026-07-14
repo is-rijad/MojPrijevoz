@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
 
-public class Notification : IHasCreatedAtTimestamp {
+public class Notification {
     public int Id { get; set; }
     public int UserId { get; set; }
 
@@ -36,5 +35,8 @@ public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notifica
             .IsUnicode(false);
 
         entity.HasOne(it => it.User).WithMany().HasForeignKey(it => it.UserId);
+
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

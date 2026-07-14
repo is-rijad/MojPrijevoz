@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -20,14 +21,18 @@ public class SignalRHub(
     public static readonly TimeSpan CacheTtl = TimeSpan.FromHours(24);
     public static string GetCacheKey(string userId) => $"loc:{userId}";
 
+    private string GetUserId() =>
+        Context.User?.Claims.FirstOrDefault(it => it.Type == JwtRegisteredClaimNames.Sub)?.Value ??
+        throw new NullReferenceException("UserId is not provided!");
+
     public override Task OnConnectedAsync() {
-        var userId = Context.UserIdentifier!;
+        var userId = GetUserId();
         tracker.Register(userId, Context.ConnectionId);
         return base.OnConnectedAsync();
     }
 
     public override Task OnDisconnectedAsync(Exception? ex) {
-        var userId = Context.UserIdentifier!;
+        var userId = GetUserId();
         tracker.Remove(userId);
         return base.OnDisconnectedAsync(ex);
     }
@@ -48,7 +53,7 @@ public class SignalRHub(
         });
     }
     public async Task RequestLocation(string targetUserId) {
-        var requesterId = Context.UserIdentifier!;
+        var requesterId = GetUserId();
         var connectionId = tracker.Get(targetUserId);
 
         if (connectionId != null) {
@@ -69,7 +74,7 @@ public class SignalRHub(
     }
 
     public async Task SendLocation(FareLocationDto dto) {
-        var senderId = Context.UserIdentifier!;
+        var senderId = GetUserId();
         var connectionId = tracker.Get(dto.UserId.ToString());
         dto.IsAccurate = true;
 

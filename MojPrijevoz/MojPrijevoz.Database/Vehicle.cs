@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class Vehicle : IHasTimestamps {
+public class Vehicle {
     public int Id { get; set; }
 
     public string Manufacturer { get; set; } = null!;
@@ -36,5 +35,10 @@ public class VehicleEntityConfiguration : IEntityTypeConfiguration<Vehicle> {
         entity.Property(e => e.Model)
             .HasMaxLength(32)
             .IsUnicode(false);
+
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

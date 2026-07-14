@@ -9,8 +9,6 @@ import 'package:moj_prijevoz/common/dio_client.dart';
 import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/error_handler.dart';
 import 'package:moj_prijevoz/firebase_options.dart';
-import 'package:moj_prijevoz/pages/home_page.dart';
-import 'package:moj_prijevoz/pages/login.dart';
 import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/city_provider.dart';
 import 'package:moj_prijevoz/providers/drivers_discount_provider.dart';

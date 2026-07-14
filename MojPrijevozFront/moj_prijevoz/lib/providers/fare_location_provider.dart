@@ -7,18 +7,15 @@ import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
 import 'package:moj_prijevoz/common/dio_client.dart';
 import 'package:moj_prijevoz/common/user_exception.dart';
-import 'package:moj_prijevoz/common/providers/auth_provider.dart';
 import 'package:moj_prijevoz/providers/hub_connection.dart';
 import 'package:moj_prijevoz/providers/location_provider.dart';
 import 'package:moj_prijevoz/providers/map_provider.dart';
-import 'package:moj_prijevoz/common/resources/access_token_payload.dart';
 import 'package:moj_prijevoz/resources/dtos/fare_location/fare_location_dto.dart';
 import 'package:moj_prijevoz/resources/dtos/nominatim/nominatim_city_dto.dart';
 import 'package:moj_prijevoz/resources/responses/maps/maps_route_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:moj_prijevoz/common/env.dart';
-import 'package:signalr_netcore/signalr_client.dart';
 
 class FareLocationProvider extends ChangeNotifier {
   Position? myLocation;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moj_prijevoz/common/env.dart';
 import 'package:moj_prijevoz/common/resources/enums/statuses/account_status.dart';
 import 'package:moj_prijevoz/common/resources/user_for_circle_avatar_interface.dart';
 import 'package:moj_prijevoz/common/resources/user_for_circle_avatar_with_preview_interface.dart';

@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public class City : IHasTimestamps {
+public class City {
     public int Id { get; set; }
 
     public string Name { get; set; } = null!;
@@ -36,6 +35,10 @@ public class CityEntityConfiguration : IEntityTypeConfiguration<City> {
         entity.Property(e => e.Name)
             .HasMaxLength(32)
             .IsUnicode();
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         entity.HasData(
             new City { Id = 1, Name = "Banja Luka", Lat = "44.7725", Long = "17.1925" },

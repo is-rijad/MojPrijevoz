@@ -436,5 +436,6 @@ class _FareOfferNegotiatePageState extends State<FareOfferNegotiatePage> {
     if (mounted && (isDone ?? false)) {
       Constants.navigatorKey.currentState?.pop();
     }
+    return null;
   }
 }

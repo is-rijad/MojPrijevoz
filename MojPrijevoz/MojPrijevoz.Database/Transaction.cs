@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
@@ -9,7 +8,7 @@ public enum TransactionSide : short {
     Debit = 1
 }
 
-public class Transaction : IHasCreatedAtTimestamp {
+public class Transaction {
     public int Id { get; set; }
 
     public int FareId { get; set; }
@@ -35,5 +34,8 @@ public class TransactionEntityConfiguration : IEntityTypeConfiguration<Transacti
         entity.HasOne(d => d.Fare).WithMany(p => p.Transactions)
             .HasForeignKey(d => d.FareId)
             .OnDelete(DeleteBehavior.ClientSetNull);
+
+        entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

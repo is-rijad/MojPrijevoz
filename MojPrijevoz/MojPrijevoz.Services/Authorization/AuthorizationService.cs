@@ -1,11 +1,9 @@
-﻿using Mapster.Utils;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using MojPrijevoz.Services.InMemoryDatabase;
@@ -261,7 +259,7 @@ public class AuthorizationService {
 
     public async Task<Database.UserProfile?> GetUserProfile(ProfileType profileType)
     {
-        var userId = Convert.ToInt32(_httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var userId = GetUserId();
         return await _dbContext.UserProfiles
             .Where(up => up.UserId == userId && up.ProfileType == profileType)
             .FirstOrDefaultAsync();
