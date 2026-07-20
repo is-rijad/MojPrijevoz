@@ -201,9 +201,7 @@ class _OneUserVehiclePageState extends RouteAwareState<OneUserVehiclePage> {
         widget.userVehicleId,
         UserVehicleUpdateRequest(status: _userVehicleResponse.status),
       );
-      Constants.messengerKey.currentState?.showSnackBar(
-        SuccessSnackBar(message: "Status je uspješno izmijenjen!"),
-      );
+
       if (context.mounted && !provider.isEmpty()) {
         final request = RequestChangesRequest(
           notes: provider.getNotes(),
@@ -213,11 +211,10 @@ class _OneUserVehiclePageState extends RouteAwareState<OneUserVehiclePage> {
           widget.userVehicleId,
           request,
         );
-
-        Constants.messengerKey.currentState?.showSnackBar(
-          SuccessSnackBar(message: "Uspješno ste zatražili izmjene!"),
-        );
       }
+      Constants.messengerKey.currentState?.showSnackBar(
+        SuccessSnackBar(message: "Promjene su uspješno spremljene!"),
+      );
     }
     if (context.mounted) {
       Constants.navigatorKey.currentState?.pop();

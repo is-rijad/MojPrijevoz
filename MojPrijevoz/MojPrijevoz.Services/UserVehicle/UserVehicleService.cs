@@ -44,8 +44,8 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         await base.BeforeInsert(request);
         if (request.ModelYear < 1900)
             throw new BadRequestException("Godina proizvodnje ne može biti manja od 1900.");
-        if (request.ModelYear > DateTime.Now.Year)
-            throw new BadRequestException($"Godina proizvodnje ne može biti veća od {DateTime.Now.Year}.");
+        if (request.ModelYear > DateTime.UtcNow.Year)
+            throw new BadRequestException($"Godina proizvodnje ne može biti veća od {DateTime.UtcNow.Year}.");
 
         var userId = _authorizationService.GetUserId();
         var profile = await _authorizationService.GetUserProfile(ProfileType.Driver);
@@ -96,6 +96,12 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
                 uv.Profile == profile && uv.VehicleId == request.VehicleId && uv.ModelYear == request.ModelYear &&
                 uv.Id != entity.Id))
             throw new BadRequestException("Vozilo već postoji.");
+    }
+
+    protected override async Task AfterUpdate(Database.UserVehicle entity, MojPrijevozDbContext dbContext) {
+        await base.AfterUpdate(entity, dbContext);
+        var requestedChanges = await _dbContext.UserVehicleRequestChanges.Where(it => it.UserVehicleId == entity.Id).ToListAsync();
+        _dbContext.RemoveRange(requestedChanges);
     }
 
     public override async Task DeleteAsync(int id)

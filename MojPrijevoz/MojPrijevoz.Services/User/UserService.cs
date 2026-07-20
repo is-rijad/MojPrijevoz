@@ -94,6 +94,13 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         }
     }
 
+    protected override async Task AfterUpdate(Database.User entity, MojPrijevozDbContext dbContext)
+    {
+        await base.AfterUpdate(entity, dbContext);
+        var requestedChanges = await _dbContext.UserRequestChanges.Where(it => it.UserId == entity.Id).ToListAsync();
+        _dbContext.RemoveRange(requestedChanges);
+    }
+
     public async Task<RequestResetPasswordResponse> RequestResetPasswordCode(RequestResetPasswordRequest request) {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)

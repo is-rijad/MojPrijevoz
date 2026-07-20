@@ -401,8 +401,15 @@ public class DbSeeder {
             ratings[0].FromId = ratings[1].ToId = fare.DriverId;
             ratings[1].FromId = ratings[0].ToId = fare.PassengerId;
             allRatings.AddRange(ratings);
+            await IncrementNumberOfFaresAsync(fare.DriverId, fare.PassengerId);
         }
         await _mojPrijevozDbContext.Ratings.AddRangeAsync(allRatings);
+        await _mojPrijevozDbContext.SaveChangesAsync();
+    }
+
+    private async Task IncrementNumberOfFaresAsync(int driverId, int passengerId) {
+        await _mojPrijevozDbContext.UserProfiles.Where(up => up.Id == driverId).ExecuteUpdateAsync(up => up.SetProperty(u => u.NumberOfFares, u => u.NumberOfFares + 1));
+        await _mojPrijevozDbContext.UserProfiles.Where(up => up.Id == passengerId).ExecuteUpdateAsync(up => up.SetProperty(u => u.NumberOfFares, u => u.NumberOfFares + 1));
         await _mojPrijevozDbContext.SaveChangesAsync();
     }
 }
