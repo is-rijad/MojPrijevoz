@@ -8,30 +8,36 @@ using Notification = MojPrijevoz.Database.Notification;
 
 namespace MojPrijevoz.Notifications.NotificationService;
 
-public class NotificationService : INotificationService {
+public class NotificationService : INotificationService
+{
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public NotificationService(IServiceScopeFactory scopeFactory) {
+    public NotificationService(IServiceScopeFactory scopeFactory)
+    {
         _scopeFactory = scopeFactory;
     }
-    public async Task SubscribeToFcmAsync(SubscribeToFcmDto dto) {
+
+    public async Task SubscribeToFcmAsync(SubscribeToFcmDto dto)
+    {
         await UpsertUserFcmTokenAsync(dto);
         Console.WriteLine($"UserId: {dto.UserId} subscribed to FCM!");
     }
 
-    public async Task UnsubscribeFromFcm(UnSubscribeFromFcmDto dto) {
+    public async Task UnsubscribeFromFcm(UnSubscribeFromFcmDto dto)
+    {
         await DeleteFcmTokenAsync(dto);
         Console.WriteLine($"UserId: {dto.UserId} unsubscribed from FCM!");
     }
 
-    public async Task SendToUserAsync(SendToUserDto dto) {
+    public async Task SendToUserAsync(SendToUserDto dto)
+    {
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider
             .GetRequiredService<MojPrijevozDbContext>();
 
         dto.Data.TryGetValue("RatingId", out var ratingId);
 
-        await dbContext.Notifications.AddAsync(new Notification()
+        await dbContext.Notifications.AddAsync(new Notification
         {
             CreatedAt = DateTime.Now,
             FareId = int.Parse(dto.Data["FareId"]),
@@ -41,7 +47,7 @@ public class NotificationService : INotificationService {
             UserId = dto.UserId,
             Message = dto.Body,
             Type = dto.Data["Type"],
-            RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null,
+            RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null
         });
         await dbContext.SaveChangesAsync();
 
@@ -59,21 +65,24 @@ public class NotificationService : INotificationService {
             Data = dto.Data,
             Android = new AndroidConfig
             {
-                Priority = Priority.High,
+                Priority = Priority.High
             }
         };
 
-        try {
+        try
+        {
             await FirebaseMessaging.DefaultInstance.SendAsync(message);
-           
+
             Console.WriteLine($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
         }
-        catch (FirebaseMessagingException ex) {
+        catch (FirebaseMessagingException ex)
+        {
             await HandleFirebaseException(ex, token);
         }
     }
 
-    public async Task SendSilentToUserAsync(SendSilentToUserDto dto) {
+    public async Task SendSilentToUserAsync(SendSilentToUserDto dto)
+    {
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider
             .GetRequiredService<MojPrijevozDbContext>();
@@ -87,21 +96,24 @@ public class NotificationService : INotificationService {
             Data = dto.Data,
             Android = new AndroidConfig
             {
-                Priority = Priority.High,
+                Priority = Priority.High
             }
         };
 
-        try {
+        try
+        {
             await FirebaseMessaging.DefaultInstance.SendAsync(message);
 
             Console.WriteLine($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
         }
-        catch (FirebaseMessagingException ex) {
+        catch (FirebaseMessagingException ex)
+        {
             await HandleFirebaseException(ex, token);
         }
     }
 
-    private async Task<UserFcmToken> UpsertUserFcmTokenAsync(SubscribeToFcmDto dto) {
+    private async Task<UserFcmToken> UpsertUserFcmTokenAsync(SubscribeToFcmDto dto)
+    {
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider
             .GetRequiredService<MojPrijevozDbContext>();
@@ -109,22 +121,22 @@ public class NotificationService : INotificationService {
         var entity = await dbContext.UserFcmTokens
             .FirstOrDefaultAsync(x => x.UserId == dto.UserId);
 
-        if (entity != null) {
+        if (entity != null)
             entity.Token = dto.Token;
-        }
-        else {
+        else
             entity = (await dbContext.UserFcmTokens.AddAsync(new UserFcmToken
             {
                 UserId = dto.UserId,
                 Token = dto.Token,
-                Platform = dto.Platform,
+                Platform = dto.Platform
             })).Entity;
-        }
 
         await dbContext.SaveChangesAsync();
         return entity;
     }
-    private async Task DeleteFcmTokenAsync(UnSubscribeFromFcmDto dto) {
+
+    private async Task DeleteFcmTokenAsync(UnSubscribeFromFcmDto dto)
+    {
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider
             .GetRequiredService<MojPrijevozDbContext>();
@@ -132,14 +144,17 @@ public class NotificationService : INotificationService {
         var entity = await dbContext.UserFcmTokens
             .FirstOrDefaultAsync(x => x.UserId == dto.UserId);
 
-        if (entity != null) {
+        if (entity != null)
+        {
             dbContext.Remove(entity);
             await dbContext.SaveChangesAsync();
         }
     }
 
-    private async Task HandleFirebaseException(FirebaseMessagingException ex, UserFcmToken token) {
-        switch (ex.MessagingErrorCode) {
+    private async Task HandleFirebaseException(FirebaseMessagingException ex, UserFcmToken token)
+    {
+        switch (ex.MessagingErrorCode)
+        {
             case MessagingErrorCode.Unregistered:
                 await DeleteFcmTokenAsync(new UnSubscribeFromFcmDto { UserId = token.UserId });
                 Console.WriteLine($"FCM token deleted for user {token.UserId}");
@@ -151,7 +166,7 @@ public class NotificationService : INotificationService {
                 break;
 
             case MessagingErrorCode.QuotaExceeded:
-                Console.WriteLine($"FCM quota exceeded");
+                Console.WriteLine("FCM quota exceeded");
                 break;
 
             default:

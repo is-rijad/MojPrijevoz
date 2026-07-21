@@ -2,6 +2,6 @@
 
 namespace MojPrijevoz.Model.SearchObjects.Admin;
 
-public class AdminTransactionSearchObject : OrderableSearchObject {
-    
+public class AdminTransactionSearchObject : OrderableSearchObject
+{
 }

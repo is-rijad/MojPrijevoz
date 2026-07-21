@@ -9,13 +9,16 @@ using MojPrijevoz.Services.BaseServices;
 namespace MojPrijevoz.Services.Vehicle;
 
 public class VehicleService : BaseCrudService<Database.Vehicle, TPlaceholder, TPlaceholder, VehicleResponse,
-    VehicleSearchObject> {
+    VehicleSearchObject>
+{
     public VehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) :
-        base(context, mapper, authorizationService) {
+        base(context, mapper, authorizationService)
+    {
     }
 
     public override Task<IQueryable<Database.Vehicle>> ApplyFilter(IQueryable<Database.Vehicle> queryable,
-        VehicleSearchObject searchObject) {
+        VehicleSearchObject searchObject)
+    {
         if (!string.IsNullOrWhiteSpace(searchObject.Contains))
             queryable = queryable.Where(v => v.Model.Contains(searchObject.Contains)
                                              || v.Manufacturer.Contains(searchObject.Contains) ||

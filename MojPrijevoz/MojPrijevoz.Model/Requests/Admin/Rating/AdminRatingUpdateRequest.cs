@@ -4,6 +4,5 @@ namespace MojPrijevoz.Model.Requests.Admin.Rating;
 
 public class AdminRatingUpdateRequest
 {
-    [Required]
-    public bool IsVisible { get; set; }
+    [Required] public bool IsVisible { get; set; }
 }

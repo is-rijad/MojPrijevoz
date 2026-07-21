@@ -10,10 +10,13 @@ public class RefreshToken
     public string TokenSalt { get; set; } = null!;
     public int UserId { get; set; }
 
-    public Account? User { get; set; } = null!;
+    public Account? User { get; set; }
 }
-public class RefreshTokenEntityConfiguration : IEntityTypeConfiguration<RefreshToken> {
-    public void Configure(EntityTypeBuilder<RefreshToken> builder) {
+
+public class RefreshTokenEntityConfiguration : IEntityTypeConfiguration<RefreshToken>
+{
+    public void Configure(EntityTypeBuilder<RefreshToken> builder)
+    {
         builder.ToTable("RefreshTokens");
         builder.HasKey(rt => rt.Id);
         builder.Property(rt => rt.TokenHash)

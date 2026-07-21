@@ -1,6 +1,7 @@
 ﻿namespace MojPrijevoz.Model.Responses.Vehicle;
 
-public class VehicleResponse {
+public class VehicleResponse
+{
     public int Id { get; set; }
 
     public string Manufacturer { get; set; } = null!;

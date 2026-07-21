@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-
-public class Notification {
+public class Notification
+{
     public int Id { get; set; }
     public int UserId { get; set; }
 
@@ -21,15 +21,17 @@ public class Notification {
     public User? User { get; set; }
 }
 
-public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notification> {
-    public void Configure(EntityTypeBuilder<Notification> entity) {
+public class NotificationEntityConfiguration : IEntityTypeConfiguration<Notification>
+{
+    public void Configure(EntityTypeBuilder<Notification> entity)
+    {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("Notifications");
 
         entity.Property(e => e.Message)
             .HasMaxLength(64)
-            .IsUnicode(true);
+            .IsUnicode();
         entity.Property(e => e.Type)
             .HasMaxLength(64)
             .IsUnicode(false);

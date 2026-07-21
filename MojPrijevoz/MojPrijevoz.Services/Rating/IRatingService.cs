@@ -5,6 +5,7 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.Rating;
 
-public interface IRatingService : IBaseCRUDService<RatingInsertRequest, RatingInsertRequest, RatingResponse, RatingSearchObject> {
-
+public interface
+    IRatingService : IBaseCRUDService<RatingInsertRequest, RatingInsertRequest, RatingResponse, RatingSearchObject>
+{
 }

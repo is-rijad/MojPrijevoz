@@ -3,7 +3,8 @@ using MojPrijevoz.Model.Responses.StopPoint;
 
 namespace MojPrijevoz.Model.Responses.FareData;
 
-public class FareDataResponse {
+public class FareDataResponse
+{
     public int Id { get; set; }
 
     public int OriginCityId { get; set; }

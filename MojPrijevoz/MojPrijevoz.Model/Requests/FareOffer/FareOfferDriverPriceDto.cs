@@ -1,17 +1,14 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MojPrijevoz.Model.Requests.FareOffer;
 
-public class FareOfferDriverPriceDto {
-    [Required]
-    public int DriverId { get; set; }
-    [Required]
+public class FareOfferDriverPriceDto
+{
+    [Required] public int DriverId { get; set; }
 
-    public float Price { get; set; }
+    [Required] public float Price { get; set; }
+
     public float? AdditionalPrice { get; set; }
-    [Required]
 
-    public int UserVehicleId { get; set; }
-
+    [Required] public int UserVehicleId { get; set; }
 }

@@ -5,6 +5,5 @@ namespace MojPrijevoz.Model.Requests.Admin.User;
 
 public class AdminUserUpdateRequest
 {
-    [Required]
-    public AccountStatus Status { get; set; }
+    [Required] public AccountStatus Status { get; set; }
 }

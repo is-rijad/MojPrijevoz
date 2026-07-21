@@ -1,6 +1,7 @@
 ﻿namespace MojPrijevoz.Model.Responses.FareOffer;
 
-public class FareOfferResponse {
+public class FareOfferResponse
+{
     public int Id { get; set; }
 
     public short Side { get; set; }
@@ -14,5 +15,4 @@ public class FareOfferResponse {
     public int FareId { get; set; }
 
     public int? LastOfferId { get; set; }
-
 }

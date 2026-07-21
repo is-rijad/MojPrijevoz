@@ -2,6 +2,6 @@
 
 namespace MojPrijevoz.Model.SearchObjects;
 
-public class UserSearchObject : StringSearchObject {
-
+public class UserSearchObject : StringSearchObject
+{
 }

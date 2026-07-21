@@ -4,10 +4,8 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-
-public class User : Account, IEntityHasPicture {
-    public string? Picture { get; set; } 
-
+public class User : Account, IEntityHasPicture
+{
     public int CityId { get; set; }
     public required string PhoneNumber { get; set; }
 
@@ -15,10 +13,13 @@ public class User : Account, IEntityHasPicture {
 
 
     public ICollection<UserFcmToken>? UserFcmTokens { get; set; }
+    public string? Picture { get; set; }
 }
 
-public class UserEntityConfiguration : IEntityTypeConfiguration<User> {
-    public void Configure(EntityTypeBuilder<User> entity) {
+public class UserEntityConfiguration : IEntityTypeConfiguration<User>
+{
+    public void Configure(EntityTypeBuilder<User> entity)
+    {
         entity.ToTable("User");
         entity.HasBaseType<Account>();
 
@@ -28,7 +29,7 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User> {
 
         entity.Property(e => e.PhoneNumber)
             .HasMaxLength(32)
-            .IsUnicode(true);
+            .IsUnicode();
 
         entity.HasOne(d => d.City).WithMany(p => p.Users)
             .HasForeignKey(d => d.CityId)

@@ -19,7 +19,7 @@ public class AdminStatsService
         var items = await _dbContext.Users
             .Include(it => it.City)
             .GroupBy(it => new { it.City!.Name, it.City.Lat, it.City.Long })
-            .Select(g => new AdminUsersByCityResponse()
+            .Select(g => new AdminUsersByCityResponse
             {
                 CityName = g.Key.Name,
                 Lat = g.Key.Lat,
@@ -27,7 +27,7 @@ public class AdminStatsService
                 UsersCount = g.Count()
             })
             .ToListAsync();
-        return new PagedResult<AdminUsersByCityResponse>()
+        return new PagedResult<AdminUsersByCityResponse>
         {
             Items = items,
             Count = items.Count,
@@ -35,10 +35,11 @@ public class AdminStatsService
         };
     }
 
-    public async Task<PagedResult<BaseResponseByMonth>> GetUsersByMonthAsync() {
+    public async Task<PagedResult<BaseResponseByMonth>> GetUsersByMonthAsync()
+    {
         var items = await _dbContext.Users
             .GroupBy(it => new { it.RegisteredAt.Month, it.RegisteredAt.Year })
-            .Select(g => new BaseResponseByMonth()
+            .Select(g => new BaseResponseByMonth
             {
                 Month = g.Key.Month,
                 Year = g.Key.Year,
@@ -46,7 +47,7 @@ public class AdminStatsService
             })
             .OrderBy(it => it.Year).ThenBy(it => it.Month)
             .ToListAsync();
-        return new PagedResult<BaseResponseByMonth>()
+        return new PagedResult<BaseResponseByMonth>
         {
             Items = items,
             Count = items.Count,
@@ -54,10 +55,11 @@ public class AdminStatsService
         };
     }
 
-    public async Task<PagedResult<BaseResponseByMonth>> GetRevenueByMonthAsync() {
+    public async Task<PagedResult<BaseResponseByMonth>> GetRevenueByMonthAsync()
+    {
         var items = await _dbContext.Transactions
             .GroupBy(it => new { it.CreatedAt.Month, it.CreatedAt.Year })
-            .Select(g => new BaseResponseByMonth()
+            .Select(g => new BaseResponseByMonth
             {
                 Month = g.Key.Month,
                 Year = g.Key.Year,
@@ -65,7 +67,7 @@ public class AdminStatsService
             })
             .OrderBy(it => it.Year).ThenBy(it => it.Month)
             .ToListAsync();
-        return new PagedResult<BaseResponseByMonth>()
+        return new PagedResult<BaseResponseByMonth>
         {
             Items = items,
             Count = items.Count,
@@ -73,17 +75,18 @@ public class AdminStatsService
         };
     }
 
-    public async Task<PagedResult<FaresThisMonthResponse>> GetAllFaresThisMonthAsync() {
+    public async Task<PagedResult<FaresThisMonthResponse>> GetAllFaresThisMonthAsync()
+    {
         var items = await _dbContext.Fares
             .Where(it => it.CreatedAt.Month == DateTime.UtcNow.Month && it.CreatedAt.Year == DateTime.UtcNow.Year)
             .GroupBy(it => new { it.Status })
-            .Select(g => new FaresThisMonthResponse()
+            .Select(g => new FaresThisMonthResponse
             {
                 Status = g.Key.Status,
                 Count = g.Count()
             })
             .ToListAsync();
-        return new PagedResult<FaresThisMonthResponse>()
+        return new PagedResult<FaresThisMonthResponse>
         {
             Items = items,
             Count = items.Count,

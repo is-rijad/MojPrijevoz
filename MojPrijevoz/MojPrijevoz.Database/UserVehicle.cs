@@ -4,14 +4,16 @@ using MojPrijevoz.Database.Interfaces;
 
 namespace MojPrijevoz.Database;
 
-public enum UserVehicleStatus : short {
+public enum UserVehicleStatus : short
+{
     Deleted = 0,
     Active = 1,
     WaitingForChanges = 2,
     WaitingForReview = 3
 }
 
-public class UserVehicle : IEntityHasPicture {
+public class UserVehicle : IEntityHasPicture
+{
     public int Id { get; set; }
 
     public int ProfileId { get; set; }
@@ -24,8 +26,6 @@ public class UserVehicle : IEntityHasPicture {
 
     public float PricePerKm { get; set; }
 
-    public string? Picture { get; set; }
-
     public UserVehicleStatus Status { get; set; } = UserVehicleStatus.WaitingForReview;
 
     public ICollection<Fare>? Fares { get; set; }
@@ -33,10 +33,14 @@ public class UserVehicle : IEntityHasPicture {
     public UserProfile? Profile { get; set; }
 
     public Vehicle? Vehicle { get; set; }
+
+    public string? Picture { get; set; }
 }
 
-public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehicle> {
-    public void Configure(EntityTypeBuilder<UserVehicle> entity) {
+public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehicle>
+{
+    public void Configure(EntityTypeBuilder<UserVehicle> entity)
+    {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("UserVehicle");

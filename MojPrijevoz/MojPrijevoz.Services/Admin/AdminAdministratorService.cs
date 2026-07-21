@@ -13,12 +13,16 @@ using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.Admin;
 
-public class AdminAdministratorService : BaseAdminCrudService<Database.Administrator, AdminAdministratorUpsertRequest, AdminAdministratorUpsertRequest, BaseRequestChanges, AdminAdministratorResponse, AdminAllAdministratorsResponse, AdminAdministratorSearchObject> {
+public class AdminAdministratorService : BaseAdminCrudService<Administrator, AdminAdministratorUpsertRequest,
+    AdminAdministratorUpsertRequest, BaseRequestChanges, AdminAdministratorResponse, AdminAllAdministratorsResponse,
+    AdminAdministratorSearchObject>
+{
     private readonly INotificationService _notificationService;
     private readonly RevokedTokenService _revokedTokenService;
     private readonly TokenManager _tokenManager;
 
-    public AdminAdministratorService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
+    public AdminAdministratorService(MojPrijevozDbContext context, IMapper mapper,
+        AuthorizationService authorizationService,
         INotificationService notificationService, RevokedTokenService revokedTokenService,
         TokenManager tokenManager) : base(context, mapper, authorizationService)
     {
@@ -27,18 +31,20 @@ public class AdminAdministratorService : BaseAdminCrudService<Database.Administr
         _tokenManager = tokenManager;
     }
 
-    public override async Task<IQueryable<Database.Administrator>> ApplyFilter(IQueryable<Database.Administrator> queryable, AdminAdministratorSearchObject searchObject) {
+    public override async Task<IQueryable<Administrator>> ApplyFilter(IQueryable<Administrator> queryable,
+        AdminAdministratorSearchObject searchObject)
+    {
         queryable = await base.ApplyFilter(queryable, searchObject);
-        if (!string.IsNullOrEmpty(searchObject.Contains)) {
+        if (!string.IsNullOrEmpty(searchObject.Contains))
             queryable = queryable.Where(it => it.FirstName.ToLower().Contains(searchObject.Contains.ToLower())
                                               || it.LastName.ToLower().Contains(searchObject.Contains.ToLower())
                                               || it.Email.ToLower().Contains(searchObject.Contains.ToLower())
                                               || it.Username.ToLower().Contains(searchObject.Contains.ToLower()));
-        }
         return queryable;
     }
 
-    protected override async Task BeforeInsert(AdminAdministratorUpsertRequest request) {
+    protected override async Task BeforeInsert(AdminAdministratorUpsertRequest request)
+    {
         await base.BeforeInsert(request);
         if (await _dbContext.Administrators.AnyAsync(u => u.Username == request.Username || u.Email == request.Email))
             throw new BadRequestException("Korisničko ime ili email već postoji.");
@@ -47,11 +53,11 @@ public class AdminAdministratorService : BaseAdminCrudService<Database.Administr
         _authorizationService.CreatePassword(password, password, out var passwordHash,
             out var passwordSalt);
         (request.PasswordHash, request.PasswordSalt) = (passwordHash, passwordSalt);
-        await _notificationService.SendEmailAsync(new EmailDto()
+        await _notificationService.SendEmailAsync(new EmailDto
         {
             To = request.Email,
             Type = EmailType.BecomeAdministratorEmail,
-            Data = new Dictionary<string, dynamic>()
+            Data = new Dictionary<string, dynamic>
             {
                 ["Name"] = request.FirstName,
                 ["NewPassword"] = password
@@ -59,11 +65,13 @@ public class AdminAdministratorService : BaseAdminCrudService<Database.Administr
         });
     }
 
-    protected override Database.Administrator MapToInsertEntity(AdminAdministratorUpsertRequest request) {
-        return _mapper.Map<Database.Administrator>(request);
+    protected override Administrator MapToInsertEntity(AdminAdministratorUpsertRequest request)
+    {
+        return _mapper.Map<Administrator>(request);
     }
 
-    protected override async Task BeforeUpdate(int id, AdminAdministratorUpsertRequest request, Database.Administrator entity) {
+    protected override async Task BeforeUpdate(int id, AdminAdministratorUpsertRequest request, Administrator entity)
+    {
         await base.BeforeUpdate(id, request, entity);
         if (request.ChangePassword)
         {
@@ -71,11 +79,11 @@ public class AdminAdministratorService : BaseAdminCrudService<Database.Administr
             _authorizationService.CreatePassword(password, password, out var passwordHash,
                 out var passwordSalt);
             (entity.PasswordHash, entity.PasswordSalt) = (passwordHash, passwordSalt);
-            await _notificationService.SendEmailAsync(new EmailDto()
+            await _notificationService.SendEmailAsync(new EmailDto
             {
                 To = request.Email,
                 Type = EmailType.AdministratorPasswordChangedEmail,
-                Data = new Dictionary<string, dynamic>()
+                Data = new Dictionary<string, dynamic>
                 {
                     ["Name"] = request.FirstName,
                     ["NewPassword"] = password
@@ -91,34 +99,37 @@ public class AdminAdministratorService : BaseAdminCrudService<Database.Administr
         await base.AfterUpdate(entity, dbContext);
         if (entity.Status == AccountStatus.Banned)
         {
-            await _notificationService.SendEmailAsync(new EmailDto()
+            await _notificationService.SendEmailAsync(new EmailDto
             {
                 To = entity.Email,
                 Type = EmailType.AdministratorBannedEmail,
-                Data = new Dictionary<string, dynamic>()
+                Data = new Dictionary<string, dynamic>
                 {
-                    ["Name"] = entity.FirstName,
+                    ["Name"] = entity.FirstName
                 }
             });
             _revokedTokenService.Revoke(entity.Id, null);
             await _tokenManager.DropRefreshTokenIfExists(entity.Id);
         }
-
     }
 
-    public override Task BeforeRequestChanges(int id) {
+    public override Task BeforeRequestChanges(int id)
+    {
         throw new NotImplementedException();
     }
 
-    public override Task SetEntityStatusToWaitingForChanges(int id) {
+    public override Task SetEntityStatusToWaitingForChanges(int id)
+    {
         throw new NotImplementedException();
     }
 
-    public override BaseRequestChanges MapIdToRequestChanges(int id, BaseRequestChanges entity) {
+    public override BaseRequestChanges MapIdToRequestChanges(int id, BaseRequestChanges entity)
+    {
         throw new NotImplementedException();
     }
 
-    public override Task SendNotificationEmail(List<BaseRequestChanges> entities) {
+    public override Task SendNotificationEmail(List<BaseRequestChanges> entities)
+    {
         throw new NotImplementedException();
     }
 }

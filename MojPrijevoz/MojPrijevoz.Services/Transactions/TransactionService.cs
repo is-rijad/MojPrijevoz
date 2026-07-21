@@ -9,7 +9,13 @@ using MojPrijevoz.Services.FileStorage;
 
 namespace MojPrijevoz.Services.Transactions;
 
-public class TransactionService : BaseCrudService<Transaction, TransactionInsertRequest, TransactionInsertRequest, TransactionResponse, BaseSearchObject>, ITransactionService {
-    public TransactionService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService, IFileStorageService? fileStorageService = null) : base(context, mapper, authorizationService, fileStorageService) {
+public class TransactionService :
+    BaseCrudService<Transaction, TransactionInsertRequest, TransactionInsertRequest, TransactionResponse,
+        BaseSearchObject>, ITransactionService
+{
+    public TransactionService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
+        IFileStorageService? fileStorageService = null) : base(context, mapper, authorizationService,
+        fileStorageService)
+    {
     }
 }

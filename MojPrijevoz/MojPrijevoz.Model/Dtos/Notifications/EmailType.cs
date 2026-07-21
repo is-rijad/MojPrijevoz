@@ -1,6 +1,7 @@
 ﻿namespace MojPrijevoz.Model.Dtos.Notifications;
 
-public enum EmailType {
+public enum EmailType
+{
     WelcomeEmail,
     BecomeDriverEmail,
     ResetPasswordEmail,

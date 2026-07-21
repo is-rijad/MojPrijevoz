@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public class City {
+public class City
+{
     public int Id { get; set; }
 
     public string Name { get; set; } = null!;
@@ -20,8 +21,10 @@ public class City {
     public DateTime CreatedAt { get; set; }
 }
 
-public class CityEntityConfiguration : IEntityTypeConfiguration<City> {
-    public void Configure(EntityTypeBuilder<City> entity) {
+public class CityEntityConfiguration : IEntityTypeConfiguration<City>
+{
+    public void Configure(EntityTypeBuilder<City> entity)
+    {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("City");
@@ -114,6 +117,5 @@ public class CityEntityConfiguration : IEntityTypeConfiguration<City> {
             new City { Id = 71, Name = "Žepče", Lat = "44.4333", Long = "18.0333" },
             new City { Id = 72, Name = "Živinice", Lat = "44.4500", Long = "18.6500" }
         );
-
     }
 }

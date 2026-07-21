@@ -2,6 +2,6 @@
 
 namespace MojPrijevoz.Model.SearchObjects;
 
-public class FareDataSearchObject : BaseSearchObject {
-
+public class FareDataSearchObject : BaseSearchObject
+{
 }

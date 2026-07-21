@@ -1,5 +1,4 @@
 ﻿using MapsterMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
@@ -17,7 +16,8 @@ using MojPrijevoz.Services.NotificationService;
 namespace MojPrijevoz.Services.User;
 
 public class UserService : BaseCrudService<Database.User, UserInsertRequest, UserUpdateFormRequest, UserResponse,
-    BaseSearchObject> {
+    BaseSearchObject>
+{
     private readonly INotificationService _notificationService;
     private readonly RevokedTokenService _revokedTokenService;
     private readonly TokenManager _tokenManager;
@@ -28,19 +28,22 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         INotificationService notificationService,
         RevokedTokenService revokedTokenService,
         TokenManager tokenManager
-        ) : base(context, mapper, authorizationService, fileStorageService) {
+    ) : base(context, mapper, authorizationService, fileStorageService)
+    {
         _notificationService = notificationService;
         _revokedTokenService = revokedTokenService;
         _tokenManager = tokenManager;
     }
 
-    protected override async Task BeforeInsert(UserInsertRequest request) {
+    protected override async Task BeforeInsert(UserInsertRequest request)
+    {
         await base.BeforeInsert(request);
         if (await _dbContext.Users.AnyAsync(u => u.Username == request.Username || u.Email == request.Email))
             throw new BadRequestException("Korisničko ime ili email već postoji.");
     }
 
-    protected override Database.User MapToInsertEntity(UserInsertRequest request) {
+    protected override Database.User MapToInsertEntity(UserInsertRequest request)
+    {
         var userInsertRequest = _mapper.Map<Database.User>(request);
         _authorizationService.CreatePassword(request.Password, request.PasswordAgain, out var passwordHash,
             out var passwordSalt);
@@ -48,30 +51,33 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         return userInsertRequest;
     }
 
-    protected override async Task AfterInsert(Database.User entity, UserInsertRequest request, MojPrijevozDbContext dbContext) {
+    protected override async Task AfterInsert(Database.User entity, UserInsertRequest request,
+        MojPrijevozDbContext dbContext)
+    {
         await base.AfterInsert(entity, request, dbContext);
-        if (!(await _dbContext.UserProfiles.Where(it => it.UserId == entity.Id).AnyAsync())) {
+        if (!await _dbContext.UserProfiles.Where(it => it.UserId == entity.Id).AnyAsync())
             await _dbContext.UserProfiles.AddAsync(new Database.UserProfile
             {
                 ProfileType = ProfileType.Passenger,
                 UserId = entity.Id
             });
-        }
         await dbContext.SaveChangesAsync();
-        await _notificationService.SendEmailAsync(new EmailDto()
+        await _notificationService.SendEmailAsync(new EmailDto
         {
             To = entity.Email,
             Type = EmailType.WelcomeEmail,
-            Data = new Dictionary<string, dynamic>()
+            Data = new Dictionary<string, dynamic>
             {
                 ["Name"] = entity.FirstName
             }
         });
     }
 
-    protected override async Task BeforeUpdate(int id, UserUpdateFormRequest request, Database.User entity) {
+    protected override async Task BeforeUpdate(int id, UserUpdateFormRequest request, Database.User entity)
+    {
         await base.BeforeUpdate(id, request, entity);
-        if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null) {
+        if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null)
+        {
             if (!_authorizationService.VerifyPassword(request.OldPassword ?? string.Empty, entity.PasswordHash,
                     entity.PasswordSalt))
                 throw new BadRequestException("Stara lozinka nije ispravna.");
@@ -81,14 +87,14 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
                 out var passwordSalt);
             (entity.PasswordHash, entity.PasswordSalt) = (passwordHash, passwordSalt);
             (request.Password, request.PasswordAgain, request.OldPassword) = (null, null, null);
-            await _notificationService.SendEmailAsync(new EmailDto()
+            await _notificationService.SendEmailAsync(new EmailDto
             {
                 To = entity.Email,
                 Type = EmailType.PasswordChangedEmail,
-                Data = new Dictionary<string, dynamic>()
+                Data = new Dictionary<string, dynamic>
                 {
                     ["Name"] = entity.FirstName,
-                    ["Username"] = entity.Username,
+                    ["Username"] = entity.Username
                 }
             });
         }
@@ -101,7 +107,8 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         _dbContext.RemoveRange(requestedChanges);
     }
 
-    public async Task<RequestResetPasswordResponse> RequestResetPasswordCode(RequestResetPasswordRequest request) {
+    public async Task<RequestResetPasswordResponse> RequestResetPasswordCode(RequestResetPasswordRequest request)
+    {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)
             throw new BadRequestException("Korisnik s unesenim emailom ne postoji.");
@@ -110,25 +117,27 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         user.ResetPasswordCodeExpiration = expiration;
 
         await _dbContext.SaveChangesAsync();
-        await _notificationService.SendEmailAsync(new EmailDto()
+        await _notificationService.SendEmailAsync(new EmailDto
         {
             To = user.Email,
             Type = EmailType.ResetPasswordEmail,
-            Data = new Dictionary<string, dynamic>()
+            Data = new Dictionary<string, dynamic>
             {
                 ["Name"] = user.FirstName,
                 ["Code"] = code
             }
         });
-        return new RequestResetPasswordResponse() { Code = code };
+        return new RequestResetPasswordResponse { Code = code };
     }
 
-    public async Task ResetPassword(ResetPasswordRequest request) {
+    public async Task ResetPassword(ResetPasswordRequest request)
+    {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)
             throw new BadRequestException("Korisnik s unesenim emailom ne postoji.");
 
-        _authorizationService.VerifyResetPasswordCode(request.Code, user.ResetPasswordCode!, user.ResetPasswordCodeExpiration!.Value);
+        _authorizationService.VerifyResetPasswordCode(request.Code, user.ResetPasswordCode!,
+            user.ResetPasswordCodeExpiration!.Value);
         user.ResetPasswordCode = null;
         user.ResetPasswordCodeExpiration = null;
         if (request.Password != request.PasswordAgain)
@@ -139,14 +148,14 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         _revokedTokenService.Revoke(user.Id, null);
         await _tokenManager.DropRefreshTokenIfExists(user.Id);
 
-        await _notificationService.SendEmailAsync(new EmailDto()
+        await _notificationService.SendEmailAsync(new EmailDto
         {
             To = user.Email,
             Type = EmailType.PasswordChangedEmail,
-            Data = new Dictionary<string, dynamic>()
+            Data = new Dictionary<string, dynamic>
             {
                 ["Name"] = user.FirstName,
-                ["Username"] = user.Username,
+                ["Username"] = user.Username
             }
         });
 

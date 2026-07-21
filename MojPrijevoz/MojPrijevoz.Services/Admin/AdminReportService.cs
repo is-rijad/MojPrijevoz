@@ -30,15 +30,12 @@ public class AdminReportService
     private void ValidateRequest(AdminReportRequest request)
     {
         if (request.Period == ReportPeriod.Custom)
-        {
             if (!request.From.HasValue || !request.To.HasValue)
-            {
                 throw new BadRequestException("Opseg datuma je obavezan!");
-            }
-        }
     }
 
-    private async Task<byte[]> GenerateReport(MemoryStream stream, IQueryable<BaseReportDto> queryable, AdminReportRequest request)
+    private async Task<byte[]> GenerateReport(MemoryStream stream, IQueryable<BaseReportDto> queryable,
+        AdminReportRequest request)
     {
         var data = await queryable.ToListAsync();
         Document.Create(container =>
@@ -81,17 +78,18 @@ public class AdminReportService
         return queryable;
     }
 
-    private IQueryable<BaseReportDto> GetBaseQuerySet(ReportType type) {
+    private IQueryable<BaseReportDto> GetBaseQuerySet(ReportType type)
+    {
         switch (type)
         {
             case ReportType.RegisteredUsers:
-                return _dbContext.Users.Select(u => new RegisteredUsersReportDto()
+                return _dbContext.Users.Select(u => new RegisteredUsersReportDto
                 {
                     Status = u.Status,
                     CreatedAt = u.RegisteredAt
                 }).OrderByDescending(it => it.CreatedAt).AsQueryable();
             case ReportType.Fares:
-                return _dbContext.Fares.Select(f => new AllFaresReportDto()
+                return _dbContext.Fares.Select(f => new AllFaresReportDto
                 {
                     Status = f.Status,
                     CreatedAt = f.CreatedAt
@@ -101,19 +99,21 @@ public class AdminReportService
         }
     }
 
-    private IQueryable<BaseReportDto> GetQuerySetBasedOnDate(IQueryable<BaseReportDto> queryable, AdminReportRequest request)
+    private IQueryable<BaseReportDto> GetQuerySetBasedOnDate(IQueryable<BaseReportDto> queryable,
+        AdminReportRequest request)
     {
         var now = DateTime.UtcNow;
-        switch (request.Period) {
+        switch (request.Period)
+        {
             case ReportPeriod.Mtd:
                 return queryable.Where(it => it.CreatedAt.Month == now.Month && it.CreatedAt.Year == now.Year);
             case ReportPeriod.Wtd:
-                int daysSinceMonday = now.DayOfWeek - DayOfWeek.Monday;
+                var daysSinceMonday = now.DayOfWeek - DayOfWeek.Monday;
 
                 if (daysSinceMonday < 0)
                     daysSinceMonday += 7;
 
-                DateTime weekToDateStart = now.AddDays(-daysSinceMonday);
+                var weekToDateStart = now.AddDays(-daysSinceMonday);
                 return queryable.Where(it => it.CreatedAt >= weekToDateStart);
             case ReportPeriod.Ytd:
                 return queryable.Where(it => it.CreatedAt.Year == now.Year);
@@ -129,7 +129,7 @@ public class AdminReportService
         var header = string.Empty;
         switch (request.Type)
         {
-            case ReportType.RegisteredUsers: 
+            case ReportType.RegisteredUsers:
                 header += "Izvještaj registrovanih korisnika";
                 break;
             case ReportType.Fares:
@@ -151,23 +151,27 @@ public class AdminReportService
                 header += " - ova godina";
                 break;
             case ReportPeriod.Custom:
-                header += $" - ({request.From!.Value.ToString("dd.MM.yyyy.")} - {request.To!.Value.ToString("dd.MM.yyyy.")})";
+                header +=
+                    $" - ({request.From!.Value.ToString("dd.MM.yyyy.")} - {request.To!.Value.ToString("dd.MM.yyyy.")})";
                 break;
             default:
                 throw new Exception("Invalid report type!");
         }
+
         return header;
     }
 
     private void CreateTable(TableDescriptor descriptor, List<BaseReportDto> data)
     {
-        if (!data.Any()) {
+        if (!data.Any())
+        {
             descriptor.ColumnsDefinition(c => c.RelativeColumn());
             descriptor.Cell().Text("Nema podataka za prikaz.");
             return;
         }
 
-        if (data.FirstOrDefault() is RegisteredUsersReportDto) {
+        if (data.FirstOrDefault() is RegisteredUsersReportDto)
+        {
             var registeredUsers = data.Cast<RegisteredUsersReportDto>().ToList();
 
             descriptor.ColumnsDefinition(columns =>
@@ -180,20 +184,17 @@ public class AdminReportService
             descriptor.Cell().Text("Status").Bold();
             descriptor.Cell().Text("Datum registracije").Bold();
 
-            foreach (var user in registeredUsers) {
+            foreach (var user in registeredUsers)
+            {
                 if (user.Status == AccountStatus.WaitingForReview)
-                {
                     descriptor.Cell().Text(StatusHelper.AccountStatusDictionary[user.Status]).Bold();
-                }
                 else
-                {
                     descriptor.Cell().Text(StatusHelper.AccountStatusDictionary[user.Status]);
-
-                }
                 descriptor.Cell().Text(user.CreatedAt.ToString("dd.MM.yyyy."));
             }
         }
-        else if (data.FirstOrDefault() is AllFaresReportDto) {
+        else if (data.FirstOrDefault() is AllFaresReportDto)
+        {
             var allFares = data.Cast<AllFaresReportDto>().ToList();
 
             descriptor.ColumnsDefinition(columns =>
@@ -206,14 +207,12 @@ public class AdminReportService
             descriptor.Cell().Text("Status").Bold();
             descriptor.Cell().Text("Datum").Bold();
 
-            foreach (var fare in allFares) {
-                if (fare.Status == FareStatus.Completed) {
+            foreach (var fare in allFares)
+            {
+                if (fare.Status == FareStatus.Completed)
                     descriptor.Cell().Text(StatusHelper.FareStatusDictionary[fare.Status]).Bold();
-                }
-                else {
+                else
                     descriptor.Cell().Text(StatusHelper.FareStatusDictionary[fare.Status]);
-
-                }
                 descriptor.Cell().Text(fare.CreatedAt.ToString("dd.MM.yyyy."));
             }
         }

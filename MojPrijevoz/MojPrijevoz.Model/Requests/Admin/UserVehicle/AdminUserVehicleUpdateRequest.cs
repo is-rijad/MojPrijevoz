@@ -5,7 +5,5 @@ namespace MojPrijevoz.Model.Requests.Admin.UserVehicle;
 
 public class AdminUserVehicleUpdateRequest
 {
-    [Required]
-    public UserVehicleStatus Status { get; set; }
-
+    [Required] public UserVehicleStatus Status { get; set; }
 }

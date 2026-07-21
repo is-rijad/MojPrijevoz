@@ -2,18 +2,22 @@
 
 namespace MojPrijevoz.Recommender;
 
-public class RecommenderRetrainJob : BackgroundService {
+public class RecommenderRetrainJob : BackgroundService
+{
     private readonly RecommenderService _recommender;
 
     public RecommenderRetrainJob(
-        RecommenderService recommender) {
+        RecommenderService recommender)
+    {
         _recommender = recommender;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken ct) {
+    protected override async Task ExecuteAsync(CancellationToken ct)
+    {
         await _recommender.LoadOrTrainAsync();
 
-        while (!ct.IsCancellationRequested) {
+        while (!ct.IsCancellationRequested)
+        {
             var now = DateTime.UtcNow;
             var next = now.Date.AddDays(1).AddHours(2);
             await Task.Delay(next - now, ct);

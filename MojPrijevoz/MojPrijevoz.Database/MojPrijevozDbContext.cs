@@ -2,12 +2,15 @@
 
 namespace MojPrijevoz.Database;
 
-public class MojPrijevozDbContext : DbContext {
-    public MojPrijevozDbContext() {
+public class MojPrijevozDbContext : DbContext
+{
+    public MojPrijevozDbContext()
+    {
     }
 
     public MojPrijevozDbContext(DbContextOptions<MojPrijevozDbContext> options)
-        : base(options) {
+        : base(options)
+    {
     }
 
     public virtual DbSet<Account> Accounts { get; set; }
@@ -42,7 +45,8 @@ public class MojPrijevozDbContext : DbContext {
     public virtual DbSet<UserRequestChanges> UserRequestChanges { get; set; }
     public virtual DbSet<UserVehicleRequestChanges> UserVehicleRequestChanges { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
         base.OnModelCreating(modelBuilder);
 
         ApplyDefaultQueries(modelBuilder);
@@ -68,7 +72,8 @@ public class MojPrijevozDbContext : DbContext {
         modelBuilder.ApplyConfiguration(new UserVehicleRequestChangesEntityConfiguration());
     }
 
-    private void ApplyDefaultQueries(ModelBuilder modelBuilder) {
+    private void ApplyDefaultQueries(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<UserVehicle>().HasQueryFilter(it => it.Status != UserVehicleStatus.Deleted);
     }
 }

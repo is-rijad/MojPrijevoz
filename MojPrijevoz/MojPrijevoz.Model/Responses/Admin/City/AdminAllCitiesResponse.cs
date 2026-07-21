@@ -7,5 +7,5 @@ public class AdminAllCitiesResponse
     public string Lat { get; set; } = null!;
     public string Long { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set;}
+    public DateTime UpdatedAt { get; set; }
 }

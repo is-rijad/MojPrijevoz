@@ -3,12 +3,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public class UserVehicleRequestChanges : BaseRequestChanges {
+public class UserVehicleRequestChanges : BaseRequestChanges
+{
     public int UserVehicleId { get; set; }
     public UserVehicle? UserVehicle { get; set; }
 }
 
-public class UserVehicleRequestChangesEntityConfiguration : BaseRequestChangesEntityConfiguration<UserVehicleRequestChanges> {
+public class
+    UserVehicleRequestChangesEntityConfiguration : BaseRequestChangesEntityConfiguration<UserVehicleRequestChanges>
+{
     public override void Configure(EntityTypeBuilder<UserVehicleRequestChanges> entity)
     {
         base.Configure(entity);

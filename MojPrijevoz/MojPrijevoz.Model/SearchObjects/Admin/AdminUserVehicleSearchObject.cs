@@ -4,5 +4,4 @@ namespace MojPrijevoz.Model.SearchObjects.Admin;
 
 public class AdminUserVehicleSearchObject : AdminStringSearchObject
 {
-    
 }

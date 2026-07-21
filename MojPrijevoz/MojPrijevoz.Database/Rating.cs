@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public class Rating {
+public class Rating
+{
     public int Id { get; set; }
 
     public int FromId { get; set; }
@@ -15,7 +16,7 @@ public class Rating {
     public short Grade { get; set; }
 
     public int FareId { get; set; }
-    public bool IsVisible { get; set; } = false;
+    public bool IsVisible { get; set; }
 
     public Fare? Fare { get; set; }
 
@@ -26,8 +27,10 @@ public class Rating {
     public DateTime CreatedAt { get; set; }
 }
 
-public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating> {
-    public void Configure(EntityTypeBuilder<Rating> entity) {
+public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating>
+{
+    public void Configure(EntityTypeBuilder<Rating> entity)
+    {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("Rating");
@@ -36,7 +39,7 @@ public class RatingEntityConfiguration : IEntityTypeConfiguration<Rating> {
 
         entity.Property(e => e.Comment)
             .HasMaxLength(256)
-            .IsUnicode(true);
+            .IsUnicode();
 
         entity.HasOne(d => d.Fare).WithMany()
             .HasForeignKey(d => d.FareId)

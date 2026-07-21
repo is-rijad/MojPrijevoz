@@ -11,6 +11,7 @@ public static class StatusHelper
         [AccountStatus.WaitingForChanges] = "Čeka na promjene",
         [AccountStatus.WaitingForReview] = "Čeka na pregled"
     };
+
     public static Dictionary<FareStatus, string> FareStatusDictionary = new()
     {
         [FareStatus.Rejected] = "Odbijena",
@@ -20,6 +21,6 @@ public static class StatusHelper
         [FareStatus.Payed] = "Plaćena",
         [FareStatus.Cancelled] = "Otkazana",
         [FareStatus.InProgress] = "U toku",
-        [FareStatus.Completed] = "Završena",
+        [FareStatus.Completed] = "Završena"
     };
 }

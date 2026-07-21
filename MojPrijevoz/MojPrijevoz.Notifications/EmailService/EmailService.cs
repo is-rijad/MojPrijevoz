@@ -7,26 +7,33 @@ using Scriban;
 
 namespace MojPrijevoz.Notifications.EmailService;
 
-public class EmailService : IEmailService {
+public class EmailService : IEmailService
+{
     private readonly string _smtpHost;
+    private readonly string _smtpMojPrijevozEmail;
+    private readonly string _smtpPassword;
     private readonly int _smtpPort;
     private readonly string _smtpUser;
-    private readonly string _smtpPassword;
-    private readonly string _smtpMojPrijevozEmail;
 
     public EmailService(IConfiguration configuration)
     {
         var smtp = configuration.GetSection("Smtp");
 
         _smtpHost = smtp["Host"] ?? throw new InvalidOperationException("SMTP__HOST environment variable is not set.");
-        _smtpPort = int.TryParse(smtp["Port"], out var port) ? port : throw new InvalidOperationException("SMTP__PORT environment variable is not set or is not a valid integer.");
+        _smtpPort = int.TryParse(smtp["Port"], out var port)
+            ? port
+            : throw new InvalidOperationException(
+                "SMTP__PORT environment variable is not set or is not a valid integer.");
         _smtpUser = smtp["User"] ?? throw new InvalidOperationException("SMTP__USER environment variable is not set.");
-        _smtpPassword = smtp["Password"] ?? throw new InvalidOperationException("SMTP__PASSWORD environment variable is not set.");
+        _smtpPassword = smtp["Password"] ??
+                        throw new InvalidOperationException("SMTP__PASSWORD environment variable is not set.");
         _smtpMojPrijevozEmail = smtp["MojPrijevozEmail"] ??
-                                throw new InvalidOperationException("SMTP__MojPrijevozEmail environment variable is not set.");
-
+                                throw new InvalidOperationException(
+                                    "SMTP__MojPrijevozEmail environment variable is not set.");
     }
-    public async Task SendEmailAsync(EmailDto email) {
+
+    public async Task SendEmailAsync(EmailDto email)
+    {
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress("Moj Prijevoz", _smtpUser));
         message.To.Add(new MailboxAddress(null, email.To));
@@ -42,7 +49,8 @@ public class EmailService : IEmailService {
         await client.DisconnectAsync(true);
     }
 
-    private string GetSubject(EmailDto email) {
+    private string GetSubject(EmailDto email)
+    {
         return email.Subject ?? email.Type switch
         {
             EmailType.WelcomeEmail => "Dobrodošli u Moj Prijevoz!",
@@ -65,9 +73,11 @@ public class EmailService : IEmailService {
         };
     }
 
-    private string RenderEmailBody(EmailDto email) {
+    private string RenderEmailBody(EmailDto email)
+    {
         email.Data.Add("MojPrijevozEmail", _smtpMojPrijevozEmail);
-        var template = Template.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Templates", $"{email.Type.ToString()}.html")));
+        var template = Template.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Templates",
+            $"{email.Type.ToString()}.html")));
         var result = template.Render(email.Data);
         return result;
     }

@@ -2,5 +2,6 @@
 
 namespace MojPrijevoz.Model.SearchObjects;
 
-public class VehicleSearchObject : StringSearchObject {
+public class VehicleSearchObject : StringSearchObject
+{
 }

@@ -14,33 +14,39 @@ using MojPrijevoz.Services.NotificationService;
 namespace MojPrijevoz.Services.UserVehicle;
 
 public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehicleUpsertFormRequest,
-    UserVehicleUpsertFormRequest, UserVehicleResponse, UserVehicleSearchObject> {
+    UserVehicleUpsertFormRequest, UserVehicleResponse, UserVehicleSearchObject>
+{
     private readonly INotificationService _notificationService;
 
     public UserVehicleService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
         IFileStorageService fileStorageService, INotificationService notificationService) :
-        base(context, mapper, authorizationService, fileStorageService) {
+        base(context, mapper, authorizationService, fileStorageService)
+    {
         _notificationService = notificationService;
     }
 
     public override Task<IQueryable<Database.UserVehicle>> ApplyFilter(IQueryable<Database.UserVehicle> queryable,
-        UserVehicleSearchObject searchObject) {
+        UserVehicleSearchObject searchObject)
+    {
         return Task.FromResult(queryable.Where(uv => uv.ProfileId == searchObject.ProfileId));
     }
 
-    protected override async Task PrepareForResponse(Database.UserVehicle entity, MojPrijevozDbContext dbContext) {
+    protected override async Task PrepareForResponse(Database.UserVehicle entity, MojPrijevozDbContext dbContext)
+    {
         entity.Vehicle = await dbContext.Vehicles.FindAsync(entity.VehicleId);
         await base.PrepareForResponse(entity, dbContext);
     }
 
     public override async Task<IQueryable<Database.UserVehicle>> IncludeAdditionalEntities(
-        IQueryable<Database.UserVehicle> queryable) {
+        IQueryable<Database.UserVehicle> queryable)
+    {
         queryable = await base.IncludeAdditionalEntities(queryable);
         queryable = queryable.Include(uv => uv.Vehicle);
         return queryable;
     }
 
-    protected override async Task BeforeInsert(UserVehicleUpsertFormRequest request) {
+    protected override async Task BeforeInsert(UserVehicleUpsertFormRequest request)
+    {
         await base.BeforeInsert(request);
         if (request.ModelYear < 1900)
             throw new BadRequestException("Godina proizvodnje ne može biti manja od 1900.");
@@ -49,7 +55,8 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
 
         var userId = _authorizationService.GetUserId();
         var profile = await _authorizationService.GetUserProfile(ProfileType.Driver);
-        if (profile is null) {
+        if (profile is null)
+        {
             profile = (await _dbContext.UserProfiles.AddAsync(new Database.UserProfile
             {
                 UserId = userId,
@@ -57,7 +64,8 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
             })).Entity;
             request.IsFirstVehicle = true;
         }
-        else {
+        else
+        {
             if (await _dbContext.UserVehicles.AnyAsync(uv =>
                     uv.Profile == profile && uv.VehicleId == request.VehicleId && uv.ModelYear == request.ModelYear))
                 throw new BadRequestException("Vozilo već postoji.");
@@ -67,15 +75,17 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         request.ProfileId = profile.Id;
     }
 
-    protected override async Task AfterInsert(Database.UserVehicle entity, UserVehicleUpsertFormRequest request, MojPrijevozDbContext dbContext) {
+    protected override async Task AfterInsert(Database.UserVehicle entity, UserVehicleUpsertFormRequest request,
+        MojPrijevozDbContext dbContext)
+    {
         await base.AfterInsert(entity, request, dbContext);
         var user = await dbContext.UserProfiles.Where(u => u.Id == entity.ProfileId).Select(it => it.User).FirstAsync();
         var vehicle = await dbContext.Vehicles.FirstAsync(v => v.Id == entity.VehicleId);
-        await _notificationService.SendEmailAsync(new EmailDto()
+        await _notificationService.SendEmailAsync(new EmailDto
         {
             To = user!.Email,
             Type = EmailType.BecomeDriverEmail,
-            Data = new Dictionary<string, dynamic>()
+            Data = new Dictionary<string, dynamic>
             {
                 ["Name"] = user.FirstName,
                 ["Vehicle"] = vehicle + " (" + entity.ModelYear + ")"
@@ -83,7 +93,9 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         });
     }
 
-    protected override async Task BeforeUpdate(int id, UserVehicleUpsertFormRequest request, Database.UserVehicle entity) {
+    protected override async Task BeforeUpdate(int id, UserVehicleUpsertFormRequest request,
+        Database.UserVehicle entity)
+    {
         await base.BeforeUpdate(id, request, entity);
         if (request.ModelYear < 1900)
             throw new BadRequestException("Godina proizvodnje ne može biti manja od 1900.");
@@ -98,9 +110,11 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
             throw new BadRequestException("Vozilo već postoji.");
     }
 
-    protected override async Task AfterUpdate(Database.UserVehicle entity, MojPrijevozDbContext dbContext) {
+    protected override async Task AfterUpdate(Database.UserVehicle entity, MojPrijevozDbContext dbContext)
+    {
         await base.AfterUpdate(entity, dbContext);
-        var requestedChanges = await _dbContext.UserVehicleRequestChanges.Where(it => it.UserVehicleId == entity.Id).ToListAsync();
+        var requestedChanges = await _dbContext.UserVehicleRequestChanges.Where(it => it.UserVehicleId == entity.Id)
+            .ToListAsync();
         _dbContext.RemoveRange(requestedChanges);
     }
 
@@ -117,10 +131,6 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         var hasActiveFares = await _dbContext.Fares.AnyAsync(it => it.UserVehicleId == entity.Id && (it.Status ==
             FareStatus.Accepted || it.Status == FareStatus.InNegotiation || it.Status == FareStatus.InProgress ||
             it.Status == FareStatus.Payed));
-        if (hasActiveFares)
-        {
-            throw new BadRequestException("Ne možete obrisati vozilo koje ima zahtjev za vožnju!");
-        }
-
+        if (hasActiveFares) throw new BadRequestException("Ne možete obrisati vozilo koje ima zahtjev za vožnju!");
     }
 }

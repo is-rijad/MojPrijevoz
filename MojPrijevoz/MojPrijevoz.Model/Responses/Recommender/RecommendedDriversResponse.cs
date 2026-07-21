@@ -2,7 +2,8 @@
 
 namespace MojPrijevoz.Model.Responses.Recommender;
 
-public class RecommendedDriverRouteResponse {
+public class RecommendedDriverRouteResponse
+{
     public int Id { get; set; }
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;

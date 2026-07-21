@@ -3,7 +3,8 @@ using MojPrijevoz.Model.Responses.Vehicle;
 
 namespace MojPrijevoz.Model.Responses.UserVehicle;
 
-public class UserVehicleResponse {
+public class UserVehicleResponse
+{
     public int Id { get; set; }
 
     public int VehicleId { get; set; }

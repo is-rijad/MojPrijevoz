@@ -2,6 +2,6 @@
 
 namespace MojPrijevoz.Model.SearchObjects;
 
-public class DriversDiscountSearchObject : BaseSearchObject {
-
+public class DriversDiscountSearchObject : BaseSearchObject
+{
 }

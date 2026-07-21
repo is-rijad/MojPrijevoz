@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public class UserFcmToken {
+public class UserFcmToken
+{
     public int Id { get; set; }
     public int UserId { get; set; }
     public string Token { get; set; } = null!;
@@ -13,13 +14,15 @@ public class UserFcmToken {
     public User? User { get; set; }
 }
 
-public class UserFcmTokenEntityConfiguration : IEntityTypeConfiguration<UserFcmToken> {
-    public void Configure(EntityTypeBuilder<UserFcmToken> entity) {
+public class UserFcmTokenEntityConfiguration : IEntityTypeConfiguration<UserFcmToken>
+{
+    public void Configure(EntityTypeBuilder<UserFcmToken> entity)
+    {
         entity.ToTable("UserFcmTokens");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Token)
             .HasMaxLength(256)
-            .IsUnicode(true);
+            .IsUnicode();
         entity.Property(e => e.Platform)
             .HasMaxLength(8)
             .IsUnicode(false);

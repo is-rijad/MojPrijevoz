@@ -1,51 +1,55 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ML;
 using Microsoft.ML.Trainers;
 using MojPrijevoz.Database;
+using MojPrijevoz.Database.Interfaces;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Responses.Recommender;
 using MojPrijevoz.Model.SearchObjects;
+using MojPrijevoz.Recommender.Dtos;
 using MojPrijevoz.Recommender.Helpers;
 using MojPrijevoz.Recommender.Models;
 using MojPrijevoz.Recommender.Pool;
 using MojPrijevoz.Services.Authorization;
-using System.Text.Json;
-using MojPrijevoz.Database.Interfaces;
-using MojPrijevoz.Recommender.Dtos;
 
 namespace MojPrijevoz.Recommender;
 
-public class RecommenderService {
-    private readonly IServiceScopeFactory _scopeFactory;
+public class RecommenderService
+{
     private readonly MLContext _mlContext;
     private readonly RecommenderPredictionPool _pool;
-
-    private ITransformer? _model;
-    private RouteIndex _routeIndex = new();
+    private readonly IServiceScopeFactory _scopeFactory;
 
     private Dictionary<int, int> _driverFareCounts = new();
     private Dictionary<int, List<int>> _driversByOriginCity = new();
-    
-    private static string DataDir => Environment.GetEnvironmentVariable("Recommender__DataDir") ??
-                                       throw new ArgumentException("Recommender__DataDir is not set!");
 
-    private static string ModelPath => DataDir + Environment.GetEnvironmentVariable("Recommender__ModelPath") ??
-                                       throw new ArgumentException("Recommender__ModelPath is not set!");
-    private static string IndexPath => DataDir + Environment.GetEnvironmentVariable("Recommender__IndexPath") ??
-                                       throw new ArgumentException("Recommender__IndexPath is not set!");
+    private ITransformer? _model;
+    private RouteIndex _routeIndex = new();
 
 
     public RecommenderService(
         IServiceScopeFactory scopeFactory,
         MLContext mlContext,
-        RecommenderPredictionPool pool) {
+        RecommenderPredictionPool pool)
+    {
         _scopeFactory = scopeFactory;
         _mlContext = mlContext;
         _pool = pool;
     }
 
-    public async Task TrainAsync() {
+    private static string DataDir => Environment.GetEnvironmentVariable("Recommender__DataDir") ??
+                                     throw new ArgumentException("Recommender__DataDir is not set!");
+
+    private static string ModelPath => DataDir + Environment.GetEnvironmentVariable("Recommender__ModelPath") ??
+                                       throw new ArgumentException("Recommender__ModelPath is not set!");
+
+    private static string IndexPath => DataDir + Environment.GetEnvironmentVariable("Recommender__IndexPath") ??
+                                       throw new ArgumentException("Recommender__IndexPath is not set!");
+
+    public async Task TrainAsync()
+    {
         await using var scope = _scopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<MojPrijevozDbContext>();
 
@@ -104,12 +108,11 @@ public class RecommenderService {
         await File.WriteAllTextAsync(IndexPath, JsonSerializer.Serialize(_routeIndex.GetMap()));
     }
 
-    public async Task LoadOrTrainAsync() {
-        if (!Directory.Exists(DataDir))
+    public async Task LoadOrTrainAsync()
+    {
+        if (!Directory.Exists(DataDir)) Directory.CreateDirectory(DataDir);
+        if (File.Exists(ModelPath) && File.Exists(IndexPath))
         {
-            Directory.CreateDirectory(DataDir);
-        }
-        if (File.Exists(ModelPath) && File.Exists(IndexPath)) {
             _model = _mlContext.Model.Load(ModelPath, out _);
 
             var json = await File.ReadAllTextAsync(IndexPath);
@@ -136,19 +139,23 @@ public class RecommenderService {
                     g => g.Key,
                     g => g.Select(f => f.DriverId).Distinct().ToList());
         }
-        else {
+        else
+        {
             await TrainAsync();
         }
     }
 
-    public async Task<PagedResult<RecommendedDriverRouteResponse>> RecommendDriversAsync(RecommendedDriversSearchObject searchObject) {
+    public async Task<PagedResult<RecommendedDriverRouteResponse>> RecommendDriversAsync(
+        RecommendedDriversSearchObject searchObject)
+    {
         await using var scope = _scopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<MojPrijevozDbContext>();
         var authService = scope.ServiceProvider.GetRequiredService<AuthorizationService>();
         var passengerId = await authService.GetProfileId(ProfileType.Passenger);
         var driverId = await authService.GetProfileId(ProfileType.Driver);
 
-        var popularDriversDto = new PopularDriversDto() { DriverId = driverId, Database = db, SearchObject = searchObject };
+        var popularDriversDto = new PopularDriversDto
+            { DriverId = driverId, Database = db, SearchObject = searchObject };
         if (_model is null)
             return await PopularRoutesWithDriversAsync(popularDriversDto);
 
@@ -170,9 +177,10 @@ public class RecommenderService {
             return await PopularRoutesWithDriversAsync(popularDriversDto);
 
         var predEngine = _pool.GetPredictionEngine();
-        try {
+        try
+        {
             var topRouteKeys = unseenRoutes
-                .Select(routeKey => new RouteKeyDto()
+                .Select(routeKey => new RouteKeyDto
                 {
                     RouteKey = routeKey,
                     Score = predEngine.Predict(new PassengerRouteInteraction
@@ -187,18 +195,20 @@ public class RecommenderService {
                 .ToList();
             return await BuildResultAsync(new BuildResultDto(popularDriversDto) { RouteKeys = topRouteKeys });
         }
-        finally {
+        finally
+        {
             _pool.Return(predEngine);
         }
-
     }
 
     private async Task<PagedResult<RecommendedDriverRouteResponse>> BuildResultAsync(
-       BuildResultDto dto) {
+        BuildResultDto dto)
+    {
         var queryable = dto.Database.Fares
             .Where(f => f.Status == FareStatus.Completed
                         && dto.RouteKeys.Contains(
-                            f.FareData!.OriginCityId + "→" + f.FareData.DestinationZone) && (dto.DriverId == null || f.DriverId != dto.DriverId))
+                            f.FareData!.OriginCityId + "→" + f.FareData.DestinationZone) &&
+                        (dto.DriverId == null || f.DriverId != dto.DriverId))
             .AsQueryable();
 
         var items = await queryable
@@ -245,6 +255,6 @@ public class RecommenderService {
             .Select(g => $"{g.Key.OriginCityId}→{g.Key.DestinationZone}")
             .ToListAsync();
 
-        return await BuildResultAsync(new BuildResultDto(dto) {RouteKeys = popularRouteKeys});
+        return await BuildResultAsync(new BuildResultDto(dto) { RouteKeys = popularRouteKeys });
     }
 }

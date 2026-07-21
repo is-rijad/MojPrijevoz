@@ -2,6 +2,7 @@
 
 namespace MojPrijevoz.Model.SearchObjects;
 
-public class RatingSearchObject : BaseSearchObject {
+public class RatingSearchObject : BaseSearchObject
+{
     public int ProfileId { get; set; }
 }

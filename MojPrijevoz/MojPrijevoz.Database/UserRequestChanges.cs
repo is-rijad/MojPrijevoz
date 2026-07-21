@@ -1,15 +1,16 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public class UserRequestChanges : BaseRequestChanges {
+public class UserRequestChanges : BaseRequestChanges
+{
     public int UserId { get; set; }
     public User? User { get; set; }
 }
 
-public class UserRequestChangesEntityConfiguration : BaseRequestChangesEntityConfiguration<UserRequestChanges> {
+public class UserRequestChangesEntityConfiguration : BaseRequestChangesEntityConfiguration<UserRequestChanges>
+{
     public override void Configure(EntityTypeBuilder<UserRequestChanges> entity)
     {
         base.Configure(entity);

@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public class DriversDiscount {
+public class DriversDiscount
+{
     public int Id { get; set; }
     public int ProfileId { get; set; }
     public float MinKm { get; set; }
@@ -12,8 +13,10 @@ public class DriversDiscount {
     public UserProfile? Profile { get; set; }
 }
 
-public class DriversDiscountEntityConfiguration : IEntityTypeConfiguration<DriversDiscount> {
-    public void Configure(EntityTypeBuilder<DriversDiscount> entity) {
+public class DriversDiscountEntityConfiguration : IEntityTypeConfiguration<DriversDiscount>
+{
+    public void Configure(EntityTypeBuilder<DriversDiscount> entity)
+    {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("DriversDiscount");

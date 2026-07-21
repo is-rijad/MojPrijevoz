@@ -11,16 +11,22 @@ using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.Admin;
 
-public class AdminTransactionService : BaseAdminCrudService<Database.Transaction, AdminTransactionUpdateRequest, AdminTransactionUpdateRequest, BaseRequestChanges, AdminTransactionResponse, AdminAllTransactionsResponse, AdminTransactionSearchObject> {
+public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTransactionUpdateRequest,
+    AdminTransactionUpdateRequest, BaseRequestChanges, AdminTransactionResponse, AdminAllTransactionsResponse,
+    AdminTransactionSearchObject>
+{
     private readonly INotificationService _notificationService;
 
-    public AdminTransactionService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
-        INotificationService notificationService) : base(context, mapper, authorizationService) {
+    public AdminTransactionService(MojPrijevozDbContext context, IMapper mapper,
+        AuthorizationService authorizationService,
+        INotificationService notificationService) : base(context, mapper, authorizationService)
+    {
         _notificationService = notificationService;
-
     }
 
-    public override async Task<IQueryable<Transaction>> ApplyFilter(IQueryable<Database.Transaction> queryable, AdminTransactionSearchObject searchObject) {
+    public override async Task<IQueryable<Transaction>> ApplyFilter(IQueryable<Transaction> queryable,
+        AdminTransactionSearchObject searchObject)
+    {
         queryable = await base.ApplyFilter(queryable, searchObject);
         queryable = queryable.Where(it => it.Fare!.Status == FareStatus.Completed);
         return queryable;
@@ -50,7 +56,7 @@ public class AdminTransactionService : BaseAdminCrudService<Database.Transaction
     protected override async Task AfterUpdate(Transaction entity, MojPrijevozDbContext dbContext)
     {
         await base.AfterUpdate(entity, dbContext);
-        await _dbContext.Transactions.AddAsync(new Transaction()
+        await _dbContext.Transactions.AddAsync(new Transaction
         {
             Side = TransactionSide.Credit,
             FareId = entity.FareId,
@@ -63,11 +69,11 @@ public class AdminTransactionService : BaseAdminCrudService<Database.Transaction
             .ThenInclude(it => it!.User).FirstAsync(it => it.Id == entity.FareId);
         var userVehicle = await _dbContext.UserVehicles.Include(it => it.Vehicle)
             .FirstAsync(it => it.Id == fare.UserVehicleId);
-        await _notificationService.SendEmailAsync(new EmailDto()
+        await _notificationService.SendEmailAsync(new EmailDto
         {
             To = fare.Driver!.User!.Email,
             Type = EmailType.TransactionPostedEmail,
-            Data = new Dictionary<string, dynamic>()
+            Data = new Dictionary<string, dynamic>
             {
                 ["Name"] = fare.Driver!.User!.FirstName,
                 ["PostedAt"] = entity.PostedAt!.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
@@ -79,19 +85,23 @@ public class AdminTransactionService : BaseAdminCrudService<Database.Transaction
         });
     }
 
-    public override Task BeforeRequestChanges(int id) {
+    public override Task BeforeRequestChanges(int id)
+    {
         throw new NotImplementedException();
     }
 
-    public override Task SetEntityStatusToWaitingForChanges(int id) {
+    public override Task SetEntityStatusToWaitingForChanges(int id)
+    {
         throw new NotImplementedException();
     }
 
-    public override BaseRequestChanges MapIdToRequestChanges(int id, BaseRequestChanges entity) {
+    public override BaseRequestChanges MapIdToRequestChanges(int id, BaseRequestChanges entity)
+    {
         throw new NotImplementedException();
     }
 
-    public override Task SendNotificationEmail(List<BaseRequestChanges> entities) {
+    public override Task SendNotificationEmail(List<BaseRequestChanges> entities)
+    {
         throw new NotImplementedException();
     }
 }

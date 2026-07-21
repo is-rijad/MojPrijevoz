@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public enum FareOfferStatus : short {
+public enum FareOfferStatus : short
+{
     Rejected = 0,
     Accepted = 1,
     WaitingForResponse = 2,
@@ -12,7 +13,8 @@ public enum FareOfferStatus : short {
     Cancelled = 5
 }
 
-public class FareOffer {
+public class FareOffer
+{
     public int Id { get; set; }
 
     public ProfileType Side { get; set; }
@@ -34,8 +36,10 @@ public class FareOffer {
     public DateTime UpdatedAt { get; set; }
 }
 
-public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer> {
-    public void Configure(EntityTypeBuilder<FareOffer> entity) {
+public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer>
+{
+    public void Configure(EntityTypeBuilder<FareOffer> entity)
+    {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("FareOffer");
@@ -53,6 +57,5 @@ public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer> 
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
         entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
     }
 }

@@ -3,12 +3,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public enum TransactionSide : short {
+public enum TransactionSide : short
+{
     Credit = 0,
     Debit = 1
 }
 
-public class Transaction {
+public class Transaction
+{
     public int Id { get; set; }
 
     public int FareId { get; set; }
@@ -26,8 +28,10 @@ public class Transaction {
     public DateTime CreatedAt { get; set; }
 }
 
-public class TransactionEntityConfiguration : IEntityTypeConfiguration<Transaction> {
-    public void Configure(EntityTypeBuilder<Transaction> entity) {
+public class TransactionEntityConfiguration : IEntityTypeConfiguration<Transaction>
+{
+    public void Configure(EntityTypeBuilder<Transaction> entity)
+    {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("Transaction");

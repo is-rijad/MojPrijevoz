@@ -1,16 +1,17 @@
-﻿using MojPrijevoz.Model.Dtos.Nominatim;
-using MojPrijevoz.Model.Requests.StopPoint;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MojPrijevoz.Model.Dtos.Nominatim;
+using MojPrijevoz.Model.Requests.StopPoint;
 
 namespace MojPrijevoz.Model.Requests.FareOffer;
 
-public class FareOfferInsertRequest {
+public class FareOfferInsertRequest
+{
     [Required] public int OriginCityId { get; set; }
     [Required] public NominatimCityDto DestinationCity { get; set; } = null!;
     [Required] public string DestinationName { get; set; } = null!;
-    [Required][Range(1, int.MaxValue)] public float Length { get; set; }
-    [Required][Range(1, int.MaxValue)] public float Duration { get; set; }
+    [Required] [Range(1, int.MaxValue)] public float Length { get; set; }
+    [Required] [Range(1, int.MaxValue)] public float Duration { get; set; }
 
     [NotMapped] public int PassengerId { get; set; }
     [NotMapped] public int FareDataId { get; set; }
@@ -24,5 +25,4 @@ public class FareOfferInsertRequest {
     [Required] public IReadOnlyList<StopPointInsertRequest> StopPoints { get; set; } = null!;
 
     [Required] public DateTime FareDateTime { get; set; }
-
 }

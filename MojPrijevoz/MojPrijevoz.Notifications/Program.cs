@@ -17,18 +17,22 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDatabaseServices(connectionString);
 
         var rabbitMqSection = context.Configuration.GetSection("RabbitMQ");
-        services.AddEasyNetQ($"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["User"]};password={rabbitMqSection["Password"]}").UseSystemTextJson();
+        services.AddEasyNetQ(
+                $"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["User"]};password={rabbitMqSection["Password"]}")
+            .UseSystemTextJson();
 
         services.AddSingleton<INotificationConsumer, NotificationConsumer>();
         services.AddSingleton<IEmailService, EmailService>();
         services.AddSingleton<INotificationService, NotificationService>();
         FirebaseApp.Create(new AppOptions
         {
-            Credential = CredentialFactory.FromFile<ServiceAccountCredential>(context.Configuration["Firebase:CredentialPath"] ?? throw new ArgumentException("FIREBASE__CREDENTIAL_PATH is not set")).ToGoogleCredential()
+            Credential = CredentialFactory
+                .FromFile<ServiceAccountCredential>(context.Configuration["Firebase:CredentialPath"] ??
+                                                    throw new ArgumentException("FIREBASE__CREDENTIAL_PATH is not set"))
+                .ToGoogleCredential()
         });
 
         services.AddHostedService<NotificationsHostedService>();
-
     })
     .Build();
 

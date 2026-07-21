@@ -2,6 +2,7 @@
 
 namespace MojPrijevoz.Model.Dtos.InMemoryDatabase;
 
-public class FareLocationInMemoryDatabaseDto : BaseInMemoryDatabaseDto {
+public class FareLocationInMemoryDatabaseDto : BaseInMemoryDatabaseDto
+{
     public NominatimCityDto LatLong { get; set; } = null!;
 }

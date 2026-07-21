@@ -15,22 +15,26 @@ using Stripe;
 
 namespace MojPrijevoz.Services.Stripe;
 
-public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleResponse> {
+public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleResponse>
+{
+    private readonly IConfiguration _config;
     private readonly MojPrijevozDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IConfiguration _config;
     private readonly IServiceProvider _serviceProvider;
 
     public StripeService(MojPrijevozDbContext dbContext,
         IHttpContextAccessor httpContextAccessor,
         IConfiguration config,
-        IServiceProvider serviceProvider) {
+        IServiceProvider serviceProvider)
+    {
         _dbContext = dbContext;
         _httpContextAccessor = httpContextAccessor;
         _config = config;
         _serviceProvider = serviceProvider;
     }
-    public async Task<StripeHandleResponse> Handle([FromBody] StripeHandleRequest request) {
+
+    public async Task<StripeHandleResponse> Handle([FromBody] StripeHandleRequest request)
+    {
         var fareOfferId = request.FareOfferId;
         var fareOffer = await _dbContext.FareOffers.FindAsync(fareOfferId);
         if (fareOffer == null)
@@ -46,14 +50,16 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
         var service = new PaymentIntentService();
         var intent = await service.CreateAsync(options);
 
-        return new StripeHandleResponse() { ClientSecret = intent.ClientSecret };
+        return new StripeHandleResponse { ClientSecret = intent.ClientSecret };
     }
 
-    public async Task Webhook() {
+    public async Task Webhook()
+    {
         var json = await new StreamReader(_httpContextAccessor.HttpContext!.Request.Body).ReadToEndAsync();
         var webhookSecret = _config["Stripe:WebhookSecret"];
 
-        try {
+        try
+        {
             var stripeEvent = EventUtility.ConstructEvent(
                 json,
                 _httpContextAccessor.HttpContext!.Request.Headers["Stripe-Signature"],
@@ -61,12 +67,14 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
                 throwOnApiVersionMismatch: false
             );
 
-            if (stripeEvent.Type == "payment_intent.succeeded") {
+            if (stripeEvent.Type == "payment_intent.succeeded")
+            {
                 var intent = stripeEvent.Data.Object as PaymentIntent;
                 var fareOfferId = int.Parse(intent!.Metadata["fareOfferId"]);
                 await _serviceProvider.GetRequiredService<IFareOfferService>().PayOfferAsync(fareOfferId, intent.Id);
             }
-            else if (stripeEvent.Type == "refund.updated") {
+            else if (stripeEvent.Type == "refund.updated")
+            {
                 var refund = stripeEvent.Data.Object as Refund;
                 if (refund!.Status != "succeeded") return;
                 var paymentIntendId = refund.PaymentIntentId;
@@ -76,21 +84,21 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
                 {
                     _dbContext.Remove(transaction);
                     await _dbContext.SaveChangesAsync();
-                    await _serviceProvider.GetRequiredService<INotificationService>().SendEmailAsync(new EmailDto()
+                    await _serviceProvider.GetRequiredService<INotificationService>().SendEmailAsync(new EmailDto
                     {
                         To = transaction.Fare!.Passenger!.User!.Email,
                         Type = EmailType.RefundSucceededEmail,
-                        Data = new Dictionary<string, dynamic>()
+                        Data = new Dictionary<string, dynamic>
                         {
                             ["Name"] = transaction.Fare.Passenger.User.FirstName,
                             ["Amount"] = transaction.Amount + (transaction.FeeAmount ?? 0)
                         }
                     });
                 }
-
             }
         }
-        catch (StripeException) {
+        catch (StripeException)
+        {
             throw new BadRequestException("Invalid Stripe webhook");
         }
     }
@@ -100,17 +108,19 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
         var options = new RefundCreateOptions
         {
             PaymentIntent = paymentIntentId,
-            Metadata = new Dictionary<string, string>()
+            Metadata = new Dictionary<string, string>
             {
                 ["FareOfferId"] = fareOfferId.ToString()
             }
         };
 
         var service = new RefundService();
-        try {
-            Refund refund = await service.CreateAsync(options);
+        try
+        {
+            var refund = await service.CreateAsync(options);
         }
-        catch (StripeException e) {
+        catch (StripeException e)
+        {
             Console.WriteLine($"Stripe greška - refund: {e.Message}");
         }
     }

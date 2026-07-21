@@ -2,7 +2,8 @@
 
 namespace MojPrijevoz.Model.Responses.Notification;
 
-public class NotificationResponse {
+public class NotificationResponse
+{
     public int Id { get; set; }
     public string Message { get; set; } = null!;
     public string Type { get; set; } = null!;

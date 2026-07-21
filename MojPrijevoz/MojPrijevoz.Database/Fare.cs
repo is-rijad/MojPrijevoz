@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MojPrijevoz.Database;
 
-public enum FareStatus : short {
+public enum FareStatus : short
+{
     Rejected = 0,
     Accepted = 1,
     InNegotiation = 2,
@@ -14,7 +15,8 @@ public enum FareStatus : short {
     Completed = 7
 }
 
-public class Fare {
+public class Fare
+{
     public int Id { get; set; }
 
     public FareStatus Status { get; set; } = FareStatus.InNegotiation;
@@ -37,8 +39,10 @@ public class Fare {
     public DateTime UpdatedAt { get; set; }
 }
 
-public class FareEntityConfiguration : IEntityTypeConfiguration<Fare> {
-    public void Configure(EntityTypeBuilder<Fare> entity) {
+public class FareEntityConfiguration : IEntityTypeConfiguration<Fare>
+{
+    public void Configure(EntityTypeBuilder<Fare> entity)
+    {
         entity.HasKey(e => e.Id);
         entity.ToTable("Fare");
 

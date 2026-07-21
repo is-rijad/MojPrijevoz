@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MojPrijevoz.Database;
 
-public class FareData {
+public class FareData
+{
     public int Id { get; set; }
     public int OriginCityId { get; set; }
 
@@ -25,14 +26,15 @@ public class FareData {
     public DateTime CreatedAt { get; set; }
 
     //Has to be there because of seeder
-    [NotMapped]
-    public string _originLat { get; set; } = null!;
-    [NotMapped]
-    public string _originLong { get; set; } = null!;
+    [NotMapped] public string _originLat { get; set; } = null!;
+
+    [NotMapped] public string _originLong { get; set; } = null!;
 }
 
-public class FareDataEntityConfiguration : IEntityTypeConfiguration<FareData> {
-    public void Configure(EntityTypeBuilder<FareData> entity) {
+public class FareDataEntityConfiguration : IEntityTypeConfiguration<FareData>
+{
+    public void Configure(EntityTypeBuilder<FareData> entity)
+    {
         entity.HasKey(e => e.Id);
 
         entity.ToTable("FareData");
@@ -46,17 +48,17 @@ public class FareDataEntityConfiguration : IEntityTypeConfiguration<FareData> {
             .IsUnicode(false);
         entity.Property(e => e.DestinationName)
             .HasMaxLength(int.MaxValue)
-            .IsUnicode(true);
+            .IsUnicode();
 
-        entity.Property(e => e.DestinationZone).IsRequired(true).IsUnicode(true).HasMaxLength(32);
+        entity.Property(e => e.DestinationZone).IsRequired().IsUnicode().HasMaxLength(32);
 
         entity.Property(e => e.Duration)
-            .IsRequired(true);
+            .IsRequired();
         entity.Property(e => e.Length)
-            .IsRequired(true);
+            .IsRequired();
 
         entity.Property(e => e.FareDateTime)
-            .IsRequired(true);
+            .IsRequired();
 
         entity.HasOne(d => d.OriginCity)
             .WithMany()

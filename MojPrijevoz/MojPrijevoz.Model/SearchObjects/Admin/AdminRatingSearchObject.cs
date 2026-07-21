@@ -2,6 +2,6 @@
 
 namespace MojPrijevoz.Model.SearchObjects.Admin;
 
-public class AdminRatingSearchObject : AdminStringSearchObject {
-    
+public class AdminRatingSearchObject : AdminStringSearchObject
+{
 }

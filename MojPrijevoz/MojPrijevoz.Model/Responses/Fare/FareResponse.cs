@@ -5,7 +5,8 @@ using MojPrijevoz.Model.Responses.UserVehicle;
 
 namespace MojPrijevoz.Model.Responses.Fare;
 
-public class FareResponse {
+public class FareResponse
+{
     public int Id { get; set; }
 
     public short Status { get; set; }

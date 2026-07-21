@@ -2,7 +2,8 @@
 
 namespace MojPrijevoz.Model.Requests.FareData;
 
-public class FareDataInsertRequest {
+public class FareDataInsertRequest
+{
     public int OriginCityId { get; set; }
 
     public string DestinationLat { get; set; } = null!;
