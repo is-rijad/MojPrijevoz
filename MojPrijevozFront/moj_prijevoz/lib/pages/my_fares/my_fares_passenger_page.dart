@@ -237,7 +237,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
     return fare.status == FareStatus.accepted &&
         fare.fareStartAfter!
             .subtract(Duration(minutes: 60))
-            .isAfter(DateTime.now().toUtc());
+            .isBefore(DateTime.now().toUtc());
   }
 
   Future<void> _onTapCard(FareResponse fare) async {
@@ -312,7 +312,8 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
 
   bool canCancel(FareResponse i) {
     return i.status == FareStatus.inNegotiation ||
-        i.status == FareStatus.accepted;
+        i.status == FareStatus.accepted ||
+        i.status == FareStatus.payed;
   }
 
   Future _buildPayementDialog(FareResponse i) async {

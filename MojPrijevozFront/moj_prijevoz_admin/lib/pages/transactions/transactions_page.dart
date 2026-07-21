@@ -70,9 +70,12 @@ class _TransactionsPageState extends RouteAwareState<TransactionsPage> {
                   (i) => Text(
                     "${context.getLocalizedDate(i.createdAt)} ${context.getLocalizedTime(i.createdAt)}",
                   ),
-                  (i) => IconButton(
-                    onPressed: () async => await _buildPostTransactionDialog(i),
-                    icon: Icon(Icons.check),
+                  (i) => Center(
+                    child: IconButton(
+                      onPressed: () async =>
+                          await _buildPostTransactionDialog(i),
+                      icon: Icon(Icons.check),
+                    ),
                   ),
                 ],
               ),

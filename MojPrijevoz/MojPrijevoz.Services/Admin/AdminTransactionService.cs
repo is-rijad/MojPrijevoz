@@ -22,7 +22,7 @@ public class AdminTransactionService : BaseAdminCrudService<Database.Transaction
 
     public override async Task<IQueryable<Transaction>> ApplyFilter(IQueryable<Database.Transaction> queryable, AdminTransactionSearchObject searchObject) {
         queryable = await base.ApplyFilter(queryable, searchObject);
-       
+        queryable = queryable.Where(it => it.Fare!.Status == FareStatus.Completed);
         return queryable;
     }
 

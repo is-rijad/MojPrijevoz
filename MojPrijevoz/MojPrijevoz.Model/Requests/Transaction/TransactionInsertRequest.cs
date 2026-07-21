@@ -9,4 +9,5 @@ public class TransactionInsertRequest {
 
     public float Amount { get; set; }
     public float FeeAmount { get; set; }
+    public string PaymentIntentId { get; set; } = null!;
 }

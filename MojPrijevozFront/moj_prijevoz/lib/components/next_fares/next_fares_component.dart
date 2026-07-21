@@ -252,7 +252,7 @@ class _NextFaresComponentState extends State<NextFaresComponent>
     return fare.status == FareStatus.accepted &&
         fare.fareStartAfter!
             .subtract(Duration(minutes: 60))
-            .isAfter(DateTime.now().toUtc());
+            .isBefore(DateTime.now().toUtc());
   }
 
   Future<void> _buildStartFareDialog(FareResponse? fare) async {

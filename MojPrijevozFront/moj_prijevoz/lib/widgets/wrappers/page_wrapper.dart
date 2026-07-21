@@ -92,7 +92,7 @@ class _PageWrapperState extends State<PageWrapper> {
         appBar: _buildAppBar(context),
         body: widget.body,
         key: _scaffoldKey,
-        drawer: _buildDrawer(context),
+        endDrawer: _buildDrawer(context),
       ),
     );
   }

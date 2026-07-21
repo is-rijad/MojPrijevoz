@@ -19,6 +19,7 @@ public class Transaction {
     public float? FeeAmount { get; set; }
 
     public DateTime? PostedAt { get; set; }
+    public string? PaymentIntentId { get; set; }
 
     public Fare? Fare { get; set; }
 
@@ -30,6 +31,8 @@ public class TransactionEntityConfiguration : IEntityTypeConfiguration<Transacti
         entity.HasKey(e => e.Id);
 
         entity.ToTable("Transaction");
+
+        entity.Property(it => it.PaymentIntentId).IsRequired(false).HasMaxLength(32);
 
         entity.HasOne(d => d.Fare).WithMany(p => p.Transactions)
             .HasForeignKey(d => d.FareId)

@@ -15,5 +15,6 @@ public enum EmailType {
     TransactionPostedEmail,
     UserRequestChangesEmail,
     UserVehicleRequestChangesEmail,
-    UserBannedEmail
+    UserBannedEmail,
+    RefundSucceededEmail
 }

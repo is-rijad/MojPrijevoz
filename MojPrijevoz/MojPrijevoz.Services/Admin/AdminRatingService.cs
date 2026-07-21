@@ -8,7 +8,6 @@ using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices.Admin;
 using MojPrijevoz.Services.NotificationService;
-using System.Security.Cryptography.X509Certificates;
 
 namespace MojPrijevoz.Services.Admin;
 

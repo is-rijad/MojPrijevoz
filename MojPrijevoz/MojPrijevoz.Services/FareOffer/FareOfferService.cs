@@ -7,8 +7,10 @@ using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Requests.FareData;
 using MojPrijevoz.Model.Requests.FareOffer;
 using MojPrijevoz.Model.Requests.StopPoint;
+using MojPrijevoz.Model.Requests.Stripe;
 using MojPrijevoz.Model.Requests.Transaction;
 using MojPrijevoz.Model.Responses.Fare;
+using MojPrijevoz.Model.Responses.Stripe;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
@@ -29,17 +31,20 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
     private readonly BaseFareOfferState _baseFareOfferState;
     private readonly INotificationService _notificationService;
     private readonly ITransactionService _transactionService;
+    private readonly IPaymentService<StripeHandleRequest, StripeHandleResponse> _paymentService;
 
     public FareOfferService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
         IFareService fareService, IFareDataService fareDataService, IStopPointService stopPointService, BaseFareOfferState baseFareOfferState,
         INotificationService notificationService,
-        ITransactionService transactionService) : base(context, mapper, authorizationService) {
+        ITransactionService transactionService,
+        IPaymentService<StripeHandleRequest, StripeHandleResponse> paymentService) : base(context, mapper, authorizationService) {
         _fareService = fareService;
         _fareDataService = fareDataService;
         _stopPointService = stopPointService;
         _baseFareOfferState = baseFareOfferState;
         _notificationService = notificationService;
         _transactionService = transactionService;
+        _paymentService = paymentService;
     }
 
     protected override async Task BeforeInsert(FareOfferInsertRequest request)
@@ -406,6 +411,11 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Expire(entity);
         await _fareService.ExpireAsync(entity!.Fare!.Id);
+        var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(it => it.FareId == entity.FareId);
+        if (transaction?.PaymentIntentId != null)
+        {
+            await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
+        }
         await _dbContext.SaveChangesAsync();
 
         await SendUpdateNotification(entity, null);
@@ -441,6 +451,10 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Cancel(entity);
         await _fareService.CancelAsync(entity!.Fare!.Id);
+        var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(it => it.FareId == entity.FareId);
+        if (transaction?.PaymentIntentId != null) {
+            await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
+        }
         await _dbContext.SaveChangesAsync();
 
         var userId = _authorizationService.GetUserId();
@@ -465,9 +479,7 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
     }
 
 
-    public async Task<FareResponse> PayOfferAsync(int id) {
-        await _authorizationService.CheckIsAccountActive();
-
+    public async Task<FareResponse> PayOfferAsync(int id, string paymentIntentId) {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
         var entity = await _dbContext.FareOffers
@@ -488,7 +500,8 @@ public class FareOfferService : BaseCrudService<Database.FareOffer, FareOfferIns
             Amount = entity.TotalPrice * (1 - 0.10f),
             FeeAmount = entity.TotalPrice * 0.10f,
             FareId = entity.FareId,
-            Side = TransactionSide.Debit
+            Side = TransactionSide.Debit,
+            PaymentIntentId = paymentIntentId
         });
 
         await _dbContext.SaveChangesAsync();

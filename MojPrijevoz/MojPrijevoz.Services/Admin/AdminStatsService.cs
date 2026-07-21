@@ -61,7 +61,7 @@ public class AdminStatsService
             {
                 Month = g.Key.Month,
                 Year = g.Key.Year,
-                Result = g.Sum(it => it.FeeAmount) ?? 0
+                Result = Math.Round(g.Sum(it => it.FeeAmount) ?? 0, 2)
             })
             .OrderBy(it => it.Year).ThenBy(it => it.Month)
             .ToListAsync();
