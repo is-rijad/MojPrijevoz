@@ -5,41 +5,47 @@ using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Admin;
 
 namespace MojPrijevoz.WebApi.Controllers.Admin;
+
 [ApiController]
 [Authorize(Roles = "1")]
 [Route("api/admin/[controller]")]
-    public class AdministratorController : ControllerBase {
-        private readonly AdminAdministratorService _administratorService;
+public class AdministratorController : ControllerBase
+{
+    private readonly AdminAdministratorService _administratorService;
 
-        public AdministratorController(AdminAdministratorService administratorService)
-        {
-            _administratorService = administratorService;
-        }
-        [HttpGet]
+    public AdministratorController(AdminAdministratorService administratorService)
+    {
+        _administratorService = administratorService;
+    }
 
+    [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] AdminAdministratorSearchObject searchObject)
-        {
-            return Ok(await _administratorService.GetAsync(searchObject));
-        }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id) {
-            return Ok(await _administratorService.GetByIdAsync(id));
-        }
+    {
+        return Ok(await _administratorService.GetAsync(searchObject));
+    }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] AdminAdministratorUpsertRequest request) {
-            return Ok(await _administratorService.UpdateAsync(id, request));
-        }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(int id)
+    {
+        return Ok(await _administratorService.GetByIdAsync(id));
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Insert([FromBody] AdminAdministratorUpsertRequest request) {
-            return Ok(await _administratorService.InsertAsync(request));
-        }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _administratorService.DeleteAsync(id);
-            return Ok();
-        }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] AdminAdministratorUpsertRequest request)
+    {
+        return Ok(await _administratorService.UpdateAsync(id, request));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Insert([FromBody] AdminAdministratorUpsertRequest request)
+    {
+        return Ok(await _administratorService.InsertAsync(request));
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _administratorService.DeleteAsync(id);
+        return Ok();
+    }
 }
-

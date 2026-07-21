@@ -17,10 +17,7 @@ public class FareBackgroundService : BackgroundService
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMinutes(15));
 
-        while (await timer.WaitForNextTickAsync(stoppingToken)) {
-            await DoWorkAsync();
-        }
-       
+        while (await timer.WaitForNextTickAsync(stoppingToken)) await DoWorkAsync();
     }
 
     private async Task DoWorkAsync()

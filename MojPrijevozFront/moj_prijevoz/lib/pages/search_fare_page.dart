@@ -905,6 +905,8 @@ class _SearchFarePageState extends State<SearchFarePage> {
       setState(() {
         _request.isValid = true;
       });
+      if (!mounted) return;
+
       if ((context.read<SearchFareProvider>().fareDrivers.isEmpty ||
           _request.isChanged)) {
         _request.stopPlaces = [];

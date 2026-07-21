@@ -8,7 +8,12 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.FareData;
 
-public class FareDataService : BaseCrudService<Database.FareData, FareDataInsertRequest, FareDataInsertRequest, FareDataResponse, FareDataSearchObject>, IFareDataService {
-    public FareDataService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) : base(context, mapper, authorizationService) {
+public class FareDataService :
+    BaseCrudService<Database.FareData, FareDataInsertRequest, FareDataInsertRequest, FareDataResponse,
+        FareDataSearchObject>, IFareDataService
+{
+    public FareDataService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService) :
+        base(context, mapper, authorizationService)
+    {
     }
 }

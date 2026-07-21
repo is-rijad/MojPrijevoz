@@ -5,33 +5,39 @@ using MojPrijevoz.Services.UserVehicle;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserVehicleController : ControllerBase {
+public class UserVehicleController : ControllerBase
+{
     private readonly UserVehicleService _userVehicleService;
 
-    public UserVehicleController(UserVehicleService userVehicleService) {
+    public UserVehicleController(UserVehicleService userVehicleService)
+    {
         _userVehicleService = userVehicleService;
     }
 
     [HttpPost]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> Post([FromForm] UserVehicleUpsertFormRequest request) {
+    public async Task<IActionResult> Post([FromForm] UserVehicleUpsertFormRequest request)
+    {
         return Ok(await _userVehicleService.InsertWithTransactionAsync(request));
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] UserVehicleSearchObject searchObject) {
+    public async Task<IActionResult> GetAll([FromQuery] UserVehicleSearchObject searchObject)
+    {
         return Ok(await _userVehicleService.GetAsync(searchObject));
     }
 
 
     [HttpPut("{id}")]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> Put(int id, [FromForm] UserVehicleUpsertFormRequest request) {
+    public async Task<IActionResult> Put(int id, [FromForm] UserVehicleUpsertFormRequest request)
+    {
         return Ok(await _userVehicleService.UpdateWithTransactionAsync(id, request));
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id) {
+    public async Task<IActionResult> Delete(int id)
+    {
         await _userVehicleService.DeleteAsync(id);
         return Ok();
     }

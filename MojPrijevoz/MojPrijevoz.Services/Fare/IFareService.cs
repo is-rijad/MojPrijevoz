@@ -7,7 +7,9 @@ using MojPrijevoz.Services.BaseStateMachine;
 
 namespace MojPrijevoz.Services.Fare;
 
-public interface IFareService : IBaseCRUDService<FareInsertRequest, FareInsertRequest, FareResponse, FareSearchObject>, IBaseState {
+public interface IFareService : IBaseCRUDService<FareInsertRequest, FareInsertRequest, FareResponse, FareSearchObject>,
+    IBaseState
+{
     public Task<bool> HasActiveFareForRoute(int passengerId, HasActiveFareRequest request);
     public Task<FareResponse> AcceptAsync(int id);
     public Task<FareResponse> RejectAsync(int id);

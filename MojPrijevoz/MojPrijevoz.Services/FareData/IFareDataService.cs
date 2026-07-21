@@ -5,6 +5,7 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.FareData;
 
-public interface IFareDataService : IBaseCRUDService<FareDataInsertRequest, FareDataInsertRequest, FareDataResponse, FareDataSearchObject> {
-
+public interface IFareDataService : IBaseCRUDService<FareDataInsertRequest, FareDataInsertRequest, FareDataResponse,
+    FareDataSearchObject>
+{
 }

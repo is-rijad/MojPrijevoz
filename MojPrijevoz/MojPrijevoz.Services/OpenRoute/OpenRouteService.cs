@@ -1,42 +1,44 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Net.Http.Headers;
+using System.Net.Mime;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.OpenRoute;
 using MojPrijevoz.Model.Responses.OpenRoute;
 using MojPrijevoz.Services.City;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Text;
-using System.Text.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace MojPrijevoz.Services.OpenRoute;
 
-public class OpenRouteService : IOpenRouteService {
-    private readonly IConfigurationSection _openApiConfiguration;
-    private readonly HttpClient _httpClient;
+public class OpenRouteService : IOpenRouteService
+{
     private readonly CityService _cityService;
+    private readonly HttpClient _httpClient;
+    private readonly IConfigurationSection _openApiConfiguration;
 
     public OpenRouteService(IConfiguration configuration, IHttpClientFactory httpClientFactory,
-        CityService cityService) {
+        CityService cityService)
+    {
         _openApiConfiguration = configuration.GetSection("OpenRouteApi");
         _httpClient = httpClientFactory.CreateClient();
         _cityService = cityService;
     }
 
-    public async Task<GetDistanceResponse> GetDistance(GetDistanceRequest request) {
-        if (request.CityFrom == request.CityTo) {
-            return new GetDistanceResponse() { DistanceInKm = 0, DurationInMinutes = 0 };
-        }
+    public async Task<GetDistanceResponse> GetDistance(GetDistanceRequest request)
+    {
+        if (request.CityFrom == request.CityTo)
+            return new GetDistanceResponse { DistanceInKm = 0, DurationInMinutes = 0 };
         var cityFrom = await _cityService.GetByIdAsync(request.CityFrom);
         var cityTo = await _cityService.GetByIdAsync(request.CityTo);
         var internalRequest = new
         {
             Coordinates = new[]
             {
-                new [] { cityFrom.Long, cityFrom.Lat },
-                new [] { cityTo.Long, cityTo.Lat },
+                new[] { cityFrom.Long, cityFrom.Lat },
+                new[] { cityTo.Long, cityTo.Lat }
             },
-            Radiuses = new int[] { -1 },
+            Radiuses = new[] { -1 },
             Units = "km",
             Instructions = false,
             Geometry = false
@@ -47,19 +49,22 @@ public class OpenRouteService : IOpenRouteService {
             MediaTypeNames.Application.Json);
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", _openApiConfiguration["Key"]!);
-        try {
+        try
+        {
             var response = await _httpClient.PostAsync(_openApiConfiguration["Url"], jsonRequest);
-            var responseObject = await JsonSerializer.DeserializeAsync<JsonElement>(await response.Content.ReadAsStreamAsync());
-            return new GetDistanceResponse()
+            var responseObject =
+                await JsonSerializer.DeserializeAsync<JsonElement>(await response.Content.ReadAsStreamAsync());
+            return new GetDistanceResponse
             {
-                DistanceInKm = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("distance").GetDouble(),
-                DurationInMinutes = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("duration").GetDouble() / 60,
+                DistanceInKm = responseObject.GetProperty("routes")[0].GetProperty("summary").GetProperty("distance")
+                    .GetDouble(),
+                DurationInMinutes = responseObject.GetProperty("routes")[0].GetProperty("summary")
+                    .GetProperty("duration").GetDouble() / 60
             };
         }
-        catch (HttpRequestException e) {
+        catch (HttpRequestException e)
+        {
             throw new BadRequestException("Previše uzastopnih slanja, pokušajte ponovo!");
         }
-
-
     }
 }

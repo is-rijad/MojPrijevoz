@@ -1,48 +1,49 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.User;
 using MojPrijevoz.Model.Responses.User;
-using System.Security.Cryptography;
-using System.Text;
 using MojPrijevoz.Services.InMemoryDatabase;
 
 namespace MojPrijevoz.Services.Authorization;
 
-public class AuthorizationService {
+public class AuthorizationService
+{
     private const int HashByteSize = 32;
     private const int SaltByteSize = 16;
     private const int Iterations = 100000;
-    private readonly MojPrijevozDbContext _dbContext;
-    private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA256;
 
     private const string Upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private const string Lower = "abcdefghijklmnopqrstuvwxyz";
     private const string Digits = "0123456789";
     private const string Symbols = "!@#$%^&*";
     private const string All = Upper + Lower + Digits + Symbols;
-
-    private readonly TokenManager _tokenManager;
+    private readonly MojPrijevozDbContext _dbContext;
+    private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA256;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly RevokedTokenService _revokedTokenService;
 
+    private readonly TokenManager _tokenManager;
+
     public AuthorizationService(MojPrijevozDbContext context, TokenManager tokenManager,
-        IHttpContextAccessor httpContextAccessor, RevokedTokenService revokedTokenService) {
+        IHttpContextAccessor httpContextAccessor, RevokedTokenService revokedTokenService)
+    {
         _dbContext = context;
         _tokenManager = tokenManager;
         _httpContextAccessor = httpContextAccessor;
         _revokedTokenService = revokedTokenService;
     }
 
-    public async Task<AccessTokenResponse> Login(UserLoginRequest request) {
+    public async Task<AccessTokenResponse> Login(UserLoginRequest request)
+    {
         Account? account = await _dbContext.Users.FirstOrDefaultAsync(u =>
             u.Username == request.UsernameOrEmail || u.Email == request.UsernameOrEmail);
         if (account == null)
-        {
             account = await _dbContext.Administrators.FirstOrDefaultAsync(u =>
                 u.Username == request.UsernameOrEmail || u.Email == request.UsernameOrEmail);
-        }
         if (account == null || !VerifyPassword(request.Password, account.PasswordHash, account.PasswordSalt))
             throw new BadRequestException("Uneseni podaci nisu ispravni");
         if (account.Status == AccountStatus.Banned)
@@ -66,62 +67,60 @@ public class AuthorizationService {
         var userId = GetUserId();
         var user = await _dbContext.Users.FindAsync(userId);
         if (user!.Status == AccountStatus.Banned)
-        {
             throw new UnauthorizedException("Banovani ste, ne možete koristiti aplikaciju!");
-        }
-        else if (user.Status != AccountStatus.Active)
-        {
+
+        if (user.Status != AccountStatus.Active)
             throw new BadRequestException(
                 "Vaš nalog nije aktivan, administrator je zatražio izmjene na Vašem profilu!");
-        }
 
         return true;
     }
-    public async Task<bool> CheckIsAccountActive(int profileId) {
-        var userProfile = await _dbContext.UserProfiles.Include(it => it.User).FirstOrDefaultAsync(it => it.Id == profileId);
-        if (userProfile!.User!.Status == AccountStatus.Banned) {
+
+    public async Task<bool> CheckIsAccountActive(int profileId)
+    {
+        var userProfile = await _dbContext.UserProfiles.Include(it => it.User)
+            .FirstOrDefaultAsync(it => it.Id == profileId);
+        if (userProfile!.User!.Status == AccountStatus.Banned)
             throw new BadRequestException("Korisnik je banovan, ne može koristiti aplikaciju!");
-        }
-        else if (userProfile!.User!.Status != AccountStatus.Active) {
+
+        if (userProfile!.User!.Status != AccountStatus.Active)
             throw new BadRequestException(
                 "Korisnikov nalog nije aktivan!");
-        }
 
         return true;
     }
 
-    private async Task ChangeOrAddRefreshToken(string refreshToken, int userId) {
-
+    private async Task ChangeOrAddRefreshToken(string refreshToken, int userId)
+    {
         var refreshTokenEntity = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserId == userId);
         HashRefreshToken(refreshToken, out var hash, out var salt);
 
-        if (refreshTokenEntity == null) {
-            await _dbContext.RefreshTokens.AddAsync(new RefreshToken() {TokenHash = hash, UserId = userId, TokenSalt = salt});
+        if (refreshTokenEntity == null)
+        {
+            await _dbContext.RefreshTokens.AddAsync(new RefreshToken
+                { TokenHash = hash, UserId = userId, TokenSalt = salt });
         }
-        else {
+        else
+        {
             refreshTokenEntity.TokenHash = hash;
             refreshTokenEntity.TokenSalt = salt;
         }
-        await _dbContext.SaveChangesAsync();
 
+        await _dbContext.SaveChangesAsync();
     }
-    public async Task<AccessTokenResponse> Refresh(RefreshTokenRequest request) {
+
+    public async Task<AccessTokenResponse> Refresh(RefreshTokenRequest request)
+    {
         var userId = _tokenManager.GetUserInfoFromToken(request.AccessToken).Id;
         Account? account = await _dbContext.Users.FirstOrDefaultAsync(it => it.Id == userId);
-        if (account == null)
-        {
-            account = await _dbContext.Administrators.FirstOrDefaultAsync(it => it.Id == userId);
-        }
+        if (account == null) account = await _dbContext.Administrators.FirstOrDefaultAsync(it => it.Id == userId);
         var refreshTokenEntity = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt =>
             rt.UserId == userId);
 
-        if (refreshTokenEntity == null) {
-            throw new BadRequestException("Korisnik nije ulogovan.");
-        }
+        if (refreshTokenEntity == null) throw new BadRequestException("Korisnik nije ulogovan.");
 
-        if (!VerifyRefreshToken(request.RefreshToken, refreshTokenEntity.TokenHash, refreshTokenEntity.TokenSalt)) {
+        if (!VerifyRefreshToken(request.RefreshToken, refreshTokenEntity.TokenHash, refreshTokenEntity.TokenSalt))
             throw new BadRequestException("Neispravan refresh token.");
-        }
 
         var token = await _tokenManager.GenerateToken(account!);
         var refreshToken = await _tokenManager.GenerateRefreshToken(account!);
@@ -136,7 +135,8 @@ public class AuthorizationService {
         };
     }
 
-    public void HashRefreshToken(string refreshToken, out string hash, out string salt) {
+    public void HashRefreshToken(string refreshToken, out string hash, out string salt)
+    {
         using var rng = RandomNumberGenerator.Create();
         var saltBytes = new byte[SaltByteSize];
         rng.GetBytes(saltBytes);
@@ -147,7 +147,8 @@ public class AuthorizationService {
         hash = Convert.ToBase64String(hashBytes);
     }
 
-    public bool VerifyRefreshToken(string refreshToken, string storedHash, string storedSalt) {
+    public bool VerifyRefreshToken(string refreshToken, string storedHash, string storedSalt)
+    {
         var saltBytes = Convert.FromBase64String(storedSalt);
         using var pbkdf2 = new Rfc2898DeriveBytes(refreshToken, saltBytes, Iterations, _hashAlgorithm);
         var hashBytes = pbkdf2.GetBytes(HashByteSize);
@@ -155,7 +156,8 @@ public class AuthorizationService {
         return hash == storedHash;
     }
 
-    public async Task<AccessTokenResponse> GetNewToken() {
+    public async Task<AccessTokenResponse> GetNewToken()
+    {
         var userId = GetUserId();
 
         var user = await _dbContext.Accounts.FirstAsync(u =>
@@ -174,7 +176,8 @@ public class AuthorizationService {
         };
     }
 
-    public void CreatePassword(string password, string passwordAgain, out string hash, out string salt) {
+    public void CreatePassword(string password, string passwordAgain, out string hash, out string salt)
+    {
         if (password != passwordAgain)
             throw new BadRequestException("Lozinke se ne podudaraju.");
         using var rng = RandomNumberGenerator.Create();
@@ -187,8 +190,8 @@ public class AuthorizationService {
         hash = Convert.ToBase64String(hashBytes);
     }
 
-    public string CreateResetPasswordCode(out string code, out DateTime expiration) {
-
+    public string CreateResetPasswordCode(out string code, out DateTime expiration)
+    {
         code = RandomNumberGenerator.GetInt32(10_000_000, 100_000_000).ToString();
         var bytes = Encoding.UTF8.GetBytes(code);
         var hash = SHA256.HashData(bytes);
@@ -198,7 +201,8 @@ public class AuthorizationService {
         return hashString;
     }
 
-    public void VerifyResetPasswordCode(string code, string realHash, DateTime expiration) {
+    public void VerifyResetPasswordCode(string code, string realHash, DateTime expiration)
+    {
         if (expiration < DateTime.UtcNow)
             throw new BadRequestException("Reset kod je istekao. Molimo zatražite novi kod.");
 
@@ -210,7 +214,8 @@ public class AuthorizationService {
     }
 
 
-    public bool VerifyPassword(string password, string storedHash, string storedSalt) {
+    public bool VerifyPassword(string password, string storedHash, string storedSalt)
+    {
         var saltBytes = Convert.FromBase64String(storedSalt);
         using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, Iterations, _hashAlgorithm);
         var hashBytes = pbkdf2.GetBytes(HashByteSize);
@@ -218,22 +223,23 @@ public class AuthorizationService {
         return hash == storedHash;
     }
 
-    public string GenerateRandomPassword(int length = 8) {
-
+    public string GenerateRandomPassword(int length = 8)
+    {
         var rng = RandomNumberGenerator.Create();
         var chars = new List<char>
         {
             Pick(Upper, rng),
             Pick(Lower, rng),
             Pick(Digits, rng),
-            Pick(Symbols, rng),
+            Pick(Symbols, rng)
         };
 
-        for (int i = chars.Count; i < length; i++)
+        for (var i = chars.Count; i < length; i++)
             chars.Add(Pick(All, rng));
 
-        for (int i = chars.Count - 1; i > 0; i--) {
-            int j = RandomInt(rng, i + 1);
+        for (var i = chars.Count - 1; i > 0; i--)
+        {
+            var j = RandomInt(rng, i + 1);
             (chars[i], chars[j]) = (chars[j], chars[i]);
         }
 
@@ -241,19 +247,24 @@ public class AuthorizationService {
     }
 
     private char Pick(string charset, RandomNumberGenerator rng)
-        => charset[RandomInt(rng, charset.Length)];
+    {
+        return charset[RandomInt(rng, charset.Length)];
+    }
 
-    private int RandomInt(RandomNumberGenerator rng, int max) {
+    private int RandomInt(RandomNumberGenerator rng, int max)
+    {
         var bytes = new byte[4];
         rng.GetBytes(bytes);
         return (int)(BitConverter.ToUInt32(bytes, 0) % (uint)max);
     }
 
-    public int GetUserId() {
+    public int GetUserId()
+    {
         return _tokenManager.GetUserId();
     }
 
-    public async Task<int?> GetProfileId(ProfileType profileType) {
+    public async Task<int?> GetProfileId(ProfileType profileType)
+    {
         return (await GetUserProfile(profileType))?.Id;
     }
 
@@ -264,6 +275,7 @@ public class AuthorizationService {
             .Where(up => up.UserId == userId && up.ProfileType == profileType)
             .FirstOrDefaultAsync();
     }
+
     public AdministratorRole? GetAdminRole()
     {
         return _tokenManager.GetAdminRole();

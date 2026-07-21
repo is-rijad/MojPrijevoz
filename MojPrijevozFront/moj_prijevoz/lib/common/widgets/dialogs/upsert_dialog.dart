@@ -102,6 +102,7 @@ class _UpsertDialogState<
       try {
         JsonResponse? resultItem;
 
+        if (!mounted) return;
         if (widget.selectedItem != null) {
           resultItem = await context.read<TProvider>().updateWithEvent(
             widget.selectedItem!.id,

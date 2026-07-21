@@ -13,24 +13,31 @@ using MojPrijevoz.Services.SignalR.Hubs;
 
 namespace MojPrijevoz.Services.NotificationService;
 
-public class NotificationService : BaseService<NotificationResponse, Notification, NotificationSearchObject>, INotificationService {
-    private readonly IBus _bus;
+public class NotificationService : BaseService<NotificationResponse, Notification, NotificationSearchObject>,
+    INotificationService
+{
     private readonly AuthorizationService _authorizationService;
-    private IHubContext<SignalRHub> _notificationsHubContext;
+    private readonly IBus _bus;
+    private readonly IHubContext<SignalRHub> _notificationsHubContext;
 
-    public NotificationService(IBus bus, AuthorizationService authorizationService, MojPrijevozDbContext dbContext, IMapper mapper, IHubContext<SignalRHub> notificationsHubContext) : base(dbContext, mapper) {
+    public NotificationService(IBus bus, AuthorizationService authorizationService, MojPrijevozDbContext dbContext,
+        IMapper mapper, IHubContext<SignalRHub> notificationsHubContext) : base(dbContext, mapper)
+    {
         _bus = bus;
         _authorizationService = authorizationService;
         _notificationsHubContext = notificationsHubContext;
     }
-    public async Task SendEmailAsync(EmailDto email) {
+
+    public async Task SendEmailAsync(EmailDto email)
+    {
         await _bus.PubSub.PublishAsync(email);
     }
 
 
-    public async Task SubscribeToFcm(SubscribeToFcmRequest request) {
+    public async Task SubscribeToFcm(SubscribeToFcmRequest request)
+    {
         var userId = _authorizationService.GetUserId();
-        await _bus.PubSub.PublishAsync(new SubscribeToFcmDto()
+        await _bus.PubSub.PublishAsync(new SubscribeToFcmDto
         {
             UserId = userId,
             Token = request.Token,
@@ -38,61 +45,72 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
         });
     }
 
-    public async Task UnsubscribeFromFcm() {
+    public async Task UnsubscribeFromFcm()
+    {
         var userId = _authorizationService.GetUserId();
-        await _bus.PubSub.PublishAsync(new UnSubscribeFromFcmDto()
+        await _bus.PubSub.PublishAsync(new UnSubscribeFromFcmDto
         {
-            UserId = userId,
+            UserId = userId
         });
     }
 
-    public async Task SendToUserAsync(SendToUserDto request) {
+    public async Task SendToUserAsync(SendToUserDto request)
+    {
         await _bus.PubSub.PublishAsync(request);
 
-        try {
+        try
+        {
             request.Data.TryGetValue("RatingId", out var ratingId);
-            await _notificationsHubContext.Clients.User(request.UserId.ToString()).SendAsync("NewNotification", new Notification()
-            {
-                CreatedAt = DateTime.Now,
-                FareId = int.Parse(request.Data["FareId"]),
-                Side = Enum<ProfileType>.Parse(request.Data["Side"]),
-                Id = 0,
-                IsRead = false,
-                UserId = request.UserId,
-                Message = request.Body,
-                Type = request.Data["Type"],
-                RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null,
-            });
+            await _notificationsHubContext.Clients.User(request.UserId.ToString()).SendAsync("NewNotification",
+                new Notification
+                {
+                    CreatedAt = DateTime.Now,
+                    FareId = int.Parse(request.Data["FareId"]),
+                    Side = Enum<ProfileType>.Parse(request.Data["Side"]),
+                    Id = 0,
+                    IsRead = false,
+                    UserId = request.UserId,
+                    Message = request.Body,
+                    Type = request.Data["Type"],
+                    RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null
+                });
             Console.WriteLine($"Message {request.Data["Type"]} is sent to user {request.UserId} By SignalR");
-
         }
-        catch (Exception) {
+        catch (Exception)
+        {
             Console.WriteLine($"Message {request.Data["Type"]} failed to send to user {request.UserId}");
         }
     }
 
-    public async Task SendSilentToUserAsync(SendSilentToUserDto request) {
+    public async Task SendSilentToUserAsync(SendSilentToUserDto request)
+    {
         await _bus.PubSub.PublishAsync(request);
     }
 
-    public async Task<NotificationResponse?> MarkAsReadAsync(int id) {
+    public async Task<NotificationResponse?> MarkAsReadAsync(int id)
+    {
         var notification = await _dbContext.Notifications.FindAsync(id);
-        if (notification != null) {
+        if (notification != null)
+        {
             notification.IsRead = true;
             await _dbContext.SaveChangesAsync();
-
         }
 
         return notification != null ? MapToResponseModel<NotificationResponse>(notification, _mapper) : null;
     }
-    public override async Task<IQueryable<Notification>> ApplyFilter(IQueryable<Notification> queryable, NotificationSearchObject searchObject) {
+
+    public override async Task<IQueryable<Notification>> ApplyFilter(IQueryable<Notification> queryable,
+        NotificationSearchObject searchObject)
+    {
         await base.ApplyFilter(queryable, searchObject);
         var userId = _authorizationService.GetUserId();
         queryable = queryable.Where(it => it.UserId == userId);
         return queryable;
     }
 
-    protected override IQueryable<Notification> ApplyOrdering(IQueryable<Notification> queryable, NotificationSearchObject searchObject) {
+    protected override IQueryable<Notification> ApplyOrdering(IQueryable<Notification> queryable,
+        NotificationSearchObject searchObject)
+    {
         queryable = queryable.OrderByDescending(it => it.CreatedAt).ThenBy(it => it.IsRead);
         return queryable.AsQueryable();
     }

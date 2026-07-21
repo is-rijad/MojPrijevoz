@@ -1,37 +1,45 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using MojPrijevoz.Model.Exceptions;
-using System.Net;
 
 namespace MojPrijevoz.WebApi.Filters;
 
-public class ExceptionFilter : ExceptionFilterAttribute {
+public class ExceptionFilter : ExceptionFilterAttribute
+{
     private readonly ILogger<ExceptionFilter> _logger;
 
-    public ExceptionFilter(ILogger<ExceptionFilter> logger) {
+    public ExceptionFilter(ILogger<ExceptionFilter> logger)
+    {
         _logger = logger;
     }
 
-    public override void OnException(ExceptionContext context) {
+    public override void OnException(ExceptionContext context)
+    {
         _logger.LogError(context.Exception, context.Exception.Message);
 
-        if (context.Exception is BadRequestException) {
+        if (context.Exception is BadRequestException)
+        {
             context.ModelState.AddModelError("badRequest", context.Exception.Message);
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
         }
-        else if (context.Exception is NotFoundException) {
+        else if (context.Exception is NotFoundException)
+        {
             context.ModelState.AddModelError("notFound", context.Exception.Message);
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
         }
-        else if (context.Exception is UnauthorizedException) {
+        else if (context.Exception is UnauthorizedException)
+        {
             context.ModelState.AddModelError("unauthorized", context.Exception.Message);
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
         }
-        else if (context.Exception is ForbiddenException) {
+        else if (context.Exception is ForbiddenException)
+        {
             context.ModelState.AddModelError("forbidden", context.Exception.Message);
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
         }
-        else {
+        else
+        {
             context.ModelState.AddModelError("serverError", "Neočekivana greška!");
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         }

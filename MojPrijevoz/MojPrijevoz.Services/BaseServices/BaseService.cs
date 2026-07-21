@@ -1,8 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using MojPrijevoz.Database;
-using MojPrijevoz.Database.Interfaces;
 using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Dtos.BaseService;
 using MojPrijevoz.Model.Exceptions;
@@ -12,17 +10,20 @@ namespace MojPrijevoz.Services.BaseServices;
 public abstract class
     BaseService<TResponse, TEntity, TSearchObject> : IBaseService<TResponse, TSearchObject> where TResponse : class
     where TEntity : class
-    where TSearchObject : BaseSearchObject {
+    where TSearchObject : BaseSearchObject
+{
     protected readonly MojPrijevozDbContext _dbContext;
     protected readonly IMapper _mapper;
 
-    public BaseService(MojPrijevozDbContext dbContext, IMapper mapper) {
+    public BaseService(MojPrijevozDbContext dbContext, IMapper mapper)
+    {
         _dbContext = dbContext;
         _mapper = mapper;
     }
 
 
-    public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject) {
+    public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject)
+    {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         queryable = await ApplyFilter(queryable, searchObject);
         queryable = ApplyOrdering(queryable, searchObject);
@@ -38,17 +39,8 @@ public abstract class
         };
     }
 
-    protected async Task<PaginatedQueryable<TEntity>> Paginate(IQueryable<TEntity> queryable, TSearchObject searchObject) {
-        var fullCount = await queryable.CountAsync();
-        queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
-        return new PaginatedQueryable<TEntity>(queryable, fullCount, await queryable.CountAsync());
-    }
-
-    protected virtual IQueryable<TEntity> ApplyOrdering(IQueryable<TEntity> queryable, TSearchObject searchObject) {
-        return queryable.OrderByDescending(it => EF.Property<int>(it, "Id")).AsQueryable();
-    }
-
-    public async Task<TResponse> GetByIdAsync(int id) {
+    public async Task<TResponse> GetByIdAsync(int id)
+    {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         var entity = await queryable.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         if (entity == null)
@@ -57,20 +49,37 @@ public abstract class
         return MapToResponseModel<TResponse>(entity, _mapper);
     }
 
+    protected async Task<PaginatedQueryable<TEntity>> Paginate(IQueryable<TEntity> queryable,
+        TSearchObject searchObject)
+    {
+        var fullCount = await queryable.CountAsync();
+        queryable = queryable.Skip((searchObject.Page - 1) * searchObject.PageSize).Take(searchObject.PageSize);
+        return new PaginatedQueryable<TEntity>(queryable, fullCount, await queryable.CountAsync());
+    }
+
+    protected virtual IQueryable<TEntity> ApplyOrdering(IQueryable<TEntity> queryable, TSearchObject searchObject)
+    {
+        return queryable.OrderByDescending(it => EF.Property<int>(it, "Id")).AsQueryable();
+    }
+
     public virtual Task<IQueryable<TEntity>> ApplyFilter(IQueryable<TEntity> queryable,
-        TSearchObject searchObject) {
+        TSearchObject searchObject)
+    {
         return Task.FromResult(queryable);
     }
 
-    public virtual Task<IQueryable<TEntity>> IncludeAdditionalEntities(IQueryable<TEntity> queryable) {
+    public virtual Task<IQueryable<TEntity>> IncludeAdditionalEntities(IQueryable<TEntity> queryable)
+    {
         return Task.FromResult(queryable);
     }
 
-    protected virtual Task PrepareForResponse(TEntity entity, MojPrijevozDbContext dbContext) {
+    protected virtual Task PrepareForResponse(TEntity entity, MojPrijevozDbContext dbContext)
+    {
         return Task.CompletedTask;
     }
 
-    protected static T MapToResponseModel<T>(TEntity entity, IMapper mapper) {
-    return mapper.Map<T>(entity);
+    protected static T MapToResponseModel<T>(TEntity entity, IMapper mapper)
+    {
+        return mapper.Map<T>(entity);
     }
 }

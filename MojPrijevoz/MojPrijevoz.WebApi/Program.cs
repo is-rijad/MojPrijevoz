@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using DotNetEnv;
 using EasyNetQ;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +22,7 @@ using MojPrijevoz.Services.FareOffer;
 using MojPrijevoz.Services.FareOffer.StateMachine;
 using MojPrijevoz.Services.FileStorage;
 using MojPrijevoz.Services.InMemoryDatabase;
+using MojPrijevoz.Services.Mapster;
 using MojPrijevoz.Services.NotificationService;
 using MojPrijevoz.Services.OpenRoute;
 using MojPrijevoz.Services.Rating;
@@ -33,14 +36,14 @@ using MojPrijevoz.Services.UserProfile;
 using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
+using QuestPDF;
 using QuestPDF.Infrastructure;
 using Stripe;
-using System.Text.Json.Serialization;
 
-DotNetEnv.Env.Load("./.env");
+Env.Load("./.env");
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("appsettings.json", optional: false);
+builder.Configuration.AddJsonFile("appsettings.json", false);
 
 // Add services to the container.
 builder.Services.ConfigureAuthorization(builder.Configuration);
@@ -48,10 +51,7 @@ builder.Services.AddControllers(config =>
 {
     config.ConfigureControllerAuthorization();
     config.Filters.Add<ExceptionFilter>();
-}).AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-});
+}).AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => c.ConfigureSwaggerAuthorization());
@@ -60,10 +60,10 @@ var connectionString = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDatabaseServices(connectionString);
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
-QuestPDF.Settings.License = LicenseType.Community;
+Settings.License = LicenseType.Community;
 
 TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
-TypeAdapterConfig.GlobalSettings.Scan(typeof(MojPrijevoz.Services.Mapster.Configuration).Assembly);
+TypeAdapterConfig.GlobalSettings.Scan(typeof(Configuration).Assembly);
 builder.Services.AddMapster();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
@@ -73,7 +73,10 @@ builder.Services.AddRecommenderService();
 builder.Services.AddHostedService<FareBackgroundService>();
 
 var rabbitMqSection = builder.Configuration.GetSection("RabbitMQ");
-builder.Services.AddEasyNetQ($"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["User"]};password={rabbitMqSection["Password"]}").UseSystemTextJson();
+builder.Services
+    .AddEasyNetQ(
+        $"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["User"]};password={rabbitMqSection["Password"]}")
+    .UseSystemTextJson();
 
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddScoped<UserService>();
@@ -131,11 +134,11 @@ builder.Services.AddScoped<AdminStatsService>();
 builder.Services.AddScoped<AdminReportService>();
 
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) {
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -144,9 +147,7 @@ using var scope = app.Services.CreateScope();
 var database = scope.ServiceProvider.GetRequiredService<MojPrijevozDbContext>();
 
 var databaseCreator = database.Database.GetService<IRelationalDatabaseCreator>();
-if (!await databaseCreator.ExistsAsync()) {
-    await databaseCreator.CreateAsync();
-}
+if (!await databaseCreator.ExistsAsync()) await databaseCreator.CreateAsync();
 
 await database.Database.MigrateAsync();
 var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();

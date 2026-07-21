@@ -17,7 +17,6 @@ public class StatsController : ControllerBase
     }
 
     [HttpGet("usersByCity")]
-
     public async Task<IActionResult> GetUsersByCity()
     {
         return Ok(await _adminStatsService.GetUsersByCityAsync());
@@ -25,19 +24,20 @@ public class StatsController : ControllerBase
 
 
     [HttpGet("usersByMonth")]
-
-    public async Task<IActionResult> GetUsersByMonth() {
+    public async Task<IActionResult> GetUsersByMonth()
+    {
         return Ok(await _adminStatsService.GetUsersByMonthAsync());
     }
-    [HttpGet("revenueByMonth")]
 
-    public async Task<IActionResult> GetRevenueByMonth() {
+    [HttpGet("revenueByMonth")]
+    public async Task<IActionResult> GetRevenueByMonth()
+    {
         return Ok(await _adminStatsService.GetRevenueByMonthAsync());
     }
-    [HttpGet("allFaresThisMonth")]
 
-    public async Task<IActionResult> GetAllFaresThisMonth() {
+    [HttpGet("allFaresThisMonth")]
+    public async Task<IActionResult> GetAllFaresThisMonth()
+    {
         return Ok(await _adminStatsService.GetAllFaresThisMonthAsync());
     }
 }
-

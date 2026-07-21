@@ -5,13 +5,15 @@ using MojPrijevoz.Model.Requests.Admin.RequestChanges;
 namespace MojPrijevoz.Services.BaseServices.Admin;
 
 public interface
-    IBaseAdminCRUDService<TInsertRequest, TUpdateRequest, TRequestChangesEntity, TResponse, TAllResponse, TSearchObject> : IBaseAdminService<
-        TResponse, TAllResponse, TSearchObject> where TInsertRequest : class
+    IBaseAdminCRUDService<TInsertRequest, TUpdateRequest, TRequestChangesEntity, TResponse, TAllResponse,
+        TSearchObject> : IBaseAdminService<
+    TResponse, TAllResponse, TSearchObject> where TInsertRequest : class
     where TUpdateRequest : class
     where TRequestChangesEntity : BaseRequestChanges
     where TAllResponse : class
     where TResponse : TAllResponse
-    where TSearchObject : OrderableSearchObject {
+    where TSearchObject : OrderableSearchObject
+{
     public Task<TResponse> InsertWithTransactionAsync(TInsertRequest request);
     public Task<TResponse> InsertAsync(TInsertRequest request);
     public Task<TResponse> UpdateAsync(int id, TUpdateRequest request);

@@ -7,8 +7,6 @@ public class RevokedTokenService
 {
     private readonly IMemoryCache _cache;
     private readonly TokenManager _tokenManager;
-    private string GetKey(int userId) => "revoked_token_" + userId;
-    private int GetCacheTtl(string token) => _tokenManager.GetExpirationInMinutes(token);
 
     public RevokedTokenService(IMemoryCache cache, TokenManager tokenManager)
     {
@@ -16,9 +14,19 @@ public class RevokedTokenService
         _tokenManager = tokenManager;
     }
 
+    private string GetKey(int userId)
+    {
+        return "revoked_token_" + userId;
+    }
+
+    private int GetCacheTtl(string token)
+    {
+        return _tokenManager.GetExpirationInMinutes(token);
+    }
+
     public DateTime? GetRevokedRecord(int userId)
     {
-        if(_cache.TryGetValue(GetKey(userId), out DateTime revokedAt))
+        if (_cache.TryGetValue(GetKey(userId), out DateTime revokedAt))
             return revokedAt;
         return null;
     }
@@ -30,7 +38,10 @@ public class RevokedTokenService
 
     public void Revoke(int userId, string? token)
     {
-        var ttl = token != null ? GetCacheTtl(token) : int.Parse(Environment.GetEnvironmentVariable("Jwt__ExpirationInMinutes") ?? throw new ArgumentException("Jwt:ExpirationInMinutes is not set"));
+        var ttl = token != null
+            ? GetCacheTtl(token)
+            : int.Parse(Environment.GetEnvironmentVariable("Jwt__ExpirationInMinutes") ??
+                        throw new ArgumentException("Jwt:ExpirationInMinutes is not set"));
         _cache.Set(GetKey(userId), DateTime.UtcNow, TimeSpan.FromMinutes(ttl));
     }
 }

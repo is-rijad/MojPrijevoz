@@ -5,4 +5,5 @@ using MojPrijevoz.Services.BaseServices;
 
 namespace MojPrijevoz.Services.StopPoint;
 
-public interface IStopPointService : IBaseCRUDService<StopPointInsertRequest, StopPointInsertRequest, StopPointResponse, StopPointSearchObject>;
+public interface IStopPointService : IBaseCRUDService<StopPointInsertRequest, StopPointInsertRequest, StopPointResponse,
+    StopPointSearchObject>;

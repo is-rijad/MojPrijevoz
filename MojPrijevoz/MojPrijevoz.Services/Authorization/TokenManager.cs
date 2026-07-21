@@ -1,19 +1,20 @@
-﻿using MapsterMapper;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Mapster.Utils;
+using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MojPrijevoz.Database;
-using MojPrijevoz.Model.Authorization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Mapster.Utils;
 using MojPrijevoz.Database.Interfaces;
+using MojPrijevoz.Model.Authorization;
 
 namespace MojPrijevoz.Services.Authorization;
 
-public class TokenManager {
+public class TokenManager
+{
     private const string PictureClaimType = "picture";
     private const string PassengerProfileIdClaimType = "passenger_profile_id";
     private const string DriverProfileIdClaimType = "driver_profile_id";
@@ -25,7 +26,8 @@ public class TokenManager {
     private readonly IMapper _mapper;
 
     public TokenManager(IConfiguration configuration, IHttpContextAccessor httpContextAccessor,
-        MojPrijevozDbContext dbContext, IMapper mapper) {
+        MojPrijevozDbContext dbContext, IMapper mapper)
+    {
         _configuration = configuration;
         _httpContextAccessor = httpContextAccessor;
         _dbContext = dbContext;
@@ -40,10 +42,13 @@ public class TokenManager {
 
     private string JwtExpiration => _configuration["Jwt:ExpirationInMinutes"] ??
                                     throw new InvalidOperationException("JWT Expiration is not configured.");
-    private string RefreshJwtExpiration => _configuration["Jwt:RefreshExpirationInMinutes"] ??
-                                           throw new InvalidOperationException("JWT RefreshExpiration is not configured.");
 
-    public async Task<string> GenerateToken(Account account) {
+    private string RefreshJwtExpiration => _configuration["Jwt:RefreshExpirationInMinutes"] ??
+                                           throw new InvalidOperationException(
+                                               "JWT RefreshExpiration is not configured.");
+
+    public async Task<string> GenerateToken(Account account)
+    {
         var tokenDto = await GetTokenDto(account);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -57,7 +62,8 @@ public class TokenManager {
             new(AccountStatusClaimType, tokenDto.Status.ToString())
         };
         if (tokenDto.Role.HasValue) claims.Add(new Claim(RoleClaimType, tokenDto.Role.Value.ToString()));
-        if (tokenDto.Picture != null && account is IEntityHasPicture picture) claims.Add(new Claim(PictureClaimType, picture.GetPicture()!));
+        if (tokenDto.Picture != null && account is IEntityHasPicture picture)
+            claims.Add(new Claim(PictureClaimType, picture.GetPicture()!));
         if (tokenDto.DriverProfileId.HasValue)
             claims.Add(new Claim(DriverProfileIdClaimType, tokenDto.DriverProfileId!.Value.ToString()));
         if (tokenDto.PassengerProfileId.HasValue)
@@ -72,11 +78,14 @@ public class TokenManager {
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-    public async Task DropRefreshTokenIfExists(int userId) {
+
+    public async Task DropRefreshTokenIfExists(int userId)
+    {
         await _dbContext.RefreshTokens
             .Where(rt => rt.UserId == userId)
             .ExecuteDeleteAsync();
     }
+
     public int GetExpirationInMinutes(string token)
     {
         var handler = new JwtSecurityTokenHandler();
@@ -86,7 +95,8 @@ public class TokenManager {
         return (jwtToken.ValidTo - DateTime.UtcNow).Minutes;
     }
 
-    public UserInfoTokenDto GetUserInfoFromToken(string token) {
+    public UserInfoTokenDto GetUserInfoFromToken(string token)
+    {
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
         if (jwtToken == null)
@@ -95,7 +105,9 @@ public class TokenManager {
         var firstName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Name).Value;
         var lastName = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.FamilyName).Value;
         var passengerProfileClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PassengerProfileIdClaimType);
-        int? passengerProfileId = passengerProfileClaim != null ? int.Parse(jwtToken.Claims.First(c => c.Type == PassengerProfileIdClaimType).Value) : null;
+        int? passengerProfileId = passengerProfileClaim != null
+            ? int.Parse(jwtToken.Claims.First(c => c.Type == PassengerProfileIdClaimType).Value)
+            : null;
         var driverProfileClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == DriverProfileIdClaimType);
         int? driverProfileId = driverProfileClaim != null ? int.Parse(driverProfileClaim.Value) : null;
         var pictureClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PictureClaimType);
@@ -113,11 +125,12 @@ public class TokenManager {
             DriverProfileId = driverProfileId,
             Picture = picture,
             Role = role,
-            Status = Int16.Parse(accountStatus)
+            Status = short.Parse(accountStatus)
         };
     }
 
-    public async Task<string> GenerateRefreshToken(Account account) {
+    public async Task<string> GenerateRefreshToken(Account account)
+    {
         var tokenDto = await GetTokenDto(account);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -138,11 +151,13 @@ public class TokenManager {
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public int GetUserId() {
+    public int GetUserId()
+    {
         return Convert.ToInt32(_httpContextAccessor.HttpContext!.User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
     }
 
-    public int? GetProfileId(ProfileType profileType) {
+    public int? GetProfileId(ProfileType profileType)
+    {
         var claimType = profileType == ProfileType.Passenger ? PassengerProfileIdClaimType : DriverProfileIdClaimType;
         var profileIdString = _httpContextAccessor.HttpContext!.User.FindFirst(claimType)?.Value;
         if (profileIdString == null)
@@ -150,14 +165,16 @@ public class TokenManager {
         return int.Parse(profileIdString);
     }
 
-    public AdministratorRole? GetAdminRole() {
+    public AdministratorRole? GetAdminRole()
+    {
         var roleClaimValueString = _httpContextAccessor.HttpContext!.User.FindFirst(RoleClaimType)?.Value;
         if (roleClaimValueString == null)
             return null;
         return Enum<AdministratorRole>.Parse(roleClaimValueString);
     }
 
-    private async Task<UserInfoTokenDto> GetTokenDto(Account account) {
+    private async Task<UserInfoTokenDto> GetTokenDto(Account account)
+    {
         var tokenDto = _mapper.Map<UserInfoTokenDto>(account);
 
         var passengerProfile = (await _dbContext.UserProfiles
