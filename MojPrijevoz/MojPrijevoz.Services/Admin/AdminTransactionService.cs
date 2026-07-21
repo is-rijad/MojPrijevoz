@@ -54,7 +54,8 @@ public class AdminTransactionService : BaseAdminCrudService<Database.Transaction
         {
             Side = TransactionSide.Credit,
             FareId = entity.FareId,
-            Amount = entity.Amount,
+            Amount = entity.Amount - (entity.FeeAmount ?? 0.0f),
+            FeeAmount = null,
             PostedAt = entity.PostedAt
         });
         var fare = await _dbContext.Fares.Include(it => it.FareData).ThenInclude(it => it!.OriginCity)

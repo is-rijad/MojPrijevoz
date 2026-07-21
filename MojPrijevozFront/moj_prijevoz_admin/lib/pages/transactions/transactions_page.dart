@@ -100,6 +100,7 @@ class _TransactionsPageState extends RouteAwareState<TransactionsPage> {
             if (context.mounted) {
               Constants.navigatorKey.currentState?.pop(true);
             }
+            await context.read<TransactionProvider>().fetchData(_searchObject);
           },
         );
       },
