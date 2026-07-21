@@ -36,6 +36,29 @@ class HttpProvider {
     }
   }
 
+  Future<dynamic> downloadFile(
+    String url,
+    String filePath, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      _uiProvider.startLoading();
+      var path = "$_apiUrl$url";
+      var options = await _setRequestOptions();
+      options.contentType = "application/pdf";
+      options.responseType = ResponseType.bytes;
+
+      await DioClient.dio.download(
+        path,
+        filePath,
+        options: options,
+        queryParameters: queryParameters,
+      );
+    } finally {
+      _uiProvider.stopLoading();
+    }
+  }
+
   Future<SearchResult<TResponse>> getAll<
     TResponse,
     TSearchObject extends BaseSearchObject

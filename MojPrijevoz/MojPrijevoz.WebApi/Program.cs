@@ -1,10 +1,13 @@
 using EasyNetQ;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Requests.Stripe;
 using MojPrijevoz.Model.Responses.Stripe;
+using MojPrijevoz.Recommender.Configuration;
+using MojPrijevoz.Services.Admin;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.City;
@@ -30,11 +33,9 @@ using MojPrijevoz.Services.UserProfile;
 using MojPrijevoz.Services.UserVehicle;
 using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
+using QuestPDF.Infrastructure;
 using Stripe;
 using System.Text.Json.Serialization;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using MojPrijevoz.Recommender.Configuration;
-using MojPrijevoz.Services.Admin;
 
 DotNetEnv.Env.Load("./.env");
 
@@ -59,6 +60,7 @@ var connectionString = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDatabaseServices(connectionString);
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+QuestPDF.Settings.License = LicenseType.Community;
 
 TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
 TypeAdapterConfig.GlobalSettings.Scan(typeof(MojPrijevoz.Services.Mapster.Configuration).Assembly);
@@ -126,6 +128,8 @@ builder.Services.AddScoped<AdminCityService>();
 builder.Services.AddScoped<AdminAdministratorService>();
 builder.Services.AddScoped<AdminTransactionService>();
 builder.Services.AddScoped<AdminStatsService>();
+builder.Services.AddScoped<AdminReportService>();
+
 
 
 var app = builder.Build();
