@@ -22,6 +22,11 @@ public class AuthController : ControllerBase
         return Ok(await _authorizationService.GetNewToken());
     }
 
+    [HttpGet("auth")]
+    public IActionResult CheckAuth() {
+        return Ok();
+    }
+
     [HttpPost]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] UserLoginRequest request)

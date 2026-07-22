@@ -44,7 +44,13 @@ class AuthProvider with ChangeNotifier {
       _providerName,
     );
     await _setAccessToken(response.token);
+    await _setRefreshToken(response.refreshToken);
+
     return response;
+  }
+
+  Future checkAuth() async {
+    await _httpProvider.getSingle("$_providerName/auth");
   }
 
   Future<void> logout() async {

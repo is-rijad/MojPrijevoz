@@ -34,11 +34,11 @@ class HubConnectionProvider {
 
   void _init(String methodName) {
     _hubConnection!.off(methodName);
-    _hubConnection!.on(methodName, (args) {
+    _hubConnection!.on(methodName, (args) async {
       for (var subscriber in _subscribers.entries.where(
         (it) => it.key == methodName,
       )) {
-        subscriber.value(args);
+        await subscriber.value(args);
       }
     });
   }

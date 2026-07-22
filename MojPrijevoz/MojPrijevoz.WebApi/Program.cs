@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using DotNetEnv;
 using EasyNetQ;
 using Mapster;
@@ -21,6 +20,7 @@ using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer;
 using MojPrijevoz.Services.FareOffer.StateMachine;
 using MojPrijevoz.Services.FileStorage;
+using MojPrijevoz.Services.Helpers;
 using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.Mapster;
 using MojPrijevoz.Services.NotificationService;
@@ -39,6 +39,7 @@ using MojPrijevoz.WebApi.Filters;
 using QuestPDF;
 using QuestPDF.Infrastructure;
 using Stripe;
+using System.Text.Json.Serialization;
 
 Env.Load("./.env");
 
@@ -51,7 +52,11 @@ builder.Services.AddControllers(config =>
 {
     config.ConfigureControllerAuthorization();
     config.Filters.Add<ExceptionFilter>();
-}).AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; });
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.Converters.Add(new JsonDateTimeUtcConverter());
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => c.ConfigureSwaggerAuthorization());

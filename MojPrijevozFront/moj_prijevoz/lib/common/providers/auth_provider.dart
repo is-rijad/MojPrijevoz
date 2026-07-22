@@ -47,6 +47,7 @@ class AuthProvider with ChangeNotifier {
       _providerName,
     );
     await _setAccessToken(response.token);
+    await _setRefreshToken(response.refreshToken);
     return response;
   }
 
@@ -82,6 +83,10 @@ class AuthProvider with ChangeNotifier {
       logout(withNotificationLogout: false);
       rethrow;
     }
+  }
+
+  Future checkAuth() async {
+    await _httpProvider.getSingle("$_providerName/auth");
   }
 
   static Future<String> getAccessToken() async {

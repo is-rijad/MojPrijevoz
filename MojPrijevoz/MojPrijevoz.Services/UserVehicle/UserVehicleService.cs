@@ -103,6 +103,10 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
             throw new BadRequestException($"Godina proizvodnje ne može biti veća od {DateTime.Now.Year}.");
 
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
+        if (entity.ProfileId != profileId)
+        {
+            throw new ForbiddenException("Nije vaše vozilo!");
+        }
         var profile = await _dbContext.UserProfiles.FindAsync(profileId);
         if (await _dbContext.UserVehicles.AnyAsync(uv =>
                 uv.Profile == profile && uv.VehicleId == request.VehicleId && uv.ModelYear == request.ModelYear &&

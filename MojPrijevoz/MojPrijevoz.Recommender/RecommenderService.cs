@@ -206,7 +206,10 @@ public class RecommenderService
     {
         var queryable = dto.Database.Fares
             .Where(f => f.Status == FareStatus.Completed
-                        && dto.RouteKeys.Contains(
+                        &&
+                        f.Driver!.UserVehicles!.Any(uv => uv.Status == UserVehicleStatus.Active) &&
+                        f.Driver!.User!.Status == AccountStatus.Active &&
+                        dto.RouteKeys.Contains(
                             f.FareData!.OriginCityId + "→" + f.FareData.DestinationZone) &&
                         (dto.DriverId == null || f.DriverId != dto.DriverId))
             .AsQueryable();
@@ -244,7 +247,10 @@ public class RecommenderService
     private async Task<PagedResult<RecommendedDriverRouteResponse>> PopularRoutesWithDriversAsync(PopularDriversDto dto)
     {
         var popularRouteKeys = await dto.Database.Fares
-            .Where(f => f.Status == FareStatus.Completed && (dto.DriverId == null || dto.DriverId != f.DriverId))
+            .Where(f => f.Status == FareStatus.Completed &&
+                        f.Driver!.UserVehicles!.Any(uv => uv.Status == UserVehicleStatus.Active) &&
+                        f.Driver!.User!.Status == AccountStatus.Active &&
+                        (dto.DriverId == null || dto.DriverId != f.DriverId))
             .GroupBy(f => new
             {
                 f.FareData!.OriginCityId,

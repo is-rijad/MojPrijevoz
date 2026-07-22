@@ -9,6 +9,7 @@ using MojPrijevoz.Model.Responses.Notification;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
+using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.SignalR.Hubs;
 
 namespace MojPrijevoz.Services.NotificationService;
@@ -19,13 +20,16 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
     private readonly AuthorizationService _authorizationService;
     private readonly IBus _bus;
     private readonly IHubContext<SignalRHub> _notificationsHubContext;
+    private readonly ConnectionTracker _connectionTracker;
 
     public NotificationService(IBus bus, AuthorizationService authorizationService, MojPrijevozDbContext dbContext,
-        IMapper mapper, IHubContext<SignalRHub> notificationsHubContext) : base(dbContext, mapper)
+        IMapper mapper, IHubContext<SignalRHub> notificationsHubContext,
+        ConnectionTracker connectionTracker) : base(dbContext, mapper)
     {
         _bus = bus;
         _authorizationService = authorizationService;
         _notificationsHubContext = notificationsHubContext;
+        _connectionTracker = connectionTracker;
     }
 
     public async Task SendEmailAsync(EmailDto email)
@@ -61,10 +65,15 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
         try
         {
             request.Data.TryGetValue("RatingId", out var ratingId);
-            await _notificationsHubContext.Clients.User(request.UserId.ToString()).SendAsync("NewNotification",
+            var connId = _connectionTracker.Get(request.UserId.ToString());
+            if (connId is null)
+            {
+                throw new Exception("User is not registered");
+            }
+            await _notificationsHubContext.Clients.Client(connId).SendAsync("NewNotification",
                 new Notification
                 {
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     FareId = int.Parse(request.Data["FareId"]),
                     Side = Enum<ProfileType>.Parse(request.Data["Side"]),
                     Id = 0,

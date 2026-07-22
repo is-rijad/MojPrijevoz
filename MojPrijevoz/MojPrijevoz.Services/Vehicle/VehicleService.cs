@@ -16,6 +16,12 @@ public class VehicleService : BaseCrudService<Database.Vehicle, TPlaceholder, TP
     {
     }
 
+    protected override IQueryable<Database.Vehicle> ApplyOrdering(IQueryable<Database.Vehicle> queryable, VehicleSearchObject searchObject)
+    {
+        queryable = queryable.OrderBy(it => it.Manufacturer).ThenBy(it => it.Model).ThenBy(it => it.Id);
+        return queryable;
+    }
+
     public override Task<IQueryable<Database.Vehicle>> ApplyFilter(IQueryable<Database.Vehicle> queryable,
         VehicleSearchObject searchObject)
     {

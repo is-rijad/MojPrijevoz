@@ -145,9 +145,16 @@ public class FareOfferService :
             .Include(it => it!.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.Driver)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.Passenger)
             .FirstAsync(it => it.Id == id);
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
+
+        await CheckIsOfferOwner(entity);
+
         await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
         await BeforeUpdate(id, request, entity);
@@ -164,6 +171,15 @@ public class FareOfferService :
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
+    private async Task CheckIsOfferOwner(Database.FareOffer entity)
+    {
+        var passengerProfileId = await _authorizationService.GetProfileId(ProfileType.Passenger);
+        var driverProfileId = await _authorizationService.GetProfileId(ProfileType.Driver);
+        if (driverProfileId != entity.Fare!.DriverId || passengerProfileId != entity.Fare!.PassengerId) {
+            throw new ForbiddenException("Nije vaša ponuda!");
+        }
+    }
+
     public async Task<FareResponse> AcceptOfferAsync(int id)
     {
         await _authorizationService.CheckIsAccountActive();
@@ -174,8 +190,14 @@ public class FareOfferService :
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.Driver)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.Passenger)
             .FirstAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
+        await CheckIsOfferOwner(entity);
+
         await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
         var newStart = entity.Fare!.FareData!.FareDateTime;
@@ -235,8 +257,14 @@ public class FareOfferService :
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.Driver)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.Passenger)
             .FirstAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
+
+        await CheckIsOfferOwner(entity);
         await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
         var state = _baseFareOfferState.GetState((short)entity.Status);
@@ -284,8 +312,6 @@ public class FareOfferService :
 
     public async Task<FareResponse> CancelOfferAsync(int id)
     {
-        await _authorizationService.CheckIsAccountActive();
-
         var entity = await _dbContext.FareOffers
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
@@ -296,7 +322,8 @@ public class FareOfferService :
             .ThenInclude(fare => fare!.Passenger!)
             .FirstAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
-        await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
+
+        await CheckIsOfferOwner(entity);
 
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Cancel(entity);
@@ -337,10 +364,13 @@ public class FareOfferService :
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.Driver)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.Passenger)
             .FirstAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
-
-        await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
+        await CheckIsOfferOwner(entity);
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Pay(entity);
         await _fareService.PayAsync(entity!.Fare!.Id);

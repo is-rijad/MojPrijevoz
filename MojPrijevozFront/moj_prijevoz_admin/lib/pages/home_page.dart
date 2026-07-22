@@ -133,7 +133,7 @@ class _HomePageState extends RouteAwareState<HomePage> {
 
   Future<bool> _init() async {
     try {
-      await context.read<AuthProvider>().getNewToken();
+      await context.read<AuthProvider>().checkAuth();
     } catch (_) {}
     setState(() {
       GetIt.I<UIProvider>().drawerMenuAction = DrawerMenuAction.home;

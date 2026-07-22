@@ -223,11 +223,17 @@ class _PageWrapperState extends State<PageWrapper> {
     return Drawer(
       child: Consumer<NotificationProvider>(
         builder: (context, provider, _) {
+          final items = provider.searchResult.items;
+          final isEmpty = items.isEmpty;
+          final itemCount =
+              1 +
+              (isEmpty ? 1 : items.length) +
+              (_isLoading && !isEmpty ? 1 : 0);
+
           return ListView.builder(
             controller: _notificationScrollController,
             padding: EdgeInsets.zero,
-            itemCount:
-                provider.searchResult.items.length + 1 + (_isLoading ? 1 : 0),
+            itemCount: itemCount,
             itemBuilder: (BuildContext context, int index) {
               if (index == 0) {
                 return SizedBox(
@@ -256,20 +262,35 @@ class _PageWrapperState extends State<PageWrapper> {
                   ),
                 );
               }
-              if (index == 1 && provider.searchResult.hasMore == false) {}
-              if (index == provider.searchResult.items.length + 1 &&
-                  _isLoading) {
-                return ListTile(
-                  title: TextBodyMedium(
-                    "Nemate notifikacija!",
-                    textAlign: TextAlign.center,
+
+              if (isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: TextBodyMedium(
+                      "Nemate notifikacija!",
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 );
               }
-              var i = provider.searchResult.items[index - 1];
+
+              if (index == items.length + 1) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              var i = items[index - 1];
               return ListTile(
                 title: !i.isRead
-                    ? TextBodyMedium(i.message, fontWeight: FontWeight(900))
+                    ? Badge(
+                        child: TextBodyMedium(
+                          i.message,
+                          fontWeight: FontWeight(1000),
+                        ),
+                      )
                     : TextBodyMedium(i.message),
                 onTap: () async => await _onTap(i),
               );

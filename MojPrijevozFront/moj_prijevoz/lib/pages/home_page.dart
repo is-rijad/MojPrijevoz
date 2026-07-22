@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moj_prijevoz/common/constants.dart';
@@ -20,7 +21,6 @@ import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/common/widgets/dialogs/confirmation_dialog.dart';
 import 'package:moj_prijevoz/common/widgets/dialogs/modal_bottom_sheet.dart';
 import 'package:moj_prijevoz/common/widgets/icons/input_decoration_with_icon.dart';
-import 'package:moj_prijevoz/common/widgets/snackbars.dart';
 import 'package:moj_prijevoz/widgets/texts/autocomplete/autocomplete_text_input.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/common/wrappers/load_until_ready_wrapper.dart';
@@ -59,21 +59,31 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  void onNewNotification(List<Object?>? args) async {
+  Future onNewNotification(List<Object?>? args) async {
     final data = args![0] as Map<String, dynamic>;
-
     try {
-      Constants.messengerKey.currentState!.showSnackBar(
-        InfoSnackBar(message: data["message"]),
+      await Fluttertoast.showToast(
+        msg: data["message"],
+        toastLength: Toast.LENGTH_LONG,
+        timeInSecForIosWeb: 5,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Constants.secondaryTextColor,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
 
       Constants.messengerKey.currentContext!
           .read<NotificationProvider>()
           .insertLocally(NotificationResponse.fromJson(data), index: 0);
     } on Exception {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Constants.messengerKey.currentState!.showSnackBar(
-          InfoSnackBar(message: data["message"]),
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Fluttertoast.showToast(
+          msg: data["message"],
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Constants.secondaryTextColor,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
         Constants.messengerKey.currentContext!
             .read<NotificationProvider>()
@@ -102,16 +112,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future<bool> _init() async {
     try {
-      await context.read<AuthProvider>().getNewToken();
+      await context.read<AuthProvider>().checkAuth();
     } catch (_) {
       return false;
     }
-    await hubConnectionProvider.init();
-    hubConnectionProvider.subscribe("NewNotification", onNewNotification);
-    hubConnectionProvider.subscribe("ReceiveLocation", onReceiveLocation);
-    hubConnectionProvider.subscribe("LocationRequested", sendLocation);
 
-    await GetIt.I<NotificationProvider>().initialize();
     if (!mounted) return false;
     context.read<NotificationProvider>().clearData(
       NotificationSearchObject(page: 1, pageSize: 15),
@@ -121,6 +126,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
     final granted = await hasLocationPermissions();
     if (mounted) setState(() => _hasPermission = granted);
+
+    await hubConnectionProvider.init();
+    hubConnectionProvider.subscribe("NewNotification", onNewNotification);
+    hubConnectionProvider.subscribe("ReceiveLocation", onReceiveLocation);
+    hubConnectionProvider.subscribe("LocationRequested", sendLocation);
+
+    await GetIt.I<NotificationProvider>().initialize();
     return true;
   }
 

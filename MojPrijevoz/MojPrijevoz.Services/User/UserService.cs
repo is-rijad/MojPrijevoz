@@ -76,6 +76,11 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
     protected override async Task BeforeUpdate(int id, UserUpdateFormRequest request, Database.User entity)
     {
         await base.BeforeUpdate(id, request, entity);
+        var userId = _authorizationService.GetUserId();
+        if (userId != id)
+        {
+            throw new ForbiddenException("Nije vaš profil!");
+        }
         if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null)
         {
             if (!_authorizationService.VerifyPassword(request.OldPassword ?? string.Empty, entity.PasswordHash,
