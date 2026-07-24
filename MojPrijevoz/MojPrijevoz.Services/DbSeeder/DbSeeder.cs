@@ -5,6 +5,7 @@ using MojPrijevoz.Database;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.Recommender;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 namespace MojPrijevoz.Services.DbSeeder;
 
@@ -27,26 +28,29 @@ public class DbSeeder
 
     private string _passwordHash;
     private string _passwordSalt;
+    private readonly ILogger _logger;
 
     public DbSeeder(MojPrijevozDbContext mojPrijevozDbContext,
-        AuthorizationService authorizationService)
+        AuthorizationService authorizationService,
+        ILogger logger)
     {
         _mojPrijevozDbContext = mojPrijevozDbContext;
         _authorizationService = authorizationService;
         var testPassword = Environment.GetEnvironmentVariable("TestPassword") ??
                            throw new ArgumentException("TestPassword env variable is not set!");
         _authorizationService.CreatePassword(testPassword, testPassword, out _passwordHash, out _passwordSalt);
+        _logger = logger;
     }
 
     public async Task SeedAsync()
     {
         if (!await CheckIsSeedNeededAsync())
         {
-            Console.WriteLine("Seeding database is not needed");
+            _logger.LogInformation("Seeding database is not needed");
             return;
         }
 
-        Console.WriteLine("Seeding database...");
+        _logger.LogInformation("Seeding database...");
 
         await using var transaction = await _mojPrijevozDbContext.Database.BeginTransactionAsync();
 
@@ -64,7 +68,7 @@ public class DbSeeder
         await SeedTransactionsAsync();
 
         await transaction.CommitAsync();
-        Console.WriteLine("Seeding database done!");
+        _logger.LogInformation("Seeding database done!");
     }
 
 

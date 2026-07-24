@@ -1,6 +1,6 @@
 ﻿services:
   moj-prijevoz-db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2022-CU26-ubuntu-22.04
     restart: unless-stopped
     container_name: moj-prijevoz-db
     env_file:

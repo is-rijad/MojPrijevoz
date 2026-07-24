@@ -1,6 +1,7 @@
 ﻿using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 using MojPrijevoz.Model.Dtos.Notifications;
 using Scriban;
@@ -14,8 +15,9 @@ public class EmailService : IEmailService
     private readonly string _smtpPassword;
     private readonly int _smtpPort;
     private readonly string _smtpUser;
+    private readonly ILogger _logger;
 
-    public EmailService(IConfiguration configuration)
+    public EmailService(IConfiguration configuration, ILogger logger)
     {
         var smtp = configuration.GetSection("Smtp");
 
@@ -30,6 +32,7 @@ public class EmailService : IEmailService
         _smtpMojPrijevozEmail = smtp["MojPrijevozEmail"] ??
                                 throw new InvalidOperationException(
                                     "SMTP__MojPrijevozEmail environment variable is not set.");
+        _logger = logger;
     }
 
     public async Task SendEmailAsync(EmailDto email)
@@ -45,7 +48,7 @@ public class EmailService : IEmailService
         await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
         await client.AuthenticateAsync(_smtpUser, _smtpPassword);
         await client.SendAsync(message);
-        Console.WriteLine($"{email.Type} is successfully sent to {email.To}");
+        _logger.LogInformation($"{email.Type} is successfully sent to {email.To}");
         await client.DisconnectAsync(true);
     }
 

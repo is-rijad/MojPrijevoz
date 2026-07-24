@@ -206,7 +206,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               FractionallySizedBox(
                 widthFactor: 0.7,
                 child: PrimaryButton(
-                  onPressed: () async => await hasLocationPermissions(),
+                  onPressed: () async {
+                    final granted = await hasLocationPermissions();
+
+                    if (mounted) setState(() => _hasPermission = granted);
+                  },
                   text: 'Pokušaj ponovo',
                 ),
               ),

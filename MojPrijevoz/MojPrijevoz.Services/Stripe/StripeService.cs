@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
@@ -21,16 +23,24 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
     private readonly MojPrijevozDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger _logger;
+
+    private readonly string _cacheKey = "stripe_event_";
+    private readonly IMemoryCache _cache;
 
     public StripeService(MojPrijevozDbContext dbContext,
         IHttpContextAccessor httpContextAccessor,
         IConfiguration config,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        ILogger logger,
+        IMemoryCache cache)
     {
         _dbContext = dbContext;
         _httpContextAccessor = httpContextAccessor;
         _config = config;
         _serviceProvider = serviceProvider;
+        _logger = logger;
+        _cache = cache;
     }
 
     public async Task<StripeHandleResponse> Handle([FromBody] StripeHandleRequest request)
@@ -44,11 +54,16 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
         {
             Amount = (long)fareOffer.TotalPrice * 100,
             Currency = "bam",
-            Metadata = new Dictionary<string, string> { ["fareOfferId"] = fareOfferId.ToString() }
+            Metadata = new Dictionary<string, string> { ["fareOfferId"] = fareOfferId.ToString() },
+        };
+
+        var requestOptions = new RequestOptions
+        {
+            IdempotencyKey = $"fareoffer-payment-intent-{{fareOfferId}}"
         };
 
         var service = new PaymentIntentService();
-        var intent = await service.CreateAsync(options);
+        var intent = await service.CreateAsync(options, requestOptions);
 
         return new StripeHandleResponse { ClientSecret = intent.ClientSecret };
     }
@@ -66,6 +81,11 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
                 webhookSecret,
                 throwOnApiVersionMismatch: false
             );
+
+            if (_cache.TryGetValue(_cacheKey + stripeEvent.Id, out var _))
+            {
+                return;
+            }
 
             if (stripeEvent.Type == "payment_intent.succeeded")
             {
@@ -96,6 +116,8 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
                     });
                 }
             }
+
+            _cache.Set(_cacheKey + stripeEvent.Id, true, TimeSpan.FromHours(24));
         }
         catch (StripeException)
         {
@@ -121,7 +143,7 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
         }
         catch (StripeException e)
         {
-            Console.WriteLine($"Stripe greška - refund: {e.Message}");
+            _logger.LogError($"Stripe greška - refund: {e.Message}");
         }
     }
 }

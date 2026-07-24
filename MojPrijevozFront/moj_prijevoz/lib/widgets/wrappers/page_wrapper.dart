@@ -293,6 +293,10 @@ class _PageWrapperState extends State<PageWrapper> {
                       )
                     : TextBodyMedium(i.message),
                 onTap: () async => await _onTap(i),
+                trailing: ElevatedButton(
+                  onPressed: () async => await _markAsReadNotification(i),
+                  child: const Text("Označi kao pročitano"),
+                ),
               );
             },
           );
@@ -301,11 +305,16 @@ class _PageWrapperState extends State<PageWrapper> {
     );
   }
 
-  Future _onTap(NotificationResponse i) async {
-    _scaffoldKey.currentState?.closeEndDrawer();
+  Future _markAsReadNotification(NotificationResponse i) async {
     await context.read<NotificationProvider>().update(i.id, null);
     i.isRead = true;
     if (!mounted) return;
+    context.read<NotificationProvider>().updateLocally(i);
+  }
+
+  Future _onTap(NotificationResponse i) async {
+    _scaffoldKey.currentState?.closeEndDrawer();
+    await _markAsReadNotification(i);
     context.read<NotificationProvider>().updateLocally(i);
     await GetIt.I<UIProvider>().handleNavigationFromNotification({
       "Type": i.type,

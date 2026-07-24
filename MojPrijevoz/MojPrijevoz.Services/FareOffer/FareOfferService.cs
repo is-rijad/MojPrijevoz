@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
@@ -35,13 +36,15 @@ public class FareOfferService :
     private readonly IPaymentService<StripeHandleRequest, StripeHandleResponse> _paymentService;
     private readonly IStopPointService _stopPointService;
     private readonly ITransactionService _transactionService;
+    private readonly ILogger _logger;
 
     public FareOfferService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
         IFareService fareService, IFareDataService fareDataService, IStopPointService stopPointService,
         BaseFareOfferState baseFareOfferState,
         INotificationService notificationService,
         ITransactionService transactionService,
-        IPaymentService<StripeHandleRequest, StripeHandleResponse> paymentService) : base(context, mapper,
+        IPaymentService<StripeHandleRequest, StripeHandleResponse> paymentService,
+        ILogger logger) : base(context, mapper,
         authorizationService)
     {
         _fareService = fareService;
@@ -51,6 +54,7 @@ public class FareOfferService :
         _notificationService = notificationService;
         _transactionService = transactionService;
         _paymentService = paymentService;
+        _logger = logger;
     }
 
     public override async Task<FareResponse> InsertWithTransactionAsync(FareOfferInsertRequest request)
@@ -406,7 +410,7 @@ public class FareOfferService :
             .ThenInclude(it => it!.User).ToListAsync();
         foreach (var fare in fareOffersToExpire)
         {
-            Console.WriteLine($"Exipring => {fare.Id}");
+            _logger.LogInformation($"Exipring fare offer => {fare.Id}");
             await ExpireOfferAsync(fare.Id);
         }
     }

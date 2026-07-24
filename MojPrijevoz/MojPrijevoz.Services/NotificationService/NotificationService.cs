@@ -2,6 +2,7 @@
 using Mapster.Utils;
 using MapsterMapper;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Requests.Notifications;
@@ -21,15 +22,18 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
     private readonly IBus _bus;
     private readonly IHubContext<SignalRHub> _notificationsHubContext;
     private readonly ConnectionTracker _connectionTracker;
+    private readonly ILogger _logger;
 
     public NotificationService(IBus bus, AuthorizationService authorizationService, MojPrijevozDbContext dbContext,
         IMapper mapper, IHubContext<SignalRHub> notificationsHubContext,
-        ConnectionTracker connectionTracker) : base(dbContext, mapper)
+        ConnectionTracker connectionTracker,
+        ILogger logger) : base(dbContext, mapper)
     {
         _bus = bus;
         _authorizationService = authorizationService;
         _notificationsHubContext = notificationsHubContext;
         _connectionTracker = connectionTracker;
+        _logger = logger;
     }
 
     public async Task SendEmailAsync(EmailDto email)
@@ -83,11 +87,11 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
                     Type = request.Data["Type"],
                     RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null
                 });
-            Console.WriteLine($"Message {request.Data["Type"]} is sent to user {request.UserId} By SignalR");
+            _logger.LogInformation($"Message {request.Data["Type"]} is sent to user {request.UserId} By SignalR");
         }
         catch (Exception)
         {
-            Console.WriteLine($"Message {request.Data["Type"]} failed to send to user {request.UserId}");
+            _logger.LogError($"Message {request.Data["Type"]} failed to send to user {request.UserId}");
         }
     }
 

@@ -78,6 +78,9 @@ builder.Services.AddSignalR(it => it.EnableDetailedErrors = true);
 builder.Services.AddMemoryCache();
 builder.Services.AddRecommenderService();
 builder.Services.AddHostedService<FareBackgroundService>();
+builder.Services.AddLogging();
+builder.Services.AddSingleton<ILogger>(sp =>
+    sp.GetRequiredService<ILoggerFactory>().CreateLogger("EasyNetQ"));
 
 var rabbitMqSection = builder.Configuration.GetSection("RabbitMQ");
 builder.Services

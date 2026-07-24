@@ -2,6 +2,7 @@
 using Mapster.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
 using Notification = MojPrijevoz.Database.Notification;
@@ -11,22 +12,24 @@ namespace MojPrijevoz.Notifications.NotificationService;
 public class NotificationService : INotificationService
 {
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger _logger;
 
-    public NotificationService(IServiceScopeFactory scopeFactory)
+    public NotificationService(IServiceScopeFactory scopeFactory, ILogger logger)
     {
         _scopeFactory = scopeFactory;
+        _logger = logger;
     }
 
     public async Task SubscribeToFcmAsync(SubscribeToFcmDto dto)
     {
         await UpsertUserFcmTokenAsync(dto);
-        Console.WriteLine($"UserId: {dto.UserId} subscribed to FCM!");
+        _logger.LogInformation($"UserId: {dto.UserId} subscribed to FCM!");
     }
 
     public async Task UnsubscribeFromFcm(UnSubscribeFromFcmDto dto)
     {
         await DeleteFcmTokenAsync(dto);
-        Console.WriteLine($"UserId: {dto.UserId} unsubscribed from FCM!");
+        _logger.LogInformation($"UserId: {dto.UserId} unsubscribed from FCM!");
     }
 
     public async Task SendToUserAsync(SendToUserDto dto)
@@ -73,7 +76,7 @@ public class NotificationService : INotificationService
         {
             await FirebaseMessaging.DefaultInstance.SendAsync(message);
 
-            Console.WriteLine($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
+            _logger.LogInformation($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
         }
         catch (FirebaseMessagingException ex)
         {
@@ -104,7 +107,7 @@ public class NotificationService : INotificationService
         {
             await FirebaseMessaging.DefaultInstance.SendAsync(message);
 
-            Console.WriteLine($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
+            _logger.LogInformation($"Message {message.Data["Type"]} is sent to user {dto.UserId}");
         }
         catch (FirebaseMessagingException ex)
         {
@@ -157,20 +160,20 @@ public class NotificationService : INotificationService
         {
             case MessagingErrorCode.Unregistered:
                 await DeleteFcmTokenAsync(new UnSubscribeFromFcmDto { UserId = token.UserId });
-                Console.WriteLine($"FCM token deleted for user {token.UserId}");
+                _logger.LogError($"FCM token deleted for user {token.UserId}");
                 break;
 
             case MessagingErrorCode.InvalidArgument:
                 await DeleteFcmTokenAsync(new UnSubscribeFromFcmDto { UserId = token.UserId });
-                Console.WriteLine($"Invalid FCM token for user {token.UserId}");
+                _logger.LogError($"Invalid FCM token for user {token.UserId}");
                 break;
 
             case MessagingErrorCode.QuotaExceeded:
-                Console.WriteLine("FCM quota exceeded");
+                _logger.LogError("FCM quota exceeded");
                 break;
 
             default:
-                Console.WriteLine($"FCM send failed for user {token.UserId}");
+                _logger.LogError($"FCM send failed for user {token.UserId}");
                 break;
         }
     }

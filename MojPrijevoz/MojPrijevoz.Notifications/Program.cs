@@ -4,6 +4,7 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MojPrijevoz.Database;
 using MojPrijevoz.Notifications;
 using MojPrijevoz.Notifications.Consumer;
@@ -20,6 +21,10 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddEasyNetQ(
                 $"host={rabbitMqSection["Host"]};port={rabbitMqSection["Port"]};username={rabbitMqSection["User"]};password={rabbitMqSection["Password"]}")
             .UseSystemTextJson();
+
+        services.AddLogging();
+        services.AddSingleton<ILogger>(sp =>
+            sp.GetRequiredService<ILoggerFactory>().CreateLogger("EasyNetQ"));
 
         services.AddSingleton<INotificationConsumer, NotificationConsumer>();
         services.AddSingleton<IEmailService, EmailService>();
