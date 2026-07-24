@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MojPrijevoz.Model.Requests.Admin.Transaction;
 using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Admin;
 
@@ -24,15 +23,15 @@ public class TransactionController : ControllerBase
         return Ok(await _transactionService.GetAsync(searchObject));
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id)
+    [HttpGet("users")]
+    public async Task<IActionResult> Get(AdminUserSearchObject searchObject)
     {
-        return Ok(await _transactionService.GetByIdAsync(id));
+        return Ok(await _transactionService.GetUsersAsync(searchObject));
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id)
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] AdminTransactionSearchObject searchObject)
     {
-        return Ok(await _transactionService.UpdateAsync(id, new AdminTransactionUpdateRequest()));
+        return Ok(await _transactionService.UpdateTransactionsAsync(searchObject));
     }
 }

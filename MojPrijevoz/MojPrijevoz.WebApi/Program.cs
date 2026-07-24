@@ -1,6 +1,7 @@
 using DotNetEnv;
 using EasyNetQ;
 using Mapster;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -39,6 +40,7 @@ using MojPrijevoz.WebApi.Filters;
 using QuestPDF;
 using QuestPDF.Infrastructure;
 using Stripe;
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 Env.Load("./.env");
@@ -147,6 +149,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+var supportedCultures = new[] { new CultureInfo("en-US") };
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en-US"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
 
 using var scope = app.Services.CreateScope();
 var database = scope.ServiceProvider.GetRequiredService<MojPrijevozDbContext>();

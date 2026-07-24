@@ -16,6 +16,7 @@ class UpdateUserRequest extends JsonRequest implements HasPictureInterface {
   String? password;
   String? passwordAgain;
   int? cityId;
+  String? bankAccountNumber;
 
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,6 +32,7 @@ class UpdateUserRequest extends JsonRequest implements HasPictureInterface {
     this.passwordAgain,
     this.cityId,
     this.phoneNumber,
+    this.bankAccountNumber,
   });
 
   @override

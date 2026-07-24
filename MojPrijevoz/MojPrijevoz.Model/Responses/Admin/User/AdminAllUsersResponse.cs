@@ -14,5 +14,6 @@ public class AdminAllUsersResponse
     public string Username { get; set; } = null!;
     public AccountStatus Status { get; set; }
     public string PhoneNumber { get; set; } = null!;
+    public string? BankAccountNumber { get; set; }
     public DateTime RegisteredAt { get; set; }
 }

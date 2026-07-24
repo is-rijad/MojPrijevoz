@@ -17,6 +17,7 @@ UpdateUserRequest _$UpdateUserRequestFromJson(Map<String, dynamic> json) =>
       passwordAgain: json['passwordAgain'] as String?,
       cityId: (json['cityId'] as num?)?.toInt(),
       phoneNumber: json['phoneNumber'] as String?,
+      bankAccountNumber: json['bankAccountNumber'] as String?,
     );
 
 Map<String, dynamic> _$UpdateUserRequestToJson(UpdateUserRequest instance) =>
@@ -30,4 +31,5 @@ Map<String, dynamic> _$UpdateUserRequestToJson(UpdateUserRequest instance) =>
       'password': instance.password,
       'passwordAgain': instance.passwordAgain,
       'cityId': instance.cityId,
+      'bankAccountNumber': instance.bankAccountNumber,
     };

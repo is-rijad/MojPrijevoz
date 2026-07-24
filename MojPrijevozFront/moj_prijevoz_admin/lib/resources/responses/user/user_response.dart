@@ -25,6 +25,7 @@ class UserResponse extends AllUsersResponse
     required super.status,
     required super.phoneNumber,
     required super.registeredAt,
+    super.bankAccountNumber,
   });
 
   factory UserResponse.fromJson(Map<String, dynamic> json) =>
@@ -39,6 +40,7 @@ class UserResponse extends AllUsersResponse
     'email': "Email",
     'username': "Korisničko ime",
     'phoneNumber': "Broj mobitela",
+    'bankAccountNumber': "Broj računa",
     'picture': "Slika profila",
   };
 }

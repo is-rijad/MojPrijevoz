@@ -38,7 +38,8 @@ public class CityEntityConfiguration : IEntityTypeConfiguration<City>
             .IsUnicode(false);
         entity.Property(e => e.Name)
             .HasMaxLength(32)
-            .IsUnicode();
+            .IsUnicode()
+            .UseCollation("Croatian_CI_AS");
         entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
         entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()

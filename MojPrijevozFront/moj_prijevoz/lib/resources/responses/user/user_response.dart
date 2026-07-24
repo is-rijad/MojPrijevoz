@@ -24,6 +24,7 @@ class UserResponse extends JsonResponse
   String? picture;
   @override
   AccountStatus status;
+  String? bankAccountNumber;
 
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -39,6 +40,7 @@ class UserResponse extends JsonResponse
     required this.phoneNumber,
     required this.cityId,
     required this.status,
+    required this.bankAccountNumber,
   });
 
   factory UserResponse.fromJson(Map<String, dynamic> json) =>

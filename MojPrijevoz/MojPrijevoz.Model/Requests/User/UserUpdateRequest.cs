@@ -21,4 +21,6 @@ public class UserUpdateRequest
     public string? PasswordAgain { get; set; }
 
     [Required] public int? CityId { get; set; }
+
+    [Length(13, 13)] public string? BankAccountNumber { get; set; }
 }

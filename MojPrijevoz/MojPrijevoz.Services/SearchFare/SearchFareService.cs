@@ -1,8 +1,8 @@
-﻿using System.Globalization;
-using MapsterMapper;
+﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.BaseModels;
+using MojPrijevoz.Model.Dtos.BaseService;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.OpenRoute;
 using MojPrijevoz.Model.Responses.SearchFare;
@@ -10,6 +10,7 @@ using MojPrijevoz.Model.Responses.UserVehicle;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.OpenRoute;
+using System.Globalization;
 
 namespace MojPrijevoz.Services.SearchFare;
 
@@ -98,7 +99,7 @@ public class SearchFareService : ISearchFareService
         return new PagedResult<SearchFareResponse>
         {
             Count = count,
-            HasMore = fullCount > searchObject.Page * searchObject.PageSize,
+            HasMore = fullCount > (searchObject.Page - 1) * searchObject.PageSize + searchObject.PageSize,
             Items = items
         };
     }

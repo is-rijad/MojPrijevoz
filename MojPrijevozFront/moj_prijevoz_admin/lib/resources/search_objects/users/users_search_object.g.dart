@@ -8,6 +8,7 @@ part of 'users_search_object.dart';
 
 UsersSearchObject _$UsersSearchObjectFromJson(Map<String, dynamic> json) =>
     UsersSearchObject(
+      onlyWithBankAccountNumber: json['onlyWithBankAccountNumber'] as bool?,
       contains: json['contains'] as String?,
       page: (json['page'] as num).toInt(),
       pageSize: (json['pageSize'] as num).toInt(),
@@ -22,4 +23,5 @@ Map<String, dynamic> _$UsersSearchObjectToJson(UsersSearchObject instance) =>
       'orderBy': instance.orderBy,
       'orderDirection': instance.orderDirection,
       'contains': instance.contains,
+      'onlyWithBankAccountNumber': instance.onlyWithBankAccountNumber,
     };

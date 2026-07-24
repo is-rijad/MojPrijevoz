@@ -46,6 +46,7 @@ class _UsersPageState extends RouteAwareState<UsersPage> {
               "Korisničko ime": "Username",
               "Status": "Status",
               "Broj mobitela": null,
+              "Broj računa": "BankAccountNumber",
               "Registrovan": "RegisteredAt",
             },
 
@@ -56,6 +57,9 @@ class _UsersPageState extends RouteAwareState<UsersPage> {
               (i) => Text(i.username),
               (i) => Text(accountStatusMap[i.status]!),
               (i) => Text(i.phoneNumber),
+              (i) => i.bankAccountNumber != null
+                  ? Text(i.bankAccountNumber!)
+                  : Text("-"),
               (i) => Text(
                 "${context.getLocalizedDate(i.registeredAt)} ${context.getLocalizedTime(i.registeredAt)}",
               ),

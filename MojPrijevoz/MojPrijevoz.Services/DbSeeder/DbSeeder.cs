@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.Recommender;
+using System.Text.RegularExpressions;
 
 namespace MojPrijevoz.Services.DbSeeder;
 
@@ -20,15 +21,21 @@ public class DbSeeder
     private List<dynamic>? _fares;
     private List<int>? _passengerProfileIds;
     private Queue<dynamic>? _payedFareOffers;
-    private Queue<int>? _userIds;
+    private Queue<Database.User>? _users;
     private List<dynamic>? _userVehicles;
     private List<int>? _vehicleIds;
+
+    private string _passwordHash;
+    private string _passwordSalt;
 
     public DbSeeder(MojPrijevozDbContext mojPrijevozDbContext,
         AuthorizationService authorizationService)
     {
         _mojPrijevozDbContext = mojPrijevozDbContext;
         _authorizationService = authorizationService;
+        var testPassword = Environment.GetEnvironmentVariable("TestPassword") ??
+                           throw new ArgumentException("TestPassword env variable is not set!");
+        _authorizationService.CreatePassword(testPassword, testPassword, out _passwordHash, out _passwordSalt);
     }
 
     public async Task SeedAsync()
@@ -74,8 +81,6 @@ public class DbSeeder
 
     private async Task SeedAdminsAsync()
     {
-        _authorizationService.CreatePassword("Test123!", "Test123!", out var passwordHash, out var passwordSalt);
-
         var admin = new Administrator
         {
             FirstName = "Admin",
@@ -83,8 +88,8 @@ public class DbSeeder
             Email = "admin@gmail.com",
             Username = "admin",
             Role = AdministratorRole.Admin,
-            PasswordHash = passwordHash,
-            PasswordSalt = passwordSalt,
+            PasswordHash = _passwordHash,
+            PasswordSalt = _passwordSalt,
             Status = AccountStatus.Active
         };
         var moderator = new Administrator
@@ -94,8 +99,8 @@ public class DbSeeder
             Email = "moderator@gmail.com",
             Username = "moderator",
             Role = AdministratorRole.Moderator,
-            PasswordHash = passwordHash,
-            PasswordSalt = passwordSalt,
+            PasswordHash = _passwordHash,
+            PasswordSalt = _passwordSalt,
             Status = AccountStatus.Active
         };
         await _mojPrijevozDbContext.Administrators.AddAsync(admin);
@@ -105,18 +110,16 @@ public class DbSeeder
 
     private async Task SeedUsersAsync()
     {
-        _authorizationService.CreatePassword("Test123!", "Test123!", out var passwordHash, out var passwordSalt);
-
         var usersGen = new Faker<Database.User>(FakerLocale)
             .RuleFor(u => u.FirstName, f => f.Name.FirstName().ClampLength(max: 32))
-            .RuleFor(u => u.LastName, f => f.Name.LastName().ClampLength(max: 64))
+            .RuleFor(u => u.LastName, f => FormatLastName(f.Name.LastName()))
             .RuleFor(u => u.Username,
-                (f, u) => f.Internet.UserName(u.FirstName, u.LastName).ClampLength(max: 96).ToLower())
+                (f, u) => $"{u.FirstName}.{u.LastName}".ToLower())
             .RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.FirstName, u.LastName).ClampLength(max: 96).ToLower())
-            .RuleFor(u => u.PasswordHash, f => passwordHash)
-            .RuleFor(u => u.PasswordSalt, f => passwordSalt)
+            .RuleFor(u => u.PasswordHash, f => _passwordHash)
+            .RuleFor(u => u.PasswordSalt, f => _passwordSalt)
             .RuleFor(u => u.CityId, f => f.PickRandom(_cities!.Select(c => c.Id)))
-            .RuleFor(u => u.Status, f => f.PickRandom<AccountStatus>())
+            .RuleFor(u => u.Status, f => AccountStatus.Active)
             .RuleFor(u => u.Picture, f => f.Image.PicsumUrl())
             .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber("+38761#####"));
 
@@ -124,28 +127,41 @@ public class DbSeeder
         await _mojPrijevozDbContext.Users.AddRangeAsync(users);
         await _mojPrijevozDbContext.SaveChangesAsync();
 
-        _userIds = new Queue<int>(users.Select(u => u.Id));
+        _users = new Queue<Database.User>(users);
+    }
+
+    private string FormatLastName(string lastName)
+    {
+        var splitted = Regex.Split(lastName, @"(?=[A-Z])");
+        if (splitted.Length == 1)
+        {
+            return splitted[0].TrimEnd().ClampLength(max: 32);
+
+        }
+        return splitted[1].Trim('-').TrimEnd().ClampLength(max: 32);
     }
 
     private async Task SeedUserProfilesAsync()
     {
+        var faker = new Faker(FakerLocale);
         var userProfiles = new List<Database.UserProfile>();
-        while (_userIds!.Any())
+        while (_users!.Any())
         {
-            var userId = _userIds!.Dequeue();
+            var user = _users!.Dequeue();
             userProfiles.Add(new Database.UserProfile
             {
-                UserId = userId,
+                UserId = user.Id,
                 ProfileType = ProfileType.Passenger
             });
             if (_randomizer.Bool(0.3f))
             {
                 var userProfile = new Database.UserProfile
                 {
-                    UserId = userId,
+                    UserId = user.Id,
                     ProfileType = ProfileType.Driver
                 };
                 userProfiles.Add(userProfile);
+                user.BankAccountNumber = faker.Finance.Account(13);
             }
         }
 
@@ -168,7 +184,7 @@ public class DbSeeder
                 .RuleFor(uv => uv.VehicleId, f => f.PickRandom(_vehicleIds))
                 .RuleFor(uv => uv.ProfileId, f => userProfileId)
                 .RuleFor(uv => uv.ModelYear, f => f.Random.Int(1990, DateTime.UtcNow.Year))
-                .RuleFor(uv => uv.Status, f => f.PickRandom<UserVehicleStatus>())
+                .RuleFor(uv => uv.Status, f => UserVehicleStatus.Active)
                 .RuleFor(uv => uv.LicensePlate, f => f.Random.Replace("?##-?-###"))
                 .RuleFor(uv => uv.PricePerKm, f => f.Random.Float(0.1f, 2f))
                 .RuleFor(uv => uv.Picture, f => GetRandomVehiclePicture());
@@ -279,7 +295,7 @@ public class DbSeeder
                 }).ToList();
             });
 
-        var fareDataList = fareDataFaker.Generate(100);
+        var fareDataList = fareDataFaker.Generate(200);
 
         await _mojPrijevozDbContext.FareData.AddRangeAsync(fareDataList);
         await _mojPrijevozDbContext.SaveChangesAsync();
@@ -371,7 +387,7 @@ public class DbSeeder
             fareOfferList.Add(lastOffer);
         }
 
-        _payedFareOffers = new Queue<dynamic>(fareOfferList.Where(it => it.Status == FareOfferStatus.Payed).Select(it =>
+        _payedFareOffers = new Queue<dynamic>(fareOfferList.Where(it => it.Status == FareOfferStatus.Payed).DistinctBy(it => it.FareId).Select(it =>
             new
             {
                 it.FareId,

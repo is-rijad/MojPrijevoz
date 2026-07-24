@@ -129,12 +129,11 @@ class _PageWrapperState extends State<PageWrapper> {
                     text: "Administartori",
                     onClick: (action) async => await _onTap(action),
                   ),
-                if (snapshot.data!.index == AdministartorRole.admin.index)
-                  DrawerMenuItem(
-                    value: DrawerMenuAction.reports,
-                    text: "Izvještaji",
-                    onClick: (action) async => await _onTap(action),
-                  ),
+                DrawerMenuItem(
+                  value: DrawerMenuAction.reports,
+                  text: "Izvještaji",
+                  onClick: (action) async => await _onTap(action),
+                ),
                 if (snapshot.data!.index == AdministartorRole.admin.index)
                   DrawerMenuItem(
                     value: DrawerMenuAction.transactions,

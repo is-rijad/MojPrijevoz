@@ -23,6 +23,7 @@ class PagedDropdownFormField<
     super.onSaved,
     super.validator,
     super.initialValue,
+    TAll? firstItem,
     InputDecoration? decoration,
     bool autovalidate = false,
   }) : super(
@@ -44,6 +45,7 @@ class PagedDropdownFormField<
                    onSelectionChanged?.call(value);
                  },
                  selectedItem: initialValue,
+                 firstItem: firstItem,
                ),
                if (fieldState.errorText != null)
                  Padding(

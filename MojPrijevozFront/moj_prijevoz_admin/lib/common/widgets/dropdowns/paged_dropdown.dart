@@ -22,6 +22,7 @@ class PagedDropdown<
     super.defaultLabel,
     super.decoration,
     super.selectedItem,
+    super.firstItem
   });
 
   @override

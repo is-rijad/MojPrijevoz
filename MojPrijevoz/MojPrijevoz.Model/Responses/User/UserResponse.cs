@@ -11,4 +11,5 @@ public class UserResponse
     public short Status { get; set; }
     public string? Picture { get; set; }
     public int CityId { get; set; }
+    public string? BankAccountNumber { get; set; }
 }

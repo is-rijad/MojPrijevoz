@@ -62,7 +62,8 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
                 UserId = userId,
                 ProfileType = ProfileType.Driver
             })).Entity;
-            request.IsFirstVehicle = true;
+            var user = await _dbContext.Users.FindAsync(userId);
+            user!.BankAccountNumber = request.BankAccountNumber;
         }
         else
         {
@@ -117,9 +118,8 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
     protected override async Task AfterUpdate(Database.UserVehicle entity, MojPrijevozDbContext dbContext)
     {
         await base.AfterUpdate(entity, dbContext);
-        var requestedChanges = await _dbContext.UserVehicleRequestChanges.Where(it => it.UserVehicleId == entity.Id)
-            .ToListAsync();
-        _dbContext.RemoveRange(requestedChanges);
+        var requestedChanges = await _dbContext.UserVehicleRequestChanges.Where(it => it.UserVehicleId == entity.Id && !it.IsEdited).ToListAsync();
+        requestedChanges.ForEach(it => it.IsEdited = true);
     }
 
     public override async Task DeleteAsync(int id)

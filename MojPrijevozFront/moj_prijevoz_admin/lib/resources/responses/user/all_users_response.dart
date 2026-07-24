@@ -14,7 +14,10 @@ class AllUsersResponse extends JsonResponse {
   final String username;
   AccountStatus status;
   final String phoneNumber;
+  final String? bankAccountNumber;
   final DateTime registeredAt;
+
+  String get fullName => "$firstName $lastName";
 
   AllUsersResponse({
     required this.firstName,
@@ -24,6 +27,7 @@ class AllUsersResponse extends JsonResponse {
     required this.username,
     required this.status,
     required this.phoneNumber,
+    this.bankAccountNumber,
     required this.registeredAt,
   });
 

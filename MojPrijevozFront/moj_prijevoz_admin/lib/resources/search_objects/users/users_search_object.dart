@@ -5,7 +5,9 @@ part 'users_search_object.g.dart';
 
 @JsonSerializable()
 class UsersSearchObject extends StringSearchObject {
+  bool? onlyWithBankAccountNumber;
   UsersSearchObject({
+    this.onlyWithBankAccountNumber,
     super.contains,
     required super.page,
     required super.pageSize,

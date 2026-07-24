@@ -20,6 +20,7 @@
 	  <Folder Include="Requests\UserVehicle\" />
 	  <Folder Include="Responses\Admin\City\" />
 	  <Folder Include="Responses\Admin\Administrators\" />
+	  <Folder Include="Responses\Admin\Fare\" />
 	  <Folder Include="Responses\Admin\Transaction\" />
 	  <Folder Include="Responses\DriversDiscount\" />
 	  <Folder Include="Responses\FareOffer\" />

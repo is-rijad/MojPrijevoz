@@ -15,6 +15,7 @@ UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
   phoneNumber: json['phoneNumber'] as String,
   cityId: (json['cityId'] as num).toInt(),
   status: $enumDecode(_$AccountStatusEnumMap, json['status']),
+  bankAccountNumber: json['bankAccountNumber'] as String?,
 )..picture = json['picture'] as String?;
 
 Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
@@ -28,6 +29,7 @@ Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
       'cityId': instance.cityId,
       'picture': instance.picture,
       'status': _$AccountStatusEnumMap[instance.status]!,
+      'bankAccountNumber': instance.bankAccountNumber,
     };
 
 const _$AccountStatusEnumMap = {

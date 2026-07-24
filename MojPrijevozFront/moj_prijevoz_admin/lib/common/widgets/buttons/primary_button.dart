@@ -10,31 +10,42 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDisabled = onPressed == null;
+
     return GestureDetector(
       onTap: onPressed,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: context.primaryColor,
+          color: isDisabled ? Colors.grey.shade400 : context.primaryColor,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: const Color(0xff559bd6), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 10,
-              offset: const Offset(0, 6),
-            ),
-            const BoxShadow(
-              color: Color(0xff2d6694),
-              blurRadius: 0,
-              offset: Offset(1.5, 2),
-              spreadRadius: -0.5,
-            ),
-          ],
+          border: Border.all(
+            color: isDisabled ? Colors.grey.shade500 : const Color(0xff559bd6),
+            width: 1,
+          ),
+          boxShadow: isDisabled
+              ? []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 6),
+                  ),
+                  const BoxShadow(
+                    color: Color(0xff2d6694),
+                    blurRadius: 0,
+                    offset: Offset(1.5, 2),
+                    spreadRadius: -0.5,
+                  ),
+                ],
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: TextTitleSmall(text),
+          child: Opacity(
+            opacity: isDisabled ? 0.6 : 1.0,
+            child: TextTitleSmall(text),
+          ),
         ),
       ),
     );

@@ -12,6 +12,7 @@ class UserVehicleUpsertRequest extends JsonRequest
   int? modelYear;
   String? licensePlate;
   double? pricePerKm;
+  String? bankAccountNumber;
 
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -22,6 +23,7 @@ class UserVehicleUpsertRequest extends JsonRequest
     this.modelYear,
     this.licensePlate,
     this.pricePerKm,
+    this.bankAccountNumber,
     this.picture,
   });
 

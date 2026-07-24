@@ -15,6 +15,11 @@ public class CityService : BaseService<CityResponse, Database.City, CitySearchOb
     {
     }
 
+    protected override IQueryable<Database.City> ApplyOrdering(IQueryable<Database.City> queryable, CitySearchObject searchObject)
+    {
+        return queryable.OrderBy(it => it.Name).ThenBy(it => it.Id).AsQueryable();
+    }
+
     public override Task<IQueryable<Database.City>> ApplyFilter(IQueryable<Database.City> queryable,
         CitySearchObject searchObject)
     {

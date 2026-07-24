@@ -116,7 +116,7 @@ class _OneRatingPageState extends RouteAwareState<OneRatingPage> {
                   readOnly: true,
                   controller: _commentTextController,
                   maxLines: 3,
-                  maxLength: 64,
+                  maxLength: 256,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

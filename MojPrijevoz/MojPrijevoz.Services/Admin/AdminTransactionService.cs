@@ -1,12 +1,16 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
+using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Dtos.Notifications;
+using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Admin.Transaction;
 using MojPrijevoz.Model.Responses.Admin.Transaction;
+using MojPrijevoz.Model.Responses.Admin.User;
 using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices.Admin;
+using MojPrijevoz.Services.Helpers;
 using MojPrijevoz.Services.NotificationService;
 
 namespace MojPrijevoz.Services.Admin;
@@ -16,74 +20,91 @@ public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTr
     AdminTransactionSearchObject>
 {
     private readonly INotificationService _notificationService;
+    private readonly AdminUsersService _usersService;
 
     public AdminTransactionService(MojPrijevozDbContext context, IMapper mapper,
         AuthorizationService authorizationService,
-        INotificationService notificationService) : base(context, mapper, authorizationService)
+        INotificationService notificationService,
+        AdminUsersService usersService) : base(context, mapper, authorizationService)
     {
         _notificationService = notificationService;
+        _usersService = usersService;
     }
 
     public override async Task<IQueryable<Transaction>> ApplyFilter(IQueryable<Transaction> queryable,
         AdminTransactionSearchObject searchObject)
     {
         queryable = await base.ApplyFilter(queryable, searchObject);
-        queryable = queryable.Where(it => it.Fare!.Status == FareStatus.Completed);
+        queryable = queryable.Where(it =>
+            it.Fare!.Status == FareStatus.Completed && (searchObject.UserId == -1 || it.Fare.Driver!.UserId == searchObject.UserId) &&
+            it.CreatedAt.Month == searchObject.Month + 1);
+        queryable = searchObject.IsPosted ? queryable.Where(it => it.PostedAt != null) : queryable.Where(it => it.PostedAt == null);
         return queryable;
     }
 
-    protected override Transaction MapToUpdateEntity(AdminTransactionUpdateRequest request, Transaction entity)
+    public override Task<AdminTransactionResponse> UpdateAsync(int id, AdminTransactionUpdateRequest request)
     {
-        base.MapToUpdateEntity(request, entity);
-        entity.PostedAt = DateTime.UtcNow;
-        return entity;
+        throw new MethodAccessException("Method is not used!");
+    }
+
+    public async Task<AdminTransactionResponse> UpdateTransactionsAsync(AdminTransactionSearchObject searchObject)
+    {
+        if (searchObject.UserId == -1)
+            throw new BadRequestException("UserId je obavezan!");
+        if (searchObject.IsPosted)
+            throw new BadRequestException("Nije moguće proknjižiti proknjižene transakcije!");
+
+        var transactions = await _dbContext.Transactions.Where(it =>
+            it.Fare!.Driver!.UserId == searchObject.UserId && it.CreatedAt.Month == searchObject.Month + 1).ToListAsync();
+
+        if (transactions.Count == 0)
+            throw new NotFoundException("Nema transakcija za proknjižiti!");
+
+        double price = 0;
+        foreach (var transaction in transactions)
+        {
+            transaction.PostedAt = DateTime.UtcNow;
+            price += transaction.Amount;
+            await _dbContext.Transactions.AddAsync(new Transaction
+            {
+                Side = TransactionSide.Credit,
+                FareId = transaction.FareId,
+                Amount = transaction.Amount - (transaction.FeeAmount ?? 0.0f),
+                FeeAmount = null,
+                PostedAt = transaction.PostedAt
+            });
+        }
+        var driver = await _dbContext.Users.FirstAsync(it => it.Id == searchObject.UserId);
+        await _notificationService.SendEmailAsync(new EmailDto
+        {
+            To = driver.Email,
+            Type = EmailType.TransactionPostedEmail,
+            Data = new Dictionary<string, dynamic>
+            {
+                ["Name"] = driver.FirstName,
+                ["Price"] = Math.Round(price, 2),
+                ["PostedAt"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                ["Month"] = MonthHelper.GetMonth(searchObject.Month)
+            }
+        });
+        await _dbContext.SaveChangesAsync();
+        return MapToResponseModel<AdminTransactionResponse>(transactions.First(), _mapper);
     }
 
     public override async Task<IQueryable<Transaction>> IncludeAdditionalEntities(IQueryable<Transaction> queryable)
     {
         await base.IncludeAdditionalEntities(queryable);
-        queryable = queryable.Include(it => it.Fare).ThenInclude(it => it!.FareData).ThenInclude(it => it!.OriginCity);
+        queryable = queryable.Include(it => it.Fare).ThenInclude(it => it!.FareData).ThenInclude(it => it!.OriginCity)
+            .Include(it => it.Fare).ThenInclude(it => it!.Passenger).ThenInclude(it => it!.User);
         return queryable;
     }
 
-    protected override async Task PrepareForResponse(Transaction entity, MojPrijevozDbContext dbContext)
+    public async Task<PagedResult<AdminAllUsersResponse>> GetUsersAsync(AdminUserSearchObject searchObject)
     {
-        await base.PrepareForResponse(entity, dbContext);
-        entity.Fare = await _dbContext.Fares.Where(it => it.Id == entity.FareId).Include(it => it.FareData)
-            .ThenInclude(it => it!.OriginCity).FirstAsync();
+        searchObject.OnlyWithBankAccountNumber = true;
+        return await _usersService.GetAsync(searchObject);
     }
 
-    protected override async Task AfterUpdate(Transaction entity, MojPrijevozDbContext dbContext)
-    {
-        await base.AfterUpdate(entity, dbContext);
-        await _dbContext.Transactions.AddAsync(new Transaction
-        {
-            Side = TransactionSide.Credit,
-            FareId = entity.FareId,
-            Amount = entity.Amount - (entity.FeeAmount ?? 0.0f),
-            FeeAmount = null,
-            PostedAt = entity.PostedAt
-        });
-        var fare = await _dbContext.Fares.Include(it => it.FareData).ThenInclude(it => it!.OriginCity)
-            .Include(it => it.Driver).ThenInclude(it => it!.User).Include(it => it.Passenger)
-            .ThenInclude(it => it!.User).FirstAsync(it => it.Id == entity.FareId);
-        var userVehicle = await _dbContext.UserVehicles.Include(it => it.Vehicle)
-            .FirstAsync(it => it.Id == fare.UserVehicleId);
-        await _notificationService.SendEmailAsync(new EmailDto
-        {
-            To = fare.Driver!.User!.Email,
-            Type = EmailType.TransactionPostedEmail,
-            Data = new Dictionary<string, dynamic>
-            {
-                ["Name"] = fare.Driver!.User!.FirstName,
-                ["PostedAt"] = entity.PostedAt!.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
-                ["FareDateTime"] = fare.FareData!.FareDateTime.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
-                ["FareData"] = $"{fare!.FareData!.OriginCity!.Name}-{fare!.FareData!.DestinationName}",
-                ["Price"] = Math.Round(entity.Amount, 2),
-                ["Vehicle"] = userVehicle!.Vehicle!.ToString()
-            }
-        });
-    }
 
     public override Task BeforeRequestChanges(int id)
     {

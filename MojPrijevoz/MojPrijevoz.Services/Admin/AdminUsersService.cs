@@ -34,12 +34,18 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
         AdminUserSearchObject searchObject)
     {
         queryable = await base.ApplyFilter(queryable, searchObject);
+        if (searchObject.OnlyWithBankAccountNumber != null)
+        {
+            queryable = queryable.Where(it => it.BankAccountNumber != null);
+        }
         if (!string.IsNullOrEmpty(searchObject.Contains))
             queryable = queryable.Where(it => it.FirstName.ToLower().Contains(searchObject.Contains.ToLower())
                                               || it.LastName.ToLower().Contains(searchObject.Contains.ToLower())
+                                              || (it.FirstName.ToLower() + " " + it.LastName.ToLower()).Contains(searchObject.Contains.ToLower())
                                               || it.Email.ToLower().Contains(searchObject.Contains.ToLower())
                                               || it.Username.ToLower().Contains(searchObject.Contains.ToLower())
-                                              || it.PhoneNumber.ToLower().Contains(searchObject.Contains.ToLower()));
+                                              || it.PhoneNumber.ToLower().Contains(searchObject.Contains.ToLower())
+                                              || (it.BankAccountNumber != null && it.BankAccountNumber.ToLower().Contains(searchObject.Contains.ToLower())));
         return queryable;
     }
 

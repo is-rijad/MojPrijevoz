@@ -35,7 +35,7 @@ public abstract class
         {
             Items = list,
             Count = paginatedQueryable.PaginatedCount,
-            HasMore = paginatedQueryable.FullCount > searchObject.Page * searchObject.PageSize + searchObject.PageSize
+            HasMore = paginatedQueryable.FullCount > (searchObject.Page - 1) * searchObject.PageSize + searchObject.PageSize
         };
     }
 

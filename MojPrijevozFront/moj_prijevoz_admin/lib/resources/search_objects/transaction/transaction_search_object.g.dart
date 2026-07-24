@@ -13,6 +13,9 @@ TransactionSearchObject _$TransactionSearchObjectFromJson(
   pageSize: (json['pageSize'] as num).toInt(),
   orderBy: json['orderBy'] as String?,
   orderDirection: json['orderDirection'] as String?,
+  userId: (json['userId'] as num?)?.toInt(),
+  month: (json['month'] as num?)?.toInt(),
+  isPosted: json['isPosted'] as bool,
 );
 
 Map<String, dynamic> _$TransactionSearchObjectToJson(
@@ -22,4 +25,7 @@ Map<String, dynamic> _$TransactionSearchObjectToJson(
   'pageSize': instance.pageSize,
   'orderBy': instance.orderBy,
   'orderDirection': instance.orderDirection,
+  'userId': instance.userId,
+  'month': instance.month,
+  'isPosted': instance.isPosted,
 };

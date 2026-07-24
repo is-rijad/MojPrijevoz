@@ -10,7 +10,7 @@ public class User : Account, IEntityHasPicture
     public required string PhoneNumber { get; set; }
 
     public virtual City? City { get; set; }
-
+    public string? BankAccountNumber { get; set; }
 
     public ICollection<UserFcmToken>? UserFcmTokens { get; set; }
     public string? Picture { get; set; }
@@ -30,6 +30,10 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User>
         entity.Property(e => e.PhoneNumber)
             .HasMaxLength(32)
             .IsUnicode();
+        entity.Property(e => e.BankAccountNumber)
+            .HasMaxLength(13)
+            .IsRequired(false)
+            .IsUnicode(false);
 
         entity.HasOne(d => d.City).WithMany(p => p.Users)
             .HasForeignKey(d => d.CityId)

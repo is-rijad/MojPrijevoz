@@ -24,6 +24,7 @@ abstract class BaseDropdown<
   final String? defaultLabel;
   final InputDecoration? decoration;
   final TAll? selectedItem;
+  final TAll? firstItem;
 
   const BaseDropdown({
     super.key,
@@ -35,6 +36,7 @@ abstract class BaseDropdown<
     this.decoration,
     this.onTextChanged,
     this.selectedItem,
+    this.firstItem,
   });
 }
 
@@ -111,8 +113,11 @@ class BaseDropdownState<
     });
 
     context.read<TProvider>().clearData(searchObject);
-    await context.read<TProvider>().fetchData(searchObject);
 
+    await context.read<TProvider>().fetchData(searchObject);
+    if (widget.firstItem != null && mounted) {
+      context.read<TProvider>().searchResult.items.insert(0, widget.firstItem!);
+    }
     if (mounted) {
       setState(() {
         isLoading = false;

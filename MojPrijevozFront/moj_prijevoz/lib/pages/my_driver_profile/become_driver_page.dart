@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/constants.dart';
+import 'package:moj_prijevoz/common/widgets/alert_dialog/alert_dialog_content.dart';
+import 'package:moj_prijevoz/common/widgets/alert_dialog/mp_alert_dialog.dart';
+import 'package:moj_prijevoz/common/widgets/icons/input_decoration_with_icon.dart';
+import 'package:moj_prijevoz/common/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/components/user_vehicle/user_vehicle_upsert_dialog.dart';
 import 'package:moj_prijevoz/common/providers/auth_provider.dart';
+import 'package:moj_prijevoz/pages/my_driver_profile/bank_account_number_dialog.dart';
 import 'package:moj_prijevoz/resources/responses/user_vehicle/user_vehicle_response.dart';
 import 'package:moj_prijevoz/common/widgets/buttons/primary_button.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
@@ -46,10 +52,20 @@ class _BecomeDriverPageState extends State<BecomeDriverPage> {
   }
 
   Future<void> _buildVehicleInsertDialog(BuildContext context) async {
+    final bankAccountNumber = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return BankAccountNumberDialog(isEdit: false);
+      },
+    );
+    if (!context.mounted || bankAccountNumber == null) return;
     final addedItem = await showDialog<UserVehicleResponse>(
       context: context,
       builder: (BuildContext context) {
-        return UserVehicleUpsertDialog(selectedItem: null);
+        return UserVehicleUpsertDialog(
+          selectedItem: null,
+          bankAccountNumber: bankAccountNumber,
+        );
       },
     );
     if (addedItem != null) {

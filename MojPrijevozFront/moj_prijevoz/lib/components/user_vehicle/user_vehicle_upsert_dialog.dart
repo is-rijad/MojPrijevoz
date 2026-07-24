@@ -26,8 +26,17 @@ class UserVehicleUpsertDialog
           UserVehicleResponse,
           UserVehicleProvider
         > {
-  UserVehicleUpsertDialog({super.key, required super.selectedItem})
-    : super(request: UserVehicleUpsertRequest(), entityName: "vozilo");
+  final String? bankAccountNumber;
+  UserVehicleUpsertDialog({
+    super.key,
+    required super.selectedItem,
+    this.bankAccountNumber,
+  }) : super(
+         request: UserVehicleUpsertRequest(
+           bankAccountNumber: bankAccountNumber,
+         ),
+         entityName: "vozilo",
+       );
 
   final previewImage = ValueNotifier<File?>(null);
 

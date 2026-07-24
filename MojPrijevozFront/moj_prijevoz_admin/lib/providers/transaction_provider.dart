@@ -11,7 +11,7 @@ class TransactionProvider
           TransactionResponse,
           TransactionSearchObject,
           JsonRequest,
-          JsonRequest
+          TransactionSearchObject
         > {
   TransactionProvider() : super(providerName: "transaction");
 }

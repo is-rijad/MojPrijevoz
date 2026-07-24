@@ -1,5 +1,5 @@
 ﻿using MojPrijevoz.Database;
-using MojPrijevoz.Model.Responses.Fare;
+using MojPrijevoz.Model.Responses.Admin.Fare;
 
 namespace MojPrijevoz.Model.Responses.Admin.Transaction;
 
@@ -16,7 +16,7 @@ public class AdminAllTransactionsResponse
 
     public DateTime? PostedAt { get; set; }
 
-    public FareResponse? Fare { get; set; }
+    public AdminFareResponse? Fare { get; set; }
 
     public DateTime CreatedAt { get; set; }
 }

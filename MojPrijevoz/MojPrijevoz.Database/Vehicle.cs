@@ -35,10 +35,12 @@ public class VehicleEntityConfiguration : IEntityTypeConfiguration<Vehicle>
 
         entity.Property(e => e.Manufacturer)
             .HasMaxLength(32)
-            .IsUnicode(false);
+            .IsUnicode(false)
+            .UseCollation("Croatian_CI_AS");
         entity.Property(e => e.Model)
             .HasMaxLength(32)
-            .IsUnicode(false);
+            .IsUnicode(false)
+            .UseCollation("Croatian_CI_AS");
 
         entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");

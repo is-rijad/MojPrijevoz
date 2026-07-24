@@ -15,6 +15,7 @@ AllUsersResponse _$AllUsersResponseFromJson(Map<String, dynamic> json) =>
       username: json['username'] as String,
       status: $enumDecode(_$AccountStatusEnumMap, json['status']),
       phoneNumber: json['phoneNumber'] as String,
+      bankAccountNumber: json['bankAccountNumber'] as String?,
       registeredAt: DateTime.parse(json['registeredAt'] as String),
     );
 
@@ -27,6 +28,7 @@ Map<String, dynamic> _$AllUsersResponseToJson(AllUsersResponse instance) =>
       'username': instance.username,
       'status': _$AccountStatusEnumMap[instance.status]!,
       'phoneNumber': instance.phoneNumber,
+      'bankAccountNumber': instance.bankAccountNumber,
       'registeredAt': instance.registeredAt.toIso8601String(),
     };
 

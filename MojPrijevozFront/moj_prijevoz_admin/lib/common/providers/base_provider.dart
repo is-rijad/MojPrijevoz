@@ -116,7 +116,7 @@ abstract class BaseProvider<
   }
 
   Future<TResponse?> update(
-    int id,
+    int? id,
     TUpdateRequest? request, {
     FormData? formData,
   }) async {

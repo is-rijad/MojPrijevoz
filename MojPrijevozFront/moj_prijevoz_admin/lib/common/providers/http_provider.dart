@@ -145,7 +145,7 @@ class HttpProvider {
 
   Future<TResponse?> put<TRequest extends JsonParsable, TResponse>(
     String url,
-    int id,
+    int? id,
     TRequest? request, {
     Map<String, dynamic>? queryParameters,
     FormData? formData,
@@ -157,8 +157,12 @@ class HttpProvider {
       if (formData != null) {
         options = options.copyWith(contentType: 'multipart/form-data');
       }
+      var apiUrl = "$_apiUrl$url/";
+      if (id != null) {
+        apiUrl += id.toString();
+      }
       var response = await DioClient.dio.put(
-        "$_apiUrl$url/$id",
+        apiUrl,
         data: formData ?? request?.toJson(),
         options: options,
         queryParameters: queryParameters,

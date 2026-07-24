@@ -526,11 +526,12 @@ public class FareOfferService :
                     Data = new Dictionary<string, dynamic>
                     {
                         ["ReceipantName"] = passenger.User!.FirstName,
-                        ["TransactionDateTime"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                        ["TransactionDateTime"] = DateTime.Now.ToString("dd/MM/yyyy. HH:mm"),
                         ["StartLocation"] = entity.Fare!.FareData!.OriginCity!.Name,
                         ["EndLocation"] = entity.Fare!.FareData!.DestinationName,
                         ["Price"] = Math.Round(entity.TotalPrice, 2),
-                        ["Vehicle"] = userVehicle!.Vehicle!.ToString()
+                        ["Vehicle"] = userVehicle!.Vehicle!.ToString(),
+                        ["FareDateTime"] = entity.Fare!.FareData!.FareDateTime.ToString("dd/MM/yyyy. HH:mm")
                     }
                 });
                 break;

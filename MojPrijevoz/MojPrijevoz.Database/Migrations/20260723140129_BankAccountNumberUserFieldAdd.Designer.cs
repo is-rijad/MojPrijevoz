@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojPrijevoz.Database;
 
@@ -11,9 +12,11 @@ using MojPrijevoz.Database;
 namespace MojPrijevoz.Database.Migrations
 {
     [DbContext(typeof(MojPrijevozDbContext))]
-    partial class MojPrijevozDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260723140129_BankAccountNumberUserFieldAdd")]
+    partial class BankAccountNumberUserFieldAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,8 +43,7 @@ namespace MojPrijevoz.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(32)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(32)")
-                        .UseCollation("Croatian_CI_AS");
+                        .HasColumnType("varchar(32)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -83,8 +85,7 @@ namespace MojPrijevoz.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(96)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(96)")
-                        .UseCollation("Croatian_CI_AS");
+                        .HasColumnType("varchar(96)");
 
                     b.HasKey("Id");
 
@@ -128,8 +129,7 @@ namespace MojPrijevoz.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(32)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(32)")
-                        .UseCollation("Croatian_CI_AS");
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
@@ -1351,15 +1351,13 @@ namespace MojPrijevoz.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(32)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(32)")
-                        .UseCollation("Croatian_CI_AS");
+                        .HasColumnType("varchar(32)");
 
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasMaxLength(32)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(32)")
-                        .UseCollation("Croatian_CI_AS");
+                        .HasColumnType("varchar(32)");
 
                     b.Property<int>("NumberOfSeats")
                         .HasColumnType("int");

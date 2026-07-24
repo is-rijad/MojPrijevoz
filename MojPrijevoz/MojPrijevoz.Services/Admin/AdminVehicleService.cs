@@ -23,7 +23,9 @@ public class AdminVehicleService : BaseAdminCrudService<Database.Vehicle, AdminU
         queryable = await base.ApplyFilter(queryable, searchObject);
         if (!string.IsNullOrEmpty(searchObject.Contains))
             queryable = queryable.Where(it => it.Manufacturer.ToLower().Contains(searchObject.Contains.ToLower())
-                                              || it.Model.ToLower().Contains(searchObject.Contains.ToLower()));
+                                              || it.Model.ToLower().Contains(searchObject.Contains.ToLower())
+                                              || (it.Manufacturer.ToLower() + " " + it.Model.ToLower()).Contains(searchObject.Contains.ToLower())
+                                              );
         return queryable;
     }
 

@@ -12,11 +12,17 @@ FareResponse _$FareResponseFromJson(Map<String, dynamic> json) => FareResponse(
   fareData: json['fareData'] == null
       ? null
       : FareDataResponse.fromJson(json['fareData'] as Map<String, dynamic>),
+  passengerId: (json['passengerId'] as num).toInt(),
+  passenger: json['passenger'] == null
+      ? null
+      : UserProfileResponse.fromJson(json['passenger'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$FareResponseToJson(FareResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
       'fareDataId': instance.fareDataId,
+      'passengerId': instance.passengerId,
       'fareData': instance.fareData,
+      'passenger': instance.passenger,
     };

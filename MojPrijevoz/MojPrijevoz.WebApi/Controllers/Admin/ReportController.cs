@@ -6,7 +6,7 @@ using MojPrijevoz.Services.Admin;
 namespace MojPrijevoz.WebApi.Controllers.Admin;
 
 [ApiController]
-[Authorize(Roles = "1")]
+[Authorize(Roles = "0,1")]
 [Route("api/admin/[controller]")]
 public class ReportController : ControllerBase
 {

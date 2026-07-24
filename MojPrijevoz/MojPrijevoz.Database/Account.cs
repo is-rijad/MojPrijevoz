@@ -54,6 +54,7 @@ public class AccountEntityConfiguration : IEntityTypeConfiguration<Account>
             .IsUnicode(false);
         entity.Property(e => e.FirstName)
             .HasMaxLength(32)
+            .UseCollation("Croatian_CI_AS")
             .IsUnicode(false);
         entity.Property(e => e.LastName)
             .HasMaxLength(64)
@@ -68,6 +69,7 @@ public class AccountEntityConfiguration : IEntityTypeConfiguration<Account>
             .IsFixedLength();
         entity.Property(e => e.Username)
             .HasMaxLength(96)
+            .UseCollation("Croatian_CI_AS")
             .IsUnicode(false);
         entity.Property(e => e.ResetPasswordCode)
             .HasMaxLength(64)

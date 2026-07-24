@@ -12,7 +12,7 @@ public class UserVehicleUpsertRequest
     [MaxLength(9)] [Required] public string LicensePlate { get; set; } = null!;
 
     [Required] [Range(0, 100)] public float PricePerKm { get; set; }
+    [Length(13, 13)] public string? BankAccountNumber { get; set; }
 
     [JsonIgnore] public int? ProfileId { get; set; }
-    [JsonIgnore] public bool IsFirstVehicle { get; set; } = false;
 }
