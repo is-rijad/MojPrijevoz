@@ -13,6 +13,7 @@ public class OkController : ControllerBase
         _env = env;
     }
 
+    // Health-check endpoint for my k3s home lab
     [Route("api/ok")]
     [AllowAnonymous]
     [HttpGet]
