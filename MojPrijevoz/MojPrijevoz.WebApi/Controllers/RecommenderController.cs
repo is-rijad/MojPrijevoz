@@ -27,12 +27,11 @@ public class RecommenderController : ControllerBase
 
     [HttpPost("retrain")]
     [AllowAnonymous]
-    public async Task<IActionResult> RetrainAsync()
+    public  IActionResult Retrain()
     {
         if (_env.IsDevelopment())
         {
-            await _recommender.LoadOrTrainAsync();
-            await _recommender.TrainAsync();
+            _ = _recommender.TrainAsync();
             return Ok("Model is being retrained in background");
         }
 
