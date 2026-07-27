@@ -73,6 +73,12 @@ public class RatingService :
             request.ToId = fare.PassengerId;
             request.FromId = fare.DriverId;
         }
+
+        if (await _dbContext.Ratings.AnyAsync(it =>
+                it.FareId == fare.Id && it.FromId == request.FromId && it.ToId == request.ToId))
+        {
+            throw new BadRequestException("Već ste ocijenili ovu vožnju!");
+        }
     }
 
     protected override async Task AfterInsert(Database.Rating entity, RatingInsertRequest request,

@@ -72,6 +72,8 @@ public class EmailService : IEmailService
             EmailType.UserVehicleRequestChangesEmail => "Administrator je zatražio promjene na Vašem vozilu!",
             EmailType.UserBannedEmail => "Administrator Vas je banovao!",
             EmailType.RefundSucceededEmail => "Povrat je izvršen!",
+            EmailType.UserActivatedEmail => "Vaš račun je aktiviran!",
+            EmailType.UserVehicleActivatedEmail => "Vaše vozilo je aktivirano!",
             _ => throw new ArgumentOutOfRangeException(nameof(email.Type), $"Undefined email type: {email.Type}")
         };
     }

@@ -293,10 +293,12 @@ class _PageWrapperState extends State<PageWrapper> {
                       )
                     : TextBodyMedium(i.message),
                 onTap: () async => await _onTap(i),
-                trailing: ElevatedButton(
-                  onPressed: () async => await _markAsReadNotification(i),
-                  child: const Text("Označi kao pročitano"),
-                ),
+                trailing: !i.isRead
+                    ? IconButton(
+                        onPressed: () async => await _markAsReadNotification(i),
+                        icon: Icon(Icons.check),
+                      )
+                    : null,
               );
             },
           );

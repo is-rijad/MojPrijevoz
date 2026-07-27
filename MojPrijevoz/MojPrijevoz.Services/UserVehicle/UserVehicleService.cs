@@ -119,6 +119,9 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
     {
         await base.AfterUpdate(entity, dbContext);
         var requestedChanges = await _dbContext.UserVehicleRequestChanges.Where(it => it.UserVehicleId == entity.Id && !it.IsEdited).ToListAsync();
+        if (requestedChanges.Count > 0) {
+            entity.Status = UserVehicleStatus.WaitingForReview;
+        }
         requestedChanges.ForEach(it => it.IsEdited = true);
     }
 

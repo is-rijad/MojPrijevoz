@@ -1,17 +1,40 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 
-class PrimaryButton extends StatelessWidget {
+class PrimaryButton extends StatefulWidget {
   final String text;
-  final VoidCallback? onPressed;
+  final FutureOr<void> Function()? onPressed;
 
   const PrimaryButton({super.key, this.onPressed, required this.text});
 
   @override
+  State<StatefulWidget> createState() => _PrimaryButtonState();
+}
+
+class _PrimaryButtonState extends State<PrimaryButton> {
+  bool _isLoading = false;
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: widget.onPressed != null
+          ? () async {
+              setState(() {
+                _isLoading = true;
+              });
+              try {
+                await widget.onPressed!.call();
+              } finally {
+                if (mounted) {
+                  setState(() {
+                    _isLoading = false;
+                  });
+                }
+              }
+            }
+          : null,
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -34,7 +57,13 @@ class PrimaryButton extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: TextTitleSmall(text),
+          child: _isLoading
+              ? Center(
+                  child: CircularProgressIndicator(
+                    color: context.secondaryColor,
+                  ),
+                )
+              : TextTitleSmall(widget.text),
         ),
       ),
     );

@@ -159,6 +159,8 @@ class _NextFaresComponentState extends State<NextFaresComponent>
             iconHint: "Početna lokacija",
           ),
           IconFieldWithText(
+            width: context.screenWidth * 0.3,
+            
             iconData: Icons.location_city,
             text: fare.fareData!.trimmedDestinationName,
             iconHint: "Destinacija",
@@ -177,6 +179,8 @@ class _NextFaresComponentState extends State<NextFaresComponent>
           SizedBox(height: 12),
 
           IconFieldWithText(
+            width: context.screenWidth * 0.3,
+
             iconData: Icons.time_to_leave,
             text: fare.userVehicle!.vehicle.toString(),
             iconHint: "Vozilo",
@@ -191,7 +195,7 @@ class _NextFaresComponentState extends State<NextFaresComponent>
           IconFieldWithText(
             iconHint: "Ukupna cijena",
             iconData: Icons.attach_money,
-            text: "${fare.lastFareOffer!.totalPrice}KM",
+            text: "${fare.lastFareOffer!.totalPrice.toStringAsFixed(2)}KM",
             textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
           ),
         ],

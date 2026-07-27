@@ -17,5 +17,7 @@ public enum EmailType
     UserRequestChangesEmail,
     UserVehicleRequestChangesEmail,
     UserBannedEmail,
-    RefundSucceededEmail
+    RefundSucceededEmail,
+    UserActivatedEmail,
+    UserVehicleActivatedEmail,
 }

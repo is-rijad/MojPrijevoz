@@ -22,6 +22,8 @@ class IconFieldWithText extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(width: width),
       child: Text.rich(
+        textAlign: TextAlign.center,
+        overflow: TextOverflow.ellipsis,
         TextSpan(
           children: [
             WidgetSpan(

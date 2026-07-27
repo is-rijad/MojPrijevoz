@@ -190,7 +190,9 @@ public class RecommenderService
                     }).Score
                 })
                 .OrderByDescending(x => x.Score)
-                .Take(5)
+                .Skip((popularDriversDto.SearchObject.Page - 1) * popularDriversDto.SearchObject.PageSize)
+                .Take(popularDriversDto.SearchObject.PageSize)
+
                 .Select(x => x.RouteKey)
                 .ToList();
             return await BuildResultAsync(new BuildResultDto(popularDriversDto) { RouteKeys = topRouteKeys });
@@ -257,7 +259,8 @@ public class RecommenderService
                 f.FareData.DestinationZone
             })
             .OrderByDescending(g => g.Count())
-            .Take(5)
+            .Skip((dto.SearchObject.Page - 1) * dto.SearchObject.PageSize)
+            .Take(dto.SearchObject.PageSize)
             .Select(g => $"{g.Key.OriginCityId}→{g.Key.DestinationZone}")
             .ToListAsync();
 

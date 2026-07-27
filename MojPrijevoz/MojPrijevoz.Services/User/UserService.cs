@@ -81,6 +81,12 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         {
             throw new ForbiddenException("Nije vaš profil!");
         }
+
+        if (await _dbContext.Users.AnyAsync(it =>
+                it.BankAccountNumber != null && it.BankAccountNumber == request.BankAccountNumber && it.Id != id))
+        {
+            throw new BadRequestException("Broj bankovnog računa već postoji!");
+        }
         if (request.OldPassword is not null || request.Password is not null || request.PasswordAgain is not null)
         {
             if (!_authorizationService.VerifyPassword(request.OldPassword ?? string.Empty, entity.PasswordHash,
@@ -109,6 +115,10 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
     {
         await base.AfterUpdate(entity, dbContext);
         var requestedChanges = await _dbContext.UserRequestChanges.Where(it => it.UserId == entity.Id && !it.IsEdited).ToListAsync();
+        if (requestedChanges.Count > 0)
+        {
+            entity.Status = AccountStatus.WaitingForReview;
+        }
         requestedChanges.ForEach(it => it.IsEdited = true);
     }
 

@@ -58,6 +58,7 @@ public class AccountEntityConfiguration : IEntityTypeConfiguration<Account>
             .IsUnicode(false);
         entity.Property(e => e.LastName)
             .HasMaxLength(64)
+            .UseCollation("Croatian_CI_AS")
             .IsUnicode(false);
         entity.Property(e => e.PasswordHash)
             .HasMaxLength(44)

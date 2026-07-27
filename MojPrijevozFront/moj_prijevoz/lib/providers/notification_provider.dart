@@ -90,6 +90,7 @@ class NotificationProvider
   Future<void> logout() async {
     await _messaging.deleteToken();
     await _deleteTokenOnBackend();
+    _initialized = false;
   }
 
   Future<void> _deleteTokenOnBackend() async {

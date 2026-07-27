@@ -148,7 +148,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
                         .map(
                           (i) => IconFieldWithText(
                             iconHint: "Zaustavno mjesto",
-
+                            width: context.screenWidth * 0.3,
                             iconData: Icons.add_location,
                             text: i.trimmedName,
                           ),
@@ -163,6 +163,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
         IconFieldWithText(
           iconData: Icons.location_city,
           iconHint: "Destinacija",
+          width: context.screenWidth * 0.3,
 
           text: i.fareData!.trimmedDestinationName,
         ),
@@ -192,7 +193,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
         IconFieldWithText(
           iconData: Icons.attach_money,
           iconHint: "Cijena",
-          text: "${i.lastFareOffer!.totalPrice.roundToDouble().toString()}KM",
+          text: "${i.lastFareOffer!.totalPrice.toStringAsFixed(2)}KM",
           textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
         ),
         (_canPay(i))
@@ -221,7 +222,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
               children: [
                 Expanded(
                   child: TextLabelSmall(
-                    "* vožnju možete platiti najkasnije do ${context.getLocalizedDate(i.fareStartAfter!.subtract(Duration(minutes: 60)))} ${context.getLocalizedTime(i.fareStartAfter!.subtract(Duration(minutes: 60)))}",
+                    "* vožnju možete platiti najkasnije do ${context.getLocalizedDate(i.fareData!.fareDateTime)} ${context.getLocalizedTime(i.fareData!.fareDateTime)}",
                     textAlign: TextAlign.start,
                   ),
                 ),
@@ -235,9 +236,7 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
 
   bool _canPay(FareResponse fare) {
     return fare.status == FareStatus.accepted &&
-        fare.fareStartAfter!
-            .subtract(Duration(minutes: 60))
-            .isBefore(DateTime.now().toUtc());
+        fare.fareData!.fareDateTime.isAfter(DateTime.now().toUtc());
   }
 
   Future<void> _onTapCard(FareResponse fare) async {
@@ -269,15 +268,17 @@ class _MyFaresPassengerPageState extends State<MyFaresPassengerPage>
   }
 
   Future<void> _navigateToReviewPage(FareResponse fare) async {
-    await Constants.navigatorKey.currentState?.push(
-      MaterialPageRoute(
-        builder: (context) => ReviewPage(
-          fare: fare,
-          profileType: ProfileType.passenger,
-          isReadOnly: false,
+    if (!(await context.read<FareProvider>().isRated(fare.id)) && mounted) {
+      await Constants.navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => ReviewPage(
+            fare: fare,
+            profileType: ProfileType.passenger,
+            isReadOnly: false,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Future<void> _buildCancelFareDialog(FareResponse? fare) async {

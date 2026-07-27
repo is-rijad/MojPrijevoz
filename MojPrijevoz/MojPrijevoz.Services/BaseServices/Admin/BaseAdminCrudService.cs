@@ -4,6 +4,7 @@ using MojPrijevoz.Model.BaseModels.Admin;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Admin.RequestChanges;
 using MojPrijevoz.Services.Authorization;
+using Stripe.Apps;
 
 namespace MojPrijevoz.Services.BaseServices.Admin;
 
@@ -21,12 +22,15 @@ public abstract class
     where TSearchObject : OrderableSearchObject
 {
     protected readonly AuthorizationService _authorizationService;
+    protected readonly Dictionary<string, string>? TranslatedFields;
 
     public BaseAdminCrudService(MojPrijevozDbContext context, IMapper mapper,
-        AuthorizationService authorizationService) :
+        AuthorizationService authorizationService,
+        Dictionary<string, string>? translatedFields = null) :
         base(context, mapper)
     {
         _authorizationService = authorizationService;
+        TranslatedFields = translatedFields;
     }
 
     public virtual async Task<TResponse> InsertWithTransactionAsync(TInsertRequest request)
@@ -63,11 +67,24 @@ public abstract class
         await BeforeRequestChanges(id);
 
         var entities = MapToRequestChangesEntity(id, request);
-        await _dbContext.Set<TRequestChangesEntity>().AddRangeAsync(entities);
-        await SetEntityStatusToWaitingForChanges(id);
-        await _dbContext.SaveChangesAsync();
-        await SendNotificationEmail(entities);
+        if (entities.Count > 0)
+        {
+            await _dbContext.Set<TRequestChangesEntity>().AddRangeAsync(entities);
+            await SetEntityStatusToWaitingForChanges(id);
+            await _dbContext.SaveChangesAsync();
+
+            await SendNotificationEmail(TranslateFieldsForEmail(entities));
+        }
         return await GetByIdAsync(id);
+    }
+
+    protected bool IsReactivated<TEnum>(TEntity entity, TEnum oldStatus, TEnum newStatus) where TEnum : Enum
+    {
+        var statusProperty = _dbContext.Entry(entity).Property<TEnum>("Status");
+        if (statusProperty == null)
+            throw new Exception($"{typeof(TEntity)} does not have property Status!");
+        return statusProperty.OriginalValue.Equals(oldStatus) 
+               && statusProperty.CurrentValue.Equals(newStatus);
     }
 
     public virtual async Task<TResponse> UpdateAsync(int id, TUpdateRequest request)
@@ -106,7 +123,7 @@ public abstract class
     {
         var list = new List<TRequestChangesEntity>();
         if (request.Notes != null)
-            foreach (var note in request.Notes)
+            foreach (var note in request.Notes.Where(it => !string.IsNullOrEmpty(it.Value)))
             {
                 var entity = Activator.CreateInstance<TRequestChangesEntity>();
                 entity.Field = note.Key;
@@ -124,6 +141,16 @@ public abstract class
         }
 
         return list;
+    }
+
+    protected List<TRequestChangesEntity> TranslateFieldsForEmail(List<TRequestChangesEntity> entities)
+    {
+        if (TranslatedFields == null)
+        {
+            throw new ArgumentException("TranslatedFields property is required in order to send an email!");
+        }
+        entities.ForEach(it => it.Field = TranslatedFields![it.Field]);
+        return entities;
     }
 
     public abstract Task BeforeRequestChanges(int id);

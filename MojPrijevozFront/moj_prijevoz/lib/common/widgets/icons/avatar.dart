@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moj_prijevoz/common/mp_build_context_extension.dart';
 import 'package:moj_prijevoz/common/resources/enums/statuses/account_status.dart';
 import 'package:moj_prijevoz/common/resources/user_for_circle_avatar_interface.dart';
 import 'package:moj_prijevoz/common/resources/user_for_circle_avatar_with_preview_interface.dart';
@@ -41,7 +42,7 @@ class _AvatarState extends State<Avatar> {
       return Banner(
         message: accountStatusMap[widget.user.status]!,
         location: BannerLocation.bottomStart,
-        color: Colors.red,
+        color: context.primaryColor,
         textStyle: TextStyle(fontSize: widget.fontSize),
         child: child,
       );

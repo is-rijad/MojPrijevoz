@@ -35,6 +35,8 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User>
             .IsRequired(false)
             .IsUnicode(false);
 
+        entity.HasIndex(it => it.BankAccountNumber).IsUnique();
+
         entity.HasOne(d => d.City).WithMany(p => p.Users)
             .HasForeignKey(d => d.CityId)
             .OnDelete(DeleteBehavior.ClientSetNull);

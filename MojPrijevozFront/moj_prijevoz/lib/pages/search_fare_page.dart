@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:easy_stars/easy_stars.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -898,57 +899,63 @@ class _SearchFarePageState extends State<SearchFarePage> {
       });
     }
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() {
-        _uiProvider.startLoading();
-      });
-      _formKey.currentState!.save();
-      setState(() {
-        _request.isValid = true;
-      });
-      if (!mounted) return;
-
-      if ((context.read<SearchFareProvider>().fareDrivers.isEmpty ||
-          _request.isChanged)) {
-        _request.stopPlaces = [];
-        for (var i in _nominatimPlaceSelectors) {
-          if (i.locationBound != null) {
-            _request.stopPlaces!.add(i.locationBound!);
-          }
-        }
-        _selectedDrivers.clear();
-        context.read<SearchFareProvider>().clearFareDrivers();
-        context.read<SearchFareProvider>().clearData(_searchFareSearchObject);
-        var route = await GetIt.I<MapProvider>().getRoute(
-          NominatimCityDto(
-            long: _request.startLocation!.long,
-            lat: _request.startLocation!.lat,
-          ),
-          NominatimCityDto(
-            long: _request.finalLocation!.lon,
-            lat: _request.finalLocation!.lat,
-          ),
-          stopPlaces: _request.stopPlaces!
-              .map((it) => NominatimCityDto(long: it.lon, lat: it.lat))
-              .toList(),
-          includeLocationNames: false,
-        );
-        _searchFareSearchObject.originCityId = _request.startLocation!.id;
-        _searchFareSearchObject.duration = route.duration;
-        _searchFareSearchObject.distance = route.distance;
-        _searchFareSearchObject.budget = _request.budget;
-        _searchFareSearchObject.fareDateTime = _request.fareDateTime;
-        _searchFareSearchObject.driverId = widget.driverId;
-
+      try {
+        setState(() {
+          _uiProvider.startLoading();
+        });
+        _formKey.currentState!.save();
+        setState(() {
+          _request.isValid = true;
+        });
         if (!mounted) return;
-        await context.read<SearchFareProvider>().fetchData(
-          _searchFareSearchObject,
-        );
-      }
-      setState(() {
-        currentBreadCrumbIndex = 1;
+
+        if ((context.read<SearchFareProvider>().fareDrivers.isEmpty ||
+            _request.isChanged)) {
+          _request.stopPlaces = [];
+          for (var i in _nominatimPlaceSelectors) {
+            if (i.locationBound != null) {
+              _request.stopPlaces!.add(i.locationBound!);
+            }
+          }
+          _selectedDrivers.clear();
+          context.read<SearchFareProvider>().clearFareDrivers();
+          context.read<SearchFareProvider>().clearData(_searchFareSearchObject);
+          var route = await GetIt.I<MapProvider>().getRoute(
+            NominatimCityDto(
+              long: _request.startLocation!.long,
+              lat: _request.startLocation!.lat,
+            ),
+            NominatimCityDto(
+              long: _request.finalLocation!.lon,
+              lat: _request.finalLocation!.lat,
+            ),
+            stopPlaces: _request.stopPlaces!
+                .map((it) => NominatimCityDto(long: it.lon, lat: it.lat))
+                .toList(),
+            includeLocationNames: false,
+          );
+          _searchFareSearchObject.originCityId = _request.startLocation!.id;
+          _searchFareSearchObject.duration = route.duration;
+          _searchFareSearchObject.distance = route.distance;
+          _searchFareSearchObject.budget = _request.budget;
+          _searchFareSearchObject.fareDateTime = _request.fareDateTime;
+          _searchFareSearchObject.driverId = widget.driverId;
+
+          if (!mounted) return;
+          await context.read<SearchFareProvider>().fetchData(
+            _searchFareSearchObject,
+          );
+        }
+        setState(() {
+          currentBreadCrumbIndex = 1;
+          _uiProvider.stopLoading();
+        });
+        _request.isChanged = false;
+      } on DioException catch (_) {
+        rethrow;
+      } finally {
         _uiProvider.stopLoading();
-      });
-      _request.isChanged = false;
+      }
     }
   }
 

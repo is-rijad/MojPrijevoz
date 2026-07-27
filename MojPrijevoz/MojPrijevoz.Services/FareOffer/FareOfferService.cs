@@ -179,7 +179,7 @@ public class FareOfferService :
     {
         var passengerProfileId = await _authorizationService.GetProfileId(ProfileType.Passenger);
         var driverProfileId = await _authorizationService.GetProfileId(ProfileType.Driver);
-        if (driverProfileId != entity.Fare!.DriverId || passengerProfileId != entity.Fare!.PassengerId) {
+        if (driverProfileId != entity.Fare!.DriverId && passengerProfileId != entity.Fare!.PassengerId) {
             throw new ForbiddenException("Nije vaša ponuda!");
         }
     }
@@ -403,7 +403,7 @@ public class FareOfferService :
                 (it.Status == FareOfferStatus.WaitingForResponse && (it.UpdatedAt.AddHours(48) <=
                     DateTime.UtcNow || it.CreatedAt.AddHours(48) <=
                     DateTime.UtcNow)) || (it.Status == FareOfferStatus.Accepted &&
-                                          it.Fare!.FareStartAfter!.Value.AddMinutes(-60) < DateTime.UtcNow))
+                                          it.Fare!.FareData!.FareDateTime < DateTime.UtcNow))
             .Include(it => it.Fare!.Driver)
             .ThenInclude(it => it!.User)
             .Include(it => it.Fare!.Passenger)

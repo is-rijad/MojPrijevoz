@@ -95,7 +95,6 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
         fareId: widget.fareId,
       ),
       mainAxisAlignment: MainAxisAlignment.center,
-
       children: (i) => [
         (i.lastFareOffer!.side == FareOfferSide.passenger &&
                 (i.status == FareStatus.inNegotiation ||
@@ -149,6 +148,8 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
                     children: i.fareData!.stopPoints!
                         .map(
                           (i) => IconFieldWithText(
+                            width: context.screenWidth * 0.3,
+
                             iconHint: "Zaustavno mjesto",
                             iconData: Icons.add_location,
                             text: i.trimmedName,
@@ -161,6 +162,8 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
             ),
           ),
         IconFieldWithText(
+                            width: context.screenWidth * 0.3,
+
           iconData: Icons.location_city,
           iconHint: "Destinacija",
           text: i.fareData!.trimmedDestinationName,
@@ -190,7 +193,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
         IconFieldWithText(
           iconData: Icons.attach_money,
           iconHint: "Cijena",
-          text: "${i.lastFareOffer!.totalPrice.toString()}KM",
+          text: "${i.lastFareOffer!.totalPrice.toStringAsFixed(2)}KM",
           textStyle: TextStyle(fontWeight: FontWeight(900), fontSize: 16),
         ),
         (i.status == FareStatus.payed && i.isStartAvailable)

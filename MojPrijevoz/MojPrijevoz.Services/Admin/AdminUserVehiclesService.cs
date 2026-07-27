@@ -18,10 +18,16 @@ public class AdminUserVehiclesService : BaseAdminCrudService<Database.UserVehicl
     AdminUserVehicleSearchObject>
 {
     private readonly INotificationService _notificationService;
+    private static readonly Dictionary<string, string> _translatedFields = new()
+    {
+        ["modelYear"] = "Godina proizvodnje",
+        ["pricePerKm"] = "Cijena po kilometru",
+        ["picture"] = "Slika",
+    };
 
     public AdminUserVehiclesService(MojPrijevozDbContext context, IMapper mapper,
         AuthorizationService authorizationService,
-        INotificationService notificationService) : base(context, mapper, authorizationService)
+        INotificationService notificationService) : base(context, mapper, authorizationService, _translatedFields)
     {
         _notificationService = notificationService;
     }
@@ -59,6 +65,26 @@ public class AdminUserVehiclesService : BaseAdminCrudService<Database.UserVehicl
         entity.Vehicle = await _dbContext.Vehicles.FindAsync(entity.VehicleId);
         entity.Profile = await _dbContext.UserProfiles.Include(it => it.User).Where(it => it.Id == entity.ProfileId)
             .FirstAsync();
+    }
+
+    protected override async Task AfterUpdate(Database.UserVehicle entity, MojPrijevozDbContext dbContext)
+    {
+        await base.AfterUpdate(entity, dbContext);
+        if (IsReactivated<UserVehicleStatus>(entity, UserVehicleStatus.WaitingForReview, UserVehicleStatus.Active))
+        {
+            var userVehicle = await _dbContext.UserVehicles.Include(it => it.Vehicle).Include(it => it.Profile)
+                .ThenInclude(it => it!.User).FirstOrDefaultAsync(it => it.Id == entity.Id);
+            await _notificationService.SendEmailAsync(new EmailDto
+            {
+                To = userVehicle!.Profile!.User!.Email,
+                Type = EmailType.UserVehicleActivatedEmail,
+                Data = new Dictionary<string, dynamic>
+                {
+                    ["Name"] = userVehicle.Profile!.User!.FirstName,
+                    ["VehicleName"] = $"{userVehicle.Vehicle!.ToString()} ({userVehicle.ModelYear})",
+                }
+            });
+        }
     }
 
     public override async Task BeforeRequestChanges(int id)

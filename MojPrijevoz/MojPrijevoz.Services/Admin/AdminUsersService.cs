@@ -21,9 +21,20 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
     private readonly RevokedTokenService _revokedTokenService;
     private readonly TokenManager _tokenManager;
 
+    private static readonly Dictionary<string, string> _translatedFields = new()
+    {
+        ["firstName"] = "Ime",
+        ["lastName"] = "Prezime",
+        ["email"] = "Email",
+        ["username"] = "Korisničko ime",
+        ["phoneNumber"] = "Broj mobitela",
+        ["bankAccountNumber"] = "Broj bankovnog računa",
+        ["picture"] = "Slika profila"
+    };
+
     public AdminUsersService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
         INotificationService notificationService, RevokedTokenService revokedTokenService,
-        TokenManager tokenManager) : base(context, mapper, authorizationService)
+        TokenManager tokenManager) : base(context, mapper, authorizationService, _translatedFields)
     {
         _notificationService = notificationService;
         _revokedTokenService = revokedTokenService;
@@ -91,6 +102,7 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
     protected override async Task AfterUpdate(Database.User entity, MojPrijevozDbContext dbContext)
     {
         await base.AfterUpdate(entity, dbContext);
+        
         if (entity.Status == AccountStatus.Banned)
         {
             await _notificationService.SendEmailAsync(new EmailDto
@@ -105,7 +117,19 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
             });
             await _tokenManager.DropRefreshTokenIfExists(entity.Id);
         }
-
+        else if (IsReactivated<AccountStatus>(entity, AccountStatus.WaitingForReview, AccountStatus.Active) 
+                 || IsReactivated(entity, AccountStatus.Banned, AccountStatus.Active))
+        {
+            await _notificationService.SendEmailAsync(new EmailDto
+            {
+                To = entity.Email,
+                Type = EmailType.UserActivatedEmail,
+                Data = new Dictionary<string, dynamic>
+                {
+                    ["Name"] = entity.FirstName,
+                }
+            });
+        }
         _revokedTokenService.Revoke(entity.Id, null);
     }
 }
