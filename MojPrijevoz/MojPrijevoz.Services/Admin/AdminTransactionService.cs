@@ -99,12 +99,6 @@ public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTr
         return queryable;
     }
 
-    protected override async Task PrepareForResponse(Transaction entity, MojPrijevozDbContext dbContext)
-    {
-        await base.PrepareForResponse(entity, dbContext);
-        entity.Fare = await _dbContext.Fares.Include(it => it.FareData).ThenInclude(it => it!.OriginCity)
-            .Include(it => it.Passenger).ThenInclude(it => it!.User).FirstAsync(it => it.Id == entity.FareId);
-    }
 
     public async Task<PagedResult<AdminAllUsersResponse>> GetUsersAsync(AdminUserSearchObject searchObject)
     {
