@@ -129,7 +129,7 @@ abstract class BaseProvider<
   }
 
   Future<TResponse?> updateWithEvent(
-    int id,
+    int? id,
     TUpdateRequest? request, {
     FormData? formData,
   }) async {

@@ -18,7 +18,7 @@ public class UserVehicle : IEntityHasPicture
 
     public int ProfileId { get; set; }
 
-    public int VehicleId { get; set; }
+    public int? VehicleId { get; set; }
 
     public int ModelYear { get; set; }
 
@@ -61,6 +61,6 @@ public class UserVehicleEntityConfiguration : IEntityTypeConfiguration<UserVehic
 
         entity.HasOne(d => d.Vehicle).WithMany(p => p.UserVehicles)
             .HasForeignKey(d => d.VehicleId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

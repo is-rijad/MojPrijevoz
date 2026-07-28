@@ -132,7 +132,7 @@ public class SearchFareService : ISearchFareService
         {
             Id = profileId,
             Price = price,
-            VehicleId = userVehicle.VehicleId,
+            VehicleId = userVehicle.VehicleId!.Value,
             UserVehicleId = userVehicle.Id,
             AdditionalPrice = additionalPrice == 0 ? null : additionalPrice
         };

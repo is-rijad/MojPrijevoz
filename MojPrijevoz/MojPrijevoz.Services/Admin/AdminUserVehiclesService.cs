@@ -74,6 +74,7 @@ public class AdminUserVehiclesService : BaseAdminCrudService<Database.UserVehicl
         {
             var userVehicle = await _dbContext.UserVehicles.Include(it => it.Vehicle).Include(it => it.Profile)
                 .ThenInclude(it => it!.User).FirstOrDefaultAsync(it => it.Id == entity.Id);
+            
             await _notificationService.SendEmailAsync(new EmailDto
             {
                 To = userVehicle!.Profile!.User!.Email,
@@ -111,17 +112,35 @@ public class AdminUserVehiclesService : BaseAdminCrudService<Database.UserVehicl
 
     public override async Task SendNotificationEmail(List<UserVehicleRequestChanges> entities)
     {
-        var userVehicle = await _dbContext.UserVehicles.Include(it => it.Profile).ThenInclude(it => it!.User)
-            .FirstAsync(it => it.Id == entities.First().UserVehicleId);
+        var user = await _dbContext.UserVehicles
+            .Select(it => new
+            {
+                UserVehicleId = it.Id,
+                User = it.Profile!.User
+            })
+            .FirstAsync(it => it!.UserVehicleId == entities.First().UserVehicleId);
         await _notificationService.SendEmailAsync(new EmailDto
         {
-            To = userVehicle.Profile!.User!.Email,
+            To = user!.User!.Email,
             Type = EmailType.UserVehicleRequestChangesEmail,
             Data = new Dictionary<string, dynamic>
             {
-                ["Name"] = userVehicle.Profile!.User!.FirstName,
+                ["Name"] = user.User!.FirstName,
                 ["Changes"] = entities
             }
         });
     }
+
+    protected override async Task BeforeDelete(int id, Database.UserVehicle entity)
+    {
+        await base.BeforeDelete(id, entity);
+        if (await _dbContext.Fares.AnyAsync(it => it.UserVehicleId == id && (it.Status == FareStatus.InNegotiation ||
+                                                                             it.Status == FareStatus.Accepted ||
+                                                                             it.Status == FareStatus.InProgress ||
+                                                                             it.Status == FareStatus.Payed)))
+            throw new BadRequestException("Ne možete obrisati vozilo koje ima aktivanu vožnju!");
+        entity.Status = UserVehicleStatus.Deleted;
+        entity.VehicleId = null;
+    }
+    
 }

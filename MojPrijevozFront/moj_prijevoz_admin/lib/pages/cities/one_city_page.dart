@@ -67,12 +67,6 @@ class _OneCityPageState extends RouteAwareState<OneCityPage> {
             onPressed: () async => await _refreshForm(context),
             icon: Icon(Icons.refresh),
           ),
-          IconButton(
-            onPressed: widget.cityId != null
-                ? () async => await _deleteCity(context)
-                : null,
-            icon: Icon(Icons.delete),
-          ),
         ],
       ),
     );
@@ -206,31 +200,6 @@ class _OneCityPageState extends RouteAwareState<OneCityPage> {
               Constants.navigatorKey.currentState?.pop(true);
             } else {
               Constants.navigatorKey.currentState?.pop(false);
-            }
-          },
-        );
-      },
-    );
-    if (isDone ?? false) {
-      Constants.navigatorKey.currentState?.pop();
-    }
-  }
-
-  Future _deleteCity(BuildContext context) async {
-    final isDone = await showDialog<bool?>(
-      context: context,
-      builder: (context) {
-        return ConfirmationDialog(
-          content: "Da li ste sigurni da želite obrisati grad?",
-          onSubmit: () async {
-            await context.read<CityProvider>().deleteWithEvent(widget.cityId!);
-
-            Constants.messengerKey.currentState?.showSnackBar(
-              SuccessSnackBar(message: "Promjene su uspješno spremljene!"),
-            );
-
-            if (context.mounted) {
-              Constants.navigatorKey.currentState?.pop(true);
             }
           },
         );

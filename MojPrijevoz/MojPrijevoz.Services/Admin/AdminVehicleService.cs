@@ -29,6 +29,13 @@ public class AdminVehicleService : BaseAdminCrudService<Database.Vehicle, AdminU
         return queryable;
     }
 
+    protected override IQueryable<Database.Vehicle> ApplyOrdering(IQueryable<Database.Vehicle> queryable, AdminVehicleSearchObject searchObject)
+    {
+        if (!string.IsNullOrEmpty(searchObject.OrderBy))
+            return base.ApplyOrdering(queryable, searchObject);
+        return queryable.OrderBy(it => it.Manufacturer).ThenBy(it => it.Model).AsQueryable();
+    }
+
     public override Task BeforeRequestChanges(int id)
     {
         throw new NotImplementedException();

@@ -173,6 +173,7 @@ class _OneVehiclePageState extends RouteAwareState<OneVehiclePage> {
           content: "Da li ste sigurni da želite spremiti promjene?",
           onSubmit: () async {
             if (_formKey.currentState?.validate() ?? false) {
+              _formKey.currentState?.save();
               if (widget.vehicleId != null) {
                 await context.read<VehiclesProvider>().updateWithEvent(
                   widget.vehicleId!,
