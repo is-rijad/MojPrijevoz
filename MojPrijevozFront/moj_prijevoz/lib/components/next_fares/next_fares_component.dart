@@ -160,7 +160,7 @@ class _NextFaresComponentState extends State<NextFaresComponent>
           ),
           IconFieldWithText(
             width: context.screenWidth * 0.3,
-            
+
             iconData: Icons.location_city,
             text: fare.fareData!.trimmedDestinationName,
             iconHint: "Destinacija",
@@ -233,7 +233,7 @@ class _NextFaresComponentState extends State<NextFaresComponent>
     } else {
       if (fare.status == FareStatus.inProgress) {
         return "U toku";
-      } else if (fare.status == FareStatus.accepted && fare.isStartAvailable) {
+      } else if (fare.status == FareStatus.payed && fare.isStartAvailable) {
         return "Moguće započeti";
       }
       return "Vi ste vozač";
@@ -254,9 +254,7 @@ class _NextFaresComponentState extends State<NextFaresComponent>
 
   bool _canPay(FareResponse fare) {
     return fare.status == FareStatus.accepted &&
-        fare.fareStartAfter!
-            .subtract(Duration(minutes: 60))
-            .isBefore(DateTime.now().toUtc());
+        fare.fareData!.fareDateTime.isAfter(DateTime.now().toUtc());
   }
 
   Future<void> _buildStartFareDialog(FareResponse? fare) async {

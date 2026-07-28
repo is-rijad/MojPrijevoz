@@ -128,7 +128,7 @@ public class FareOfferService :
             Data = new Dictionary<string, dynamic>
             {
                 ["ReceipantName"] = passenger.User!.FirstName,
-                ["FareDateTime"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                ["FareDateTime"] = request.FareDateTime.ToString("dd/MM/yyyy HH:mm"),
                 ["StartLocation"] = startLocation.Name,
                 ["EndLocation"] = request.DestinationName,
                 ["Drivers"] = drivers.Select(it => new
@@ -374,7 +374,6 @@ public class FareOfferService :
             .ThenInclude(it => it!.Passenger)
             .FirstAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
-        await CheckIsOfferOwner(entity);
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Pay(entity);
         await _fareService.PayAsync(entity!.Fare!.Id);
@@ -474,7 +473,8 @@ public class FareOfferService :
                     {
                         ["FareId"] = entity.FareId.ToString(),
                         ["Type"] = SendToUserDto.AcceptedFareOfferType,
-                        ["Side"] = entity.Side.ToString()
+                        ["Side"] = (entity.Side == ProfileType.Passenger ? ProfileType.Driver : ProfileType.Passenger)
+                            .ToString()
                     }
                 });
                 break;

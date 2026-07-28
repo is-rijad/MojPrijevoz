@@ -96,8 +96,7 @@ class _UpsertDialogState<
         _errorMessage.value = ErrorHandler.handle(e, stack);
         await Future.delayed(Duration(seconds: 5));
       }
-    }
-    if (_formKey.currentState!.validate()) {
+    } else if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       try {
         JsonResponse? resultItem;

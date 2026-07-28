@@ -54,6 +54,7 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
     protected override async Task AfterInsert(Database.User entity, UserInsertRequest request,
         MojPrijevozDbContext dbContext)
     {
+        await _dbContext.SaveChangesAsync();
         await base.AfterInsert(entity, request, dbContext);
         if (!await _dbContext.UserProfiles.Where(it => it.UserId == entity.Id).AnyAsync())
             await _dbContext.UserProfiles.AddAsync(new Database.UserProfile

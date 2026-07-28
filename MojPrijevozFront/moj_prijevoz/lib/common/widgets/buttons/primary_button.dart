@@ -19,7 +19,7 @@ class _PrimaryButtonState extends State<PrimaryButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onPressed != null
+      onTap: (!_isLoading && widget.onPressed != null)
           ? () async {
               setState(() {
                 _isLoading = true;

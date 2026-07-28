@@ -51,14 +51,15 @@ class MapProvider {
         startLocationName: startLocationName,
         finalLocationName: finalLocationName,
       );
-    } on DioException {
+    } on DioException catch (e) {
+      print(e);
       throw UserException("Greška prilikom preuzimanja rute!");
     }
   }
 
   Future<String> _getLocationName(String lat, String long) async {
     final response = await DioClient.dio.get(
-      "$_openReverseApiUrl?api_key=$_openRouteKey&point.lat=$lat&point.lon=$long&layers=street",
+      "$_openReverseApiUrl?api_key=$_openRouteKey&point.lat=$lat&point.lon=$long",
     );
     return response.data["features"][0]["properties"]["name"];
   }

@@ -162,7 +162,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
             ),
           ),
         IconFieldWithText(
-                            width: context.screenWidth * 0.3,
+          width: context.screenWidth * 0.3,
 
           iconData: Icons.location_city,
           iconHint: "Destinacija",
@@ -243,7 +243,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
       await _trackUser(fare);
     } else if (fare.status == FareStatus.completed) {
       await _navigateToReviewPage(fare);
-    } else if (fare.isStartAvailable) {
+    } else if (fare.status == FareStatus.payed && fare.isStartAvailable) {
       await _buildStartFareDialog(fare);
     }
   }
@@ -341,6 +341,7 @@ class _MyFaresDriverPageState extends State<MyFaresDriverPage> with RouteAware {
 
   bool canCancel(FareResponse i) {
     return i.status == FareStatus.inNegotiation ||
-        i.status == FareStatus.accepted;
+        i.status == FareStatus.accepted ||
+        i.status == FareStatus.payed;
   }
 }

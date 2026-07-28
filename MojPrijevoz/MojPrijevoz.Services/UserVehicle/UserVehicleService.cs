@@ -52,7 +52,10 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
             throw new BadRequestException("Godina proizvodnje ne može biti manja od 1900.");
         if (request.ModelYear > DateTime.UtcNow.Year)
             throw new BadRequestException($"Godina proizvodnje ne može biti veća od {DateTime.UtcNow.Year}.");
-
+        if (await _dbContext.Users.AnyAsync(it =>
+                it.BankAccountNumber != null && it.BankAccountNumber == request.BankAccountNumber)) {
+            throw new BadRequestException("Broj bankovnog računa već postoji!");
+        }
         var userId = _authorizationService.GetUserId();
         var profile = await _authorizationService.GetUserProfile(ProfileType.Driver);
         if (profile is null)

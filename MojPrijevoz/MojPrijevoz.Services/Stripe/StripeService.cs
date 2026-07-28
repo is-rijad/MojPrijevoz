@@ -59,7 +59,7 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
 
         var requestOptions = new RequestOptions
         {
-            IdempotencyKey = $"fareoffer-payment-intent-{{fareOfferId}}"
+            IdempotencyKey = $"fareoffer-payment-intent-{fareOfferId}"
         };
 
         var service = new PaymentIntentService();
@@ -111,7 +111,7 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
                         Data = new Dictionary<string, dynamic>
                         {
                             ["Name"] = transaction.Fare.Passenger.User.FirstName,
-                            ["Amount"] = transaction.Amount + (transaction.FeeAmount ?? 0)
+                            ["Amount"] = Math.Round(transaction.Amount + (transaction.FeeAmount ?? 0), 2)
                         }
                     });
                 }
