@@ -1,11 +1,11 @@
 ﻿using Bogus;
 using Bogus.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MojPrijevoz.Database;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.Recommender;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
 
 namespace MojPrijevoz.Services.DbSeeder;
 
@@ -15,6 +15,8 @@ public class DbSeeder
     private readonly AuthorizationService _authorizationService;
     private readonly MojPrijevozDbContext _mojPrijevozDbContext;
     private readonly Randomizer _randomizer = new();
+
+    private Database.User? _mainUser;
 
     private List<Database.City>? _cities;
     private List<int>? _driverProfileIds;
@@ -114,6 +116,7 @@ public class DbSeeder
 
     private async Task SeedUsersAsync()
     {
+
         var usersGen = new Faker<Database.User>(FakerLocale)
             .RuleFor(u => u.FirstName, f => f.Name.FirstName().ClampLength(max: 32))
             .RuleFor(u => u.LastName, f => FormatLastName(f.Name.LastName()))
@@ -125,10 +128,15 @@ public class DbSeeder
             .RuleFor(u => u.CityId, f => f.PickRandom(_cities!.Select(c => c.Id)))
             .RuleFor(u => u.Status, f => AccountStatus.Active)
             .RuleFor(u => u.Picture, f => f.Image.PicsumUrl())
-            .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber("+38761#####"));
+            .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber("+38761######"));
 
-        var users = usersGen.Generate(50);
+        var users = usersGen.Generate(51);
+
+        _mainUser = users.First();
+        (_mainUser.FirstName, _mainUser.LastName, _mainUser.Username, _mainUser.Email, _mainUser.CityId) =
+            ("Mobilni", "Telefon", "mobile", "mobilni.telefon@gmail.com", _cities!.First(it => it.Name == "Visoko").Id);
         await _mojPrijevozDbContext.Users.AddRangeAsync(users);
+
         await _mojPrijevozDbContext.SaveChangesAsync();
 
         _users = new Queue<Database.User>(users);
@@ -149,6 +157,7 @@ public class DbSeeder
     {
         var faker = new Faker(FakerLocale);
         var userProfiles = new List<Database.UserProfile>();
+
         while (_users!.Any())
         {
             var user = _users!.Dequeue();
@@ -167,6 +176,16 @@ public class DbSeeder
                 userProfiles.Add(userProfile);
                 user.BankAccountNumber = faker.Finance.Account(13);
             }
+        }
+
+        if (!userProfiles.Any(it => it.UserId == _mainUser!.Id && it.ProfileType == ProfileType.Driver))
+        {
+            userProfiles.Add(new Database.UserProfile
+            {
+                UserId = _mainUser!.Id,
+                ProfileType = ProfileType.Driver
+            });
+            _mainUser.BankAccountNumber = faker.Finance.Account(13);
         }
 
         await _mojPrijevozDbContext.UserProfiles.AddRangeAsync(userProfiles);

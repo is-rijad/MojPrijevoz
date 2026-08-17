@@ -2,6 +2,9 @@
 
 public class BuildResultDto : PopularDriversDto
 {
+    public Dictionary<string, float>? RouteScores { get; set; }
+    public List<string> RouteKeys { get; set; } = null!;
+
     public BuildResultDto(PopularDriversDto dto)
     {
         Database = dto.Database;
@@ -9,5 +12,4 @@ public class BuildResultDto : PopularDriversDto
         SearchObject = dto.SearchObject;
     }
 
-    public List<string> RouteKeys { get; set; } = null!;
 }

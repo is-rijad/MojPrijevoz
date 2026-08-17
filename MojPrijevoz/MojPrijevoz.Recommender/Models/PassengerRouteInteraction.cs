@@ -4,9 +4,11 @@ namespace MojPrijevoz.Recommender.Models;
 
 public class PassengerRouteInteraction
 {
-    [KeyType(1000000)] public uint PassengerId { get; set; }
+    [KeyType(count: 50_000)]
+    public uint PassengerId { get; set; }
 
-    [KeyType(100000)] public uint RouteId { get; set; }
+    [KeyType(count: 20_000)]
+    public uint RouteId { get; set; }
 
     public float Label { get; set; }
 }

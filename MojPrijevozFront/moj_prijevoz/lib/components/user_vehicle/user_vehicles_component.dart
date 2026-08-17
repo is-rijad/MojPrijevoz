@@ -93,9 +93,9 @@ class _UserVehiclesComponentState extends State<UserVehiclesComponent> {
                 iconHint: "Registarske tablice",
               ),
               IconFieldWithText(
-                width: 100,
+                width: 200,
                 iconData: Icons.attach_money,
-                text: "${i.pricePerKm.toString()} KM/km",
+                text: "${i.pricePerKm.toStringAsFixed(2)} KM/km",
                 iconHint: "Cijena po kilometru",
               ),
             ],

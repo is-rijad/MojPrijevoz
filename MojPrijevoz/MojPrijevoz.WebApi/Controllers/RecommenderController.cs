@@ -12,11 +12,13 @@ public class RecommenderController : ControllerBase
 {
     private readonly IHostEnvironment _env;
     private readonly RecommenderService _recommender;
+    private readonly ILogger _logger;
 
-    public RecommenderController(RecommenderService recommender, IHostEnvironment env)
+    public RecommenderController(RecommenderService recommender, IHostEnvironment env, ILogger logger)
     {
         _recommender = recommender;
         _env = env;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -29,12 +31,15 @@ public class RecommenderController : ControllerBase
     [AllowAnonymous]
     public  IActionResult Retrain()
     {
-        if (_env.IsDevelopment())
-        {
-            _ = _recommender.TrainAsync();
-            return Ok("Model is being retrained in background");
-        }
+        if (!_env.IsDevelopment())
+            return NotFound("Only for development");
 
-        return NotFound("Only for development");
+        _ = Task.Run(async () =>
+        {
+            try { await _recommender.TrainAsync(); }
+            catch (Exception ex) { _logger.LogError(ex, "Retrain failed."); }
+        });
+
+        return Ok("Model is being retrained in background");
     }
 }

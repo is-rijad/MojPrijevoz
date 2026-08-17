@@ -61,16 +61,18 @@ class _DriversDiscountComponent extends State<DriversDiscountComponent> {
             children: (i) => [
               const TextTitleMedium("Donja granica kilometara"),
               Divider(color: context.primaryColor),
-              TextBodyMedium("${i.minKm} km"),
+              TextBodyMedium("${i.minKm.toStringAsFixed(2)} km"),
               SizedBox(height: 12),
               const TextTitleMedium("Gornja granica kilometara"),
               Divider(color: context.primaryColor),
-              TextBodyMedium("${i.maxKm ?? "Neograničeno"} km"),
+              TextBodyMedium(
+                "${i.maxKm?.toStringAsFixed(2) ?? "Neograničeno"} km",
+              ),
 
               SizedBox(height: 12),
               const TextTitleMedium("Popust"),
               Divider(color: context.primaryColor),
-              TextBodyMedium("${i.discount}%"),
+              TextBodyMedium("${i.discount.toStringAsFixed(2)}%"),
             ],
           ),
     );

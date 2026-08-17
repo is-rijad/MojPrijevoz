@@ -12,8 +12,6 @@ import 'package:moj_prijevoz/common/widgets/snackbars.dart';
 import 'package:moj_prijevoz/common/widgets/texts/text_widgets.dart';
 import 'package:moj_prijevoz/common/wrappers/form_wrapper.dart';
 import 'package:moj_prijevoz/common/wrappers/load_until_ready_wrapper.dart';
-import 'package:moj_prijevoz/providers/user_profile_provider.dart';
-import 'package:moj_prijevoz/resources/requests/user/update_user_request.dart';
 import 'package:moj_prijevoz/resources/responses/user/user_response.dart';
 import 'package:provider/provider.dart';
 
