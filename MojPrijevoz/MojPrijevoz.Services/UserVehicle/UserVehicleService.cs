@@ -107,8 +107,8 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
         await base.BeforeUpdate(id, request, entity);
         if (request.ModelYear < 1900)
             throw new BadRequestException("Godina proizvodnje ne može biti manja od 1900.");
-        if (request.ModelYear > DateTime.Now.Year)
-            throw new BadRequestException($"Godina proizvodnje ne može biti veća od {DateTime.Now.Year}.");
+        if (request.ModelYear > DateTime.UtcNow.Year)
+            throw new BadRequestException($"Godina proizvodnje ne može biti veća od {DateTime.UtcNow.Year}.");
 
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
         if (entity.ProfileId != profileId)

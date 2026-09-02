@@ -87,7 +87,7 @@ public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTr
             {
                 ["Name"] = driver.FirstName,
                 ["Price"] = Math.Round(price, 2),
-                ["PostedAt"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                ["PostedAt"] = DateTime.UtcNow.ToSarajevoTime().ToString("dd/MM/yyyy HH:mm"),
                 ["Month"] = MonthHelper.GetMonth(searchObject.Month)
             }
         });

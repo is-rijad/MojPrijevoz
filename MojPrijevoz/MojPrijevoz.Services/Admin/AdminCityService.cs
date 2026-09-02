@@ -1,5 +1,7 @@
 ﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
+using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Admin.City;
 using MojPrijevoz.Model.Responses.Admin.City;
 using MojPrijevoz.Model.SearchObjects.Admin;
@@ -25,6 +27,14 @@ public class AdminCityService : BaseAdminCrudService<Database.City, AdminCityUps
                                               || it.Lat.ToLower().Contains(searchObject.Contains.ToLower())
                                               || it.Long.ToLower().Contains(searchObject.Contains.ToLower()));
         return queryable;
+    }
+
+    protected override async Task BeforeDelete(int id, Database.City entity)
+    {
+        await base.BeforeDelete(id, entity);
+        var inUse = await _dbContext.Users.AnyAsync(u => u.CityId == id);
+        if (inUse)
+            throw new BadRequestException("Grad se ne može obrisati jer ga koristi jedan ili više korisnika!");
     }
 
     public override Task BeforeRequestChanges(int id)

@@ -18,6 +18,7 @@ using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.Fare;
 using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer.StateMachine;
+using MojPrijevoz.Services.Helpers;
 using MojPrijevoz.Services.NotificationService;
 using MojPrijevoz.Services.Recommender;
 using MojPrijevoz.Services.StopPoint;
@@ -423,20 +424,25 @@ public class FareOfferService :
 
     public async Task MarkAsExpired()
     {
-        var fareOffersToExpire = await _dbContext.FareOffers
+        var fareOfferIdsToExpire = await _dbContext.FareOffers
             .Where(it =>
                 (it.Status == FareOfferStatus.WaitingForResponse && (it.UpdatedAt.AddHours(48) <=
                     DateTime.UtcNow || it.CreatedAt.AddHours(48) <=
                     DateTime.UtcNow)) || (it.Status == FareOfferStatus.Accepted &&
                                           it.Fare!.FareData!.FareDateTime < DateTime.UtcNow))
-            .Include(it => it.Fare!.Driver)
-            .ThenInclude(it => it!.User)
-            .Include(it => it.Fare!.Passenger)
-            .ThenInclude(it => it!.User).ToListAsync();
-        foreach (var fare in fareOffersToExpire)
+            .Select(it => it.Id)
+            .ToListAsync();
+        foreach (var id in fareOfferIdsToExpire)
         {
-            _logger.LogInformation($"Exipring fare offer => {fare.Id}");
-            await ExpireOfferAsync(fare.Id);
+            try
+            {
+                _logger.LogInformation($"Exipring fare offer => {id}");
+                await ExpireOfferAsync(id);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to expire fare offer {id}: {e.Message}");
+            }
         }
     }
 
@@ -580,7 +586,7 @@ public class FareOfferService :
                     Data = new Dictionary<string, dynamic>
                     {
                         ["ReceipantName"] = passenger.User!.FirstName,
-                        ["TransactionDateTime"] = DateTime.Now.ToString("dd/MM/yyyy. HH:mm"),
+                        ["TransactionDateTime"] = DateTime.UtcNow.ToSarajevoTime().ToString("dd/MM/yyyy. HH:mm"),
                         ["StartLocation"] = entity.Fare!.FareData!.OriginCity!.Name,
                         ["EndLocation"] = entity.Fare!.FareData!.DestinationName,
                         ["Price"] = Math.Round(entity.TotalPrice, 2),

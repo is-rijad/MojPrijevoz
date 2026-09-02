@@ -49,7 +49,7 @@
       - ../MojPrijevoz.WebApi/.env
     environment:
       - RabbitMQ__Host=rabbitmq
-      - ConnectionStrings__Default=Server=moj-prijevoz-db,1433;Database=MojPrijevoz;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      - ConnectionStrings__Default=Server=moj-prijevoz-db,1433;Database=IB210025;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - Firebase__CredentialPath=/run/secrets/firebase_credentials
     container_name: notifications_service
     secrets:
@@ -70,7 +70,7 @@
       - ./.env
     environment:
       - RabbitMQ__Host=rabbitmq
-      - ConnectionStrings__Default=Server=moj-prijevoz-db,1433;Database=MojPrijevoz;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      - ConnectionStrings__Default=Server=moj-prijevoz-db,1433;Database=IB210025;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - Recommender__DataDir=/app/RecommenderData/ 
     container_name: api_service
     ports:
