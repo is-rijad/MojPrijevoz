@@ -157,7 +157,7 @@ public class FareOfferService :
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
 
-        await CheckIsOfferOwner(entity);
+        await CheckIsOpposingSide(entity);
 
         await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
@@ -184,6 +184,15 @@ public class FareOfferService :
         }
     }
 
+    private async Task CheckIsOpposingSide(Database.FareOffer entity)
+    {
+        var expectedSide = entity.Side == ProfileType.Driver ? ProfileType.Passenger : ProfileType.Driver;
+        var profileId = await _authorizationService.GetProfileId(expectedSide);
+        var expectedProfileId = expectedSide == ProfileType.Driver ? entity.Fare!.DriverId : entity.Fare!.PassengerId;
+        if (profileId != expectedProfileId)
+            throw new ForbiddenException("Ne možete odgovoriti na vlastitu ponudu!");
+    }
+
     public async Task<FareResponse> AcceptOfferAsync(int id)
     {
         await _authorizationService.CheckIsAccountActive();
@@ -200,7 +209,7 @@ public class FareOfferService :
             .ThenInclude(it => it!.Passenger)
             .FirstAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
-        await CheckIsOfferOwner(entity);
+        await CheckIsOpposingSide(entity);
 
         await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
@@ -268,7 +277,7 @@ public class FareOfferService :
             .FirstAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
 
-        await CheckIsOfferOwner(entity);
+        await CheckIsOpposingSide(entity);
         await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
         var state = _baseFareOfferState.GetState((short)entity.Status);
