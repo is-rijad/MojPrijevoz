@@ -58,6 +58,8 @@ public class RatingService :
         var fare = await _dbContext.Fares.FindAsync(request.FareId);
         if (fare == null)
             throw new NotFoundException("Vožnja nije pronađena!");
+        if (fare.Status != FareStatus.Completed)
+            throw new BadRequestException("Vožnja mora biti završena prije ocjenjivanja!");
         if (request.ProfileType == ProfileType.Passenger)
         {
             if (fare.PassengerId != await _authorizationService.GetProfileId(ProfileType.Passenger))
@@ -87,9 +89,11 @@ public class RatingService :
         await base.AfterInsert(entity, request, dbContext);
         var fromUser = await _dbContext.UserProfiles.Where(it => it.Id == request.FromId).Select(it => it.User)
             .FirstAsync();
+        var toUserId = await _dbContext.UserProfiles.Where(it => it.Id == entity.ToId).Select(it => it.UserId)
+            .FirstAsync();
         await _notificationService.SendToUserAsync(new SendToUserDto
         {
-            UserId = entity.ToId,
+            UserId = toUserId,
             Title = "Nova ocjena",
             Body = $"Korisnik {fromUser!.FirstName} Vam je ostavio ocjenu {entity.Grade}",
             Data = new Dictionary<string, string>

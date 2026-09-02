@@ -446,6 +446,28 @@ public class FareOfferService :
         if (request.FareDateTime < DateTime.UtcNow)
             throw new BadRequestException("Vrijeme vožnje ne može biti u prošlosti!");
 
+        if (request.DriversPrices.Count == 0)
+            throw new BadRequestException("Morate odabrati barem jednog vozača!");
+
+        var driverIds = request.DriversPrices.Select(it => it.DriverId).ToList();
+        if (driverIds.Distinct().Count() != driverIds.Count)
+            throw new BadRequestException("Isti vozač je poslan više puta!");
+
+        var validDriverIds = await _dbContext.UserProfiles
+            .Where(up => driverIds.Contains(up.Id) && up.ProfileType == ProfileType.Driver &&
+                         up.User!.Status == AccountStatus.Active)
+            .Select(up => up.Id).ToListAsync();
+        if (validDriverIds.Count != driverIds.Count)
+            throw new BadRequestException("Jedan ili više odabranih vozača nije validan!");
+
+        foreach (var driversPrice in request.DriversPrices)
+        {
+            var vehicleOk = await _dbContext.UserVehicles.AnyAsync(uv =>
+                uv.Id == driversPrice.UserVehicleId && uv.ProfileId == driversPrice.DriverId &&
+                uv.Status == UserVehicleStatus.Active);
+            if (!vehicleOk)
+                throw new BadRequestException("Vozilo ne pripada vozaču ili nije aktivno!");
+        }
 
         if (request.DriversPrices.Any(it => it.Price + (it.AdditionalPrice ?? 0) < 1))
             throw new BadRequestException("Ukupna cijena ne može biti manja od 1KM!");

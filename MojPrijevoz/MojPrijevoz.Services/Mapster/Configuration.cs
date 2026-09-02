@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using MojPrijevoz.Database.Interfaces;
+using MojPrijevoz.Model.Responses.Rating;
 using MojPrijevoz.Model.Responses.User;
 using MojPrijevoz.Model.Responses.UserVehicle;
 
@@ -13,5 +14,9 @@ public class Configuration : IRegister
             .Map(dest => dest.Picture, src => src.GetPicture());
         config.NewConfig<Database.UserVehicle, UserVehicleResponse>()
             .Map(dest => dest.Picture, src => src.GetPicture());
+        config.NewConfig<Database.UserProfile, RatingFromResponse>()
+            .Map(dest => dest.FirstName, src => src.User!.FirstName)
+            .Map(dest => dest.LastName, src => src.User!.LastName)
+            .Map(dest => dest.Picture, src => src.User!.GetPicture());
     }
 }

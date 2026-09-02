@@ -216,7 +216,7 @@ public class RecommenderService {
                 LastName = g.First().Driver!.User!.LastName,
                 Picture = g.First().Driver!.User!.GetPicture(),
                 AverageRating = dto.Database.Ratings
-                    .Where(r => r.ToId == g.Key.DriverId)
+                    .Where(r => r.ToId == g.Key.DriverId && r.IsVisible)
                     .Average(r => (double?)r.Grade) ?? 0,
                 OriginCityName = g.First().FareData!.OriginCity!.Name,
                 DestinationName = g.First().FareData!.DestinationName,

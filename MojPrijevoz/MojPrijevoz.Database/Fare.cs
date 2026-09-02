@@ -27,6 +27,7 @@ public class Fare
 
     public int PassengerId { get; set; }
     public DateTime? FareStartAfter { get; set; }
+    public DateTime? StartedAt { get; set; }
 
     public ICollection<Transaction>? Transactions { get; set; }
     public FareData? FareData { get; set; }

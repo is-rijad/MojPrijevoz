@@ -121,6 +121,7 @@ public class FareService :
             throw new ForbiddenException("Niste vozač ove vožnje!");
         var state = _baseFareState.GetState((short)entity.Status);
         state.Start(entity);
+        entity.StartedAt = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync();
 
@@ -174,7 +175,7 @@ public class FareService :
         var faresToComplete = await _dbContext.Fares
             .Where(it =>
                 it.Status == FareStatus.InProgress &&
-                it.FareData!.FareDateTime.AddMinutes(it.FareData!.Duration + 60) <=
+                (it.StartedAt ?? it.FareData!.FareDateTime).AddMinutes(it.FareData!.Duration + 60) <=
                 DateTime.UtcNow)
             .Include(it => it.Driver)
             .ThenInclude(it => it!.User)

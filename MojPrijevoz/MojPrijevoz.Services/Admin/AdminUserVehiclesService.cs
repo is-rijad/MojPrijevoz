@@ -10,6 +10,7 @@ using MojPrijevoz.Model.SearchObjects.Admin;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices.Admin;
 using MojPrijevoz.Services.NotificationService;
+using MojPrijevoz.Services.UserVehicle.StateMachine;
 
 namespace MojPrijevoz.Services.Admin;
 
@@ -18,6 +19,7 @@ public class AdminUserVehiclesService : BaseAdminCrudService<Database.UserVehicl
     AdminUserVehicleSearchObject>
 {
     private readonly INotificationService _notificationService;
+    private readonly BaseUserVehicleRequestChangesState _userVehicleRequestChangesState;
     private static readonly Dictionary<string, string> _translatedFields = new()
     {
         ["modelYear"] = "Godina proizvodnje",
@@ -27,9 +29,12 @@ public class AdminUserVehiclesService : BaseAdminCrudService<Database.UserVehicl
 
     public AdminUserVehiclesService(MojPrijevozDbContext context, IMapper mapper,
         AuthorizationService authorizationService,
-        INotificationService notificationService) : base(context, mapper, authorizationService, _translatedFields)
+        INotificationService notificationService,
+        BaseUserVehicleRequestChangesState userVehicleRequestChangesState) : base(context, mapper,
+        authorizationService, _translatedFields)
     {
         _notificationService = notificationService;
+        _userVehicleRequestChangesState = userVehicleRequestChangesState;
     }
 
     public override async Task<IQueryable<Database.UserVehicle>> ApplyFilter(IQueryable<Database.UserVehicle> queryable,
@@ -101,7 +106,8 @@ public class AdminUserVehiclesService : BaseAdminCrudService<Database.UserVehicl
     {
         var userVehicle = await _dbContext.UserVehicles.FindAsync(id);
         if (userVehicle is null) throw new NotFoundException("Vozilo nije pronađeno!");
-        userVehicle.Status = UserVehicleStatus.WaitingForChanges;
+        var state = _userVehicleRequestChangesState.GetState((short)userVehicle.Status);
+        state.RequestChanges(userVehicle);
     }
 
     public override UserVehicleRequestChanges MapIdToRequestChanges(int id, UserVehicleRequestChanges entity)

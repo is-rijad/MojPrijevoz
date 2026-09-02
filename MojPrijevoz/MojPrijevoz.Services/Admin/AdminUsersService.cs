@@ -11,6 +11,7 @@ using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices.Admin;
 using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.NotificationService;
+using MojPrijevoz.Services.User.StateMachine;
 
 namespace MojPrijevoz.Services.Admin;
 
@@ -20,6 +21,7 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
     private readonly INotificationService _notificationService;
     private readonly RevokedTokenService _revokedTokenService;
     private readonly TokenManager _tokenManager;
+    private readonly BaseAccountRequestChangesState _accountRequestChangesState;
 
     private static readonly Dictionary<string, string> _translatedFields = new()
     {
@@ -34,11 +36,13 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
 
     public AdminUsersService(MojPrijevozDbContext context, IMapper mapper, AuthorizationService authorizationService,
         INotificationService notificationService, RevokedTokenService revokedTokenService,
-        TokenManager tokenManager) : base(context, mapper, authorizationService, _translatedFields)
+        TokenManager tokenManager, BaseAccountRequestChangesState accountRequestChangesState) : base(context, mapper,
+        authorizationService, _translatedFields)
     {
         _notificationService = notificationService;
         _revokedTokenService = revokedTokenService;
         _tokenManager = tokenManager;
+        _accountRequestChangesState = accountRequestChangesState;
     }
 
     public override async Task<IQueryable<Database.User>> ApplyFilter(IQueryable<Database.User> queryable,
@@ -72,7 +76,8 @@ public class AdminUsersService : BaseAdminCrudService<Database.User, TPlaceholde
     {
         var user = await _dbContext.Users.FindAsync(id);
         if (user is null) throw new NotFoundException("Korisnik nije pronađen!");
-        user.Status = AccountStatus.WaitingForChanges;
+        var state = _accountRequestChangesState.GetState((short)user.Status);
+        state.RequestChanges(user);
 
         _revokedTokenService.Revoke(id, null);
     }

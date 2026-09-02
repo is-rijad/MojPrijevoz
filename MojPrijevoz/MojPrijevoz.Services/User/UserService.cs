@@ -12,6 +12,7 @@ using MojPrijevoz.Services.FileStorage;
 using MojPrijevoz.Services.FormRequests.User;
 using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.NotificationService;
+using MojPrijevoz.Services.User.StateMachine;
 
 namespace MojPrijevoz.Services.User;
 
@@ -21,18 +22,21 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
     private readonly INotificationService _notificationService;
     private readonly RevokedTokenService _revokedTokenService;
     private readonly TokenManager _tokenManager;
+    private readonly BaseAccountRequestChangesState _accountRequestChangesState;
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,
         AuthorizationService authorizationService,
         IFileStorageService fileStorageService,
         INotificationService notificationService,
         RevokedTokenService revokedTokenService,
-        TokenManager tokenManager
+        TokenManager tokenManager,
+        BaseAccountRequestChangesState accountRequestChangesState
     ) : base(context, mapper, authorizationService, fileStorageService)
     {
         _notificationService = notificationService;
         _revokedTokenService = revokedTokenService;
         _tokenManager = tokenManager;
+        _accountRequestChangesState = accountRequestChangesState;
     }
 
     protected override async Task BeforeInsert(UserInsertRequest request)
@@ -118,7 +122,8 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         var requestedChanges = await _dbContext.UserRequestChanges.Where(it => it.UserId == entity.Id && !it.IsEdited).ToListAsync();
         if (requestedChanges.Count > 0)
         {
-            entity.Status = AccountStatus.WaitingForReview;
+            var state = _accountRequestChangesState.GetState((short)entity.Status);
+            state.SubmitForReview(entity);
         }
         requestedChanges.ForEach(it => it.IsEdited = true);
     }
