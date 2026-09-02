@@ -10,6 +10,7 @@ using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Stripe;
 using MojPrijevoz.Model.Responses.Stripe;
+using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.FareOffer;
 using MojPrijevoz.Services.NotificationService;
@@ -19,6 +20,7 @@ namespace MojPrijevoz.Services.Stripe;
 
 public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleResponse>
 {
+    private readonly AuthorizationService _authorizationService;
     private readonly IConfiguration _config;
     private readonly MojPrijevozDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -33,7 +35,8 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
         IConfiguration config,
         IServiceProvider serviceProvider,
         ILogger logger,
-        IMemoryCache cache)
+        IMemoryCache cache,
+        AuthorizationService authorizationService)
     {
         _dbContext = dbContext;
         _httpContextAccessor = httpContextAccessor;
@@ -41,18 +44,28 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
         _serviceProvider = serviceProvider;
         _logger = logger;
         _cache = cache;
+        _authorizationService = authorizationService;
     }
 
     public async Task<StripeHandleResponse> Handle([FromBody] StripeHandleRequest request)
     {
         var fareOfferId = request.FareOfferId;
-        var fareOffer = await _dbContext.FareOffers.FindAsync(fareOfferId);
+        var fareOffer = await _dbContext.FareOffers.Include(it => it.Fare)
+            .FirstOrDefaultAsync(it => it.Id == fareOfferId);
         if (fareOffer == null)
             throw new NotFoundException("Fare offer not found");
 
+        var passengerProfileId = await _authorizationService.GetProfileId(ProfileType.Passenger);
+        if (fareOffer.Fare!.PassengerId != passengerProfileId)
+            throw new ForbiddenException("Niste putnik ove vožnje!");
+        if (fareOffer.Status != FareOfferStatus.Accepted)
+            throw new BadRequestException("Ova ponuda se ne može platiti u trenutnom stanju!");
+        if (await _dbContext.Transactions.AnyAsync(t => t.FareId == fareOffer.FareId))
+            throw new BadRequestException("Vožnja je već plaćena ili plaćanje je u toku!");
+
         var options = new PaymentIntentCreateOptions
         {
-            Amount = (long)fareOffer.TotalPrice * 100,
+            Amount = (long)Math.Round(fareOffer.TotalPrice * 100, MidpointRounding.AwayFromZero),
             Currency = "bam",
             Metadata = new Dictionary<string, string> { ["fareOfferId"] = fareOfferId.ToString() },
         };
