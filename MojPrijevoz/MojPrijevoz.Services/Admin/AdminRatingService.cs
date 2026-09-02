@@ -57,22 +57,19 @@ public class AdminRatingService : BaseAdminCrudService<Database.Rating, AdminRat
     protected override async Task AfterUpdate(Database.Rating entity, MojPrijevozDbContext dbContext)
     {
         await base.AfterUpdate(entity, dbContext);
-        if (entity.IsVisible)
+        var fromUser = await _dbContext.UserProfiles.Include(it => it.User)
+            .FirstAsync(it => it.Id == entity.FromId);
+        var toUser = await _dbContext.UserProfiles.Include(it => it.User).FirstAsync(it => it.Id == entity.ToId);
+        await _notificationService.SendEmailAsync(new EmailDto
         {
-            var fromUser = await _dbContext.UserProfiles.Include(it => it.User)
-                .FirstAsync(it => it.Id == entity.FromId);
-            var toUser = await _dbContext.UserProfiles.Include(it => it.User).FirstAsync(it => it.Id == entity.ToId);
-            await _notificationService.SendEmailAsync(new EmailDto
+            To = fromUser.User!.Email,
+            Type = entity.IsVisible ? EmailType.ReviewVisibleEmail : EmailType.ReviewHiddenEmail,
+            Data = new Dictionary<string, dynamic>
             {
-                To = fromUser.User!.Email,
-                Type = EmailType.ReviewVisibleEmail,
-                Data = new Dictionary<string, dynamic>
-                {
-                    ["Name"] = fromUser.User!.FirstName,
-                    ["ToName"] = toUser.User!.FirstName
-                }
-            });
-        }
+                ["Name"] = fromUser.User!.FirstName,
+                ["ToName"] = toUser.User!.FirstName
+            }
+        });
     }
 
     public override Task BeforeRequestChanges(int id)

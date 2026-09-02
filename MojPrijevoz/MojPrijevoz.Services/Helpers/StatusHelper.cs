@@ -23,4 +23,10 @@ public static class StatusHelper
         [FareStatus.InProgress] = "U toku",
         [FareStatus.Completed] = "Završena"
     };
+
+    public static Dictionary<TransactionSide, string> TransactionSideDictionary = new()
+    {
+        [TransactionSide.Debit] = "Uplata",
+        [TransactionSide.Credit] = "Isplata"
+    };
 }

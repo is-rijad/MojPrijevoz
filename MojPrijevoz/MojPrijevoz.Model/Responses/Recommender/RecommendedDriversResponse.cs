@@ -13,4 +13,5 @@ public class RecommendedDriverRouteResponse
     public string OriginCityName { get; set; } = null!;
     public string DestinationName { get; set; } = null!;
     public int RidesCount { get; set; }
+    public string Reason { get; set; } = null!;
 }

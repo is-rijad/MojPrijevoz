@@ -64,9 +64,12 @@ public class EmailService : IEmailService
             EmailType.SentFareOfferEmail => "Ponuda za vožnju poslana!",
             EmailType.ReceiptFareOfferEmail => "Račun za vašu vožnju!",
             EmailType.ReviewVisibleEmail => "Administrator je označio Vašu recenziju vidljivom!",
+            EmailType.ReviewHiddenEmail => "Administrator je sakrio Vašu recenziju!",
             EmailType.BecomeAdministratorEmail => "Postali ste administrator!",
             EmailType.AdministratorBannedEmail => "Niste više administrator!",
             EmailType.AdministratorPasswordChangedEmail => "Vaša lozinka je promijenjena!",
+            EmailType.AdministratorRoleChangedEmail => "Vaša administratorska rola je promijenjena!",
+            EmailType.AdministratorRoleChangedBroadcastEmail => "Rola administratora je promijenjena!",
             EmailType.TransactionPostedEmail => "Transakcija je proknjižena!",
             EmailType.UserRequestChangesEmail => "Administrator je zatražio promjene na Vašem profilu!",
             EmailType.UserVehicleRequestChangesEmail => "Administrator je zatražio promjene na Vašem vozilu!",
@@ -74,6 +77,8 @@ public class EmailService : IEmailService
             EmailType.RefundSucceededEmail => "Povrat je izvršen!",
             EmailType.UserActivatedEmail => "Vaš račun je aktiviran!",
             EmailType.UserVehicleActivatedEmail => "Vaše vozilo je aktivirano!",
+            EmailType.VehicleModelUpdatedEmail => "Podaci o modelu Vašeg vozila su ažurirani!",
+            EmailType.VehicleModelDeletedEmail => "Model Vašeg vozila je uklonjen!",
             _ => throw new ArgumentOutOfRangeException(nameof(email.Type), $"Undefined email type: {email.Type}")
         };
     }
