@@ -32,6 +32,8 @@ public abstract class Account
 
     [JsonIgnore] public string? ResetPasswordCode { get; set; }
 
+    [JsonIgnore] public string? ResetPasswordCodeSalt { get; set; }
+
     [JsonIgnore] public DateTime? ResetPasswordCodeExpiration { get; set; }
 
     public AccountStatus Status { get; set; } = AccountStatus.Active;
@@ -75,6 +77,10 @@ public class AccountEntityConfiguration : IEntityTypeConfiguration<Account>
         entity.Property(e => e.ResetPasswordCode)
             .HasMaxLength(64)
             .IsUnicode(false);
+        entity.Property(e => e.ResetPasswordCodeSalt)
+            .HasMaxLength(24)
+            .IsUnicode(false)
+            .IsFixedLength();
         entity.Property(e => e.RegisteredAt).ValueGeneratedOnAdd()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }

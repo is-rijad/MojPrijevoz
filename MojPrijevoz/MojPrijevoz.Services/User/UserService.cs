@@ -123,13 +123,14 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         requestedChanges.ForEach(it => it.IsEdited = true);
     }
 
-    public async Task<RequestResetPasswordResponse> RequestResetPasswordCode(RequestResetPasswordRequest request)
+    public async Task RequestResetPasswordCode(RequestResetPasswordRequest request)
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)
             throw new BadRequestException("Korisnik s unesenim emailom ne postoji.");
-        var hash = _authorizationService.CreateResetPasswordCode(out var code, out var expiration);
+        var hash = _authorizationService.CreateResetPasswordCode(out var code, out var salt, out var expiration);
         user.ResetPasswordCode = hash;
+        user.ResetPasswordCodeSalt = salt;
         user.ResetPasswordCodeExpiration = expiration;
 
         await _dbContext.SaveChangesAsync();
@@ -143,7 +144,6 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
                 ["Code"] = code
             }
         });
-        return new RequestResetPasswordResponse { Code = code };
     }
 
     public async Task ResetPassword(ResetPasswordRequest request)
@@ -153,8 +153,9 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
             throw new BadRequestException("Korisnik s unesenim emailom ne postoji.");
 
         _authorizationService.VerifyResetPasswordCode(request.Code, user.ResetPasswordCode!,
-            user.ResetPasswordCodeExpiration!.Value);
+            user.ResetPasswordCodeSalt!, user.ResetPasswordCodeExpiration!.Value);
         user.ResetPasswordCode = null;
+        user.ResetPasswordCodeSalt = null;
         user.ResetPasswordCodeExpiration = null;
         if (request.Password != request.PasswordAgain)
             throw new BadRequestException("Lozinke se ne podudaraju.");

@@ -33,7 +33,8 @@ public class UserController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> RequestResetPassword([FromBody] RequestResetPasswordRequest request)
     {
-        return Ok(await _userService.RequestResetPasswordCode(request));
+        await _userService.RequestResetPasswordCode(request);
+        return Ok();
     }
 
     [HttpPost("reset-password")]

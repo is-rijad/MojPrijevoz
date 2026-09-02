@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MojPrijevoz.Database;
@@ -190,25 +189,32 @@ public class AuthorizationService
         hash = Convert.ToBase64String(hashBytes);
     }
 
-    public string CreateResetPasswordCode(out string code, out DateTime expiration)
+    public string CreateResetPasswordCode(out string code, out string salt, out DateTime expiration)
     {
         code = RandomNumberGenerator.GetInt32(10_000_000, 100_000_000).ToString();
-        var bytes = Encoding.UTF8.GetBytes(code);
-        var hash = SHA256.HashData(bytes);
-        var hashString = Convert.ToBase64String(hash);
+
+        using var rng = RandomNumberGenerator.Create();
+        var saltBytes = new byte[SaltByteSize];
+        rng.GetBytes(saltBytes);
+        salt = Convert.ToBase64String(saltBytes);
+
+        using var pbkdf2 = new Rfc2898DeriveBytes(code, saltBytes, Iterations, _hashAlgorithm);
+        var hashBytes = pbkdf2.GetBytes(HashByteSize);
+        var hashString = Convert.ToBase64String(hashBytes);
         expiration = DateTime.UtcNow.AddMinutes(15);
 
         return hashString;
     }
 
-    public void VerifyResetPasswordCode(string code, string realHash, DateTime expiration)
+    public void VerifyResetPasswordCode(string code, string realHash, string salt, DateTime expiration)
     {
         if (expiration < DateTime.UtcNow)
             throw new BadRequestException("Reset kod je istekao. Molimo zatražite novi kod.");
 
-        var bytes = Encoding.UTF8.GetBytes(code);
-        var hash = SHA256.HashData(bytes);
-        var hashString = Convert.ToBase64String(hash);
+        var saltBytes = Convert.FromBase64String(salt);
+        using var pbkdf2 = new Rfc2898DeriveBytes(code, saltBytes, Iterations, _hashAlgorithm);
+        var hashBytes = pbkdf2.GetBytes(HashByteSize);
+        var hashString = Convert.ToBase64String(hashBytes);
         if (hashString != realHash)
             throw new BadRequestException("Kod nije ispravan.");
     }
