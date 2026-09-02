@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.FareLocation;
 using MojPrijevoz.Model.Dtos.Notifications;
+using MojPrijevoz.Model.Exceptions;
+using MojPrijevoz.Services.Fare;
 using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.NotificationService;
 
@@ -62,10 +64,30 @@ public class SignalRHub(
         });
     }
 
-    public async Task RequestLocation(string targetUserId)
+    private async Task<int> ValidateFareLocationAccess(int fareId, string callerUserId)
+    {
+        var callerId = int.Parse(callerUserId);
+        await using var scope = scopeFactory.CreateAsyncScope();
+        var fareService = scope.ServiceProvider.GetRequiredService<IFareService>();
+
+        Database.Fare fare;
+        try
+        {
+            fare = await fareService.GetFareForLocationAccess(fareId, callerId);
+        }
+        catch (Exception e) when (e is NotFoundException or ForbiddenException or BadRequestException)
+        {
+            throw new HubException(e.Message);
+        }
+
+        return fare.Driver!.UserId == callerId ? fare.Passenger!.UserId : fare.Driver!.UserId;
+    }
+
+    public async Task RequestLocation(int fareId)
     {
         var requesterId = GetUserId();
-        var connectionId = tracker.Get(targetUserId);
+        var targetUserId = await ValidateFareLocationAccess(fareId, requesterId);
+        var connectionId = tracker.Get(targetUserId.ToString());
 
         if (connectionId != null)
             await Clients.Client(connectionId)
@@ -73,11 +95,12 @@ public class SignalRHub(
         else
             await notificationService.SendSilentToUserAsync(new SendSilentToUserDto
             {
-                UserId = int.Parse(targetUserId),
+                UserId = targetUserId,
                 Data = new Dictionary<string, string>
                 {
                     ["Type"] = SendSilentToUserDto.LocationRequested,
-                    ["RequesterId"] = requesterId
+                    ["RequesterId"] = requesterId,
+                    ["FareId"] = fareId.ToString()
                 }
             });
     }
@@ -85,23 +108,29 @@ public class SignalRHub(
     public async Task SendLocation(FareLocationDto dto)
     {
         var senderId = GetUserId();
-        var connectionId = tracker.Get(dto.UserId.ToString());
+        var targetUserId = await ValidateFareLocationAccess(dto.FareId, senderId);
+        dto.UserId = targetUserId;
         dto.IsAccurate = true;
 
         cache.Set(GetCacheKey(senderId), dto, CacheTtl);
 
+        var connectionId = tracker.Get(targetUserId.ToString());
         if (connectionId != null)
             await Clients.Client(connectionId)
                 .SendAsync("ReceiveLocation", dto);
     }
 
-    public async Task GetLastLocation(string userId)
+    public async Task GetLastLocation(int fareId)
     {
-        cache.TryGetValue(GetCacheKey(userId), out var cachedValue);
+        var callerId = GetUserId();
+        var targetUserId = await ValidateFareLocationAccess(fareId, callerId);
+        var targetKey = targetUserId.ToString();
+
+        cache.TryGetValue(GetCacheKey(targetKey), out var cachedValue);
         if (cachedValue != null)
         {
             (cachedValue as FareLocationDto)!.IsAccurate = false;
-            cache.Set(GetCacheKey(userId), cachedValue, CacheTtl);
+            cache.Set(GetCacheKey(targetKey), cachedValue, CacheTtl);
 
             await Clients.Caller.SendAsync("ReceiveLocation", cachedValue);
         }
@@ -109,17 +138,17 @@ public class SignalRHub(
         {
             await using var scope = scopeFactory.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<MojPrijevozDbContext>();
-            var parsedUserId = int.Parse(userId);
-            var city = await dbContext.Users.Where(it => it.Id == parsedUserId).Select(it => it.City).FirstAsync();
+            var city = await dbContext.Users.Where(it => it.Id == targetUserId).Select(it => it.City).FirstAsync();
             var dto = new FareLocationDto
             {
+                FareId = fareId,
                 DateTime = DateTime.UtcNow,
                 Lat = city!.Lat,
                 Lon = city!.Long,
-                UserId = parsedUserId,
+                UserId = targetUserId,
                 IsAccurate = false
             };
-            cache.Set(GetCacheKey(userId), dto, CacheTtl);
+            cache.Set(GetCacheKey(targetKey), dto, CacheTtl);
 
             await Clients.Caller.SendAsync("ReceiveLocation", dto);
         }

@@ -28,6 +28,21 @@ public class FareService :
         _notificationService = notificationService;
     }
 
+    public async Task<Database.Fare> GetFareForLocationAccess(int fareId, int callerId)
+    {
+        var fare = await _dbContext.Fares.Include(f => f.Passenger).Include(f => f.Driver)
+            .FirstOrDefaultAsync(f => f.Id == fareId);
+        if (fare == null) throw new NotFoundException("Vožnja nije pronađena!");
+
+        var isParticipant = fare.Passenger!.UserId == callerId || fare.Driver!.UserId == callerId;
+        if (!isParticipant) throw new ForbiddenException("Niste učesnik ove vožnje!");
+
+        if (fare.Status != FareStatus.InProgress)
+            throw new BadRequestException("Lokacija je dostupna samo za vožnju koja je u toku!");
+
+        return fare;
+    }
+
     public async Task<bool> HasActiveFareForRoute(int passengerId, HasActiveFareRequest request)
     {
         var queryable = _dbContext.Fares.Where(it =>

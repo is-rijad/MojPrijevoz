@@ -2,6 +2,7 @@
 
 public class FareLocationDto
 {
+    public int FareId { get; set; }
     public int UserId { get; set; }
     public string Lat { get; set; } = null!;
     public string Lon { get; set; } = null!;
