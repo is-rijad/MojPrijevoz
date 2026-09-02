@@ -113,9 +113,9 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
                 var paymentIntendId = refund.PaymentIntentId;
                 var transaction = await _dbContext.Transactions.Include(it => it.Fare).ThenInclude(it => it!.Passenger)
                     .ThenInclude(it => it!.User).FirstOrDefaultAsync(it => it.PaymentIntentId == paymentIntendId);
-                if (transaction != null)
+                if (transaction != null && transaction.RefundedAt == null)
                 {
-                    _dbContext.Remove(transaction);
+                    transaction.RefundedAt = DateTime.UtcNow;
                     await _dbContext.SaveChangesAsync();
                     await _serviceProvider.GetRequiredService<INotificationService>().SendEmailAsync(new EmailDto
                     {
@@ -138,7 +138,7 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
         }
     }
 
-    public async Task CreateRefund(int fareOfferId, string paymentIntentId)
+    public async Task<bool> CreateRefund(int fareOfferId, string paymentIntentId)
     {
         var options = new RefundCreateOptions
         {
@@ -153,10 +153,12 @@ public class StripeService : IPaymentService<StripeHandleRequest, StripeHandleRe
         try
         {
             var refund = await service.CreateAsync(options);
+            return refund.Status == "succeeded" || refund.Status == "pending";
         }
         catch (StripeException e)
         {
             _logger.LogError($"Stripe greška - refund: {e.Message}");
+            return false;
         }
     }
 }

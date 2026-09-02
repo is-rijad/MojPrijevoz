@@ -4,5 +4,5 @@ public interface IPaymentService<TRequest, TResponse> where TRequest : class whe
 {
     public Task<TResponse> Handle(TRequest request);
     public Task Webhook();
-    public Task CreateRefund(int fareOfferId, string paymentIntentId);
+    public Task<bool> CreateRefund(int fareOfferId, string paymentIntentId);
 }

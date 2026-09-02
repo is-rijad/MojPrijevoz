@@ -307,8 +307,12 @@ public class FareOfferService :
         state.Expire(entity);
         await _fareService.ExpireAsync(entity!.Fare!.Id);
         var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(it => it.FareId == entity.FareId);
-        if (transaction?.PaymentIntentId != null)
-            await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
+        if (transaction?.PaymentIntentId != null && transaction.RefundedAt == null)
+        {
+            var refunded = await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
+            if (!refunded)
+                throw new BadRequestException("Refundiranje nije uspjelo, pokušajte ponovo!");
+        }
         await _dbContext.SaveChangesAsync();
 
         await SendUpdateNotification(entity, null);
@@ -343,8 +347,12 @@ public class FareOfferService :
         state.Cancel(entity);
         await _fareService.CancelAsync(entity!.Fare!.Id);
         var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(it => it.FareId == entity.FareId);
-        if (transaction?.PaymentIntentId != null)
-            await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
+        if (transaction?.PaymentIntentId != null && transaction.RefundedAt == null)
+        {
+            var refunded = await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
+            if (!refunded)
+                throw new BadRequestException("Refundiranje nije uspjelo, pokušajte ponovo!");
+        }
         await _dbContext.SaveChangesAsync();
 
         var userId = _authorizationService.GetUserId();

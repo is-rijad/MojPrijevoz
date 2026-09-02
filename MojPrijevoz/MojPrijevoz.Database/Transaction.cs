@@ -21,6 +21,7 @@ public class Transaction
     public float? FeeAmount { get; set; }
 
     public DateTime? PostedAt { get; set; }
+    public DateTime? RefundedAt { get; set; }
     public string? PaymentIntentId { get; set; }
 
     public Fare? Fare { get; set; }
