@@ -61,6 +61,7 @@ public class FareOfferService :
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         var passengerId = (await _authorizationService.GetProfileId(ProfileType.Passenger))!.Value;
+        request.PassengerId = passengerId;
         await BeforeInsert(request);
 
         var fareDataRequest = _mapper.Map<FareDataInsertRequest>(request);
