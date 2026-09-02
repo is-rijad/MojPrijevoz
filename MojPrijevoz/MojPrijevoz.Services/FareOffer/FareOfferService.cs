@@ -154,7 +154,7 @@ public class FareOfferService :
             .ThenInclude(it => it!.Driver)
             .Include(it => it.Fare)
             .ThenInclude(it => it!.Passenger)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
 
@@ -208,7 +208,7 @@ public class FareOfferService :
             .ThenInclude(it => it!.Driver)
             .Include(it => it.Fare)
             .ThenInclude(it => it!.Passenger)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
         await CheckIsOpposingSide(entity);
 
@@ -275,7 +275,7 @@ public class FareOfferService :
             .ThenInclude(it => it!.Driver)
             .Include(it => it.Fare)
             .ThenInclude(it => it!.Passenger)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
 
         await CheckIsOpposingSide(entity);
@@ -300,7 +300,7 @@ public class FareOfferService :
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
 
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
         var state = _baseFareOfferState.GetState((short)entity.Status);
@@ -334,7 +334,7 @@ public class FareOfferService :
             .ThenInclude(fare => fare.Driver!)
             .Include(fareOffer => fareOffer.Fare)
             .ThenInclude(fare => fare!.Passenger!)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
 
         await CheckIsOfferOwner(entity);
@@ -382,7 +382,7 @@ public class FareOfferService :
             .ThenInclude(it => it!.Driver)
             .Include(it => it.Fare)
             .ThenInclude(it => it!.Passenger)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Pay(entity);

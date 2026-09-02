@@ -74,7 +74,8 @@ public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTr
                 PostedAt = transaction.PostedAt
             });
         }
-        var driver = await _dbContext.Users.FirstAsync(it => it.Id == searchObject.UserId);
+        var driver = await _dbContext.Users.FirstOrDefaultAsync(it => it.Id == searchObject.UserId);
+        if (driver == null) throw new NotFoundException("Vozač nije pronađen!");
         await _notificationService.SendEmailAsync(new EmailDto
         {
             To = driver.Email,
