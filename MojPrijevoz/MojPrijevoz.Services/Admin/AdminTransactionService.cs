@@ -55,7 +55,10 @@ public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTr
             throw new BadRequestException("Nije moguće proknjižiti proknjižene transakcije!");
 
         var transactions = await _dbContext.Transactions.Where(it =>
-            it.Fare!.Driver!.UserId == searchObject.UserId && it.CreatedAt.Month == searchObject.Month + 1).ToListAsync();
+            it.Fare!.Status == FareStatus.Completed &&
+            it.Fare!.Driver!.UserId == searchObject.UserId &&
+            it.CreatedAt.Month == searchObject.Month + 1 &&
+            it.PostedAt == null).ToListAsync();
 
         if (transactions.Count == 0)
             throw new NotFoundException("Nema transakcija za proknjižiti!");
@@ -69,7 +72,7 @@ public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTr
             {
                 Side = TransactionSide.Credit,
                 FareId = transaction.FareId,
-                Amount = transaction.Amount - (transaction.FeeAmount ?? 0.0f),
+                Amount = transaction.Amount,
                 FeeAmount = null,
                 PostedAt = transaction.PostedAt
             });
