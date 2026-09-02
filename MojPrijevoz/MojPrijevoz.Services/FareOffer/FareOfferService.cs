@@ -261,7 +261,7 @@ public class FareOfferService :
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
-    public async Task<FareResponse> RejectOfferAsync(int id)
+    public async Task<FareResponse> RejectOfferAsync(int id, string? reason)
     {
         await _authorizationService.CheckIsAccountActive();
 
@@ -283,6 +283,9 @@ public class FareOfferService :
 
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Reject(entity);
+        entity.ActionByUserId = _authorizationService.GetUserId();
+        entity.ActionAt = DateTime.UtcNow;
+        entity.ActionReason = reason;
         await _fareService.RejectAsync(entity!.Fare!.Id);
         await _dbContext.SaveChangesAsync();
 
@@ -328,7 +331,7 @@ public class FareOfferService :
         return await _fareService.GetByIdAsync(updated.Id);
     }
 
-    public async Task<FareResponse> CancelOfferAsync(int id)
+    public async Task<FareResponse> CancelOfferAsync(int id, string? reason)
     {
         var entity = await _dbContext.FareOffers
             .Include(it => it.Fare)
@@ -345,6 +348,9 @@ public class FareOfferService :
 
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Cancel(entity);
+        entity.ActionByUserId = _authorizationService.GetUserId();
+        entity.ActionAt = DateTime.UtcNow;
+        entity.ActionReason = reason;
         await _fareService.CancelAsync(entity!.Fare!.Id);
         var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(it => it.FareId == entity.FareId);
         if (transaction?.PaymentIntentId != null && transaction.RefundedAt == null)
@@ -365,12 +371,14 @@ public class FareOfferService :
             UserId = side == ProfileType.Passenger ? entity.Fare.Driver.UserId : entity.Fare.Passenger!.UserId,
             Title = "Ponuda otkazana",
             Body =
-                $"Ponuda u iznosu od {Math.Round(entity.TotalPrice, 2)}KM ({entity.Fare!.FareData!.OriginCity!.Name} - {entity.Fare!.FareData!.DestinationName.Split(",").First()}) je otkazana",
+                $"Ponuda u iznosu od {Math.Round(entity.TotalPrice, 2)}KM ({entity.Fare!.FareData!.OriginCity!.Name} - {entity.Fare!.FareData!.DestinationName.Split(",").First()}) je otkazana" +
+                (string.IsNullOrWhiteSpace(reason) ? "" : $": {reason}"),
             Data = new Dictionary<string, string>
             {
                 ["FareId"] = entity.FareId.ToString(),
                 ["Type"] = SendToUserDto.CancelledFareOfferType,
-                ["Side"] = side.ToString()
+                ["Side"] = side.ToString(),
+                ["Reason"] = reason ?? ""
             }
         });
 
@@ -539,13 +547,15 @@ public class FareOfferService :
                     UserId = entity.Side == ProfileType.Passenger ? passenger.UserId : driver.UserId,
                     Title = "Odbijena ponuda",
                     Body =
-                        $"Korisnik {(entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName)} je odbio ponudu u iznosu od {Math.Round(entity.TotalPrice, 2)}KM",
+                        $"Korisnik {(entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName)} je odbio ponudu u iznosu od {Math.Round(entity.TotalPrice, 2)}KM" +
+                        (string.IsNullOrWhiteSpace(entity.ActionReason) ? "" : $": {entity.ActionReason}"),
                     Data = new Dictionary<string, string>
                     {
                         ["FareId"] = entity.FareId.ToString(),
                         ["Type"] = SendToUserDto.RejectedFareOfferType,
                         ["Side"] = (entity.Side == ProfileType.Passenger ? ProfileType.Driver : ProfileType.Passenger)
-                            .ToString()
+                            .ToString(),
+                        ["Reason"] = entity.ActionReason ?? ""
                     }
                 });
                 break;

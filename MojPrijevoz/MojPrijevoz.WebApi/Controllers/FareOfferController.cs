@@ -35,15 +35,15 @@ public class FareOfferController : ControllerBase
     }
 
     [HttpPost("{id}/reject")]
-    public async Task<IActionResult> Reject(int id)
+    public async Task<IActionResult> Reject(int id, [FromBody] FareOfferActionRequest? request)
     {
-        return Ok(await _fareOfferService.RejectOfferAsync(id));
+        return Ok(await _fareOfferService.RejectOfferAsync(id, request?.Reason));
     }
 
     [HttpPost("{id}/cancel")]
-    public async Task<IActionResult> Cancel(int id)
+    public async Task<IActionResult> Cancel(int id, [FromBody] FareOfferActionRequest? request)
     {
-        return Ok(await _fareOfferService.CancelOfferAsync(id));
+        return Ok(await _fareOfferService.CancelOfferAsync(id, request?.Reason));
     }
 
     [HttpGet("{id}/allowed")]
