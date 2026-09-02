@@ -39,8 +39,7 @@ public class SearchFareService : ISearchFareService
         var newStart = searchObject.FareDateTime;
         var newEnd = searchObject.FareDateTime.AddMinutes(searchObject.Duration);
         var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
-        var userId = _authorizationService.GetUserId();
-        var passengerCity = (await _dbContext.Users.Include(it => it.City).FirstAsync(it => it.Id == userId)).City!;
+        var originCity = await _dbContext.Cities.FirstAsync(c => c.Id == searchObject.OriginCityId);
         var unAvailableDrivers = await _dbContext.Fares
             .Where(f =>
                 f.Status == FareStatus.Accepted &&
@@ -51,14 +50,17 @@ public class SearchFareService : ISearchFareService
             .Where(it =>
                 it.ProfileType == ProfileType.Driver && it.Id != profileId && !unAvailableDrivers.Contains(it.Id) &&
                 it.UserVehicles!.Any(i => i.Status == UserVehicleStatus.Active) &&
-                it.User!.Status == AccountStatus.Active).AsQueryable();
+                it.User!.Status == AccountStatus.Active &&
+                (searchObject.Budget == null || it.UserVehicles!.Any(uv =>
+                    uv.Status == UserVehicleStatus.Active && uv.PricePerKm * searchObject.Distance <= searchObject.Budget)))
+            .AsQueryable();
 
         if (searchObject.DriverId != null)
             profilesQuery = profilesQuery.Where(it => it.Id == searchObject.DriverId.Value);
 
         var fullCount = await profilesQuery.CountAsync();
-        var passLat = Convert.ToDouble(passengerCity.Lat, CultureInfo.InvariantCulture);
-        var passLon = Convert.ToDouble(passengerCity.Long, CultureInfo.InvariantCulture);
+        var passLat = Convert.ToDouble(originCity.Lat, CultureInfo.InvariantCulture);
+        var passLon = Convert.ToDouble(originCity.Long, CultureInfo.InvariantCulture);
 
         var passLatRad = passLat * Math.PI / 180;
         var passLonRad = passLon * Math.PI / 180;
@@ -118,15 +120,17 @@ public class SearchFareService : ISearchFareService
         var finalDistance = distance + additionalDistance;
 
         var driversDiscount = await _dbContext.DriversDiscounts.Where(it =>
-                it.MinKm >= finalDistance && (it.MaxKm == null || it.MaxKm <= finalDistance))
+                it.ProfileId == profileId &&
+                it.MinKm <= finalDistance && (it.MaxKm == null || it.MaxKm >= finalDistance))
             .FirstOrDefaultAsync();
-        var userVehicle = await _dbContext.UserVehicles.Where(it => it.Status == UserVehicleStatus.Active)
-            .FirstOrDefaultAsync(it => it.Id == searchObject.UserVehicleId);
+        var userVehicle = await _dbContext.UserVehicles
+            .FirstOrDefaultAsync(it => it.Id == searchObject.UserVehicleId
+                                        && it.ProfileId == profileId
+                                        && it.Status == UserVehicleStatus.Active);
         if (userVehicle is null) throw new BadRequestException("Vozilo nije pronađeno!");
-        var price = Math.Round(
-            distance * userVehicle!.PricePerKm * (driversDiscount?.Discount / 100 ?? 1), 2);
-        var additionalPrice = Math.Round(
-            additionalDistance * userVehicle!.PricePerKm * (driversDiscount?.Discount / 100 ?? 1), 2);
+        var discountFactor = driversDiscount != null ? 1 - (driversDiscount.Discount / 100) : 1;
+        var price = Math.Round(distance * userVehicle.PricePerKm * discountFactor, 2);
+        var additionalPrice = Math.Round(additionalDistance * userVehicle.PricePerKm * discountFactor, 2);
 
         return new SearchFareDriverResponse
         {
