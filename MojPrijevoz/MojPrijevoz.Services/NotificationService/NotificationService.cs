@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
+using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Notifications;
 using MojPrijevoz.Model.Responses.Notification;
 using MojPrijevoz.Model.SearchObjects;
@@ -64,29 +65,31 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
 
     public async Task SendToUserAsync(SendToUserDto request)
     {
+        request.Data.TryGetValue("RatingId", out var ratingId);
+        var notification = new Notification
+        {
+            CreatedAt = DateTime.UtcNow,
+            FareId = int.Parse(request.Data["FareId"]),
+            Side = Enum<ProfileType>.Parse(request.Data["Side"]),
+            IsRead = false,
+            UserId = request.UserId,
+            Message = request.Body,
+            Type = request.Data["Type"],
+            RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null
+        };
+        await _dbContext.Notifications.AddAsync(notification);
+        await _dbContext.SaveChangesAsync();
+
         await _bus.PubSub.PublishAsync(request);
 
         try
         {
-            request.Data.TryGetValue("RatingId", out var ratingId);
             var connId = _connectionTracker.Get(request.UserId.ToString());
             if (connId is null)
             {
                 throw new Exception("User is not registered");
             }
-            await _notificationsHubContext.Clients.Client(connId).SendAsync("NewNotification",
-                new Notification
-                {
-                    CreatedAt = DateTime.UtcNow,
-                    FareId = int.Parse(request.Data["FareId"]),
-                    Side = Enum<ProfileType>.Parse(request.Data["Side"]),
-                    Id = 0,
-                    IsRead = false,
-                    UserId = request.UserId,
-                    Message = request.Body,
-                    Type = request.Data["Type"],
-                    RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null
-                });
+            await _notificationsHubContext.Clients.Client(connId).SendAsync("NewNotification", notification);
             _logger.LogInformation($"Message {request.Data["Type"]} is sent to user {request.UserId} By SignalR");
         }
         catch (Exception)
@@ -102,14 +105,14 @@ public class NotificationService : BaseService<NotificationResponse, Notificatio
 
     public async Task<NotificationResponse?> MarkAsReadAsync(int id)
     {
+        var userId = _authorizationService.GetUserId();
         var notification = await _dbContext.Notifications.FindAsync(id);
-        if (notification != null)
-        {
-            notification.IsRead = true;
-            await _dbContext.SaveChangesAsync();
-        }
+        if (notification == null || notification.UserId != userId)
+            throw new NotFoundException("Notifikacija nije pronađena!");
+        notification.IsRead = true;
+        await _dbContext.SaveChangesAsync();
 
-        return notification != null ? MapToResponseModel<NotificationResponse>(notification, _mapper) : null;
+        return MapToResponseModel<NotificationResponse>(notification, _mapper);
     }
 
     public override async Task<IQueryable<Notification>> ApplyFilter(IQueryable<Notification> queryable,
