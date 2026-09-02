@@ -52,11 +52,11 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
             throw new BadRequestException("Godina proizvodnje ne može biti manja od 1900.");
         if (request.ModelYear > DateTime.UtcNow.Year)
             throw new BadRequestException($"Godina proizvodnje ne može biti veća od {DateTime.UtcNow.Year}.");
+        var userId = _authorizationService.GetUserId();
         if (await _dbContext.Users.AnyAsync(it =>
-                it.BankAccountNumber != null && it.BankAccountNumber == request.BankAccountNumber)) {
+                it.Id != userId && it.BankAccountNumber != null && it.BankAccountNumber == request.BankAccountNumber)) {
             throw new BadRequestException("Broj bankovnog računa već postoji!");
         }
-        var userId = _authorizationService.GetUserId();
         var profile = await _authorizationService.GetUserProfile(ProfileType.Driver);
         if (profile is null)
         {
@@ -131,7 +131,14 @@ public class UserVehicleService : BaseCrudService<Database.UserVehicle, UserVehi
     public override async Task DeleteAsync(int id)
     {
         var userVehicle = await _dbContext.UserVehicles.FindAsync(id);
-        userVehicle!.Status = UserVehicleStatus.Deleted;
+        if (userVehicle == null) throw new NotFoundException("Vozilo nije pronađeno!");
+
+        var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
+        if (userVehicle.ProfileId != profileId)
+            throw new ForbiddenException("Nije vaše vozilo!");
+
+        await BeforeDelete(id, userVehicle);
+        userVehicle.Status = UserVehicleStatus.Deleted;
         await _dbContext.SaveChangesAsync();
     }
 
