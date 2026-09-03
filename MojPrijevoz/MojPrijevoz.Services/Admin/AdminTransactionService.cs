@@ -55,7 +55,10 @@ public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTr
             throw new BadRequestException("Nije moguće proknjižiti proknjižene transakcije!");
 
         var transactions = await _dbContext.Transactions.Where(it =>
-            it.Fare!.Driver!.UserId == searchObject.UserId && it.CreatedAt.Month == searchObject.Month + 1).ToListAsync();
+            it.Fare!.Status == FareStatus.Completed &&
+            it.Fare!.Driver!.UserId == searchObject.UserId &&
+            it.CreatedAt.Month == searchObject.Month + 1 &&
+            it.PostedAt == null).ToListAsync();
 
         if (transactions.Count == 0)
             throw new NotFoundException("Nema transakcija za proknjižiti!");
@@ -69,12 +72,13 @@ public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTr
             {
                 Side = TransactionSide.Credit,
                 FareId = transaction.FareId,
-                Amount = transaction.Amount - (transaction.FeeAmount ?? 0.0f),
+                Amount = transaction.Amount,
                 FeeAmount = null,
                 PostedAt = transaction.PostedAt
             });
         }
-        var driver = await _dbContext.Users.FirstAsync(it => it.Id == searchObject.UserId);
+        var driver = await _dbContext.Users.FirstOrDefaultAsync(it => it.Id == searchObject.UserId);
+        if (driver == null) throw new NotFoundException("Vozač nije pronađen!");
         await _notificationService.SendEmailAsync(new EmailDto
         {
             To = driver.Email,
@@ -83,7 +87,7 @@ public class AdminTransactionService : BaseAdminCrudService<Transaction, AdminTr
             {
                 ["Name"] = driver.FirstName,
                 ["Price"] = Math.Round(price, 2),
-                ["PostedAt"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                ["PostedAt"] = DateTime.UtcNow.ToSarajevoTime().ToString("dd/MM/yyyy HH:mm"),
                 ["Month"] = MonthHelper.GetMonth(searchObject.Month)
             }
         });

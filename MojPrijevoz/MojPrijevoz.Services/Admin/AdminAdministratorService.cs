@@ -111,6 +111,39 @@ public class AdminAdministratorService : BaseAdminCrudService<Administrator, Adm
             _revokedTokenService.Revoke(entity.Id, null);
             await _tokenManager.DropRefreshTokenIfExists(entity.Id);
         }
+
+        var roleProperty = _dbContext.Entry(entity).Property(e => e.Role);
+        if (!Equals(roleProperty.OriginalValue, roleProperty.CurrentValue))
+        {
+            await _notificationService.SendEmailAsync(new EmailDto
+            {
+                To = entity.Email,
+                Type = EmailType.AdministratorRoleChangedEmail,
+                Data = new Dictionary<string, dynamic>
+                {
+                    ["Name"] = entity.FirstName,
+                    ["Role"] = entity.Role.ToString()
+                }
+            });
+
+            var superAdmins = await _dbContext.Administrators
+                .Where(a => a.Role == AdministratorRole.Admin && a.Id != entity.Id)
+                .ToListAsync();
+            foreach (var superAdmin in superAdmins)
+            {
+                await _notificationService.SendEmailAsync(new EmailDto
+                {
+                    To = superAdmin.Email,
+                    Type = EmailType.AdministratorRoleChangedBroadcastEmail,
+                    Data = new Dictionary<string, dynamic>
+                    {
+                        ["Name"] = superAdmin.FirstName,
+                        ["AdminName"] = $"{entity.FirstName} {entity.LastName}",
+                        ["Role"] = entity.Role.ToString()
+                    }
+                });
+            }
+        }
     }
 
     public override Task BeforeRequestChanges(int id)

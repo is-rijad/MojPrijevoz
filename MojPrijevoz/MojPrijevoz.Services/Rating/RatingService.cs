@@ -29,6 +29,15 @@ public class RatingService :
         _notificationService = notificationService;
     }
 
+    public override async Task<RatingResponse> GetByIdAsync(int id)
+    {
+        var entity = await _dbContext.Ratings.AsNoTracking().FirstOrDefaultAsync(it => it.Id == id);
+        if (entity == null || !entity.IsVisible)
+            throw new NotFoundException("Recenzija nije pronađena!");
+        await PrepareForResponse(entity, _dbContext);
+        return MapToResponseModel<RatingResponse>(entity, _mapper);
+    }
+
     public override async Task<IQueryable<Database.Rating>> ApplyFilter(IQueryable<Database.Rating> queryable,
         RatingSearchObject searchObject)
     {
@@ -58,6 +67,8 @@ public class RatingService :
         var fare = await _dbContext.Fares.FindAsync(request.FareId);
         if (fare == null)
             throw new NotFoundException("Vožnja nije pronađena!");
+        if (fare.Status != FareStatus.Completed)
+            throw new BadRequestException("Vožnja mora biti završena prije ocjenjivanja!");
         if (request.ProfileType == ProfileType.Passenger)
         {
             if (fare.PassengerId != await _authorizationService.GetProfileId(ProfileType.Passenger))
@@ -87,9 +98,11 @@ public class RatingService :
         await base.AfterInsert(entity, request, dbContext);
         var fromUser = await _dbContext.UserProfiles.Where(it => it.Id == request.FromId).Select(it => it.User)
             .FirstAsync();
+        var toUserId = await _dbContext.UserProfiles.Where(it => it.Id == entity.ToId).Select(it => it.UserId)
+            .FirstAsync();
         await _notificationService.SendToUserAsync(new SendToUserDto
         {
-            UserId = entity.ToId,
+            UserId = toUserId,
             Title = "Nova ocjena",
             Body = $"Korisnik {fromUser!.FirstName} Vam je ostavio ocjenu {entity.Grade}",
             Data = new Dictionary<string, string>

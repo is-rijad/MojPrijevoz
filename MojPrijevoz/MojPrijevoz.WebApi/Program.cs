@@ -33,8 +33,10 @@ using MojPrijevoz.Services.StopPoint;
 using MojPrijevoz.Services.Stripe;
 using MojPrijevoz.Services.Transactions;
 using MojPrijevoz.Services.User;
+using MojPrijevoz.Services.User.StateMachine;
 using MojPrijevoz.Services.UserProfile;
 using MojPrijevoz.Services.UserVehicle;
+using MojPrijevoz.Services.UserVehicle.StateMachine;
 using MojPrijevoz.Services.Vehicle;
 using MojPrijevoz.WebApi.Filters;
 using QuestPDF;
@@ -128,6 +130,17 @@ builder.Services.AddScoped<PayedFareState>();
 builder.Services.AddScoped<InProgressFareState>();
 
 
+builder.Services.AddScoped<BaseAccountRequestChangesState>();
+builder.Services.AddScoped<ActiveAccountRequestChangesState>();
+builder.Services.AddScoped<WaitingForChangesAccountRequestChangesState>();
+builder.Services.AddScoped<WaitingForReviewAccountRequestChangesState>();
+
+builder.Services.AddScoped<BaseUserVehicleRequestChangesState>();
+builder.Services.AddScoped<ActiveUserVehicleRequestChangesState>();
+builder.Services.AddScoped<WaitingForChangesUserVehicleRequestChangesState>();
+builder.Services.AddScoped<WaitingForReviewUserVehicleRequestChangesState>();
+
+
 builder.Services.AddSingleton<ConnectionTracker>();
 builder.Services.AddScoped<RevokedTokenService>();
 
@@ -174,6 +187,7 @@ await dbSeeder.SeedAsync();
 app.MapHub<SignalRHub>("/hubs");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

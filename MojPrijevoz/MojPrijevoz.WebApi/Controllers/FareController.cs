@@ -68,10 +68,13 @@ public class FareController : ControllerBase
     public async Task<IActionResult> SendLocation(FareLocationDto dto)
     {
         var senderId = _authorizationService.GetUserId();
-        var connectionId = _tracker.Get(dto.UserId.ToString());
+        var fare = await _fareService.GetFareForLocationAccess(dto.FareId, senderId);
+        var targetUserId = fare.Driver!.UserId == senderId ? fare.Passenger!.UserId : fare.Driver!.UserId;
+        var connectionId = _tracker.Get(targetUserId.ToString());
 
         if (connectionId != null)
         {
+            dto.UserId = targetUserId;
             dto.IsAccurate = true;
             _cache.Set(SignalRHub.GetCacheKey(senderId.ToString()), dto, SignalRHub.CacheTtl);
             await _fareLocationHubContext.Clients.Client(connectionId)

@@ -12,6 +12,7 @@ using MojPrijevoz.Services.FileStorage;
 using MojPrijevoz.Services.FormRequests.User;
 using MojPrijevoz.Services.InMemoryDatabase;
 using MojPrijevoz.Services.NotificationService;
+using MojPrijevoz.Services.User.StateMachine;
 
 namespace MojPrijevoz.Services.User;
 
@@ -21,18 +22,21 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
     private readonly INotificationService _notificationService;
     private readonly RevokedTokenService _revokedTokenService;
     private readonly TokenManager _tokenManager;
+    private readonly BaseAccountRequestChangesState _accountRequestChangesState;
 
     public UserService(MojPrijevozDbContext context, IMapper mapper,
         AuthorizationService authorizationService,
         IFileStorageService fileStorageService,
         INotificationService notificationService,
         RevokedTokenService revokedTokenService,
-        TokenManager tokenManager
+        TokenManager tokenManager,
+        BaseAccountRequestChangesState accountRequestChangesState
     ) : base(context, mapper, authorizationService, fileStorageService)
     {
         _notificationService = notificationService;
         _revokedTokenService = revokedTokenService;
         _tokenManager = tokenManager;
+        _accountRequestChangesState = accountRequestChangesState;
     }
 
     protected override async Task BeforeInsert(UserInsertRequest request)
@@ -49,6 +53,16 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
             out var passwordSalt);
         (userInsertRequest.PasswordHash, userInsertRequest.PasswordSalt) = (passwordHash, passwordSalt);
         return userInsertRequest;
+    }
+
+    public override async Task<UserResponse> GetByIdAsync(int id)
+    {
+        var response = await base.GetByIdAsync(id);
+        var currentUserId = _authorizationService.GetUserId();
+        if (id != currentUserId)
+            response.RedactPrivateFields();
+
+        return response;
     }
 
     protected override async Task AfterInsert(Database.User entity, UserInsertRequest request,
@@ -118,18 +132,20 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         var requestedChanges = await _dbContext.UserRequestChanges.Where(it => it.UserId == entity.Id && !it.IsEdited).ToListAsync();
         if (requestedChanges.Count > 0)
         {
-            entity.Status = AccountStatus.WaitingForReview;
+            var state = _accountRequestChangesState.GetState((short)entity.Status);
+            state.SubmitForReview(entity);
         }
         requestedChanges.ForEach(it => it.IsEdited = true);
     }
 
-    public async Task<RequestResetPasswordResponse> RequestResetPasswordCode(RequestResetPasswordRequest request)
+    public async Task RequestResetPasswordCode(RequestResetPasswordRequest request)
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)
             throw new BadRequestException("Korisnik s unesenim emailom ne postoji.");
-        var hash = _authorizationService.CreateResetPasswordCode(out var code, out var expiration);
+        var hash = _authorizationService.CreateResetPasswordCode(out var code, out var salt, out var expiration);
         user.ResetPasswordCode = hash;
+        user.ResetPasswordCodeSalt = salt;
         user.ResetPasswordCodeExpiration = expiration;
 
         await _dbContext.SaveChangesAsync();
@@ -143,7 +159,6 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
                 ["Code"] = code
             }
         });
-        return new RequestResetPasswordResponse { Code = code };
     }
 
     public async Task ResetPassword(ResetPasswordRequest request)
@@ -153,8 +168,9 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
             throw new BadRequestException("Korisnik s unesenim emailom ne postoji.");
 
         _authorizationService.VerifyResetPasswordCode(request.Code, user.ResetPasswordCode!,
-            user.ResetPasswordCodeExpiration!.Value);
+            user.ResetPasswordCodeSalt!, user.ResetPasswordCodeExpiration!.Value);
         user.ResetPasswordCode = null;
+        user.ResetPasswordCodeSalt = null;
         user.ResetPasswordCodeExpiration = null;
         if (request.Password != request.PasswordAgain)
             throw new BadRequestException("Lozinke se ne podudaraju.");

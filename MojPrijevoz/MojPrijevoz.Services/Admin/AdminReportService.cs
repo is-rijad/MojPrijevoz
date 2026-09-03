@@ -94,6 +94,27 @@ public class AdminReportService
                     Status = f.Status,
                     CreatedAt = f.CreatedAt
                 }).OrderByDescending(it => it.CreatedAt).AsQueryable();
+            case ReportType.Transactions:
+                return _dbContext.Transactions.Select(t => new TransactionsReportDto
+                {
+                    Amount = t.Amount,
+                    Side = t.Side,
+                    RefundedAt = t.RefundedAt,
+                    CreatedAt = t.CreatedAt
+                }).OrderByDescending(it => it.CreatedAt).AsQueryable();
+            case ReportType.FaresByUser:
+                return _dbContext.Fares.Select(f => new FareByUserReportDto
+                {
+                    UserId = f.Passenger!.UserId,
+                    UserName = f.Passenger!.User!.FirstName + " " + f.Passenger!.User!.LastName,
+                    CreatedAt = f.CreatedAt
+                }).OrderByDescending(it => it.CreatedAt).AsQueryable();
+            case ReportType.DistanceTraveled:
+                return _dbContext.Fares.Select(f => new DistanceTraveledReportDto
+                {
+                    Length = f.FareData!.Length,
+                    CreatedAt = f.CreatedAt
+                }).OrderByDescending(it => it.CreatedAt).AsQueryable();
             default:
                 throw new Exception("Invalid report type!");
         }
@@ -113,12 +134,13 @@ public class AdminReportService
                 if (daysSinceMonday < 0)
                     daysSinceMonday += 7;
 
-                var weekToDateStart = now.AddDays(-daysSinceMonday);
+                var weekToDateStart = now.Date.AddDays(-daysSinceMonday);
                 return queryable.Where(it => it.CreatedAt >= weekToDateStart);
             case ReportPeriod.Ytd:
                 return queryable.Where(it => it.CreatedAt.Year == now.Year);
             case ReportPeriod.Custom:
-                return queryable.Where(it => it.CreatedAt >= request.From!.Value && it.CreatedAt <= request.To!.Value);
+                return queryable.Where(it => it.CreatedAt >= request.From!.Value.Date
+                                              && it.CreatedAt < request.To!.Value.Date.AddDays(1));
             default:
                 throw new Exception("Invalid report period!");
         }
@@ -134,6 +156,15 @@ public class AdminReportService
                 break;
             case ReportType.Fares:
                 header += "Izvještaj o vožnjama";
+                break;
+            case ReportType.Transactions:
+                header += "Izvještaj o transakcijama";
+                break;
+            case ReportType.FaresByUser:
+                header += "Izvještaj o vožnjama po korisnicima";
+                break;
+            case ReportType.DistanceTraveled:
+                header += "Izvještaj o pređenim kilometrima";
                 break;
             default:
                 throw new Exception("Invalid report type!");
@@ -215,6 +246,76 @@ public class AdminReportService
                     descriptor.Cell().Text(StatusHelper.FareStatusDictionary[fare.Status]);
                 descriptor.Cell().Text(fare.CreatedAt.ToString("dd.MM.yyyy."));
             }
+        }
+        else if (data.FirstOrDefault() is TransactionsReportDto)
+        {
+            var transactions = data.Cast<TransactionsReportDto>().ToList();
+
+            descriptor.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn();
+                columns.ConstantColumn(100);
+                columns.ConstantColumn(100);
+                columns.ConstantColumn(100);
+            });
+
+            descriptor.Cell().Text("Tip").Bold();
+            descriptor.Cell().Text("Iznos").Bold();
+            descriptor.Cell().Text("Datum").Bold();
+            descriptor.Cell().Text("Refundirano").Bold();
+
+            foreach (var transaction in transactions)
+            {
+                descriptor.Cell().Text(StatusHelper.TransactionSideDictionary[transaction.Side]);
+                descriptor.Cell().Text($"{Math.Round(transaction.Amount, 2)}KM");
+                descriptor.Cell().Text(transaction.CreatedAt.ToString("dd.MM.yyyy."));
+                descriptor.Cell().Text(transaction.RefundedAt?.ToString("dd.MM.yyyy.") ?? "-");
+            }
+        }
+        else if (data.FirstOrDefault() is FareByUserReportDto)
+        {
+            var faresByUser = data.Cast<FareByUserReportDto>()
+                .GroupBy(it => new { it.UserId, it.UserName })
+                .Select(g => new { g.Key.UserName, Count = g.Count() })
+                .OrderByDescending(it => it.Count)
+                .ToList();
+
+            descriptor.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn();
+                columns.ConstantColumn(100);
+            });
+
+            descriptor.Cell().Text("Korisnik").Bold();
+            descriptor.Cell().Text("Broj vožnji").Bold();
+
+            foreach (var user in faresByUser)
+            {
+                descriptor.Cell().Text(user.UserName);
+                descriptor.Cell().Text(user.Count.ToString());
+            }
+        }
+        else if (data.FirstOrDefault() is DistanceTraveledReportDto)
+        {
+            var distances = data.Cast<DistanceTraveledReportDto>().ToList();
+
+            descriptor.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn();
+                columns.ConstantColumn(100);
+            });
+
+            descriptor.Cell().Text("Datum").Bold();
+            descriptor.Cell().Text("Pređeno km").Bold();
+
+            foreach (var distance in distances)
+            {
+                descriptor.Cell().Text(distance.CreatedAt.ToString("dd.MM.yyyy."));
+                descriptor.Cell().Text($"{distance.Length}km");
+            }
+
+            descriptor.Cell().Text("Ukupno").Bold();
+            descriptor.Cell().Text($"{distances.Sum(it => it.Length)}km").Bold();
         }
     }
 }

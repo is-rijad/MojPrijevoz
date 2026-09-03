@@ -28,6 +28,16 @@ public class DriversDiscountService : BaseCrudService<Database.DriversDiscount, 
         return await queryable.AnyAsync();
     }
 
+    public override async Task<DriversDiscountResponse> GetByIdAsync(int id)
+    {
+        var response = await base.GetByIdAsync(id);
+        var profileId = await _authorizationService.GetProfileId(ProfileType.Driver);
+        if (!profileId.HasValue || response.ProfileId != profileId.Value)
+            throw new NotFoundException("Popust nije pronađen!");
+
+        return response;
+    }
+
     public override async Task<IQueryable<Database.DriversDiscount>> ApplyFilter(
         IQueryable<Database.DriversDiscount> queryable, DriversDiscountSearchObject searchObject)
     {

@@ -1,11 +1,9 @@
 ﻿using FirebaseAdmin.Messaging;
-using Mapster.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MojPrijevoz.Database;
 using MojPrijevoz.Model.Dtos.Notifications;
-using Notification = MojPrijevoz.Database.Notification;
 
 namespace MojPrijevoz.Notifications.NotificationService;
 
@@ -37,22 +35,6 @@ public class NotificationService : INotificationService
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider
             .GetRequiredService<MojPrijevozDbContext>();
-
-        dto.Data.TryGetValue("RatingId", out var ratingId);
-
-        await dbContext.Notifications.AddAsync(new Notification
-        {
-            CreatedAt = DateTime.Now,
-            FareId = int.Parse(dto.Data["FareId"]),
-            Side = Enum<ProfileType>.Parse(dto.Data["Side"]),
-            Id = 0,
-            IsRead = false,
-            UserId = dto.UserId,
-            Message = dto.Body,
-            Type = dto.Data["Type"],
-            RatingId = !string.IsNullOrEmpty(ratingId) ? int.Parse(ratingId) : null
-        });
-        await dbContext.SaveChangesAsync();
 
         var token = await dbContext.UserFcmTokens.FirstOrDefaultAsync(it => it.UserId == dto.UserId);
         if (token == null) return;

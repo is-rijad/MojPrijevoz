@@ -10,9 +10,9 @@ public interface IFareOfferService :
     IBaseCRUDService<FareOfferInsertRequest, FareOfferUpdateRequest, FareResponse, FareOfferSearchObject>, IBaseState
 {
     public Task<FareResponse> AcceptOfferAsync(int id);
-    public Task<FareResponse> RejectOfferAsync(int id);
+    public Task<FareResponse> RejectOfferAsync(int id, string? reason);
     public Task<FareResponse> ExpireOfferAsync(int id);
-    public Task<FareResponse> CancelOfferAsync(int id);
+    public Task<FareResponse> CancelOfferAsync(int id, string? reason);
     public Task<FareResponse> PayOfferAsync(int id, string paymentIntentId);
     public Task MarkAsExpired();
 }

@@ -77,6 +77,12 @@ namespace MojPrijevoz.Database.Migrations
                     b.Property<DateTime?>("ResetPasswordCodeExpiration")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ResetPasswordCodeSalt")
+                        .HasMaxLength(24)
+                        .IsUnicode(false)
+                        .HasColumnType("char(24)")
+                        .IsFixedLength();
+
                     b.Property<short>("Status")
                         .HasColumnType("smallint");
 
@@ -844,6 +850,9 @@ namespace MojPrijevoz.Database.Migrations
                     b.Property<int>("PassengerId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<short>("Status")
                         .HasColumnType("smallint");
 
@@ -931,6 +940,16 @@ namespace MojPrijevoz.Database.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ActionAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ActionByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ActionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<float?>("AdditionalPrice")
                         .HasColumnType("real");
@@ -1154,6 +1173,9 @@ namespace MojPrijevoz.Database.Migrations
                         .HasColumnType("nvarchar(32)");
 
                     b.Property<DateTime?>("PostedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RefundedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<short>("Side")

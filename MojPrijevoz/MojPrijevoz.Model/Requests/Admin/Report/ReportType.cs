@@ -3,5 +3,8 @@
 public enum ReportType
 {
     RegisteredUsers,
-    Fares
+    Fares,
+    Transactions,
+    FaresByUser,
+    DistanceTraveled
 }

@@ -18,6 +18,7 @@ using MojPrijevoz.Services.BaseServices;
 using MojPrijevoz.Services.Fare;
 using MojPrijevoz.Services.FareData;
 using MojPrijevoz.Services.FareOffer.StateMachine;
+using MojPrijevoz.Services.Helpers;
 using MojPrijevoz.Services.NotificationService;
 using MojPrijevoz.Services.Recommender;
 using MojPrijevoz.Services.StopPoint;
@@ -61,6 +62,7 @@ public class FareOfferService :
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         var passengerId = (await _authorizationService.GetProfileId(ProfileType.Passenger))!.Value;
+        request.PassengerId = passengerId;
         await BeforeInsert(request);
 
         var fareDataRequest = _mapper.Map<FareDataInsertRequest>(request);
@@ -153,11 +155,11 @@ public class FareOfferService :
             .ThenInclude(it => it!.Driver)
             .Include(it => it.Fare)
             .ThenInclude(it => it!.Passenger)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null)
             throw new NotFoundException("Nije pronađeno!");
 
-        await CheckIsOfferOwner(entity);
+        await CheckIsOpposingSide(entity);
 
         await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
@@ -184,6 +186,15 @@ public class FareOfferService :
         }
     }
 
+    private async Task CheckIsOpposingSide(Database.FareOffer entity)
+    {
+        var expectedSide = entity.Side == ProfileType.Driver ? ProfileType.Passenger : ProfileType.Driver;
+        var profileId = await _authorizationService.GetProfileId(expectedSide);
+        var expectedProfileId = expectedSide == ProfileType.Driver ? entity.Fare!.DriverId : entity.Fare!.PassengerId;
+        if (profileId != expectedProfileId)
+            throw new ForbiddenException("Ne možete odgovoriti na vlastitu ponudu!");
+    }
+
     public async Task<FareResponse> AcceptOfferAsync(int id)
     {
         await _authorizationService.CheckIsAccountActive();
@@ -198,9 +209,9 @@ public class FareOfferService :
             .ThenInclude(it => it!.Driver)
             .Include(it => it.Fare)
             .ThenInclude(it => it!.Passenger)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
-        await CheckIsOfferOwner(entity);
+        await CheckIsOpposingSide(entity);
 
         await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
@@ -251,7 +262,7 @@ public class FareOfferService :
         return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
-    public async Task<FareResponse> RejectOfferAsync(int id)
+    public async Task<FareResponse> RejectOfferAsync(int id, string? reason)
     {
         await _authorizationService.CheckIsAccountActive();
 
@@ -265,14 +276,17 @@ public class FareOfferService :
             .ThenInclude(it => it!.Driver)
             .Include(it => it.Fare)
             .ThenInclude(it => it!.Passenger)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
 
-        await CheckIsOfferOwner(entity);
+        await CheckIsOpposingSide(entity);
         await _authorizationService.CheckIsAccountActive(entity.Fare!.DriverId);
 
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Reject(entity);
+        entity.ActionByUserId = _authorizationService.GetUserId();
+        entity.ActionAt = DateTime.UtcNow;
+        entity.ActionReason = reason;
         await _fareService.RejectAsync(entity!.Fare!.Id);
         await _dbContext.SaveChangesAsync();
 
@@ -290,20 +304,29 @@ public class FareOfferService :
             .Include(it => it.Fare)
             .ThenInclude(it => it!.FareData)
             .ThenInclude(it => it!.OriginCity)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
 
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
+        await ExpireOfferInternal(entity);
+        await _dbContext.SaveChangesAsync();
+
+        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
+    }
+
+    private async Task ExpireOfferInternal(Database.FareOffer entity)
+    {
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Expire(entity);
         await _fareService.ExpireAsync(entity!.Fare!.Id);
         var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(it => it.FareId == entity.FareId);
-        if (transaction?.PaymentIntentId != null)
-            await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
-        await _dbContext.SaveChangesAsync();
+        if (transaction?.PaymentIntentId != null && transaction.RefundedAt == null)
+        {
+            var refunded = await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
+            if (!refunded)
+                throw new BadRequestException("Refundiranje nije uspjelo, pokušajte ponovo!");
+        }
 
         await SendUpdateNotification(entity, null);
-
-        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
     public override async Task<FareResponse> UpdateAsync(int id, FareOfferUpdateRequest request)
@@ -314,7 +337,7 @@ public class FareOfferService :
         return await _fareService.GetByIdAsync(updated.Id);
     }
 
-    public async Task<FareResponse> CancelOfferAsync(int id)
+    public async Task<FareResponse> CancelOfferAsync(int id, string? reason)
     {
         var entity = await _dbContext.FareOffers
             .Include(it => it.Fare)
@@ -324,17 +347,24 @@ public class FareOfferService :
             .ThenInclude(fare => fare.Driver!)
             .Include(fareOffer => fareOffer.Fare)
             .ThenInclude(fare => fare!.Passenger!)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
 
         await CheckIsOfferOwner(entity);
 
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Cancel(entity);
+        entity.ActionByUserId = _authorizationService.GetUserId();
+        entity.ActionAt = DateTime.UtcNow;
+        entity.ActionReason = reason;
         await _fareService.CancelAsync(entity!.Fare!.Id);
         var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(it => it.FareId == entity.FareId);
-        if (transaction?.PaymentIntentId != null)
-            await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
+        if (transaction?.PaymentIntentId != null && transaction.RefundedAt == null)
+        {
+            var refunded = await _paymentService.CreateRefund(entity.Id, transaction.PaymentIntentId);
+            if (!refunded)
+                throw new BadRequestException("Refundiranje nije uspjelo, pokušajte ponovo!");
+        }
         await _dbContext.SaveChangesAsync();
 
         var userId = _authorizationService.GetUserId();
@@ -347,12 +377,14 @@ public class FareOfferService :
             UserId = side == ProfileType.Passenger ? entity.Fare.Driver.UserId : entity.Fare.Passenger!.UserId,
             Title = "Ponuda otkazana",
             Body =
-                $"Ponuda u iznosu od {Math.Round(entity.TotalPrice, 2)}KM ({entity.Fare!.FareData!.OriginCity!.Name} - {entity.Fare!.FareData!.DestinationName.Split(",").First()}) je otkazana",
+                $"Ponuda u iznosu od {Math.Round(entity.TotalPrice, 2)}KM ({entity.Fare!.FareData!.OriginCity!.Name} - {entity.Fare!.FareData!.DestinationName.Split(",").First()}) je otkazana" +
+                (string.IsNullOrWhiteSpace(reason) ? "" : $": {reason}"),
             Data = new Dictionary<string, string>
             {
                 ["FareId"] = entity.FareId.ToString(),
                 ["Type"] = SendToUserDto.CancelledFareOfferType,
-                ["Side"] = side.ToString()
+                ["Side"] = side.ToString(),
+                ["Reason"] = reason ?? ""
             }
         });
 
@@ -372,7 +404,7 @@ public class FareOfferService :
             .ThenInclude(it => it!.Driver)
             .Include(it => it.Fare)
             .ThenInclude(it => it!.Passenger)
-            .FirstAsync(it => it.Id == id);
+            .FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Pay(entity);
@@ -403,15 +435,25 @@ public class FareOfferService :
                     DateTime.UtcNow || it.CreatedAt.AddHours(48) <=
                     DateTime.UtcNow)) || (it.Status == FareOfferStatus.Accepted &&
                                           it.Fare!.FareData!.FareDateTime < DateTime.UtcNow))
-            .Include(it => it.Fare!.Driver)
-            .ThenInclude(it => it!.User)
-            .Include(it => it.Fare!.Passenger)
-            .ThenInclude(it => it!.User).ToListAsync();
-        foreach (var fare in fareOffersToExpire)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.FareData)
+            .ThenInclude(it => it!.OriginCity)
+            .ToListAsync();
+        foreach (var offer in fareOffersToExpire)
         {
-            _logger.LogInformation($"Exipring fare offer => {fare.Id}");
-            await ExpireOfferAsync(fare.Id);
+            try
+            {
+                _logger.LogInformation($"Exipring fare offer => {offer.Id}");
+                await ExpireOfferInternal(offer);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to expire fare offer {offer.Id}: {e.Message}");
+                _dbContext.Entry(offer).State = EntityState.Unchanged;
+            }
         }
+
+        await _dbContext.SaveChangesAsync();
     }
 
 
@@ -428,11 +470,42 @@ public class FareOfferService :
         if (request.FareDateTime < DateTime.UtcNow)
             throw new BadRequestException("Vrijeme vožnje ne može biti u prošlosti!");
 
+        if (request.DriversPrices.Count == 0)
+            throw new BadRequestException("Morate odabrati barem jednog vozača!");
+
+        var driverIds = request.DriversPrices.Select(it => it.DriverId).ToList();
+        if (driverIds.Distinct().Count() != driverIds.Count)
+            throw new BadRequestException("Isti vozač je poslan više puta!");
+
+        var validDriverIds = await _dbContext.UserProfiles
+            .Where(up => driverIds.Contains(up.Id) && up.ProfileType == ProfileType.Driver &&
+                         up.User!.Status == AccountStatus.Active)
+            .Select(up => up.Id).ToListAsync();
+        if (validDriverIds.Count != driverIds.Count)
+            throw new BadRequestException("Jedan ili više odabranih vozača nije validan!");
+
+        foreach (var driversPrice in request.DriversPrices)
+        {
+            var vehicleOk = await _dbContext.UserVehicles.AnyAsync(uv =>
+                uv.Id == driversPrice.UserVehicleId && uv.ProfileId == driversPrice.DriverId &&
+                uv.Status == UserVehicleStatus.Active);
+            if (!vehicleOk)
+                throw new BadRequestException("Vozilo ne pripada vozaču ili nije aktivno!");
+        }
 
         if (request.DriversPrices.Any(it => it.Price + (it.AdditionalPrice ?? 0) < 1))
             throw new BadRequestException("Ukupna cijena ne može biti manja od 1KM!");
 
         await base.BeforeInsert(request);
+    }
+
+    public override async Task<IQueryable<Database.FareOffer>> ApplyFilter(IQueryable<Database.FareOffer> queryable,
+        FareOfferSearchObject searchObject)
+    {
+        queryable = await base.ApplyFilter(queryable, searchObject);
+        if (searchObject.Status.HasValue)
+            queryable = queryable.Where(it => it.Status == searchObject.Status.Value);
+        return queryable;
     }
 
     protected override IQueryable<Database.FareOffer> ApplyOrdering(IQueryable<Database.FareOffer> queryable,
@@ -499,13 +572,15 @@ public class FareOfferService :
                     UserId = entity.Side == ProfileType.Passenger ? passenger.UserId : driver.UserId,
                     Title = "Odbijena ponuda",
                     Body =
-                        $"Korisnik {(entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName)} je odbio ponudu u iznosu od {Math.Round(entity.TotalPrice, 2)}KM",
+                        $"Korisnik {(entity.Side == ProfileType.Passenger ? driver.User!.FirstName : passenger.User!.FirstName)} je odbio ponudu u iznosu od {Math.Round(entity.TotalPrice, 2)}KM" +
+                        (string.IsNullOrWhiteSpace(entity.ActionReason) ? "" : $": {entity.ActionReason}"),
                     Data = new Dictionary<string, string>
                     {
                         ["FareId"] = entity.FareId.ToString(),
                         ["Type"] = SendToUserDto.RejectedFareOfferType,
                         ["Side"] = (entity.Side == ProfileType.Passenger ? ProfileType.Driver : ProfileType.Passenger)
-                            .ToString()
+                            .ToString(),
+                        ["Reason"] = entity.ActionReason ?? ""
                     }
                 });
                 break;
@@ -530,7 +605,7 @@ public class FareOfferService :
                     Data = new Dictionary<string, dynamic>
                     {
                         ["ReceipantName"] = passenger.User!.FirstName,
-                        ["TransactionDateTime"] = DateTime.Now.ToString("dd/MM/yyyy. HH:mm"),
+                        ["TransactionDateTime"] = DateTime.UtcNow.ToSarajevoTime().ToString("dd/MM/yyyy. HH:mm"),
                         ["StartLocation"] = entity.Fare!.FareData!.OriginCity!.Name,
                         ["EndLocation"] = entity.Fare!.FareData!.DestinationName,
                         ["Price"] = Math.Round(entity.TotalPrice, 2),

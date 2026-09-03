@@ -15,4 +15,8 @@ public class FareOfferResponse
     public int FareId { get; set; }
 
     public int? LastOfferId { get; set; }
+
+    public int? ActionByUserId { get; set; }
+    public DateTime? ActionAt { get; set; }
+    public string? ActionReason { get; set; }
 }

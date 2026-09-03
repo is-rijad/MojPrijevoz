@@ -6,6 +6,7 @@ using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Responses.Fare;
+using MojPrijevoz.Model.Responses.User;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
@@ -26,6 +27,45 @@ public class FareService :
     {
         _baseFareState = baseFareState;
         _notificationService = notificationService;
+    }
+
+    public override async Task<FareResponse> GetByIdAsync(int id)
+    {
+        var response = await base.GetByIdAsync(id);
+        RedactOtherParty(response);
+        return response;
+    }
+
+    public override async Task<PagedResult<FareResponse>> GetAsync(FareSearchObject searchObject)
+    {
+        var result = await base.GetAsync(searchObject);
+        foreach (var item in result.Items)
+            RedactOtherParty(item);
+        return result;
+    }
+
+    private void RedactOtherParty(FareResponse response)
+    {
+        var currentUserId = _authorizationService.GetUserId();
+        if (response.Driver?.User != null && response.Driver.User.Id != currentUserId)
+            response.Driver.User.RedactPrivateFields();
+        if (response.Passenger?.User != null && response.Passenger.User.Id != currentUserId)
+            response.Passenger.User.RedactPrivateFields();
+    }
+
+    public async Task<Database.Fare> GetFareForLocationAccess(int fareId, int callerId)
+    {
+        var fare = await _dbContext.Fares.Include(f => f.Passenger).Include(f => f.Driver)
+            .FirstOrDefaultAsync(f => f.Id == fareId);
+        if (fare == null) throw new NotFoundException("Vožnja nije pronađena!");
+
+        var isParticipant = fare.Passenger!.UserId == callerId || fare.Driver!.UserId == callerId;
+        if (!isParticipant) throw new ForbiddenException("Niste učesnik ove vožnje!");
+
+        if (fare.Status != FareStatus.InProgress)
+            throw new BadRequestException("Lokacija je dostupna samo za vožnju koja je u toku!");
+
+        return fare;
     }
 
     public async Task<bool> HasActiveFareForRoute(int passengerId, HasActiveFareRequest request)
@@ -99,10 +139,14 @@ public class FareService :
 
     public async Task<FareResponse> StartAsync(int id)
     {
-        var entity = await _dbContext.Fares.Include(it => it.Passenger).FirstAsync(it => it.Id == id);
+        var driverProfileId = await _authorizationService.GetProfileId(ProfileType.Driver);
+        var entity = await _dbContext.Fares.Include(it => it.Passenger).FirstOrDefaultAsync(it => it.Id == id);
         if (entity == null) throw new NotFoundException("Vožnja nije pronađena!");
+        if (entity.DriverId != driverProfileId)
+            throw new ForbiddenException("Niste vozač ove vožnje!");
         var state = _baseFareState.GetState((short)entity.Status);
         state.Start(entity);
+        entity.StartedAt = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync();
 
@@ -156,7 +200,7 @@ public class FareService :
         var faresToComplete = await _dbContext.Fares
             .Where(it =>
                 it.Status == FareStatus.InProgress &&
-                it.FareData!.FareDateTime.AddMinutes(it.FareData!.Duration + 60) <=
+                (it.StartedAt ?? it.FareData!.FareDateTime).AddMinutes(it.FareData!.Duration + 60) <=
                 DateTime.UtcNow)
             .Include(it => it.Driver)
             .ThenInclude(it => it!.User)
@@ -176,9 +220,9 @@ public class FareService :
     {
         var userId = _authorizationService.GetUserId();
         var queryable = _dbContext.Fares.Where(it =>
-            ((it.Passenger!.UserId == userId || it.Driver!.UserId == userId) &&
-             (it.Status == FareStatus.Accepted || it.Status == FareStatus.Payed) &&
-             it.FareData!.FareDateTime >= DateTime.UtcNow) || it.Status == FareStatus.InProgress);
+            (it.Passenger!.UserId == userId || it.Driver!.UserId == userId) &&
+            ((it.Status == FareStatus.Accepted || it.Status == FareStatus.Payed) &&
+             it.FareData!.FareDateTime >= DateTime.UtcNow || it.Status == FareStatus.InProgress));
         queryable = ApplyOrdering(queryable, searchObject);
         var paginatedQueryable = await Paginate(queryable, searchObject);
         queryable = paginatedQueryable.Queryable;
@@ -257,6 +301,9 @@ public class FareService :
             queryable = queryable.Where(it => it.PassengerId == profileId);
 
         if (searchObject.FareId != null) queryable = queryable.Where(it => it.Id == searchObject.FareId);
+
+        if (searchObject.Status.HasValue)
+            queryable = queryable.Where(it => it.Status == searchObject.Status.Value);
 
         queryable = queryable.IgnoreQueryFilters();
         return queryable;

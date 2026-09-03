@@ -1,4 +1,5 @@
-﻿using MojPrijevoz.Model.BaseModels;
+﻿using MojPrijevoz.Database;
+using MojPrijevoz.Model.BaseModels;
 using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Responses.Fare;
 using MojPrijevoz.Model.SearchObjects;
@@ -11,6 +12,7 @@ public interface IFareService : IBaseCRUDService<FareInsertRequest, FareInsertRe
     IBaseState
 {
     public Task<bool> HasActiveFareForRoute(int passengerId, HasActiveFareRequest request);
+    public Task<Database.Fare> GetFareForLocationAccess(int fareId, int callerId);
     public Task<FareResponse> AcceptAsync(int id);
     public Task<FareResponse> RejectAsync(int id);
     public Task<FareResponse> CancelAsync(int id);

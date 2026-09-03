@@ -1,6 +1,4 @@
-﻿using MojPrijevoz.Database;
-
-namespace MojPrijevoz.Model.Responses.Rating;
+﻿namespace MojPrijevoz.Model.Responses.Rating;
 
 public class RatingResponse
 {
@@ -15,7 +13,7 @@ public class RatingResponse
 
     public int FareId { get; set; }
 
-    public UserProfile? From { get; set; }
+    public RatingFromResponse? From { get; set; }
 
 
     public DateTime CreatedAt { get; set; }

@@ -201,7 +201,9 @@ public class RecommenderService {
         var queryable = dto.Database.Fares
             .Where(f => f.Status == FareStatus.Completed
                         && dto.RouteKeys.Contains(f.FareData!.OriginCityId + "→" + f.FareData.DestinationZone)
-                        && (dto.DriverId == null || f.DriverId != dto.DriverId));
+                        && (dto.DriverId == null || f.DriverId != dto.DriverId)
+                        && f.Driver!.User!.Status == AccountStatus.Active
+                        && f.Driver!.UserVehicles!.Any(uv => uv.Status == UserVehicleStatus.Active));
 
         var grouped = queryable.GroupBy(f => new { f.DriverId, f.FareData!.DestinationZone, f.FareData.OriginCityId });
 
@@ -216,12 +218,15 @@ public class RecommenderService {
                 LastName = g.First().Driver!.User!.LastName,
                 Picture = g.First().Driver!.User!.GetPicture(),
                 AverageRating = dto.Database.Ratings
-                    .Where(r => r.ToId == g.Key.DriverId)
+                    .Where(r => r.ToId == g.Key.DriverId && r.IsVisible)
                     .Average(r => (double?)r.Grade) ?? 0,
                 OriginCityName = g.First().FareData!.OriginCity!.Name,
                 DestinationName = g.First().FareData!.DestinationName,
                 RidesCount = g.Count(),
-                Status = g.First().Driver!.User!.Status
+                Status = g.First().Driver!.User!.Status,
+                Reason = dto.RouteScores != null
+                    ? "Putnici sa sličnim navikama putovanja su često putovali ovom rutom"
+                    : "Ovo je jedna od najpopularnijih ruta"
             }
         }).ToListAsync();
 

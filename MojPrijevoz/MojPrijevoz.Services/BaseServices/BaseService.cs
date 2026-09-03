@@ -22,7 +22,7 @@ public abstract class
     }
 
 
-    public async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject)
+    public virtual async Task<PagedResult<TResponse>> GetAsync(TSearchObject searchObject)
     {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         queryable = await ApplyFilter(queryable, searchObject);
@@ -39,7 +39,7 @@ public abstract class
         };
     }
 
-    public async Task<TResponse> GetByIdAsync(int id)
+    public virtual async Task<TResponse> GetByIdAsync(int id)
     {
         var queryable = _dbContext.Set<TEntity>().AsNoTracking();
         var entity = await queryable.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);

@@ -29,6 +29,10 @@ public class FareOffer
 
     public int? LastOfferId { get; set; }
 
+    public int? ActionByUserId { get; set; }
+    public DateTime? ActionAt { get; set; }
+    public string? ActionReason { get; set; }
+
     public Fare? Fare { get; set; }
     public FareOffer? LastOffer { get; set; }
     public float TotalPrice => Price + (AdditionalPrice ?? 0);
@@ -57,5 +61,7 @@ public class FareOfferEntityConfiguration : IEntityTypeConfiguration<FareOffer>
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
         entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        entity.Property(e => e.ActionReason)
+            .HasMaxLength(500);
     }
 }
