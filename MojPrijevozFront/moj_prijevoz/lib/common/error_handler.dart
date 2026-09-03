@@ -75,6 +75,8 @@ abstract class ErrorHandler {
           break;
         case DioExceptionType.unknown:
           break;
+        case DioExceptionType.transformTimeout:
+          break;
       }
     } else if (e is UserException && e.message != null) {
       message = e.message!;

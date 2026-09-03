@@ -17,11 +17,11 @@ class UserProvider
         > {
   UserProvider() : super(providerName: "user");
 
-  Future<RequestResetPasswordResponse> requestResetPassword(
+  Future<void> requestResetPassword(
     RequestResetPasswordRequest request,
   ) async {
-    return await httpProvider
-        .post<RequestResetPasswordRequest, RequestResetPasswordResponse>(
+    await httpProvider
+        .post<RequestResetPasswordRequest, void>(
           "$providerName/reset-password/code",
           request,
         );

@@ -81,11 +81,9 @@ class _ResetPasswordState extends State<ResetPasswordPage> {
   Future<void> noCodeSubmit(BuildContext context) async {
     if (_noCodeFormKey.currentState?.validate() ?? true) {
       _noCodeFormKey.currentState?.save();
-      final response = await context.read<UserProvider>().requestResetPassword(
-        _request,
-      );
+      await context.read<UserProvider>().requestResetPassword(_request);
       setState(() {
-        code = response.code;
+        code = "";
       });
       Constants.messengerKey.currentState!.showSnackBar(
         SuccessSnackBar(
