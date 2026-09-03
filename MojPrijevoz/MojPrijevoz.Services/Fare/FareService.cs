@@ -6,6 +6,7 @@ using MojPrijevoz.Model.Dtos.Notifications;
 using MojPrijevoz.Model.Exceptions;
 using MojPrijevoz.Model.Requests.Fare;
 using MojPrijevoz.Model.Responses.Fare;
+using MojPrijevoz.Model.Responses.User;
 using MojPrijevoz.Model.SearchObjects;
 using MojPrijevoz.Services.Authorization;
 using MojPrijevoz.Services.BaseServices;
@@ -26,6 +27,30 @@ public class FareService :
     {
         _baseFareState = baseFareState;
         _notificationService = notificationService;
+    }
+
+    public override async Task<FareResponse> GetByIdAsync(int id)
+    {
+        var response = await base.GetByIdAsync(id);
+        RedactOtherParty(response);
+        return response;
+    }
+
+    public override async Task<PagedResult<FareResponse>> GetAsync(FareSearchObject searchObject)
+    {
+        var result = await base.GetAsync(searchObject);
+        foreach (var item in result.Items)
+            RedactOtherParty(item);
+        return result;
+    }
+
+    private void RedactOtherParty(FareResponse response)
+    {
+        var currentUserId = _authorizationService.GetUserId();
+        if (response.Driver?.User != null && response.Driver.User.Id != currentUserId)
+            response.Driver.User.RedactPrivateFields();
+        if (response.Passenger?.User != null && response.Passenger.User.Id != currentUserId)
+            response.Passenger.User.RedactPrivateFields();
     }
 
     public async Task<Database.Fare> GetFareForLocationAccess(int fareId, int callerId)
@@ -276,6 +301,9 @@ public class FareService :
             queryable = queryable.Where(it => it.PassengerId == profileId);
 
         if (searchObject.FareId != null) queryable = queryable.Where(it => it.Id == searchObject.FareId);
+
+        if (searchObject.Status.HasValue)
+            queryable = queryable.Where(it => it.Status == searchObject.Status.Value);
 
         queryable = queryable.IgnoreQueryFilters();
         return queryable;

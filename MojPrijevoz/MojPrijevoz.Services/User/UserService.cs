@@ -55,6 +55,16 @@ public class UserService : BaseCrudService<Database.User, UserInsertRequest, Use
         return userInsertRequest;
     }
 
+    public override async Task<UserResponse> GetByIdAsync(int id)
+    {
+        var response = await base.GetByIdAsync(id);
+        var currentUserId = _authorizationService.GetUserId();
+        if (id != currentUserId)
+            response.RedactPrivateFields();
+
+        return response;
+    }
+
     protected override async Task AfterInsert(Database.User entity, UserInsertRequest request,
         MojPrijevozDbContext dbContext)
     {

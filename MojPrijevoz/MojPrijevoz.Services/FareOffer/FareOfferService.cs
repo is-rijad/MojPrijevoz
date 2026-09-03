@@ -307,6 +307,14 @@ public class FareOfferService :
             .FirstOrDefaultAsync(it => it.Id == id);
 
         if (entity == null) throw new NotFoundException("Ponuda nije pronađena!");
+        await ExpireOfferInternal(entity);
+        await _dbContext.SaveChangesAsync();
+
+        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
+    }
+
+    private async Task ExpireOfferInternal(Database.FareOffer entity)
+    {
         var state = _baseFareOfferState.GetState((short)entity.Status);
         state.Expire(entity);
         await _fareService.ExpireAsync(entity!.Fare!.Id);
@@ -317,11 +325,8 @@ public class FareOfferService :
             if (!refunded)
                 throw new BadRequestException("Refundiranje nije uspjelo, pokušajte ponovo!");
         }
-        await _dbContext.SaveChangesAsync();
 
         await SendUpdateNotification(entity, null);
-
-        return await _fareService.GetByIdAsync(entity!.Fare!.Id);
     }
 
     public override async Task<FareResponse> UpdateAsync(int id, FareOfferUpdateRequest request)
@@ -424,26 +429,31 @@ public class FareOfferService :
 
     public async Task MarkAsExpired()
     {
-        var fareOfferIdsToExpire = await _dbContext.FareOffers
+        var fareOffersToExpire = await _dbContext.FareOffers
             .Where(it =>
                 (it.Status == FareOfferStatus.WaitingForResponse && (it.UpdatedAt.AddHours(48) <=
                     DateTime.UtcNow || it.CreatedAt.AddHours(48) <=
                     DateTime.UtcNow)) || (it.Status == FareOfferStatus.Accepted &&
                                           it.Fare!.FareData!.FareDateTime < DateTime.UtcNow))
-            .Select(it => it.Id)
+            .Include(it => it.Fare)
+            .ThenInclude(it => it!.FareData)
+            .ThenInclude(it => it!.OriginCity)
             .ToListAsync();
-        foreach (var id in fareOfferIdsToExpire)
+        foreach (var offer in fareOffersToExpire)
         {
             try
             {
-                _logger.LogInformation($"Exipring fare offer => {id}");
-                await ExpireOfferAsync(id);
+                _logger.LogInformation($"Exipring fare offer => {offer.Id}");
+                await ExpireOfferInternal(offer);
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to expire fare offer {id}: {e.Message}");
+                _logger.LogError($"Failed to expire fare offer {offer.Id}: {e.Message}");
+                _dbContext.Entry(offer).State = EntityState.Unchanged;
             }
         }
+
+        await _dbContext.SaveChangesAsync();
     }
 
 
@@ -487,6 +497,15 @@ public class FareOfferService :
             throw new BadRequestException("Ukupna cijena ne može biti manja od 1KM!");
 
         await base.BeforeInsert(request);
+    }
+
+    public override async Task<IQueryable<Database.FareOffer>> ApplyFilter(IQueryable<Database.FareOffer> queryable,
+        FareOfferSearchObject searchObject)
+    {
+        queryable = await base.ApplyFilter(queryable, searchObject);
+        if (searchObject.Status.HasValue)
+            queryable = queryable.Where(it => it.Status == searchObject.Status.Value);
+        return queryable;
     }
 
     protected override IQueryable<Database.FareOffer> ApplyOrdering(IQueryable<Database.FareOffer> queryable,

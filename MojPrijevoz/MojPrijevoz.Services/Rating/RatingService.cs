@@ -29,6 +29,15 @@ public class RatingService :
         _notificationService = notificationService;
     }
 
+    public override async Task<RatingResponse> GetByIdAsync(int id)
+    {
+        var entity = await _dbContext.Ratings.AsNoTracking().FirstOrDefaultAsync(it => it.Id == id);
+        if (entity == null || !entity.IsVisible)
+            throw new NotFoundException("Recenzija nije pronađena!");
+        await PrepareForResponse(entity, _dbContext);
+        return MapToResponseModel<RatingResponse>(entity, _mapper);
+    }
+
     public override async Task<IQueryable<Database.Rating>> ApplyFilter(IQueryable<Database.Rating> queryable,
         RatingSearchObject searchObject)
     {

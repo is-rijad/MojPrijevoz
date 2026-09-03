@@ -7,4 +7,5 @@ public class FareSearchObject : BaseSearchObject
 {
     public int? FareId { get; set; }
     public ProfileType FareRole { get; set; }
+    public FareStatus? Status { get; set; }
 }
